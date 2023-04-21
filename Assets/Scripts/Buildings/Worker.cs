@@ -4,4 +4,5 @@ using System;
 public class Worker
 {
     public string Name = "";
+    public BuildingData AssignedBuilding;
 }

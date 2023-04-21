@@ -11,10 +11,13 @@ public abstract class BuildingData {
 
     public BuildingData() {
         Location = new Location(new Vector2Int(0, 0), new Vector2Int(0, 0));
-        Workers = new Worker[GetMaxWorker()];
     }
 
-    public abstract Production GetProduction();
+    public Production GetProduction() {
+        return _GetProduction() * GetWorkerMultiplier();
+    }
+
+    protected abstract Production _GetProduction();
 
     public abstract Type GetBuildingType();
 
@@ -49,7 +52,7 @@ public abstract class BuildingData {
                 Production += AdjacentProduction;
             }
         }
-        return Production;
+        return Production * GetWorkerMultiplier();
     }
 
     public virtual bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus) {
@@ -77,8 +80,74 @@ public abstract class BuildingData {
         return !MapGenerator.IsBuildingAt(Hex.Location) && !Hex.Data.bIsMalaised;
     }
 
+    public int GetWorkerMultiplier() {
+        int Count = 0;
+        foreach (Worker Worker in Workers) {
+            if (Worker == null)
+                continue;
+
+            Count++;
+        }
+
+        return Count;
+    }
+
+    public Worker GetWorkerAt(int i) {
+        if (i >= Workers.Count)
+            return null;
+
+        return Workers[i];
+    }
+
+    public Worker GetRandomWorker() {
+        return GetWorkerAt(Random.Range(0, Workers.Count));
+    }
+
+    public Worker RemoveWorkerAt(int i) {
+        Worker RemovedWorker = GetWorkerAt(i);
+        if (RemovedWorker != null) {
+            RemovedWorker.AssignedBuilding = null;
+            Workers.Remove(RemovedWorker);
+        }
+        return RemovedWorker;
+    }
+
+    public Worker RemoveRandomWorker() {
+        Worker RemovedWorker = GetRandomWorker();
+        if (RemovedWorker != null) {
+            RemovedWorker.AssignedBuilding = null;
+            Workers.Remove(RemovedWorker);
+        }
+        return RemovedWorker;
+    }
+
+    public void RemoveWorker(Worker Worker) {
+        if (Worker == null)
+            return;
+
+        // avoid modifying while looping
+        Worker Target = null;
+        foreach (Worker AssignedWorker in Workers) {
+            if (AssignedWorker != Worker)
+                continue;
+
+            Target = AssignedWorker;
+            break;
+        }
+
+        if (Target != null) {
+            Target.AssignedBuilding = null;
+            Workers.Remove(Target);
+        }
+    }
+
+    public void AddWorker(Worker Worker) {
+        Workers.Add(Worker);
+        Worker.AssignedBuilding = this;
+    }
+
 
 
     public Location Location;
-    public Worker[] Workers;
+    public List<Worker> Workers = new();
 }

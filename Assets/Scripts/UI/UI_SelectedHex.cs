@@ -16,6 +16,7 @@ public class UI_SelectedHex : MonoBehaviour
         BuildingTypeText = transform.GetChild(2).gameObject.GetComponent<TextMeshProUGUI>();
         ProductionText = transform.GetChild(3).gameObject.GetComponent<TextMeshProUGUI>();
         CorruptedText = transform.GetChild(4).gameObject.GetComponent<TextMeshProUGUI>();
+        Hide();
     }
 
     public void Show(HexagonVisualization Hex) {
@@ -47,7 +48,11 @@ public class UI_SelectedHex : MonoBehaviour
         if (!MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData Building))
             return;
 
-        Building.Workers[Target] = Workers.GetWorker();
+        Worker NewWorker = Workers.GetWorker();
+        if (NewWorker == null)
+            return;
+
+        Building.AddWorker(NewWorker);
         Show();
     }
 
@@ -55,8 +60,8 @@ public class UI_SelectedHex : MonoBehaviour
         if (!MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData Building))
             return;
 
-        Workers.ReturnWorker(Building.Workers[Target]);
-        Building.Workers[Target] = null;
+        Worker ReturnedWorker = Building.RemoveWorkerAt(Target);
+        Workers.ReturnWorker(ReturnedWorker, Building);
         Show();
     }
 
@@ -123,8 +128,8 @@ public class UI_SelectedHex : MonoBehaviour
             Destroy(Child.gameObject);
         }
 
-        int i = 0;
-        foreach (Worker Worker in BuildingData.Workers) {
+        for (int i = 0; i < BuildingData.GetMaxWorker(); i++) {
+            Worker Worker = BuildingData.Workers.Count > i ? BuildingData.Workers[i] : null;
             GameObject Prefab = Worker == null ? NoWorkerUI : WorkerUI;
             GameObject NewUI = Instantiate(Prefab);
             NewUI.transform.SetParent(WorkerContainerUI.transform, false);

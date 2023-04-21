@@ -5,6 +5,7 @@ using UnityEngine;
 public class Turn : MonoBehaviour
 {
     public void NextTurn() {
+        MessageSystem.DeleteAllMessages();
         Stockpile.ProduceResources();
         TurnNr++;
         MoveCard();

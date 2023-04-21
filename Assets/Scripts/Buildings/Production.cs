@@ -28,9 +28,8 @@ public class Production {
         return A[0] >= B[0] && A[1] >= B[1] && A[2] >= B[2] && A[3] >= B[3];
     }
 
-    public int this[int i] {
-        get { return _Production[i]; }
-        set { _Production[i] = value; }
+    public static Production operator* (Production A, int B) {
+        return new Production(A[0] * B, A[1] * B, A[2] * B, A[3] * B);
     }
 
     public string GetDescription() {
@@ -67,6 +66,28 @@ public class Production {
             case 3: return "F";
             default: return "INVALID";
         }
+    }
+
+    public int Wood {
+        get { return _Production[0]; }
+        set { _Production[0] = value; }
+    }
+    public int Stone {
+        get { return _Production[1]; }
+        set { _Production[1] = value; }
+    }
+    public int Metal {
+        get { return _Production[2]; }
+        set { _Production[2] = value; }
+    }
+    public int Food {
+        get { return _Production[3]; }
+        set { _Production[3] = value; }
+    }
+
+    public int this[int i] {
+        get { return _Production[i]; }
+        set { _Production[i] = value; }
     }
 
     private int[] _Production;

@@ -58,15 +58,21 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Card)
             return;
 
-        if (MapGenerator.IsBuildingAt(Location))
+        if (MapGenerator.IsBuildingAt(Location)) {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
             return;
+        }
 
         BuildingData Building = Card.GetBuildingData();
-        if (!Building.CanBeBuildOn(this))
+        if (!Building.CanBeBuildOn(this)) { 
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
             return;
+        }
 
-        if (!Stockpile.Pay(Building.GetCosts()))
+        if (!Stockpile.Pay(Building.GetCosts())) {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
             return;
+        }
 
         BuildBuildingFromCard(Building);
         Selector.ForceDeselect();

@@ -9,7 +9,7 @@ public class FarmBuilding : BuildingData
         return Type.Farm;
     }
 
-    public override Production GetProduction() {
+    protected override Production _GetProduction() {
         return new Production(0, 0, 0, 2);
     }
     public override int GetMaxWorker() {

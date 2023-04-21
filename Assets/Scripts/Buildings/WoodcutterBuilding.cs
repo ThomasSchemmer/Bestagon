@@ -9,7 +9,7 @@ public class WoodcutterBuilding : BuildingData {
         return 1;
     }
 
-    public override Production GetProduction() {
+    protected override Production _GetProduction() {
         return new Production(0, 0, 0, 0);
     }
 
