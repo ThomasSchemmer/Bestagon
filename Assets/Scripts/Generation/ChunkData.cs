@@ -76,6 +76,37 @@ public class ChunkData {
         return false;
     }
 
+    public void DestroyBuildingAt(Location Location) {
+        if (!TryGetBuildingAt(Location, out BuildingData Building))
+            return;
+
+        for (int i = 0; i < Building.Workers.Count; i++) {
+            WorkerData Worker = Building.GetWorkerAt(0);
+            // not at work? doesn't get deleted here
+            if (!Worker.Location.Equals(Building.Location))
+                continue;
+            
+            Building.RemoveWorkerAt(0);
+            Workers.ReturnWorker(Worker);
+        }
+        Buildings.Remove(Building);
+
+        if (!Visualization)
+            return;
+
+        Visualization.Refresh();
+    }
+
+    public void DestroyAt(Location Location) {
+        Workers.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
+        foreach (WorkerData Worker in WorkersOnTile) { 
+            Worker.RemoveFromBuilding();
+            Workers.RemoveWorker(Worker);
+        }
+
+        DestroyBuildingAt(Location);
+    }
+
     public HexagonData[,] HexDatas;
     public List<BuildingData> Buildings = new();
     public Location Location;

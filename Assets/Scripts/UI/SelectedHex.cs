@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_SelectedHex : MonoBehaviour
+public class SelectedHex : MonoBehaviour
 {
     public void Start() {
         Selector = GameObject.Find("Selector").GetComponent<Selector>().HexagonSelector;
@@ -20,49 +20,48 @@ public class UI_SelectedHex : MonoBehaviour
     }
 
     public void Show(HexagonVisualization Hex) {
-        SelectedHex = Hex != null ? Hex.Data : null;
+        SelectedHexTile = Hex != null ? Hex.Data : null;
         Show();
     }
 
     public void Show() {
-        bool bShouldShow = SelectedHex != null;
+        bool bShouldShow = SelectedHexTile != null;
         ShowBackground(bShouldShow);
         ShowTile(bShouldShow);
         ShowBuildingType(bShouldShow);
         ShowProduction(bShouldShow);
         ShowCorruption(bShouldShow);
         ShowWorker(bShouldShow);
+        ShowUnits(bShouldShow);
     }
 
     public void Hide() {
-        SelectedHex = null;
+        SelectedHexTile = null;
         ShowBackground(false);
         ShowTile(false);
         ShowBuildingType(false);
         ShowProduction(false);
         ShowCorruption(false);
         ShowWorker(false);
+        ShowUnits(false);
     }
 
     public void AddWorker(int Target) {
-        if (!MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData Building))
+
+        if (!MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
 
-        Worker NewWorker = Workers.GetWorker();
-        if (NewWorker == null)
-            return;
-
-        Building.AddWorker(NewWorker);
-        Show();
+        SelectWorkerScreen.OpenForBuilding(Building);
     }
 
     public void RemoveWorker(int Target) {
-        if (!MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData Building))
+        if (!MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
 
-        Worker ReturnedWorker = Building.RemoveWorkerAt(Target);
-        Workers.ReturnWorker(ReturnedWorker, Building);
+        WorkerData ReturnedWorker = Building.RemoveWorkerAt(Target);
+        Workers.ReturnWorker(ReturnedWorker);
         Show();
+        SelectWorkerScreen.InitWorkerDistances();
     }
 
     private void ShowBackground(bool bShouldShow) {
@@ -71,7 +70,7 @@ public class UI_SelectedHex : MonoBehaviour
 
     private void ShowTile(bool bShouldShow) {
         if (bShouldShow) {
-            TileText.text = SelectedHex.Type.ToString();
+            TileText.text = SelectedHexTile.Type.ToString() + SelectedHexTile.Location.GlobalTileLocation.ToString();
         } else {
             TileText.text = string.Empty;
         }
@@ -79,7 +78,7 @@ public class UI_SelectedHex : MonoBehaviour
 
     private void ShowBuildingType(bool bShouldShow) {
         BuildingData BuildingData = null;
-        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData)) {
+        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData)) {
             bShouldShow = false;
         }
 
@@ -92,7 +91,7 @@ public class UI_SelectedHex : MonoBehaviour
 
     private void ShowProduction(bool bShouldShow) {
         BuildingData BuildingData = null;
-        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData)) {
+        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData)) {
             bShouldShow = false;
         }
 
@@ -106,16 +105,34 @@ public class UI_SelectedHex : MonoBehaviour
     }
 
     private void ShowCorruption(bool bShouldShow) {
-        if (bShouldShow && SelectedHex.bIsMalaised) {
+        if (bShouldShow && SelectedHexTile.bIsMalaised) {
             CorruptedText.text = "Corrupted";
         } else {
             CorruptedText.text = string.Empty;
         }
     }
 
+    private void ShowUnits(bool bShouldShow) { 
+        foreach (Transform Child in UnitsUI.transform) {
+            Destroy(Child.gameObject);
+        }
+        UnitsUI.SetActive(bShouldShow);
+        if (!bShouldShow)
+            return;
+
+        Workers.TryGetWorkersAt(SelectedHexTile.Location, out List<WorkerData> WorkersAtHex);
+
+        for (int i = 0; i < WorkersAtHex.Count; i++) {
+            WorkerData Worker = WorkersAtHex[i];
+            GameObject Prefab = Instantiate(UnitPrefab, UnitsUI.transform);
+            Prefab.transform.localPosition = OffsetUIUnit + OffsetUIPerUnit * i;
+            Prefab.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = Worker.Name;
+        }
+    }
+
     private void ShowWorker(bool bShouldShow) {
         BuildingData BuildingData = null;
-        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHex.Location, out BuildingData)) {
+        if (bShouldShow && !MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData)) {
             bShouldShow = false;
         }
 
@@ -129,11 +146,11 @@ public class UI_SelectedHex : MonoBehaviour
         }
 
         for (int i = 0; i < BuildingData.GetMaxWorker(); i++) {
-            Worker Worker = BuildingData.Workers.Count > i ? BuildingData.Workers[i] : null;
-            GameObject Prefab = Worker == null ? NoWorkerUI : WorkerUI;
+            WorkerData Worker = BuildingData.Workers.Count > i ? BuildingData.Workers[i] : null;
+            GameObject Prefab = Worker == null ? NoWorkerPrefab : WorkerPrefab;
             GameObject NewUI = Instantiate(Prefab);
             NewUI.transform.SetParent(WorkerContainerUI.transform, false);
-            NewUI.transform.localPosition = WorkerUIOffset + WorkerUISize * i;
+            NewUI.transform.localPosition = OffsetUIWorker + OffsetUIPerWorker * i;
 
             Button Button = NewUI.GetComponent<Button>();
             if (Button) {
@@ -144,17 +161,22 @@ public class UI_SelectedHex : MonoBehaviour
                     Button.onClick.AddListener(() => { RemoveWorker(ti); });
                 }
             }
-            i++;
         }
     }
 
     public Selector<HexagonVisualization> Selector;
-    public GameObject WorkerUI, NoWorkerUI, WorkerContainerUI;
+    public GameObject WorkerPrefab, NoWorkerPrefab, WorkerContainerUI;
+    public GameObject UnitPrefab, UnitsUI;
+
+    public SelectWorkerScreen SelectWorkerScreen;
    
     private TextMeshProUGUI TileText, BuildingTypeText, ProductionText, CorruptedText;
     private GameObject Background;
-    private HexagonData SelectedHex;
+    private HexagonData SelectedHexTile;
 
-    private static Vector3 WorkerUIOffset = new Vector3(-100, 90, 0);
-    private static Vector3 WorkerUISize = new Vector3(75, 75, 0);
+    private static Vector3 OffsetUIWorker = new Vector3(-100, 0, 0);
+    private static Vector3 OffsetUIPerWorker = new Vector3(75, 0, 0);
+    private static Vector3 OffsetUIUnit = new Vector3(0, 0, 0);
+    private static Vector3 OffsetUIPerUnit = new Vector3(0, 55, 0);
+
 }

@@ -223,6 +223,16 @@ public class MapGenerator : MonoBehaviour
         return NeighbourLocations;
     }
 
+    public static HashSet<Location> GetNeighbourTileLocationSet(Location Location) {
+        HashSet<Location> NeighbourLocations = new();
+        Location[] Directions = GetDirections(Location);
+
+        foreach (Location Direction in Directions) {
+            NeighbourLocations.Add(Location + Direction);
+        }
+        return NeighbourLocations;
+    }
+
     public static bool TryGetHexagon(Location Location, out HexagonVisualization Hex) {
         Hex = null;
 

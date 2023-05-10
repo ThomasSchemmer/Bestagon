@@ -7,7 +7,7 @@ public class MineBuilding : BuildingData {
         return Type.Mine;
     }
     public override int GetMaxWorker() {
-        return 1;
+        return 2;
     }
 
     protected override Production _GetProduction() {

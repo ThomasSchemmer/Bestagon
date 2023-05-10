@@ -59,16 +59,20 @@
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
     <Compile Include="Assets\Scripts\Debug\Debuggable.cs" />
     <Compile Include="Assets\Scripts\Cards\Mine.cs" />
+    <Compile Include="Assets\Scripts\UI\SelectWorkerScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\WoodcutterBuilding.cs" />
     <Compile Include="Assets\Scripts\UI\Selectable.cs" />
-    <Compile Include="Assets\Scripts\UI\UI_SelectedHex.cs" />
+    <Compile Include="Assets\Scripts\UI\SelectedHex.cs" />
     <Compile Include="Assets\Scripts\Generation\Visualization\ChunkVisualization.cs" />
-    <Compile Include="Assets\Scripts\Buildings\Worker.cs" />
+    <Compile Include="Assets\Scripts\Unit\WorkerData.cs" />
     <Compile Include="Assets\Scripts\UI\BuildingPreview.cs" />
+    <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\Cards\Woodcutter.cs" />
+    <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Debug\Debugger.cs" />
     <Compile Include="Assets\Scripts\Buildings\MineBuilding.cs" />
-    <Compile Include="Assets\Scripts\Player\Workers.cs" />
+    <Compile Include="Assets\Scripts\Unit\Workers.cs" />
+    <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />
     <Compile Include="Assets\Scripts\Buildings\FarmBuilding.cs" />
     <Compile Include="Assets\Scripts\Buildings\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
@@ -85,13 +89,13 @@
     <Compile Include="Assets\Scripts\Generation\Visualization\MalaiseVisualization.cs" />
     <Compile Include="Assets\Scripts\Generation\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Config\Location.cs" />
+    <Compile Include="Assets\Scripts\Unit\WorkerVisualization.cs" />
     <Compile Include="Assets\Scripts\Generation\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
     <Compile Include="Assets\Scripts\Config\HexagonConfig.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
-    <Compile Include="Assets\Scripts\Cards\Card.cs" />
-    <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
+    <Compile Include="Assets\Scripts\Cards\Card.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro.cginc" />

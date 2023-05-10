@@ -18,7 +18,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
         GenerateMesh(Mat, Meshes[(int)Data.Type - 1]);
         Renderer = GetComponent<MeshRenderer>();
-        SetSelected(false);
+        SetSelected(false, false);
         SetHovered(false);
     }
 
@@ -41,30 +41,83 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Collider.sharedMesh = Filter.mesh;
     }
 
-    public void SetSelected(bool Selected) {
+    public void SetSelected(bool Selected, bool bShowReachableLocations) {
         isSelected = Selected;
         VisualizeSelection();
-        UpdatePreview();
+        UpdateBuildingPreview();
+        if (bShowReachableLocations) {
+            ShowReachableLocations(Selected);
+        }
+    }
+
+    public void SetSelected(bool Selected) {
+        SetSelected(Selected, true);
     }
 
     public void SetHovered(bool Hovered) {
         isHovered = Hovered;
         VisualizeSelection();
-        UpdatePreview();
+        UpdateBuildingPreview();
     }
 
     public void Interact() {
         Card Card = Selector.GetSelectedCard();
-        if (!Card)
+        if (Card) {
+            InteractBuildBuilding(Card);
+            return;
+        } 
+
+        HexagonVisualization SelectedHex = Selector.GetSelectedHexagon();
+        if (SelectedHex) {
+            InteractMoveWorker(SelectedHex);
+            return;
+        }
+    }
+
+    private void InteractMoveWorker(HexagonVisualization SelectedHex) {
+        if (!Workers.TryGetWorkersAt(SelectedHex.Location, out List<WorkerData> WorkersOnTile))
             return;
 
+        WorkerData Worker = WorkersOnTile[0];
+        List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
+        int PathCosts = Pathfinding.GetCostsForPath(Path);
+        if (Path.Count == 0 || PathCosts > Worker.RemainingMovement)
+            return;
+
+        InteractMoveWorker(Worker, PathCosts);
+    }
+
+    private void InteractMoveWorker(WorkerData Worker, int Costs) {
+        // trigger movement range update
+        Selector.DeselectHexagon();
+
+        // update both chunks where the worker was and is going to
+        if (!MapGenerator.TryGetChunkData(Worker.Location, out ChunkData Chunk))
+            return;
+
+        Chunk.Visualization.Refresh();
+
+        Worker.MoveTo(this.Location, Costs);
+
+        if (!MapGenerator.TryGetChunkData(Worker.Location, out Chunk))
+            return;
+
+        Chunk.Visualization.Refresh();
+
+        if (!MapGenerator.TryGetHexagon(Worker.Location, out HexagonVisualization NewHex))
+            return;
+
+        Selector.SelectHexagon(NewHex);
+    }
+
+    private void InteractBuildBuilding(Card Card) {
         if (MapGenerator.IsBuildingAt(Location)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
             return;
         }
 
         BuildingData Building = Card.GetBuildingData();
-        if (!Building.CanBeBuildOn(this)) { 
+        if (!Building.CanBeBuildOn(this)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
             return;
         }
@@ -77,9 +130,10 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         BuildBuildingFromCard(Building);
         Selector.ForceDeselect();
         CardHand.DiscardCard(Card);
+        Selector.SelectHexagon(this);
     }
 
-    public void BuildBuildingFromCard(BuildingData Building) {
+    private void BuildBuildingFromCard(BuildingData Building) {
         Building.Location = Location.Copy();
         MapGenerator.AddBuilding(Building);
     }
@@ -94,7 +148,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     public ChunkData GetChunk() { return Chunk; }
 
-    private void UpdatePreview() {
+    private void UpdateBuildingPreview() {
         Card SelectedCard = Selector.GetSelectedCard();
         if (!SelectedCard || !isHovered) {
             BuildingPreview.Hide();
@@ -132,11 +186,29 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         }
     }
 
+    private void ShowReachableLocations(bool bShow) {
+        Workers.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
+        WorkerData Worker = WorkersOnTile.Count > 0 ? WorkersOnTile[0] : null;
+        bool bIsVisible = Worker != null && bShow;
+        int Range = Worker != null ? Worker.RemainingMovement : 0;
+
+        // check for each reachable tile if it should be highlighted
+        HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range);
+
+        foreach (Location ReachableLocation in ReachableLocations) {
+            if (!MapGenerator.TryGetHexagon(ReachableLocation, out HexagonVisualization ReachableHex))
+                continue;
+
+            ReachableHex.isReachable = bIsVisible;
+            ReachableHex.VisualizeSelection();
+        }
+    }
+
     public void VisualizeSelection() {
         MaterialPropertyBlock Block = new MaterialPropertyBlock();
         Block.SetFloat("_Selected", isSelected ? 1 : 0);
         Block.SetFloat("_Hovered", isHovered ? 1 : 0);
-        Block.SetFloat("_Adjacent", isAdjacent ? 1 : 0);
+        Block.SetFloat("_Adjacent", isAdjacent || isReachable ? 1 : 0);
         if (Data != null) {
             Block.SetFloat("_Malaised", Data.bIsMalaised ? 1 : 0);
             Block.SetFloat("_Type", (float)Data.Type);
@@ -151,7 +223,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public ChunkData Chunk;
     public HexagonData Data;
 
-    protected bool isHovered, isSelected, isAdjacent;
+    protected bool isHovered, isSelected, isAdjacent, isReachable, isPathway;
 
     protected Vector3[] Vertices;
     protected int[] Triangles;

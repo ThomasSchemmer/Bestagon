@@ -39,6 +39,20 @@ public class Selector : MonoBehaviour{
         return Instance.HexagonSelector.Selected;
     }
 
+    public static void SelectHexagon(HexagonVisualization Vis) {
+        if (!Instance)
+            return;
+
+        Instance.HexagonSelector.Select(Vis);
+    }
+
+    public static void DeselectHexagon() { 
+        if (!Instance) 
+            return;
+        
+        Instance.HexagonSelector.Deselect(true);
+    }
+
     public static void ForceDeselect() {
         Instance.CardSelector.Deselect(true);
         Instance.CardSelector.Deselect(false);
@@ -87,19 +101,27 @@ public class Selector<T> where T : Selectable
 
         Deselect(bIsLeftClick);
         if (bIsLeftClick) {
-            Selected = Target;
-            Target.SetSelected(true);
-            if (OnItemSelected != null) {
-                OnItemSelected(Selected);
-            }
+            Select(Target);
         } else {
-            Hovered = Target;
-            Target.SetHovered(true);
-            if (OnItemHovered != null) {
-                OnItemHovered(Hovered);
-            }
+            Hover(Target);
         }
         return true;
+    }
+
+    public void Select(T Target) {
+        Selected = Target;
+        Target.SetSelected(true);
+        if (OnItemSelected != null) {
+            OnItemSelected(Selected);
+        }
+    }
+
+    public void Hover(T Target) {
+        Hovered = Target;
+        Target.SetHovered(true);
+        if (OnItemHovered != null) {
+            OnItemHovered(Hovered);
+        }
     }
 
     public void Deselect(bool bIsClicked) {

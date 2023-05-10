@@ -36,6 +36,10 @@ public class Location
         return new Location(ChunkLocation, HexLocation);
     }
 
+    public int DistanceTo(Location Other) {
+        return Mathf.Abs(Other.GlobalTileLocation.x - GlobalTileLocation.x) + Mathf.Abs(Other.GlobalTileLocation.y - GlobalTileLocation.y);
+    }
+
     public override string ToString() {
         return "("+ChunkLocation.x+", "+ChunkLocation.y+") - ("+HexLocation.x+", "+HexLocation.y+")";
     }

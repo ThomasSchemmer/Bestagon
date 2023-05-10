@@ -28,6 +28,7 @@ public class ChunkVisualization : MonoBehaviour
 
         MalaiseVisualization.Initialize(Data.Malaise, MalaiseMat);
         CreateBuildings();
+        CreateWorkers();
     }
 
     public void Initialize() {
@@ -46,10 +47,18 @@ public class ChunkVisualization : MonoBehaviour
         MalaiseVisualization = MalaiseObj.AddComponent<MalaiseVisualization>();
 
         BuildingVisualizations = new();
+        WorkerVisualizations = new();
     }
 
-    public void CreateBuildings() {
-        BuildingVisualizations = new();
+    private void CreateWorkers() {
+        foreach (WorkerData WorkerData in Workers.GetWorkersInChunk(Data.Location)) {
+            WorkerVisualization Vis = WorkerVisualization.CreateFromData(WorkerData);
+            Vis.transform.parent = transform;
+            WorkerVisualizations.Add(Vis);
+        }
+    }
+
+    private void CreateBuildings() {
         foreach (BuildingData BuildingData in Data.Buildings) {
             BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
             Vis.transform.parent = transform;
@@ -68,10 +77,22 @@ public class ChunkVisualization : MonoBehaviour
             Destroy(Building.gameObject);
         }
         BuildingVisualizations.Clear();
+
+        foreach (WorkerVisualization Worker in WorkerVisualizations) {
+            Destroy(Worker.gameObject);
+        }
+        WorkerVisualizations.Clear();
+    }
+
+    public void Refresh() {
+        Reset();
+        CreateBuildings();
+        CreateWorkers();
     }
 
     public HexagonVisualization[,] Hexes;
     public List<BuildingVisualization> BuildingVisualizations;
+    public List<WorkerVisualization> WorkerVisualizations;
     public MalaiseVisualization MalaiseVisualization;
     public ChunkData Data;
     public Coroutine Generator;

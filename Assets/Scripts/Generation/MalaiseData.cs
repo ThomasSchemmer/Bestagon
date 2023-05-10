@@ -29,6 +29,8 @@ public class MalaiseData
             if (!MapGenerator.TryGetChunkData(Neighbour.Location, out ChunkData NeighbourChunk))
                 continue;
 
+            NeighbourChunk.DestroyAt(Neighbour.Location);
+
             // update so that we can find it quicker
             if (!NeighbourChunk.Equals(Chunk) && !NeighbourChunk.Malaise.bIsActive) {
                 NeighbourChunk.Malaise.Infect();

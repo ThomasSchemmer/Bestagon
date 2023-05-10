@@ -11,6 +11,8 @@ public class Turn : MonoBehaviour
         MoveCard();
         SpreadMalaise();
         UpdateMalaiseVisualization();
+        Workers.HandleEndOfTurn();
+        UpdateSelection();
     }
 
     private void SpreadMalaise() {
@@ -41,6 +43,15 @@ public class Turn : MonoBehaviour
         //access deck, select first card from deck
         // acess hand, Add it to hand - remove it from the deck
 
+    }
+
+    private void UpdateSelection() {
+        // this triggers all visualizations for the selected hex
+        HexagonVisualization Hex = Selector.GetSelectedHexagon();
+        if (Hex == null) 
+            return;
+
+        Selector.SelectHexagon(Hex);
     }
 
     public static int TurnNr = 1;

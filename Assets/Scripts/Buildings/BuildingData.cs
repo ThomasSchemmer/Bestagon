@@ -82,8 +82,8 @@ public abstract class BuildingData {
 
     public int GetWorkerMultiplier() {
         int Count = 0;
-        foreach (Worker Worker in Workers) {
-            if (Worker == null)
+        foreach (WorkerData Worker in Workers) {
+            if (Worker == null || !Worker.Location.Equals(Location))
                 continue;
 
             Count++;
@@ -92,62 +92,57 @@ public abstract class BuildingData {
         return Count;
     }
 
-    public Worker GetWorkerAt(int i) {
+    public WorkerData GetWorkerAt(int i) {
         if (i >= Workers.Count)
             return null;
 
         return Workers[i];
     }
 
-    public Worker GetRandomWorker() {
+    public WorkerData GetRandomWorker() {
         return GetWorkerAt(Random.Range(0, Workers.Count));
     }
 
-    public Worker RemoveWorkerAt(int i) {
-        Worker RemovedWorker = GetWorkerAt(i);
+    public WorkerData RemoveWorkerAt(int i) {
+        WorkerData RemovedWorker = GetWorkerAt(i);
         if (RemovedWorker != null) {
-            RemovedWorker.AssignedBuilding = null;
-            Workers.Remove(RemovedWorker);
+            RemovedWorker.RemoveFromBuilding();
         }
         return RemovedWorker;
     }
 
-    public Worker RemoveRandomWorker() {
-        Worker RemovedWorker = GetRandomWorker();
+    public WorkerData RemoveRandomWorker() {
+        WorkerData RemovedWorker = GetRandomWorker();
         if (RemovedWorker != null) {
-            RemovedWorker.AssignedBuilding = null;
-            Workers.Remove(RemovedWorker);
+            RemovedWorker.RemoveFromBuilding();
         }
         return RemovedWorker;
     }
 
-    public void RemoveWorker(Worker Worker) {
+    public void RemoveWorker(WorkerData Worker) {
         if (Worker == null)
             return;
 
-        // avoid modifying while looping
-        Worker Target = null;
-        foreach (Worker AssignedWorker in Workers) {
-            if (AssignedWorker != Worker)
-                continue;
-
-            Target = AssignedWorker;
-            break;
-        }
-
-        if (Target != null) {
-            Target.AssignedBuilding = null;
-            Workers.Remove(Target);
-        }
+        Workers.Remove(Worker);
     }
 
-    public void AddWorker(Worker Worker) {
+    public void AddWorker(WorkerData Worker) {
         Workers.Add(Worker);
         Worker.AssignedBuilding = this;
     }
 
+    public override bool Equals(object Other) {
+        if (Other is not BuildingData) 
+            return false;
 
+        BuildingData OtherBuilding = (BuildingData)Other;
+        return Location.Equals(OtherBuilding.Location);
+    }
+
+    public override int GetHashCode() {
+        return Location.GetHashCode() + "Building".GetHashCode();
+    }
 
     public Location Location;
-    public List<Worker> Workers = new();
+    public List<WorkerData> Workers = new();
 }

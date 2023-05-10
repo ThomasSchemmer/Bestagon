@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -93,5 +94,24 @@ public class HexagonConfig {
     public static Vector3 GetVertex(int i) {
         float Angle = 60.0f * i * Mathf.Deg2Rad;
         return new Vector3(size * Mathf.Sin(Angle), 0, size * Mathf.Cos(Angle));
+    }
+
+    public static int GetCostsFromTo(Location locationA, Location locationB) {
+        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA))
+            return -1;
+
+        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB))
+            return -1;
+
+        if (DataB.bIsMalaised)
+            return -1;
+
+        switch (DataB.Type) {
+            case HexagonType.Meadow: return 1;
+            case HexagonType.Forest: return 2;
+            case HexagonType.Ocean: return -1;
+            case HexagonType.Mountain: return 3;
+            default: return -1;
+        }
     }
 }
