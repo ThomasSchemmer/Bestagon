@@ -71,16 +71,27 @@ public class Workers : MonoBehaviour
         int AmountOfAssignedToStarve = Mathf.Min(AssignedWorker.Count, AmountToStarve - AmountOfUnassignedToStarve);
 
         // unassigned, so we don't need to update the building
-        UnassignedWorker.RemoveRange(0, AmountOfUnassignedToStarve);
+        for (int i = 0; i < AmountOfUnassignedToStarve; i++) {
+            StarveWorker(UnassignedWorker[0]);
+        }
 
-        // get the building of the worker to remove the cross-references
         for (int i = 0; i < AmountOfAssignedToStarve; i++) {
-            WorkerData WorkerToStarve = AssignedWorker[0];
-            WorkerToStarve.RemoveFromBuilding();
-            RemoveWorker(WorkerToStarve);
+            StarveWorker(AssignedWorker[0]);
         }
 
         MessageSystem.CreateMessage(Message.Type.Warning, AmountToStarve + " workers died of starvation!");
+    }
+
+    private static void StarveWorker(WorkerData Worker) {
+        Worker.RemoveFromBuilding();
+        RemoveWorker(Worker);
+        if (!MapGenerator.TryGetChunkData(Worker.Location, out ChunkData Chunk))
+            return;
+
+        if (!Chunk.Visualization)
+            return;
+
+        Chunk.Visualization.Refresh();
     }
 
     public static void RemoveWorker(WorkerData Worker) {
