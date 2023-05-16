@@ -29,6 +29,8 @@ public class ChunkVisualization : MonoBehaviour
         MalaiseVisualization.Initialize(Data.Malaise, MalaiseMat);
         CreateBuildings();
         CreateWorkers();
+
+        MapGenerator.UpdateMapBounds(this);
     }
 
     public void Initialize() {

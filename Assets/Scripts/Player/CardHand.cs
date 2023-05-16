@@ -54,6 +54,7 @@ public class CardHand : MonoBehaviour
 
     private void AddCardInternal(Card Card) {
         Cards.Add(Card);
+        Card.gameObject.SetActive(true);
         Card.transform.SetParent(transform, false);
         int i = 0;
         foreach (Card Other in Cards) {

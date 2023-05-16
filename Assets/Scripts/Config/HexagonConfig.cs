@@ -26,7 +26,7 @@ public class HexagonConfig {
     /** world space offset in y direction per hex*/
     public static float offsetY = 3.0f / 2.0f * HexagonConfig.size;
 
-    public enum HexagonType {
+    public enum HexagonType : uint {
         DEFAULT,
         Meadow,
         Forest,

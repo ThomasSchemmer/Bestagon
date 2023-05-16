@@ -13,6 +13,7 @@ public class Turn : MonoBehaviour
         UpdateMalaiseVisualization();
         Workers.HandleEndOfTurn();
         UpdateSelection();
+        MiniMap.Instance.FillBuffer();
     }
 
     private void SpreadMalaise() {

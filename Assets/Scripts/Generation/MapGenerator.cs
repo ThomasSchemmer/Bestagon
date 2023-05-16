@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
@@ -34,6 +35,8 @@ public class MapGenerator : MonoBehaviour
     public void Start() {
         Instance = this;
         MainCam = Camera.main;
+        MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
+        MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
         CreateChunks();
         GenerateGrid();
@@ -331,6 +334,65 @@ public class MapGenerator : MonoBehaviour
         return true;
     }
 
+    public static void UpdateMapBounds(ChunkVisualization Vis) {
+        if (!Instance)
+            return;
+
+        Location BottomLeft = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(0, 0));
+        Location TopRight = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(HexagonConfig.chunkSize, HexagonConfig.chunkSize));
+        Instance.MinBottomLeft = Location.Min(Instance.MinBottomLeft, BottomLeft);
+        Instance.MaxTopRight = Location.Max(Instance.MaxTopRight, TopRight);
+    }
+
+    public static void GetMapBounds(out Location MinBottomLeft, out Location MaxTopRight) {
+        MinBottomLeft = Instance ? Instance.MinBottomLeft : Location.Zero;
+        MaxTopRight = Instance ? Instance.MaxTopRight : Location.Zero;
+    }
+
+    public static HexagonDTO[] GetDTOs() {
+        int Count = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
+
+        HexagonDTO[] DTOs = new HexagonDTO[Count];
+        if (!Instance)
+            return DTOs;
+
+        /* Chunks are world partitions, each with a 2d array of their hexes
+         * | 6 7 8 | 6 7 8 |
+         * | 3 4 5 | 3 4 5 |
+         * | 0 1 2 | 0 1 2 |
+         * ------------------
+         * | 6 7 8 | 6 7 8 |
+         * | 3 4 5 | 3 4 5 |
+         * | 0 1 2 | 0 1 2 |
+         * 
+         * we want one global array for easy texture mapping inside the minimap shader
+         * | ...         |
+         * | 6 7 8 9 10..|
+         * | 0 1 2 3 4 5 |
+         * 
+         * so we need to query the chunks on line at a time!
+         * Better: only update dirty data chunks and insert them directly into old array
+         */
+
+
+        int Index = 0;
+        for (int y = 0; y < HexagonConfig.mapMaxChunk; y++) {
+            for (int j = 0; j < HexagonConfig.chunkSize; j++) {
+                for (int x = 0; x < HexagonConfig.mapMaxChunk; x++) {
+                    for (int i = 0; i < HexagonConfig.chunkSize; i++) {
+                        DTOs[Index] = Instance.Chunks[x, y].HexDatas[i, j].GetDTO();
+                        Index++;
+                    }
+                }
+            }
+        }
+
+
+        Debug.Log("Size: " + Marshal.SizeOf(DTOs[0]) * Count);
+
+        return DTOs;
+    }
+
     public ChunkData[,] Chunks;
     public ChunkVisualization[,] ChunkVis;
 
@@ -342,4 +404,5 @@ public class MapGenerator : MonoBehaviour
 
     private Camera MainCam;
     private Location LastCenterChunk = Location.MinValue;
+    private Location MinBottomLeft, MaxTopRight;
 }

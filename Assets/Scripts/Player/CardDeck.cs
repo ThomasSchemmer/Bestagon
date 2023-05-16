@@ -14,8 +14,10 @@ public class CardDeck : MonoBehaviour
             Card Card = CreateRandomCard(i);
             Card.transform.localPosition = new Vector3(0, Mathf.Min(i, 5) * 15, 0);
             Card.gameObject.layer = 0;
+            Card.gameObject.SetActive(false);
             Cards.Add(Card);
         }
+        Text.text = "" + Cards.Count;
     }
 
     private Card CreateRandomCard(int i) {
@@ -35,10 +37,12 @@ public class CardDeck : MonoBehaviour
         
         Card RemovedCard = Instance.Cards[0];
         Instance.Cards.RemoveAt(0);
+        Instance.Text.text = "" + Instance.Cards.Count;
         return RemovedCard;
     }
 
     public GameObject CardPrefab;
     public List<Card> Cards;
+    public TMPro.TextMeshProUGUI Text;
     public static CardDeck Instance;
 }

@@ -6,13 +6,16 @@ public class DiscardDeck : MonoBehaviour
 {
     public void Start() {
         Instance = this;
+        Text.text = "" + Cards.Count;
     }
 
     private void AddCardInternal(Card Card) {
         Cards.Add(Card);
+        Card.gameObject.SetActive(false);
         Card.transform.SetParent(transform, false);
         Card.transform.localPosition = RootPosition + Offset * Cards.Count;
         Card.gameObject.layer = 0;
+        Text.text = "" + Cards.Count;
     }
 
     public static void AddCard(Card Card) {
@@ -23,6 +26,7 @@ public class DiscardDeck : MonoBehaviour
     }
 
     public List<Card> Cards;
+    public TMPro.TextMeshProUGUI Text;
 
     public static DiscardDeck Instance;
 

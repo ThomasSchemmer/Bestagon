@@ -97,6 +97,9 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
         Chunk.Visualization.Refresh();
 
+        if (Worker.AssignedBuilding != null) {
+            Worker.RemoveFromBuilding();
+        }
         Worker.MoveTo(this.Location, Costs);
 
         if (!MapGenerator.TryGetChunkData(Worker.Location, out Chunk))

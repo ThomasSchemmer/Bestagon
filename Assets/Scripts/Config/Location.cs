@@ -8,6 +8,10 @@ public class Location
         _HexLocation = HexLocation;
     }
 
+    public Location(int v1, int v2, int v3, int v4) : 
+        this(new Vector2Int(v1, v2), new Vector2Int(v3, v4)) 
+        { }
+
     public Vector2Int GlobalTileLocation{
         get {
             return HexagonConfig.ChunkSpaceToTileSpace(_ChunkLocation) + _HexLocation;
@@ -38,6 +42,10 @@ public class Location
 
     public int DistanceTo(Location Other) {
         return Mathf.Abs(Other.GlobalTileLocation.x - GlobalTileLocation.x) + Mathf.Abs(Other.GlobalTileLocation.y - GlobalTileLocation.y);
+    }
+
+    public Vector4 ToVec4() {
+        return new Vector4(ChunkLocation.x, ChunkLocation.y, HexLocation.x, HexLocation.y);
     }
 
     public override string ToString() {
@@ -97,5 +105,20 @@ public class Location
 
     public static Location CreateChunk(int x, int y) {
         return new Location(new Vector2Int(x, y), new Vector2Int(0, 0));
+    }
+
+    public static Location Min(Location A, Location B) {
+        return new Location(Mathf.Min(A.ChunkLocation.x, B.ChunkLocation.x),
+            Mathf.Min(A.ChunkLocation.y, B.ChunkLocation.y),
+            Mathf.Min(A.HexLocation.x, B.HexLocation.x),
+            Mathf.Min(A.HexLocation.y, B.HexLocation.y)
+        );
+    }
+    public static Location Max(Location A, Location B) {
+        return new Location(Mathf.Max(A.ChunkLocation.x, B.ChunkLocation.x),
+            Mathf.Max(A.ChunkLocation.y, B.ChunkLocation.y),
+            Mathf.Max(A.HexLocation.x, B.HexLocation.x),
+            Mathf.Max(A.HexLocation.y, B.HexLocation.y)
+        );
     }
 }
