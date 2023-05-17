@@ -34,16 +34,38 @@ public class Turn : MonoBehaviour
     }
 
     private void MoveCard() {
-        Card RemovedCard = CardDeck.RemoveCard(); 
+        if (CardDeck.Instance.Cards.Count == 0) {
+            FillCardDeck();
+        }
+
+        Card RemovedCard = CardDeck.Instance.RemoveCard(); 
         if (RemovedCard == null) 
             return; 
 
-        CardHand.AddCard(RemovedCard);
+        CardHand.Instance.AddCard(RemovedCard);
+    }
 
+    private void FillCardDeck() {
+        List<Card> Cards = new();
+        // first remove every card
+        Card CurrentCard = DiscardDeck.Instance.RemoveCard();
+        while (CurrentCard != null) {
+            Cards.Add(CurrentCard);
+            CurrentCard = DiscardDeck.Instance.RemoveCard();
+        }
 
-        //access deck, select first card from deck
-        // acess hand, Add it to hand - remove it from the deck
+        // then shuffle
+        for (int i = 0; i < Cards.Count; i++) {
+            int TargetIndex = Random.Range(i, Cards.Count);
+            Card Temp = Cards[i];
+            Cards[i] = Cards[TargetIndex];
+            Cards[TargetIndex] = Temp;  
+        }
 
+        // and then add into the card deck
+        for (int i = 0; i < Cards.Count; i++) {
+            CardDeck.Instance.AddCard(Cards[i]);
+        }
     }
 
     private void UpdateSelection() {

@@ -57,7 +57,7 @@ public abstract class Card : MonoBehaviour, Selectable
         Vector3 CurrentPos = transform.localPosition;
         CurrentPos.y += isSelected ? SelectOffset : 0;
         transform.localPosition = CurrentPos;
-        CardHand.Sort(isHovered);
+        CardHand.Instance.Sort(isHovered);
         SetColor();
     }
 
@@ -65,7 +65,7 @@ public abstract class Card : MonoBehaviour, Selectable
         isHovered = Hovered;
         transform.localScale = isHovered ? new Vector3(1.1f, 1.1f, 1.1f) : new Vector3(1, 1, 1);
         transform.parent.localPosition = isHovered ? CardHand.HoverPosition : CardHand.NormalPosition;
-        CardHand.Sort(isHovered);
+        CardHand.Instance.Sort(isHovered);
         SetColor();
     }
 

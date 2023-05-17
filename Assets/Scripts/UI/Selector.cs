@@ -22,13 +22,13 @@ public class Selector : MonoBehaviour{
     }
 
     public void Update() {
-        if (UISelector.Raycast())
+        if (UISelector.RayCast())
             return;
 
-        if (CardSelector.Raycast())
+        if (CardSelector.RayCast())
             return;
 
-        HexagonSelector.Raycast();
+        HexagonSelector.RayCast();
     }
 
     public static Card GetSelectedCard() {
@@ -79,7 +79,7 @@ public class Selector<T> where T : Selectable
         this.bIsUIOnly = bIsUIOnly;
     }
 
-    public bool Raycast() {
+    public bool RayCast() {
         bool bIsLeftClick = Input.GetMouseButtonDown(0);
         bool bIsRightClick = Input.GetMouseButtonDown(1) && !bIsLeftClick;
         bool bIsEscapeClick = Input.GetKeyDown(KeyCode.Escape);
@@ -87,6 +87,11 @@ public class Selector<T> where T : Selectable
         if (bIsEscapeClick || !RayCast(out GameObject Hit)) { 
             Deselect(bIsLeftClick);
             return false;
+        }
+
+        if (!Hit) {
+            // can only be true if Unity UI has been hit (eg a button). Simply swallow the input
+            return true;
         }
 
         T Target = Hit.GetComponent<T>();
@@ -185,6 +190,9 @@ public class Selector<T> where T : Selectable
             return false;
 
         foreach (RaycastResult Result in Hits) {
+            if (!bIsUIOnly && Result.gameObject.layer == LayerMask.NameToLayer("UI")) {
+                return true;
+            }
             if (Result.gameObject.layer == LayerMask.NameToLayer(Layer)) {
                 Hit = Result.gameObject;
                 return true;

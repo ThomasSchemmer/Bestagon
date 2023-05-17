@@ -134,7 +134,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
         BuildBuildingFromCard(Building);
         Selector.ForceDeselect();
-        CardHand.DiscardCard(Card);
+        CardHand.Instance.DiscardCard(Card);
         Selector.SelectHexagon(this);
     }
 
