@@ -349,6 +349,12 @@ public class MapGenerator : MonoBehaviour
         MaxTopRight = Instance ? Instance.MaxTopRight : Location.Zero;
     }
 
+    public static void GetMapBounds(out Vector3 MinBottomLeftWorld, out Vector3 MaxTopRightWorld) {
+        GetMapBounds(out Location BottomLeftMap, out Location TopRightMap);
+        MinBottomLeftWorld = BottomLeftMap.WorldLocation;
+        MaxTopRightWorld = TopRightMap.WorldLocation;
+    }
+
     public static HexagonDTO[] GetDTOs() {
         int Count = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
 

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class MiniMap : MonoBehaviour
+public class MiniMap : MonoBehaviour, UIElement
 {
     public void Start() {
         Instance = this;
@@ -45,6 +45,34 @@ public class MiniMap : MonoBehaviour
     public void OnDestroy() {
         HexagonBuffer.Release();
     }
+
+    public void ClickOn(Vector2 PixelPos) {
+        RectTransform transform = GetComponent<RectTransform>();
+        Rect Rectangle = new Rect(transform.anchoredPosition - transform.sizeDelta / 2.0f, transform.sizeDelta);
+        if (!Rectangle.Contains(PixelPos))
+            return;
+
+        Vector2 PercentMiniMap;
+        PercentMiniMap.x = (PixelPos.x - Rectangle.xMin) / Rectangle.width;
+        PercentMiniMap.y = (PixelPos.y - Rectangle.yMin) / Rectangle.height;
+
+        MapGenerator.GetMapBounds(out Vector3 MinBottomLeft, out Vector3 MaxTopRight);
+        Vector3 WorldDiff = MaxTopRight - MinBottomLeft;
+        Vector3 WorldPosition = MinBottomLeft + new Vector3(PercentMiniMap.x * WorldDiff.x, 0, PercentMiniMap.y * WorldDiff.z);
+        CameraController.TargetPosition.x = WorldPosition.x;
+        CameraController.TargetPosition.z = WorldPosition.z;
+    }
+
+    public void SetSelected(bool Selected) { }
+
+    public void SetHovered(bool Hovered) {}
+
+    public void Interact() {}
+
+    public bool IsEqual(Selectable other) {
+        return other is MiniMap;
+    }
+
 
     public CustomRenderTexture MiniMapRT;
     private ComputeBuffer HexagonBuffer;

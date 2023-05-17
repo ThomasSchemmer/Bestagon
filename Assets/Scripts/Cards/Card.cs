@@ -69,6 +69,8 @@ public abstract class Card : MonoBehaviour, Selectable
         SetColor();
     }
 
+    public void ClickOn(Vector2 PixelPos) {}
+
     public void Interact() { }
 
     private void SetColor() {

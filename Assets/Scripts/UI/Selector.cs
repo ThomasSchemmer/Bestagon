@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,8 +11,10 @@ public class Selector : MonoBehaviour{
     public void Awake() {
         CardSelector = new Selector<Card>();
         HexagonSelector = new Selector<HexagonVisualization>();
+        UISelector = new Selector<UIElement>(true);
         CardSelector.Layer = "Card";
         HexagonSelector.Layer = "Hexagon";
+        UISelector.Layer = "UI";
     }
 
     public void Start() {
@@ -19,6 +22,9 @@ public class Selector : MonoBehaviour{
     }
 
     public void Update() {
+        if (UISelector.Raycast())
+            return;
+
         if (CardSelector.Raycast())
             return;
 
@@ -62,25 +68,26 @@ public class Selector : MonoBehaviour{
 
     public Selector<Card> CardSelector;
     public Selector<HexagonVisualization> HexagonSelector;
+    public Selector<UIElement> UISelector;
 
     public static Selector Instance;
 }
 
 public class Selector<T> where T : Selectable
 {
+    public Selector(bool bIsUIOnly = false) {
+        this.bIsUIOnly = bIsUIOnly;
+    }
+
     public bool Raycast() {
         bool bIsLeftClick = Input.GetMouseButtonDown(0);
         bool bIsRightClick = Input.GetMouseButtonDown(1) && !bIsLeftClick;
         bool bIsEscapeClick = Input.GetKeyDown(KeyCode.Escape);
 
-        if (bIsEscapeClick || !Raycast(out GameObject Hit, out bool bHasHitOtherUI)) { 
+        if (bIsEscapeClick || !RayCast(out GameObject Hit)) { 
             Deselect(bIsLeftClick);
             return false;
         }
-
-        // dont change selection/hovering, just swallow the specific interaction trigger
-        if (bHasHitOtherUI)
-            return true;
 
         T Target = Hit.GetComponent<T>();
 
@@ -92,6 +99,11 @@ public class Selector<T> where T : Selectable
         if (bIsRightClick) {
             Target.Interact();
             return true;
+        }
+
+        if (bIsLeftClick) {
+            // we do intentionally not return, since this event should trigger on every click
+            Target.ClickOn(GetPointerData().position);
         }
 
         if ((bIsLeftClick && Target.IsEqual(Selected)) || (!bIsLeftClick && Target.IsEqual(Hovered))) {
@@ -144,15 +156,15 @@ public class Selector<T> where T : Selectable
         }
     }
 
-    private bool Raycast(out GameObject Hit, out bool bHasHitOtherUI) {
-        if (RaycastUI(out Hit, out bHasHitOtherUI)) {
+    private bool RayCast(out GameObject Hit) {
+        if (RayCastUI(out Hit)) {
             return true;
-        } 
-            
-        return RaycastWorld(out Hit);
+        }
+           
+        return !bIsUIOnly && RayCastWorld(out Hit);
     }
 
-    private bool RaycastWorld(out GameObject Hit) {
+    private bool RayCastWorld(out GameObject Hit) {
         Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.forward * 10;
 
         // since we are using a orthogonal, angled camera we need to actually use its forward vector and cant use "Down"
@@ -163,8 +175,7 @@ public class Selector<T> where T : Selectable
         return hasHit;
     }
 
-    private bool RaycastUI(out GameObject Hit, out bool bHasHitOtherUI) {
-        bHasHitOtherUI = false;
+    private bool RayCastUI(out GameObject Hit) {
         Hit = null;
 
         List<RaycastResult> Hits = new List<RaycastResult>();
@@ -174,10 +185,6 @@ public class Selector<T> where T : Selectable
             return false;
 
         foreach (RaycastResult Result in Hits) {
-            if (Result.gameObject.layer == LayerMask.NameToLayer("UI")) {
-                bHasHitOtherUI = true;
-                return true;
-            }
             if (Result.gameObject.layer == LayerMask.NameToLayer(Layer)) {
                 Hit = Result.gameObject;
                 return true;
@@ -193,6 +200,7 @@ public class Selector<T> where T : Selectable
         };
     }
 
+    public bool bIsUIOnly = false;
     public T Selected;
     public T Hovered;
 

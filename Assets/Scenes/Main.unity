@@ -584,7 +584,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b646d3c86aecef4bb3c6ba3c918be62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 2
+  MovementSpeed: 0.03
+  PanningSpeed: 8
   MinimumZoom: 15
   MaximumZoom: 60
   ZoomSteps: 5

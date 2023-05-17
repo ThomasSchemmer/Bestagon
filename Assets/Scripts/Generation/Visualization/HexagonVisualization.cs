@@ -60,6 +60,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         UpdateBuildingPreview();
     }
 
+    public void ClickOn(Vector2 PixelPos) { }
+
     public void Interact() {
         Card Card = Selector.GetSelectedCard();
         if (Card) {

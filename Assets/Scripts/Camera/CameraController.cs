@@ -11,6 +11,7 @@ public class CameraController : MonoBehaviour
 
     void Update() {
         UpdatePosition();
+        MoveToPosition();
         UpdateMiniMapData();
     }
 
@@ -29,10 +30,8 @@ public class CameraController : MonoBehaviour
         Plane.Raycast(BottomRightRay, out float BottomRightScale);
         Plane.Raycast(BottomLeftRay, out float BottomLeftScale);
 
-        MapGenerator.GetMapBounds(out Location BottomLeftMap, out Location TopRightMap);
-        Vector2 BottomLeftMapPos = new Vector2(BottomLeftMap.WorldLocation.x, BottomLeftMap.WorldLocation.z);
-        Vector2 TopRightMapPos = new Vector2(TopRightMap.WorldLocation.x, TopRightMap.WorldLocation.z); ;
-        Vector2 DistanceMap = TopRightMapPos - BottomLeftMapPos;
+        MapGenerator.GetMapBounds(out Vector3 MinBottomLeftWorld, out Vector3 MaxTopRightWorld);
+        Vector3 DistanceMap = MaxTopRightWorld - MinBottomLeftWorld;
 
         Vector3 TopLeftPos = TopLeftRay.GetPoint(TopLeftScale);
         Vector3 TopRightPos = TopRightRay.GetPoint(TopRightScale);
@@ -43,14 +42,14 @@ public class CameraController : MonoBehaviour
         // the pos vectors for the frustum edges are still in (x, y, z) coordinates!
         Vector4 TopView = new Vector4();
         Vector4 BottomView = new Vector4();
-        TopView.x = (TopLeftPos.x - BottomLeftMapPos.x) / DistanceMap.x;
-        TopView.y = (TopLeftPos.z - BottomLeftMapPos.y) / DistanceMap.y;
-        TopView.z = (TopRightPos.x - BottomLeftMapPos.x) / DistanceMap.x;
-        TopView.w = (TopRightPos.z - BottomLeftMapPos.y) / DistanceMap.y;
-        BottomView.x = (BottomLeftPos.x - BottomLeftMapPos.x) / DistanceMap.x;
-        BottomView.y = (BottomLeftPos.z - BottomLeftMapPos.y) / DistanceMap.y;
-        BottomView.z = (BottomRightPos.x - BottomLeftMapPos.x) / DistanceMap.x;
-        BottomView.w = (BottomRightPos.z - BottomLeftMapPos.y) / DistanceMap.y;
+        TopView.x = (TopLeftPos.x - MinBottomLeftWorld.x) / DistanceMap.x;
+        TopView.y = (TopLeftPos.z - MinBottomLeftWorld.z) / DistanceMap.z;
+        TopView.z = (TopRightPos.x - MinBottomLeftWorld.x) / DistanceMap.x;
+        TopView.w = (TopRightPos.z - MinBottomLeftWorld.z) / DistanceMap.z;
+        BottomView.x = (BottomLeftPos.x - MinBottomLeftWorld.x) / DistanceMap.x;
+        BottomView.y = (BottomLeftPos.z - MinBottomLeftWorld.z) / DistanceMap.z;
+        BottomView.z = (BottomRightPos.x - MinBottomLeftWorld.x) / DistanceMap.x;
+        BottomView.w = (BottomRightPos.z - MinBottomLeftWorld.z) / DistanceMap.z;
 
         // ugly direct call
         MiniMap.Instance.MiniMapRT.material.SetVector("_TopView", TopView);
@@ -71,7 +70,7 @@ public class CameraController : MonoBehaviour
 
         Movement.Normalize();
 
-        this.transform.position = Vector3.Lerp(transform.position, transform.position + Movement * MovementSpeed * Cam.orthographicSize, Time.deltaTime); ;
+        TargetPosition += Movement * Cam.orthographicSize * MovementSpeed;
 
         // Camera zoom
         float diff = Input.GetAxis("Mouse ScrollWheel");
@@ -83,11 +82,18 @@ public class CameraController : MonoBehaviour
         Cam.orthographicSize = NewSize;
     }
 
+    private void MoveToPosition() {
+        transform.position = Vector3.Lerp(transform.position, TargetPosition, PanningSpeed * Time.deltaTime);
+    }
+
     private Camera Cam;
 
-    public float MovementSpeed = 5;
+    public float MovementSpeed = 0.001f;
+    public float PanningSpeed = 10;
 
     public float MinimumZoom = 15;
     public float MaximumZoom = 60;
     public float ZoomSteps = 5;
+
+    public static Vector3 TargetPosition = new Vector3(0, 25, 0);
 }
