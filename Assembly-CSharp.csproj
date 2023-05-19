@@ -72,6 +72,8 @@
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Debug\Debugger.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
+    <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Buildings\MineBuilding.cs" />
     <Compile Include="Assets\Scripts\Unit\Workers.cs" />
     <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />
@@ -98,8 +100,6 @@
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
-    <Compile Include="Assets\Scripts\UI\UIElement.cs" />
-    <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro.cginc" />
