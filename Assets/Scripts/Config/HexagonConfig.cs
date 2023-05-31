@@ -6,7 +6,16 @@ using UnityEngine.UIElements;
 
 public class HexagonConfig {
     /** How many unity world space units should each hexagon be?*/
-    public static float size = 10f;
+    public static Vector3 TileSize = new Vector3(10, 5, 10);
+
+    /** How far should the inner border of a tile be inset? */
+    public static float TileBorderWidthMultiplier = 0.9f;
+
+    /** How high should the inner border of a tile be of TileSize.y? */
+    public static float TileBorderHeightMultiplier = 0.9f;
+
+    /** How high should the tile be of TileSize.y? */
+    public static float TileHeightMultiplier = 0.5f;
 
     /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr */
     public static int chunkSize = 9;
@@ -21,10 +30,11 @@ public class HexagonConfig {
     public static int mapMaxChunk = 10;
 
     /** world space offset in x direction per hex*/
-    public static float offsetX = Mathf.Sqrt(3) * HexagonConfig.size;
+    public static float offsetX = Mathf.Sqrt(3) * TileSize.x;
 
     /** world space offset in y direction per hex*/
-    public static float offsetY = 3.0f / 2.0f * HexagonConfig.size;
+    public static float offsetY = 3.0f / 2.0f * TileSize.z;
+
 
     public enum HexagonType : uint {
         DEFAULT,
@@ -86,14 +96,23 @@ public class HexagonConfig {
     }
 
     public static HexagonType GetTypeAtTileLocation(Vector2Int TileLocation) {
-        Vector3 WorldLocation = HexagonConfig.TileSpaceToWorldSpace(TileLocation);
+        Vector3 WorldLocation = TileSpaceToWorldSpace(TileLocation);
         HexagonType Type = GetTypeAtWorldLocation(WorldLocation);
         return Type;
     }
 
+    public static float GetHeightAtWorldLocation(Vector3 WorldLocation) {
+        return (Mathf.RoundToInt(Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z)) * TileHeightMultiplier + 1) * TileSize.y;
+    }
+
+    public static float GetHeightAtTileLocation(Vector2Int TileLocation) {
+        Vector3 WorldLocation = TileSpaceToWorldSpace(TileLocation);
+        return GetHeightAtWorldLocation(WorldLocation);
+    }
+
     public static Vector3 GetVertex(int i) {
         float Angle = 60.0f * i * Mathf.Deg2Rad;
-        return new Vector3(size * Mathf.Sin(Angle), 0, size * Mathf.Cos(Angle));
+        return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
     }
 
     public static int GetCostsFromTo(Location locationA, Location locationB) {

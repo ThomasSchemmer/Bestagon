@@ -87,7 +87,8 @@ public class MalaiseVisualization : MonoBehaviour
         Vector3 WorldLocation = HexagonData.Location.WorldLocation + Offset;
         Vertices.Add(WorldLocation);
         for (int i = 0; i < 7; i++) {
-            Vertices.Add(HexagonConfig.GetVertex(i) + WorldLocation);
+            Vector3 Position = HexagonConfig.GetVertex(i) + WorldLocation;
+            Vertices.Add(Position);
         }
         return Vertices;
     }

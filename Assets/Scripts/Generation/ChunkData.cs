@@ -25,7 +25,8 @@ public class ChunkData {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
                 HexagonData Data = new HexagonData {
                     Location = HexLocation,
-                    Type = HexagonConfig.GetTypeAtTileLocation(HexLocation.GlobalTileLocation)
+                    Type = HexagonConfig.GetTypeAtTileLocation(HexLocation.GlobalTileLocation),
+                    Height = HexagonConfig.GetHeightAtTileLocation(HexLocation.GlobalTileLocation)
                 };
                 HexDatas[x, y] = Data;
             }

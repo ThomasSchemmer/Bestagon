@@ -24,6 +24,7 @@ Shader "Custom/MalaiseShader"
             #pragma fragment frag
 
             #include "UnityCG.cginc"
+            #include "Assets/Materials/Shaders/Util/Util.cginc"
 
             float _V0Scale;
             float _V1Scale;
@@ -32,17 +33,6 @@ Shader "Custom/MalaiseShader"
             float3 _AlphaRamp;
             float3 _Direction;
             float4 _Color;
-
-            // shadertoy 4djSRW
-            float2 hash22(float2 p){
-	            float3 p3 = frac(float3(p.xyx) * float3(.1031, .1030, .0973));
-                p3 += dot(p3, p3.yzx + 33.33);
-                return frac((p3.xx + p3.yz) * p3.zy);
-            }
-            
-            float map (float value, float from1, float to1, float from2, float to2) {
-                return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-            }
 
             float voronoi(float2 position){                            
                 float2 base = floor(position);

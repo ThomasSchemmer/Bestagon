@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -16,29 +17,23 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         this.name = "Hex " + Location.HexLocation;
         Chunk = ChunkData;
         Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
-        GenerateMesh(Mat, Meshes[(int)Data.Type - 1]);
+        GenerateMesh(Mat, Meshes);
         Renderer = GetComponent<MeshRenderer>();
         SetSelected(false, false);
         SetHovered(false);
     }
 
-    void GenerateMesh(Material Mat, Mesh InMesh) {
-        Mesh mesh = InMesh;
-
-        // force a copy
-        MeshFilter Filter = GetComponent<MeshFilter>();
-        Filter.mesh.Clear();
-        Filter.mesh.vertices = mesh.vertices;
-        Filter.mesh.triangles = mesh.triangles;
-        Filter.mesh.uv = mesh.uv;
-        Filter.mesh.RecalculateBounds();
-        Filter.mesh.RecalculateNormals();
+    void GenerateMesh(Material Mat, List<Mesh> Meshes) {
+        Mesh Mesh = TileMeshGenerator.CreateMesh(Data, Meshes);
 
         MeshRenderer Renderer = GetComponent<MeshRenderer>();
         Renderer.material = Mat;
 
         MeshCollider Collider = GetComponent<MeshCollider>();
-        Collider.sharedMesh = Filter.mesh;
+        Collider.sharedMesh = Mesh;
+
+        MeshFilter Filter = GetComponent<MeshFilter>();
+        Filter.mesh = Mesh;
     }
 
     public void SetSelected(bool Selected, bool bShowReachableLocations) {

@@ -1,0 +1,78 @@
+#pragma kernel CreatePlates
+#pragma kernel MovePlates
+
+#include "Assets/Materials/Shaders/Util/Util.cginc"
+
+/**
+* Generate noise textures representing the world 
+* Currently supports
+*   - tectonic plates
+* Uses two outputs for everything to avoid race conditions when reading/writing in threads
+*/
+
+RWTexture2D<float4> EvenResult;
+RWTexture2D<float4> OddResult;
+
+int CentersCount;
+int GroupCount;
+int Width;
+uint CurrentRT;
+StructuredBuffer<float4> Colors;
+StructuredBuffer<float2> Centers;
+StructuredBuffer<float2> Directions;
+RWStructuredBuffer<int> EvenIndices;
+RWStructuredBuffer<int> OddIndices;
+
+
+// fake tectonic plates with voronoi
+[numthreads(16,16,1)]
+void CreatePlates (uint3 id : SV_DispatchThreadID)
+{
+    int IndexMin = -1;
+    int MinorIndexMin = -1;
+    float MinDistance = 100000000000.0;
+    //offset position by simplex noise
+    //dont use "real" noise to still keep edges intact
+    float2 uv = float2(id.x / (GroupCount * 16.0), id.y / (GroupCount * 16.0));
+    uv += snoise(uv * 5) / 50;
+
+    for (int i = 0; i < CentersCount; i++){
+        float DistanceSqr = (Centers[i].x - uv.x) * (Centers[i].x - uv.x) + (Centers[i].y - uv.y) * (Centers[i].y - uv.y);
+        DistanceSqr += 10;
+        if (DistanceSqr < MinDistance){
+            MinDistance = DistanceSqr;
+            IndexMin = i;
+        }
+    }
+
+    EvenResult[id.xy] = Colors[IndexMin];
+    OddResult[id.xy] = Colors[IndexMin];
+    EvenIndices[id.y * Width + id.x] = IndexMin;
+    OddIndices[id.y * Width + id.x] = IndexMin;
+}
+
+// move tectonics along their direction and try to overlap them
+[numthreads(16,16,1)]
+void MovePlates (uint3 ID : SV_DispatchThreadID)
+{
+    bool IsEven = CurrentRT % 2 == 0;
+    uint Pos = ID.y * Width + ID.x;
+    
+    int Index = IsEven ? EvenIndices[Pos] : OddIndices[Pos];
+    int Random = map(hash1(Index), 0, 1, -5, 5);
+
+    float2 Offset = float2(Random, Random);
+    float2 OtherID = (ID.xy + Offset) % float2(256, 256);
+    uint OtherPos = OtherID.y * Width + OtherID.x;
+    int OtherIndex = IsEven ? EvenIndices[OtherPos] : OddIndices[OtherPos];
+    
+    int SelectedIndex = max(Index, OtherIndex);
+
+    if (IsEven){
+        EvenResult[ID.xy] = Colors[SelectedIndex];
+        EvenIndices[Pos] = SelectedIndex;
+    }else{
+        OddResult[ID.xy] = Colors[SelectedIndex];
+        OddIndices[Pos] = SelectedIndex;
+    }
+}
