@@ -1,5 +1,6 @@
 #pragma kernel CreatePlates
 #pragma kernel MovePlates
+#pragma kernel CopyBuffers
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
@@ -16,20 +17,31 @@ RWTexture2D<float4> OddResult;
 int CentersCount;
 int GroupCount;
 int Width;
-uint CurrentRT;
+int CurrentIndex;
 StructuredBuffer<float4> Colors;
 StructuredBuffer<float2> Centers;
-StructuredBuffer<float2> Directions;
 RWStructuredBuffer<int> EvenIndices;
 RWStructuredBuffer<int> OddIndices;
 
+bool HasIndex(int State, int Index){
+    return State & Index;
+}
 
-// fake tectonic plates with voronoi
+float4 GetColor(int State){
+    for (int i = CentersCount; i >= 0; i --){
+        if (HasIndex(State, (1 << i)))
+            return Colors[i];
+    }
+    return float4(0, 0, 0, 1);
+}
+
+/**
+* fake tectonic plates with voronoi
+*/
 [numthreads(16,16,1)]
 void CreatePlates (uint3 id : SV_DispatchThreadID)
 {
-    int IndexMin = -1;
-    int MinorIndexMin = -1;
+    int StateMin = 0;
     float MinDistance = 100000000000.0;
     //offset position by simplex noise
     //dont use "real" noise to still keep edges intact
@@ -37,42 +49,68 @@ void CreatePlates (uint3 id : SV_DispatchThreadID)
     uv += snoise(uv * 5) / 50;
 
     for (int i = 0; i < CentersCount; i++){
-        float DistanceSqr = (Centers[i].x - uv.x) * (Centers[i].x - uv.x) + (Centers[i].y - uv.y) * (Centers[i].y - uv.y);
-        DistanceSqr += 10;
+        // world is mirrored on all sides, so use minimum singular distance
+        float DistanceX = min(abs(uv.x - Centers[i].x), abs(uv.x + 1 - Centers[i].x));
+        float DistanceY = min(abs(uv.y - Centers[i].y), abs(uv.y + 1 - Centers[i].y));
+        float DistanceSqr = DistanceX * DistanceX + DistanceY * DistanceY;
         if (DistanceSqr < MinDistance){
             MinDistance = DistanceSqr;
-            IndexMin = i;
+            StateMin = 1 << i;
         }
     }
 
-    EvenResult[id.xy] = Colors[IndexMin];
-    OddResult[id.xy] = Colors[IndexMin];
-    EvenIndices[id.y * Width + id.x] = IndexMin;
-    OddIndices[id.y * Width + id.x] = IndexMin;
+    EvenResult[id.xy] = GetColor(StateMin);
+    OddResult[id.xy] = GetColor(StateMin);
+    EvenIndices[id.y * Width + id.x] = StateMin;
+    OddIndices[id.y * Width + id.x] = StateMin;
 }
 
-// move tectonics along their direction and try to overlap them
+/** 
+* move tectonics along their direction and try to overlap them
+* each tectonic plate is acccessed by State and then only pixels from that plate are moved in a random direction
+* we need to update the current as well as the target pixel/plate position:
+*   Target: take the higher plate (by color)
+*   Current: discard plate if we leave (aka inverted direction is not the current plate)
+* 
+* state is taken from even and written into odd to avoid race conflicts
+*/
 [numthreads(16,16,1)]
 void MovePlates (uint3 ID : SV_DispatchThreadID)
 {
-    bool IsEven = CurrentRT % 2 == 0;
     uint Pos = ID.y * Width + ID.x;
-    
-    int Index = IsEven ? EvenIndices[Pos] : OddIndices[Pos];
-    int Random = map(hash1(Index), 0, 1, -5, 5);
 
-    float2 Offset = float2(Random, Random);
-    float2 OtherID = (ID.xy + Offset) % float2(256, 256);
-    uint OtherPos = OtherID.y * Width + OtherID.x;
-    int OtherIndex = IsEven ? EvenIndices[OtherPos] : OddIndices[OtherPos];
-    
-    int SelectedIndex = max(Index, OtherIndex);
+    int State = EvenIndices[Pos];
+    if (!HasIndex(State, CurrentIndex))
+        return;
+        
+    int RandomX = map(hash1(CurrentIndex), 0, 1, -5, 5);
+    int RandomY = map(hash1(CurrentIndex + 128), 0, 1, -5, 5);
 
-    if (IsEven){
-        EvenResult[ID.xy] = Colors[SelectedIndex];
-        EvenIndices[Pos] = SelectedIndex;
-    }else{
-        OddResult[ID.xy] = Colors[SelectedIndex];
-        OddIndices[Pos] = SelectedIndex;
-    }
+    int2 Offset = int2(RandomX, RandomY);
+    uint2 NextID = (ID.xy + Offset) % uint2(Width, Width);
+    // avoid uint underflow, can't subtract only zero 
+    uint2 PrevID = (ID.xy + uint2(Width, Width) - Offset ) % uint2(Width, Width);
+
+    uint NextPos = NextID.y * Width + NextID.x;
+    uint PrevPos = PrevID.y * Width + PrevID.x;
+    int NextState = EvenIndices[NextPos];
+    int PrevState = EvenIndices[PrevPos];
+    
+    NextState = NextState | CurrentIndex;
+    PrevState = HasIndex(PrevState, CurrentIndex) ? State : State - CurrentIndex;
+    
+    OddIndices[Pos] =  PrevState;
+    OddIndices[NextPos] = NextState;
+    OddResult[ID.xy] = GetColor(PrevState);
+    OddResult[NextID.xy] = GetColor(NextState);
+
+}
+
+// copy the buffer content from odd to even
+[numthreads(16,16,1)]
+void CopyBuffers (uint3 ID : SV_DispatchThreadID)
+{
+    uint Pos = ID.y * Width + ID.x;
+    EvenIndices[Pos] = OddIndices[Pos];
+    EvenResult[ID.xy] = OddResult[ID.xy];
 }

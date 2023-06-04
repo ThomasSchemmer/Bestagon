@@ -7,44 +7,49 @@ public class WorldGenerator : MonoBehaviour
 {
     public void Execute() {
         Init();
-        CurrentRT = 0;
 
         SetData(CreatePlatesKernel);
 
         ComputeShader.Dispatch(CreatePlatesKernel, GroupCount, GroupCount, 1);
     }
 
-    public void Move(int Amount) {
+    public void Move() {
+        for (int i = 1; i < NumCenters; i++) {
+            Move(1 << i);
+        }
+    }
+
+    public void Move(int Index) {
         if (EvenRT == null) {
             Init();
         }
-        CurrentRT++;
 
         SetData(MovePlatesKernel);
+        ComputeShader.SetInt("CurrentIndex", Index);
 
         ComputeShader.Dispatch(MovePlatesKernel, GroupCount, GroupCount, 1);
+        CopyBuffers();
+    }
+
+    public void CopyBuffers() {
+        SetData(CopyBuffersKernel);
+        ComputeShader.Dispatch(CopyBuffersKernel, GroupCount, GroupCount, 1);
     }
 
     private void FillBuffers() {
         Random.InitState(0);
         List<Vector2> Centers = new();
-        for (int i = 0; i < NumCenters; i++) {
+        // add "invalid" location at index 0
+        Centers.Add(new Vector2(-100, -100));
+        for (int i = 1; i < NumCenters; i++) {
             Centers.Add(new Vector2(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f)));
         }
         CentersBuffer.SetData(Centers.ToArray());
 
-
-        List<Vector2> Directions = new();
-        int Range = 1;
-        for (int i = 0; i < NumCenters; i++) {
-            Vector2 Direction = new Vector2(Random.Range(-Range, Range), Random.Range(-Range, Range));
-            Direction.Normalize();
-            Directions.Add(Direction);
-        }
-        DirectionsBuffer.SetData(Directions.ToArray());
-
         List<Vector4> Colors = new();
-        for (int i = 0; i < NumCenters; i++) {
+        // add "invalid" color at index 0
+        Colors.Add(new Color(0, 0, 0));
+        for (int i = 1; i < NumCenters; i++) {
             Color Color = Random.ColorHSV();
             Colors.Add(new Vector4(Color.r, Color.g, Color.b, 1));
         }
@@ -62,23 +67,21 @@ public class WorldGenerator : MonoBehaviour
             ColorsBuffer.Release();
         if (CentersBuffer != null)
             CentersBuffer.Release();
-        if (DirectionsBuffer != null)
-            DirectionsBuffer.Release();
         if (EvenIndicesBuffer != null)
             EvenIndicesBuffer.Release();
         if (OddIndicesBuffer != null)
-            OddIndicesBuffer.Release();
+            OddIndicesBuffer.Release(); 
     }
 
     private void Init() {
         Release();
 
-        EvenRT = new RenderTexture(256, 256, 0, RenderTextureFormat.ARGB32);
+        EvenRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
         EvenRT.enableRandomWrite = true;
         EvenRT.Create();
         EvenRT.filterMode = FilterMode.Trilinear;
         EvenRT.wrapMode = TextureWrapMode.Repeat; 
-        OddRT = new RenderTexture(256, 256, 0, RenderTextureFormat.ARGB32);
+        OddRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
         OddRT.enableRandomWrite = true;
         OddRT.Create();
         OddRT.filterMode = FilterMode.Trilinear;
@@ -86,12 +89,12 @@ public class WorldGenerator : MonoBehaviour
 
         CreatePlatesKernel = ComputeShader.FindKernel("CreatePlates");
         MovePlatesKernel = ComputeShader.FindKernel("MovePlates");
+        CopyBuffersKernel = ComputeShader.FindKernel("CopyBuffers");
 
         ColorsBuffer = new ComputeBuffer(NumCenters, 4 * sizeof(float));
         CentersBuffer = new ComputeBuffer(NumCenters, 2 * sizeof(float));
-        DirectionsBuffer = new ComputeBuffer(NumCenters, 2 * sizeof(float));
-        EvenIndicesBuffer = new ComputeBuffer(256 * 256, sizeof(int));
-        OddIndicesBuffer = new ComputeBuffer(256 * 256, sizeof(int));
+        EvenIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
+        OddIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
 
         FillBuffers();
     }
@@ -99,14 +102,13 @@ public class WorldGenerator : MonoBehaviour
     private void SetData(int Kernel) {
         ComputeShader.SetBuffer(Kernel, "Colors", ColorsBuffer);
         ComputeShader.SetBuffer(Kernel, "Centers", CentersBuffer);
-        ComputeShader.SetBuffer(Kernel, "Directions", DirectionsBuffer);
         ComputeShader.SetBuffer(Kernel, "EvenIndices", EvenIndicesBuffer);
         ComputeShader.SetBuffer(Kernel, "OddIndices", OddIndicesBuffer);
+        ComputeShader.SetTexture(Kernel, "EvenResult", EvenRT);
+        ComputeShader.SetTexture(Kernel, "OddResult", OddRT);
         ComputeShader.SetInt("CentersCount", NumCenters);
         ComputeShader.SetInt("GroupCount", GroupCount);
         ComputeShader.SetInt("Width", EvenRT.width);
-        ComputeShader.SetTexture(Kernel, "EvenResult", EvenRT);
-        ComputeShader.SetTexture(Kernel, "OddResult", OddRT);
     }
 
     public ComputeShader ComputeShader;
@@ -114,14 +116,14 @@ public class WorldGenerator : MonoBehaviour
 
     private int CreatePlatesKernel;
     private int MovePlatesKernel;
+    private int CopyBuffersKernel;
     private ComputeBuffer ColorsBuffer;
     private ComputeBuffer CentersBuffer;
-    private ComputeBuffer DirectionsBuffer;
     private ComputeBuffer EvenIndicesBuffer;
     private ComputeBuffer OddIndicesBuffer;
 
-    private static int NumCenters = 15;
-    private static int GroupCount = 16;
-    private uint CurrentRT = 0;
-
+    // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
+    private static int ImageWidth = 256;
+    private static int GroupCount = ImageWidth / 16;
+    private static int NumCenters = 4;
 }
