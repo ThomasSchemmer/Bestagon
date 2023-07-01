@@ -1,6 +1,7 @@
 #pragma kernel CreatePlates
 #pragma kernel MovePlates
 #pragma kernel CopyBuffers
+#pragma kernel NoiseLand
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
@@ -35,6 +36,40 @@ float4 GetColor(int State){
     return float4(0, 0, 0, 1);
 }
 
+float4 GetColorAverage(int State){
+    float4 Color = 0;
+    int Count = 0;
+    for (int i = CentersCount; i >= 0; i --){
+        if (HasIndex(State, (1 << i))){
+            Color += Colors[i];
+            Count++;
+        }
+    }
+    return Color / Count;
+}
+
+int GetCount(int State){
+    int Count = 0;
+    for (int i = CentersCount; i >= 0; i --){
+        if (HasIndex(State, (1 << i))){
+            Count++;
+        }
+    }
+    return Count;
+}
+
+float GetHeight(int State){
+    float4 Avg = GetColorAverage(State);
+    return (Avg.x + Avg.y + Avg.z) / 3.0;
+}
+
+float2 snoises(float2 uv){
+    float2 result = float2(0, 0);
+    result += snoise(uv * 1) / 10;
+    result += snoise(uv * 2) / 10;
+    return result;
+}
+
 /**
 * fake tectonic plates with voronoi
 */
@@ -46,16 +81,23 @@ void CreatePlates (uint3 id : SV_DispatchThreadID)
     //offset position by simplex noise
     //dont use "real" noise to still keep edges intact
     float2 uv = float2(id.x / (GroupCount * 16.0), id.y / (GroupCount * 16.0));
-    uv += snoise(uv * 5) / 50;
+    uv += snoises(uv);
 
     for (int i = 0; i < CentersCount; i++){
         // world is mirrored on all sides, so use minimum singular distance
-        float DistanceX = min(abs(uv.x - Centers[i].x), abs(uv.x + 1 - Centers[i].x));
-        float DistanceY = min(abs(uv.y - Centers[i].y), abs(uv.y + 1 - Centers[i].y));
+        float DistanceX = min(abs(uv.x - Centers[i].x), min(abs(uv.x - 1 - Centers[i].x), abs(uv.x + 1 - Centers[i].x)));
+        float DistanceY = min(abs(uv.y - Centers[i].y), min(abs(uv.y - 1 - Centers[i].y), abs(uv.y + 1 - Centers[i].y)));
         float DistanceSqr = DistanceX * DistanceX + DistanceY * DistanceY;
         if (DistanceSqr < MinDistance){
             MinDistance = DistanceSqr;
             StateMin = 1 << i;
+        }
+        if (DistanceSqr < 0.01 * 0.01){
+            EvenResult[id.xy] = float4(1, 0, 0, 1);
+            OddResult[id.xy] = float4(1, 0, 0, 1);
+            EvenIndices[id.y * Width + id.x] = StateMin;
+            OddIndices[id.y * Width + id.x] = StateMin;
+            return;
         }
     }
 
@@ -113,4 +155,40 @@ void CopyBuffers (uint3 ID : SV_DispatchThreadID)
     uint Pos = ID.y * Width + ID.x;
     EvenIndices[Pos] = OddIndices[Pos];
     EvenResult[ID.xy] = OddResult[ID.xy];
+}
+
+float LandNoise(float2 uv){
+    float result = 0;
+    float frequency = 3;
+    float factor = 3;
+    for (int i = 0; i < 5; i++){
+        result = result + snoise(uv * frequency + 4) * factor;
+        factor *= 0.5;
+        frequency *= 2;
+    }
+    return result;
+}
+
+
+// layered simplex noise to land
+[numthreads(16,16,1)]
+void NoiseLand (uint3 ID : SV_DispatchThreadID)
+{
+    float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
+    float Height = LandNoise(uv);
+
+    // take uv.y distance to center line as temperature range
+    float Temperature = 1 - smoothstep(-0.5, 1.5, abs(0.5 - uv.y + snoise(uv * 20) / 20) * 2.5);
+
+    float4 WaterColor = float4(28.0 / 255, 163.0 / 255, 236.0 / 255, 1);
+    float4 LandColor = float4(169.0 / 255, 218.0 / 255, 63.0 / 255, 1);
+    float4 BeachColor = float4(248.0 / 255, 235.0 / 255, 146.0 / 255, 1);
+    float4 IceColor = float4(0.9, 0.9, 1, 1);
+    float4 TundraColor = float4(0.65, 0.75, 0.4, 1);
+    float4 DesertColor = float4(239/255.0, 221/255.0, 111/255.0, 1);
+    float4 Land = Temperature < 0.15 ? IceColor : 
+                  Temperature < 0.3 ? TundraColor :
+                  Temperature > 0.7 ? DesertColor : LandColor;
+    OddResult[ID.xy] = Height > 0.6 ? Land : 
+                       Height > 0.2 ? BeachColor : WaterColor;
 }

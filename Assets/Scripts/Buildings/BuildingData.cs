@@ -30,7 +30,7 @@ public abstract class BuildingData {
     }
 
     public virtual Vector3 GetOffset() {
-        return new Vector3(0, 2, 0);
+        return new Vector3(0, 5, 0);
     }
 
     public virtual Quaternion GetRotation() {

@@ -36,8 +36,13 @@ public class WorldGenerator : MonoBehaviour
         ComputeShader.Dispatch(CopyBuffersKernel, GroupCount, GroupCount, 1);
     }
 
+    public void NoiseLand() {
+        SetData(NoiseLandKernel);
+        ComputeShader.Dispatch(NoiseLandKernel, GroupCount, GroupCount, 1);
+    }
+
     private void FillBuffers() {
-        Random.InitState(0);
+        //Random.InitState(0);
         List<Vector2> Centers = new();
         // add "invalid" location at index 0
         Centers.Add(new Vector2(-100, -100));
@@ -90,6 +95,7 @@ public class WorldGenerator : MonoBehaviour
         CreatePlatesKernel = ComputeShader.FindKernel("CreatePlates");
         MovePlatesKernel = ComputeShader.FindKernel("MovePlates");
         CopyBuffersKernel = ComputeShader.FindKernel("CopyBuffers");
+        NoiseLandKernel = ComputeShader.FindKernel("NoiseLand");
 
         ColorsBuffer = new ComputeBuffer(NumCenters, 4 * sizeof(float));
         CentersBuffer = new ComputeBuffer(NumCenters, 2 * sizeof(float));
@@ -117,6 +123,7 @@ public class WorldGenerator : MonoBehaviour
     private int CreatePlatesKernel;
     private int MovePlatesKernel;
     private int CopyBuffersKernel;
+    private int NoiseLandKernel;
     private ComputeBuffer ColorsBuffer;
     private ComputeBuffer CentersBuffer;
     private ComputeBuffer EvenIndicesBuffer;
@@ -125,5 +132,5 @@ public class WorldGenerator : MonoBehaviour
     // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
-    private static int NumCenters = 4;
+    private static int NumCenters = 7;
 }

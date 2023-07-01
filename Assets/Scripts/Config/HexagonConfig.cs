@@ -41,8 +41,23 @@ public class HexagonConfig {
         Meadow,
         Forest,
         Mountain,
-        Ocean
+        Ocean,
+        Desert,
+        Tundra,
+        Ice
     }
+
+    // lookup table whether a specific type can have a higher tile 
+    public static bool[] CanHaveHeight = {
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false
+    };
 
     public static void GlobalTileToChunkAndTileSpace(Vector2Int GlobalPos, out Location Location) {
         Vector2Int ChunkPos = TileSpaceToChunkSpace(GlobalPos);
@@ -91,7 +106,8 @@ public class HexagonConfig {
     }
 
     public static HexagonType GetTypeAtWorldLocation(Vector3 WorldLocation) {
-        int Value = (int)(Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z) * 4 + 1);
+        int Length = Enum.GetValues(typeof(HexagonType)).Length;
+        int Value = Mathf.RoundToInt(UnityEngine.Random.Range(1, Length));// Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z) * Length);
         return (HexagonType)Value;
     }
 
@@ -101,13 +117,17 @@ public class HexagonConfig {
         return Type;
     }
 
-    public static float GetHeightAtWorldLocation(Vector3 WorldLocation) {
-        return (Mathf.RoundToInt(Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z)) * TileHeightMultiplier + 1) * TileSize.y;
+    public static float GetHeightAtWorldLocation(Vector3 WorldLocation, HexagonType Type) {
+        float Multiplier = 1;
+        if (CanHaveHeight[(int)Type]) {
+            Multiplier = Mathf.RoundToInt(Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z)) * TileHeightMultiplier + 1;
+        }
+        return Multiplier * TileSize.y;
     }
 
-    public static float GetHeightAtTileLocation(Vector2Int TileLocation) {
+    public static float GetHeightAtTileLocation(Vector2Int TileLocation, HexagonType Type) {
         Vector3 WorldLocation = TileSpaceToWorldSpace(TileLocation);
-        return GetHeightAtWorldLocation(WorldLocation);
+        return GetHeightAtWorldLocation(WorldLocation, Type);
     }
 
     public static Vector3 GetVertex(int i) {
@@ -130,6 +150,7 @@ public class HexagonConfig {
             case HexagonType.Forest: return 2;
             case HexagonType.Ocean: return -1;
             case HexagonType.Mountain: return 3;
+            case HexagonType.Desert: return 1;
             default: return -1;
         }
     }
