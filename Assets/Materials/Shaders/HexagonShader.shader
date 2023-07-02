@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-Shader "Custom/HexagonShader"
+﻿Shader "Custom/HexagonShader"
 {
     Properties
     {
@@ -66,18 +64,27 @@ Shader "Custom/HexagonShader"
                 UNITY_DEFINE_INSTANCED_PROP(float, _Malaised)
             UNITY_INSTANCING_BUFFER_END(Props)
 
-            bool IsWater(){
+            inline bool IsWater(){
                 // ocean value can be checked in hexagonconfig, currently 4
                 return _Type == 4;
+            }
+
+            inline bool IsBorder(float2 uv) {
+                return uv.x < 1 / 16.0;
             }
 
             float4 NormalLighting(float3 normal){
                 // while non-water tiles use directional lighting from "sun light",
                 // water tiles have to lerp between the prescribed color values in the tiles.png
                 // to pass this to the fragment shader simply write it in diff.x and add to uv.x
+
+                // range 0..1
                 half nl = max(0, dot(normal, _WorldSpaceLightPos0.xyz));
+
                 if (IsWater()){
-                    return float4(1 / 16.0, 0, 0, 0);
+                    // needs to be 0..3/16
+                    nl = nl * 3 / 16.0;
+                    return float4(nl, 0, 0, 0);
                 }else{
                     return nl * _LightColor0;
                 }
@@ -87,24 +94,24 @@ Shader "Custom/HexagonShader"
                 //diffuse lighting calculations
                 float3 normal = IsWater() ? triangleNormal : UnityObjectToWorldNormal(IN.normal);
                 float4 lighting = NormalLighting(normal);
-                o.diff = IsWater() ? 0 : lighting;
-                // see NormalLighting()
-                o.uv = IN.uv + float2(IsWater() ? lighting.x : 0, 0);
+                o.diff = IsWater() ? 1 : lighting;
+                bool shouldChangeUV = IsWater() && !IsBorder(IN.uv);
+                o.uv = IN.uv + float2(shouldChangeUV ? lighting.x : 0, 0);
+                // if we change the color too much, we suddenly declare this pixel as border!
+                o.uv.x = !IsBorder(IN.uv) ? max(o.uv.x, 1.1 / 16.0) : o.uv.x;
                 return o;
             }
 
             appdata HandleWaterDisplacement(appdata v){
-                uint VertexType = (uint)(v.uv.x * 16);
-                bool bIsWater = IsWater() && VertexType == 1; 
-                if (!bIsWater)
+                if (!IsWater() || IsBorder(v.uv))
                     return v;
                     
                 // displace ocean decoration vertices by their world location and time to create waves
                 float TimeScale = 0.3;
-                float WaveScale = 0.3;
+                float WaveScale = 1;
                 float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                float2 noise = snoise(worldPos.xz + sin(_Time.y) * TimeScale) * WaveScale;
-                v.vertex += float4(noise.x, 0, noise.y, 0);
+                float noise = snoise(worldPos.xz + sin(_Time.y) * TimeScale) * WaveScale;
+                v.vertex += float4(0, noise.x, 0, 0); 
                 return v;
             }
 
@@ -150,14 +157,14 @@ Shader "Custom/HexagonShader"
                 // each uv stores information about hex type (uv.y) and model vertex type (uv.x) 
                 // the color of each vertex is dependent on its own type (border, decoration, highlight,..)
                 // as well as the type of hex itself (eg desert vs ocean)
-                bool isBorder = i.uv.x < 1 / 16.0;
+                bool isBorder = IsBorder(i.uv);
                 int highlight = _Malaised > 0 ? 4 : 
                                 _Selected > 0 ? 1 :
                                 _Hovered > 0 ? 2 :
                                 _Adjacent > 0 ? 3 : 0;
                 bool isHighlighted = isBorder && highlight > 0;
-                float v = isHighlighted ? 0 : _Type;
                 float u = isHighlighted ? highlight - 1 : i.uv.x * 16.0;
+                float v = isHighlighted ? 0 : _Type;
                 float2 uv = float2(u, v) / 16.0;
                 fixed4 color = tex2D(_MainTex, uv);
                 color *= i.diff;
