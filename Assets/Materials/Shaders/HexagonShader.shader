@@ -2,12 +2,14 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _TypeTex ("Types", 2D) = "white" {}
+        _NoiseTex("Noise", 2D) = "white" {}
         _Type ("Type", Float) = 0
         _Selected ("Selected", Float) = 0
         _Hovered("Hovered", Float) = 0
         _Adjacent("Adjacent", Float) = 0
         _Malaised("Malaised", Float) = 0
+        _WorldSize("World Size", Vector) = (0, 0, 0, 0)
             
     }
     SubShader
@@ -52,8 +54,15 @@
             };
 
             // shared between all hexagons, simply a lookup img for colors
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            sampler2D _TypeTex;
+            float4 _TypeTex_ST;
+
+            // noise texture for easier lookup / shifting water
+            sampler2D _NoiseTex;
+            float4 _NoiseTex_ST;
+
+            // contains size of world in (x, y, 0, 0)
+            float4 _WorldSize;
 
             // each hexagon mesh sets these values for itself, todo: should be bitmask
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -70,7 +79,7 @@
             }
 
             inline bool IsBorder(float2 uv) {
-                return uv.x < 1 / 16.0;
+                return uv.x < 1.01 / 16.0;
             }
 
             float4 NormalLighting(float3 normal){
@@ -102,17 +111,20 @@
                 return o;
             }
 
-            appdata HandleWaterDisplacement(appdata v){
+            float4 HandleWaterDisplacement(appdata v){
                 if (!IsWater() || IsBorder(v.uv))
-                    return v;
+                    return v.vertex;
                     
                 // displace ocean decoration vertices by their world location and time to create waves
-                float TimeScale = 0.3;
-                float WaveScale = 1;
+                // only do this for the lighting calculation - don't actually displace the vertex!
+                float TimeScale = 0.01;
+                float WaveWidth = 20;
+                float WaveHeight = 15;
                 float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                float noise = snoise(worldPos.xz + sin(_Time.y) * TimeScale) * WaveScale;
-                v.vertex += float4(0, noise.x, 0, 0); 
-                return v;
+                float4 worldFraction = float4(worldPos.xz / _WorldSize.xy, 0, 0);
+                float4 noiseUV = float4(frac(worldFraction.xy * WaveWidth + _Time.y * TimeScale), 0, 0);
+                float4 noise = tex2Dlod(_NoiseTex, noiseUV);
+                return v.vertex + float4(0, noise.g * WaveHeight, 0, 0);
             }
 
             v2g vert (appdata v)
@@ -122,11 +134,10 @@
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 
-                v = HandleWaterDisplacement(v);
                 // pass through in object space, since we have to use geometry shader to update the normal anyway
                 o.vertex = v.vertex;
                 o.normal = v.normal;
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = TRANSFORM_TEX(v.uv, _TypeTex);
 
                 return o;
             }
@@ -137,8 +148,8 @@
                 
                 // since geometry shader has access to each triangle
                 // we can calculate the ocean lighting here
-                float4 AB = normalize(IN[1].vertex - IN[0].vertex);
-                float4 AC = normalize(IN[2].vertex - IN[0].vertex);
+                float4 AB = normalize(HandleWaterDisplacement(IN[1]) - HandleWaterDisplacement(IN[0]));
+                float4 AC = normalize(HandleWaterDisplacement(IN[2]) - HandleWaterDisplacement(IN[0]));
                 float3 triangleNormal = cross(AB, AC);
 
                 [unroll]
@@ -166,7 +177,7 @@
                 float u = isHighlighted ? highlight - 1 : i.uv.x * 16.0;
                 float v = isHighlighted ? 0 : _Type;
                 float2 uv = float2(u, v) / 16.0;
-                fixed4 color = tex2D(_MainTex, uv);
+                fixed4 color = tex2D(_TypeTex, uv);
                 color *= i.diff;
                 return color;
             }

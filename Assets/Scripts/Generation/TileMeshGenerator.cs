@@ -38,16 +38,16 @@ public class TileMeshGenerator : MonoBehaviour
 
         // upper ring, for outside
         for (int i = 0; i < 6; i++) {
-            UVs.Add(new Vector2(2.1f / 16.0f, 0));
+            UVs.Add(new Vector2(0.1f / 16.0f, 0));
         }
 
         // lower ring
         for (int i = 0; i < 6; i++) {
-            UVs.Add(new Vector2(2.1f / 16.0f, 0));
+            UVs.Add(new Vector2(0.1f / 16.0f, 0));
         }
 
         //lower center
-        UVs.Add(new Vector2(2.1f / 16.0f, 0));
+        UVs.Add(new Vector2(0.1f / 16.0f, 0));
 
         // upper ring, for top side
         for (int i = 0; i < 6; i++) {
@@ -61,12 +61,12 @@ public class TileMeshGenerator : MonoBehaviour
 
         // upper inner ring, for inset
         for (int i = 0; i < 6; i++) {
-            UVs.Add(new Vector2(1.1f / 16.0f, 0));
+            UVs.Add(new Vector2(0.1f / 16.0f, 0));
         }
 
         // upper inner inset
         for (int i = 0; i < 6; i++) {
-            UVs.Add(new Vector2(1.1f / 16.0f, 0));
+            UVs.Add(new Vector2(0.1f / 16.0f, 0));
         }
     }
 
