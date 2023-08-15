@@ -35,6 +35,11 @@ public class HexagonConfig {
     /** world space offset in y direction per hex*/
     public static float offsetY = 3.0f / 2.0f * TileSize.z;
 
+    /** Contains height (x) and temperature (y) map data */
+    public static Vector2[] MapData;
+
+    public static float MapSize = 256;
+
 
     public enum HexagonType : uint {
         DEFAULT,
@@ -58,6 +63,11 @@ public class HexagonConfig {
         true,
         false
     };
+
+    public static float ICE_CUTOFF = 0.15f;
+    public static float TUNDRA_CUTOFF = 0.3f;
+    public static float MEADOW_CUTOFF = 0.7f;
+    public static float WATER_CUTOFF = 0.2f;
 
     public static void GlobalTileToChunkAndTileSpace(Vector2Int GlobalPos, out Location Location) {
         Vector2Int ChunkPos = TileSpaceToChunkSpace(GlobalPos);
@@ -105,29 +115,42 @@ public class HexagonConfig {
                 Index.y >= 0 && Index.y < chunkSize;
     }
 
-    public static HexagonType GetTypeAtWorldLocation(Vector3 WorldLocation) {
-        int Length = Enum.GetValues(typeof(HexagonType)).Length;
-        int Value = Mathf.RoundToInt(UnityEngine.Random.Range(1, Length));// Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z) * Length);
-        return (HexagonType)Value;
+    public static Location GetMaxLocation() {
+        return new Location(new Vector2Int(mapMaxChunk - 1, mapMaxChunk - 1), new Vector2Int(chunkSize - 1, chunkSize - 1));
     }
 
-    public static HexagonType GetTypeAtTileLocation(Vector2Int TileLocation) {
-        Vector3 WorldLocation = TileSpaceToWorldSpace(TileLocation);
-        HexagonType Type = GetTypeAtWorldLocation(WorldLocation);
-        return Type;
+    public static HexagonType GetTypeFromMapData(Vector2 Data) {
+        float Height = Data.x;
+        float Temperature = Data.y;
+        HexagonType Land = Temperature < ICE_CUTOFF ? HexagonType.Ice :
+                            Temperature < TUNDRA_CUTOFF ? HexagonType.Tundra :
+                            Temperature < MEADOW_CUTOFF ? HexagonType.Meadow :
+                            HexagonType.Desert;
+
+        return Height < WATER_CUTOFF ? HexagonType.Ocean : Land;
     }
 
-    public static float GetHeightAtWorldLocation(Vector3 WorldLocation, HexagonType Type) {
+    public static int GetMapPosFromLocation(Location Location) {
+        Vector2Int MaxGlobalTileLocation = GetMaxLocation().GlobalTileLocation + new Vector2Int(1, 1);
+        Vector2Int GlobalTileLocation = Location.GlobalTileLocation;
+        Vector2 UV = new Vector2(GlobalTileLocation.x / (float)MaxGlobalTileLocation.x, GlobalTileLocation.y / (float)MaxGlobalTileLocation.y);
+        Vector2Int UVI = new Vector2Int((int)(UV.x * MapSize), (int)(UV.y * MapSize));
+        return UVI.x + UVI.y * (int)MapSize;
+    }
+
+    public static HexagonType GetTypeAtTileLocation(Location Location) {
+        int Pos = GetMapPosFromLocation(Location);
+        return GetTypeFromMapData(MapData[Pos]);
+    }
+
+    public static float GetHeightAtTileLocation(Location Location, HexagonType Type) {
+        int Pos = GetMapPosFromLocation(Location);
         float Multiplier = 1;
+
         if (CanHaveHeight[(int)Type]) {
-            Multiplier = Mathf.RoundToInt(Mathf.PerlinNoise(WorldLocation.x, WorldLocation.z)) * TileHeightMultiplier + 1;
+            Multiplier = Mathf.RoundToInt(MapData[Pos].x) * TileHeightMultiplier + 1;
         }
         return Multiplier * TileSize.y;
-    }
-
-    public static float GetHeightAtTileLocation(Vector2Int TileLocation, HexagonType Type) {
-        Vector3 WorldLocation = TileSpaceToWorldSpace(TileLocation);
-        return GetHeightAtWorldLocation(WorldLocation, Type);
     }
 
     public static Vector3 GetVertex(int i) {

@@ -4,12 +4,14 @@
     {
         _TypeTex ("Types", 2D) = "white" {}
         _NoiseTex("Noise", 2D) = "white" {}
-        _Type ("Type", Float) = 0
-        _Selected ("Selected", Float) = 0
+        _Type("Type", Float) = 0
+        _Selected("Selected", Float) = 0
         _Hovered("Hovered", Float) = 0
         _Adjacent("Adjacent", Float) = 0
         _Malaised("Malaised", Float) = 0
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
+        // unused debug value
+        _Value("Value", Float) = 0
             
     }
     SubShader
@@ -71,6 +73,7 @@
                 UNITY_DEFINE_INSTANCED_PROP(float, _Hovered)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Adjacent)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Malaised)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Value)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             inline bool IsWater(){

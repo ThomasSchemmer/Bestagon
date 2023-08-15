@@ -212,6 +212,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (Data != null) {
             Block.SetFloat("_Malaised", Data.bIsMalaised ? 1 : 0);
             Block.SetFloat("_Type", (float)Data.Type);
+            Block.SetFloat("_Value", Data.Value);
         }
         if (!Renderer)
             return;

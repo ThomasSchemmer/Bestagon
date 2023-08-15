@@ -15,7 +15,7 @@ public class WorldGeneratorInspector : Editor
         string AmountString = GUILayout.TextField(""+ Amount);
         Amount = int.Parse(AmountString);
         if (GUILayout.Button("Execute")) {
-            Script.Execute();
+            Script.CreatePlates();
         }
         if (GUILayout.Button("Move")) {
             if (Amount >= 0) {

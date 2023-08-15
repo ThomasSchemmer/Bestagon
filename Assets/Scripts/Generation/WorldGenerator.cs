@@ -5,12 +5,16 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
 {
-    public void Execute() {
-        Init();
+    private void Start() {
+        Instance = this;    
+    }
 
-        SetData(CreatePlatesKernel);
+    public void CreatePlates() {
+        Init(false);
 
-        ComputeShader.Dispatch(CreatePlatesKernel, GroupCount, GroupCount, 1);
+        SetDataPlates(CreatePlatesKernel);
+
+        PlateShader.Dispatch(CreatePlatesKernel, GroupCount, GroupCount, 1);
     }
 
     public void Move() {
@@ -21,27 +25,121 @@ public class WorldGenerator : MonoBehaviour
 
     public void Move(int Index) {
         if (EvenRT == null) {
-            Init();
+            Init(false);
         }
 
-        SetData(MovePlatesKernel);
-        ComputeShader.SetInt("CurrentIndex", Index);
+        SetDataPlates(MovePlatesKernel);
+        PlateShader.SetInt("CurrentIndex", Index);
 
-        ComputeShader.Dispatch(MovePlatesKernel, GroupCount, GroupCount, 1);
+        PlateShader.Dispatch(MovePlatesKernel, GroupCount, GroupCount, 1);
         CopyBuffers();
     }
 
     public void CopyBuffers() {
-        SetData(CopyBuffersKernel);
-        ComputeShader.Dispatch(CopyBuffersKernel, GroupCount, GroupCount, 1);
+        SetDataPlates(CopyBuffersKernel);
+        PlateShader.Dispatch(CopyBuffersKernel, GroupCount, GroupCount, 1);
     }
 
-    public void NoiseLand() {
-        SetData(NoiseLandKernel);
-        ComputeShader.Dispatch(NoiseLandKernel, GroupCount, GroupCount, 1);
+    public Vector2[] NoiseLand() {
+        if (MapValuesBuffer == null) {
+            Init();
+        }
+
+        SetDataMap(NoiseLandKernel);
+
+        EvenRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
+        EvenRT.enableRandomWrite = true;
+        EvenRT.Create();
+        EvenRT.filterMode = FilterMode.Trilinear;
+        EvenRT.wrapMode = TextureWrapMode.Repeat;
+
+        MapShader.SetTexture(NoiseLandKernel, "Image", EvenRT);
+
+        MapShader.Dispatch(NoiseLandKernel, GroupCount, GroupCount, 1);
+        Vector2[] LandData = new Vector2[ImageWidth * ImageWidth];
+        MapValuesBuffer.GetData(LandData);
+
+        return LandData;
     }
 
-    private void FillBuffers() {
+    private void OnDestroy() {
+        Release();
+    }
+
+    private void Release() {
+        if (EvenRT != null)
+            EvenRT.Release();
+        if (ColorsBuffer != null)
+            ColorsBuffer.Release();
+        if (CentersBuffer != null)
+            CentersBuffer.Release();
+        if (EvenIndicesBuffer != null)
+            EvenIndicesBuffer.Release();
+        if (OddIndicesBuffer != null)
+            OddIndicesBuffer.Release();
+        if (MapValuesBuffer != null)
+            MapValuesBuffer.Release();
+    }
+
+    private void Init(bool bIsCreatingMap = true) {
+        Release();
+
+        if (bIsCreatingMap) {
+            InitMap();
+            FillBuffersMap();
+        } else {
+            InitPlates();
+            FillBuffersPlates();
+        }
+    }
+
+    private void InitMap() {
+        NoiseLandKernel = MapShader.FindKernel("NoiseLand");
+        MapValuesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(float) * 2);
+    }
+
+    private void InitPlates() {
+        EvenRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
+        EvenRT.enableRandomWrite = true;
+        EvenRT.Create();
+        EvenRT.filterMode = FilterMode.Trilinear;
+        EvenRT.wrapMode = TextureWrapMode.Repeat;
+        OddRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
+        OddRT.enableRandomWrite = true;
+        OddRT.Create();
+        OddRT.filterMode = FilterMode.Trilinear;
+        OddRT.wrapMode = TextureWrapMode.Repeat;
+
+        CreatePlatesKernel = PlateShader.FindKernel("CreatePlates");
+        MovePlatesKernel = PlateShader.FindKernel("MovePlates");
+        CopyBuffersKernel = PlateShader.FindKernel("CopyBuffers");
+
+        ColorsBuffer = new ComputeBuffer(NumCenters, 4 * sizeof(float));
+        CentersBuffer = new ComputeBuffer(NumCenters, 2 * sizeof(float));
+        EvenIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
+        OddIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
+    }
+
+    private void SetDataPlates(int Kernel) {
+        PlateShader.SetBuffer(Kernel, "Colors", ColorsBuffer);
+        PlateShader.SetBuffer(Kernel, "Centers", CentersBuffer);
+        PlateShader.SetBuffer(Kernel, "EvenIndices", EvenIndicesBuffer);
+        PlateShader.SetBuffer(Kernel, "OddIndices", OddIndicesBuffer);
+        PlateShader.SetTexture(Kernel, "EvenResult", EvenRT);
+        PlateShader.SetTexture(Kernel, "OddResult", OddRT);
+        PlateShader.SetInt("CentersCount", NumCenters);
+        PlateShader.SetInt("GroupCount", GroupCount);
+        PlateShader.SetInt("Width", EvenRT.width);
+    }
+
+    private void SetDataMap(int Kernel) {
+        MapShader.SetInt("GroupCount", GroupCount);
+        MapShader.SetInt("Width", ImageWidth);
+        MapShader.SetBuffer(Kernel, "Values", MapValuesBuffer);
+        MapShader.SetVector("Seed", new Vector4(15, 0, 0, 0));
+    }
+
+    private void FillBuffersPlates() {
         //Random.InitState(0);
         List<Vector2> Centers = new();
         // add "invalid" location at index 0
@@ -61,63 +159,12 @@ public class WorldGenerator : MonoBehaviour
         ColorsBuffer.SetData(Colors.ToArray());
     }
 
-    private void OnDestroy() {
-        Release();
+    private void FillBuffersMap() {
+        Vector2[] Map = new Vector2[ImageWidth * ImageWidth];
+        MapValuesBuffer.SetData(Map);
     }
 
-    private void Release() {
-        if (EvenRT != null)
-            EvenRT.Release();
-        if (ColorsBuffer != null)
-            ColorsBuffer.Release();
-        if (CentersBuffer != null)
-            CentersBuffer.Release();
-        if (EvenIndicesBuffer != null)
-            EvenIndicesBuffer.Release();
-        if (OddIndicesBuffer != null)
-            OddIndicesBuffer.Release(); 
-    }
-
-    private void Init() {
-        Release();
-
-        EvenRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
-        EvenRT.enableRandomWrite = true;
-        EvenRT.Create();
-        EvenRT.filterMode = FilterMode.Trilinear;
-        EvenRT.wrapMode = TextureWrapMode.Repeat; 
-        OddRT = new RenderTexture(ImageWidth, ImageWidth, 0, RenderTextureFormat.ARGB32);
-        OddRT.enableRandomWrite = true;
-        OddRT.Create();
-        OddRT.filterMode = FilterMode.Trilinear;
-        OddRT.wrapMode = TextureWrapMode.Repeat;
-
-        CreatePlatesKernel = ComputeShader.FindKernel("CreatePlates");
-        MovePlatesKernel = ComputeShader.FindKernel("MovePlates");
-        CopyBuffersKernel = ComputeShader.FindKernel("CopyBuffers");
-        NoiseLandKernel = ComputeShader.FindKernel("NoiseLand");
-
-        ColorsBuffer = new ComputeBuffer(NumCenters, 4 * sizeof(float));
-        CentersBuffer = new ComputeBuffer(NumCenters, 2 * sizeof(float));
-        EvenIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
-        OddIndicesBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(int));
-
-        FillBuffers();
-    }
-
-    private void SetData(int Kernel) {
-        ComputeShader.SetBuffer(Kernel, "Colors", ColorsBuffer);
-        ComputeShader.SetBuffer(Kernel, "Centers", CentersBuffer);
-        ComputeShader.SetBuffer(Kernel, "EvenIndices", EvenIndicesBuffer);
-        ComputeShader.SetBuffer(Kernel, "OddIndices", OddIndicesBuffer);
-        ComputeShader.SetTexture(Kernel, "EvenResult", EvenRT);
-        ComputeShader.SetTexture(Kernel, "OddResult", OddRT);
-        ComputeShader.SetInt("CentersCount", NumCenters);
-        ComputeShader.SetInt("GroupCount", GroupCount);
-        ComputeShader.SetInt("Width", EvenRT.width);
-    }
-
-    public ComputeShader ComputeShader;
+    public ComputeShader MapShader, PlateShader;
     public RenderTexture EvenRT, OddRT;
 
     private int CreatePlatesKernel;
@@ -128,9 +175,12 @@ public class WorldGenerator : MonoBehaviour
     private ComputeBuffer CentersBuffer;
     private ComputeBuffer EvenIndicesBuffer;
     private ComputeBuffer OddIndicesBuffer;
+    private ComputeBuffer MapValuesBuffer;
 
     // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
     private static int NumCenters = 7;
+
+    public static WorldGenerator Instance;
 }

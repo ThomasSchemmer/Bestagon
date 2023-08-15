@@ -38,6 +38,9 @@ public class MapGenerator : MonoBehaviour
         MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
+        HexagonConfig.MapData = WorldGenerator.Instance.NoiseLand();
+
+
         CreateChunks();
         GenerateGrid();
         MalaiseData.SpreadInitially();

@@ -1,161 +1,12 @@
-#pragma kernel CreatePlates
-#pragma kernel MovePlates
-#pragma kernel CopyBuffers
 #pragma kernel NoiseLand
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
-/**
-* Generate noise textures representing the world 
-* Currently supports
-*   - tectonic plates
-* Uses two outputs for everything to avoid race conditions when reading/writing in threads
-*/
-
-RWTexture2D<float4> EvenResult;
-RWTexture2D<float4> OddResult;
-
-int CentersCount;
+float4 Seed;
 int GroupCount;
 int Width;
-int CurrentIndex;
-StructuredBuffer<float4> Colors;
-StructuredBuffer<float2> Centers;
-RWStructuredBuffer<int> EvenIndices;
-RWStructuredBuffer<int> OddIndices;
-
-bool HasIndex(int State, int Index){
-    return State & Index;
-}
-
-float4 GetColor(int State){
-    for (int i = CentersCount; i >= 0; i --){
-        if (HasIndex(State, (1 << i)))
-            return Colors[i];
-    }
-    return float4(0, 0, 0, 1);
-}
-
-float4 GetColorAverage(int State){
-    float4 Color = 0;
-    int Count = 0;
-    for (int i = CentersCount; i >= 0; i --){
-        if (HasIndex(State, (1 << i))){
-            Color += Colors[i];
-            Count++;
-        }
-    }
-    return Color / Count;
-}
-
-int GetCount(int State){
-    int Count = 0;
-    for (int i = CentersCount; i >= 0; i --){
-        if (HasIndex(State, (1 << i))){
-            Count++;
-        }
-    }
-    return Count;
-}
-
-float GetHeight(int State){
-    float4 Avg = GetColorAverage(State);
-    return (Avg.x + Avg.y + Avg.z) / 3.0;
-}
-
-float2 snoises(float2 uv){
-    float2 result = float2(0, 0);
-    result += snoise(uv * 1) / 10;
-    result += snoise(uv * 2) / 10;
-    return result;
-}
-
-/**
-* fake tectonic plates with voronoi
-*/
-[numthreads(16,16,1)]
-void CreatePlates (uint3 id : SV_DispatchThreadID)
-{
-    int StateMin = 0;
-    float MinDistance = 100000000000.0;
-    //offset position by simplex noise
-    //dont use "real" noise to still keep edges intact
-    float2 uv = float2(id.x / (GroupCount * 16.0), id.y / (GroupCount * 16.0));
-    uv += snoises(uv);
-
-    for (int i = 0; i < CentersCount; i++){
-        // world is mirrored on all sides, so use minimum singular distance
-        float DistanceX = min(abs(uv.x - Centers[i].x), min(abs(uv.x - 1 - Centers[i].x), abs(uv.x + 1 - Centers[i].x)));
-        float DistanceY = min(abs(uv.y - Centers[i].y), min(abs(uv.y - 1 - Centers[i].y), abs(uv.y + 1 - Centers[i].y)));
-        float DistanceSqr = DistanceX * DistanceX + DistanceY * DistanceY;
-        if (DistanceSqr < MinDistance){
-            MinDistance = DistanceSqr;
-            StateMin = 1 << i;
-        }
-        if (DistanceSqr < 0.01 * 0.01){
-            EvenResult[id.xy] = float4(1, 0, 0, 1);
-            OddResult[id.xy] = float4(1, 0, 0, 1);
-            EvenIndices[id.y * Width + id.x] = StateMin;
-            OddIndices[id.y * Width + id.x] = StateMin;
-            return;
-        }
-    }
-
-    EvenResult[id.xy] = GetColor(StateMin);
-    OddResult[id.xy] = GetColor(StateMin);
-    EvenIndices[id.y * Width + id.x] = StateMin;
-    OddIndices[id.y * Width + id.x] = StateMin;
-}
-
-/** 
-* move tectonics along their direction and try to overlap them
-* each tectonic plate is acccessed by State and then only pixels from that plate are moved in a random direction
-* we need to update the current as well as the target pixel/plate position:
-*   Target: take the higher plate (by color)
-*   Current: discard plate if we leave (aka inverted direction is not the current plate)
-* 
-* state is taken from even and written into odd to avoid race conflicts
-*/
-[numthreads(16,16,1)]
-void MovePlates (uint3 ID : SV_DispatchThreadID)
-{
-    uint Pos = ID.y * Width + ID.x;
-
-    int State = EvenIndices[Pos];
-    if (!HasIndex(State, CurrentIndex))
-        return;
-        
-    int RandomX = map(hash1(CurrentIndex), 0, 1, -5, 5);
-    int RandomY = map(hash1(CurrentIndex + 128), 0, 1, -5, 5);
-
-    int2 Offset = int2(RandomX, RandomY);
-    uint2 NextID = (ID.xy + Offset) % uint2(Width, Width);
-    // avoid uint underflow, can't subtract only zero 
-    uint2 PrevID = (ID.xy + uint2(Width, Width) - Offset ) % uint2(Width, Width);
-
-    uint NextPos = NextID.y * Width + NextID.x;
-    uint PrevPos = PrevID.y * Width + PrevID.x;
-    int NextState = EvenIndices[NextPos];
-    int PrevState = EvenIndices[PrevPos];
-    
-    NextState = NextState | CurrentIndex;
-    PrevState = HasIndex(PrevState, CurrentIndex) ? State : State - CurrentIndex;
-    
-    OddIndices[Pos] =  PrevState;
-    OddIndices[NextPos] = NextState;
-    OddResult[ID.xy] = GetColor(PrevState);
-    OddResult[NextID.xy] = GetColor(NextState);
-
-}
-
-// copy the buffer content from odd to even
-[numthreads(16,16,1)]
-void CopyBuffers (uint3 ID : SV_DispatchThreadID)
-{
-    uint Pos = ID.y * Width + ID.x;
-    EvenIndices[Pos] = OddIndices[Pos];
-    EvenResult[ID.xy] = OddResult[ID.xy];
-}
+RWStructuredBuffer<float2> Values;
+RWTexture2D<float4> Image;
 
 float LandNoise(float2 uv){
     float result = 0;
@@ -175,6 +26,7 @@ float LandNoise(float2 uv){
 void NoiseLand (uint3 ID : SV_DispatchThreadID)
 {
     float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
+    uv += Seed.xy;
     float Height = LandNoise(uv);
 
     // take uv.y distance to center line as temperature range
@@ -189,6 +41,11 @@ void NoiseLand (uint3 ID : SV_DispatchThreadID)
     float4 Land = Temperature < 0.15 ? IceColor : 
                   Temperature < 0.3 ? TundraColor :
                   Temperature > 0.7 ? DesertColor : LandColor;
-    OddResult[ID.xy] = Height > 0.6 ? Land : 
+    Image[ID.xy] = Height > 0.6 ? Land :
                        Height > 0.2 ? BeachColor : WaterColor;
+
+    uint Pos = ID.y * Width + ID.x;
+    Values[Pos] = float2(Height, Temperature);
+    Image[ID.xy] = float4(Height, 0, 0, 1);
+
 }
