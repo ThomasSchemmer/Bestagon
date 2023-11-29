@@ -14,7 +14,6 @@ public class MiniMap : MonoBehaviour, UIElement
         HexagonBuffer.SetData(DTOs);
         MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
         MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
-        Debug.Log("Time diff: " + (Time.realtimeSinceStartupAsDouble - start));
     }
 
     public void FillBuffer() {

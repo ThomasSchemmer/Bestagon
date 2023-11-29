@@ -6,7 +6,10 @@ Shader "Custom/BuildingShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" "Queue" = "Transparent" }
+        ZWrite Off
+        Blend SrcAlpha
+        OneMinusSrcAlpha
         LOD 100
 
         Pass

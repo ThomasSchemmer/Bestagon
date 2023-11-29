@@ -6,6 +6,14 @@ public class Stockpile : MonoBehaviour
 {
     public void Start() {
         Instance = this;
+
+        Tuple<Production.Type, int>[] Tuples = {
+            new(Production.Type.Wood, 10),
+            new(Production.Type.Stone, 10),
+            new(Production.Type.Metal, 10),
+            new(Production.Type.Food, 10)
+        };
+        Resources = new Production(Tuples);
     }
 
     public void Update() {
@@ -36,9 +44,9 @@ public class Stockpile : MonoBehaviour
     public void _ProduceResources() {
         Resources += MapGenerator.GetProductionPerTurn();
         Resources -= Workers.GetWorkerCosts();
-        if (Resources.Food < 0) {
-            Workers.Starve(Resources.Food);
-            Resources.Food = 0;
+        if (Resources[Production.Type.Food] < 0) {
+            Workers.Starve(Resources[Production.Type.Food]);
+            Resources[Production.Type.Food] = 0;
         }
 
         ShowResources();
@@ -50,7 +58,7 @@ public class Stockpile : MonoBehaviour
 
     public TextMeshProUGUI ResourceText;
 
-    public Production Resources = new Production(10, 10, 10, 10);
+    public Production Resources;
 
     public static Stockpile Instance;
 }

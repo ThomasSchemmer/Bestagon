@@ -5,22 +5,17 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Card : MonoBehaviour, Selectable
-{
-    public abstract string GetName();
-    public abstract string GetDescription();
-    public abstract string GetSymbol();
-
-    public abstract BuildingData GetBuildingData();
-        
-    public static T CreateCard<T>(int Index, GameObject CardPrefab, Transform Parent) where T : Card{
+public class Card : MonoBehaviour, Selectable
+{        
+    public static Card CreateCard(BuildingData.Type Type, int Index, GameObject CardPrefab, Transform Parent) {
         GameObject GO = Canvas.Instantiate(CardPrefab, Parent);
-        T Card = GO.AddComponent<T>();
-        Card.Init(Index);
+        Card Card = GO.AddComponent<Card>();
+        Card.Init(Type, Index);
         return Card;
     }
 
-    public void Init(int Index) {
+    public void Init(BuildingData.Type Type, int Index) {
+        BuildingData = BuildingFactory.CreateFromType(Type);
         id = GUID.Generate();
         this.Index = Index;
         gameObject.layer = LayerMask.NameToLayer("Card");
@@ -38,6 +33,21 @@ public abstract class Card : MonoBehaviour, Selectable
         SymbolText.SetText(GetSymbol());
         CostText.SetText(GetCostText());
         EffectText.SetText(GetDescription());
+    }
+
+    private string GetName()
+    {
+        return BuildingData.BuildingType.ToString();
+    }
+
+    private string GetSymbol()
+    {
+        return GetName()[..1];
+    }
+
+    private string GetDescription()
+    {
+        return BuildingData.Effect.GetDescription();
     }
 
     private void LinkTexts() {
@@ -103,11 +113,17 @@ public abstract class Card : MonoBehaviour, Selectable
         Index = i;
     }
 
+    public BuildingData GetBuildingData()
+    {
+        return BuildingData;
+    }
+
     protected GUID id;
     protected int Index;
     protected bool isHovered, isSelected;
     protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText;
     protected Image CardBase;
+    protected BuildingData BuildingData;
 
     public static float SelectOffset = 25f;
     public static Color NormalColor = new Color(55 / 255f, 55 / 255f, 55 / 255f);

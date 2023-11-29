@@ -2,14 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Helper class to create custom meshes for the different tiles
+ */
 public class TileMeshGenerator : MonoBehaviour
 {
-    public static Mesh CreateMesh(HexagonData Data, List<Mesh> Decorations) {
+    private static List<Vector3> Vertices;
+    private static List<int> Triangles;
+    private static List<Vector2> UVs;
+
+    public static Mesh CreateMesh(HexagonData Data) {
         Vertices = new();
         Triangles = new();
         UVs = new();
         CreateBaseData(Data);
-        AddDecoration(Data, Decorations);
+        AddDecoration(Data);
 
         return CreateAndFillMesh();
     }
@@ -146,11 +153,9 @@ public class TileMeshGenerator : MonoBehaviour
         }
     }
 
-    private static void AddDecoration(HexagonData Data, List<Mesh> Decorations) {
-        if (Decorations == null || Decorations.Count == 0) 
-            return;        
-        
-        Mesh DecorationMesh = Decorations[(int)Data.Type - 1];
+    private static void AddDecoration(HexagonData Data) {
+
+        Mesh DecorationMesh = BuildingFactory.GetMeshFromType(Data.Type);
 
         int BaseVertexCount = Vertices.Count;
         Vector3 HeightOffset = new Vector3(0, Data.Height, 0) * HexagonConfig.TileBorderHeightMultiplier;
@@ -165,9 +170,5 @@ public class TileMeshGenerator : MonoBehaviour
             UVs.Add(UV);
         }
     }
-
-    private static List<Vector3> Vertices;
-    private static List<int> Triangles;
-    private static List<Vector2> UVs;
 
 }

@@ -86,7 +86,7 @@ public class MapGenerator : MonoBehaviour
             StopCoroutine(UnusedVis.Generator);
             UnusedVis.Reset();
 
-            UnusedVis.Generator = StartCoroutine(UnusedVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat, Meshes));
+            UnusedVis.Generator = StartCoroutine(UnusedVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat));
         }
         Enumerator.Dispose();
     }
@@ -114,7 +114,7 @@ public class MapGenerator : MonoBehaviour
                 Vis.transform.parent = this.transform;
                 Vis.Data = Chunks[TargetChunkIndx.ChunkLocation.x, TargetChunkIndx.ChunkLocation.y];
                 Vis.Initialize();
-                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(Vis.Data, HexMat, MalaiseMat, Meshes));
+                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(Vis.Data, HexMat, MalaiseMat));
                 ChunkVis[x, y] = Vis;
             }
         }
@@ -383,7 +383,6 @@ public class MapGenerator : MonoBehaviour
          * Better: only update dirty data chunks and insert them directly into old array
          */
 
-
         int Index = 0;
         for (int y = 0; y < HexagonConfig.mapMaxChunk; y++) {
             for (int j = 0; j < HexagonConfig.chunkSize; j++) {
@@ -396,9 +395,6 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-
-        Debug.Log("Size: " + Marshal.SizeOf(DTOs[0]) * Count);
-
         return DTOs;
     }
 
@@ -407,7 +403,6 @@ public class MapGenerator : MonoBehaviour
 
     public Material HexMat;
     public Material MalaiseMat;
-    public List<Mesh> Meshes;
 
     public static MapGenerator Instance;
 

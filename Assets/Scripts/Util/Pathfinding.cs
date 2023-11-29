@@ -68,7 +68,7 @@ public class Pathfinding
         while (LocationsToCheck.Count > 0 && Iteration < MaxSearchIterations) {
             Iteration++;
             Tuple<Location, int> CurrentTuple = LocationsToCheck.Dequeue();
-            Location Current = CurrentTuple.Item1;
+            Location Current = CurrentTuple.Key;
 
             List<Location> Neighbours = MapGenerator.GetNeighbourTileLocations(Current);
             foreach (Location Neighbour in Neighbours) {

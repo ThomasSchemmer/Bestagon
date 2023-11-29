@@ -14,7 +14,7 @@ public class PriorityQueue<T>
         int Index = _Elements.Count;
         for (int i = 0; i < _Elements.Count; i++) {
             Tuple<T, int> Element = _Elements[i];
-            if (Priority < Element.Item2) {
+            if (Priority < Element.Value) {
                 Index = i;
                 break;
             }

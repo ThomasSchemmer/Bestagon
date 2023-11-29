@@ -74,3 +74,16 @@ The following packages were updated:
   com.unity.render-pipelines.universal from version 12.1.10 to 14.0.8
   com.unity.test-framework from version 1.1.31 to 1.1.33
   com.unity.timeline from version 1.6.4 to 1.7.4
+
+=== Tue Oct 24 18:49:09 2023
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.ai.navigation from version 1.1.4 to 1.1.5
+  com.unity.collab-proxy from version 2.0.5 to 2.1.0
+  com.unity.ide.rider from version 3.0.24 to 3.0.25
+  com.unity.ide.visualstudio from version 2.0.18 to 2.0.21
+  com.unity.render-pipelines.universal from version 14.0.8 to 14.0.9
+  com.unity.timeline from version 1.7.4 to 1.7.5

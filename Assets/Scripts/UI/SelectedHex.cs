@@ -86,7 +86,7 @@ public class SelectedHex : MonoBehaviour
         }
 
         if (bShouldShow) {
-            BuildingTypeText.text = BuildingData.GetBuildingType().ToString();
+            BuildingTypeText.text = BuildingData.BuildingType.ToString();
         } else {
             BuildingTypeText.text = string.Empty;
         }
@@ -151,7 +151,7 @@ public class SelectedHex : MonoBehaviour
             Destroy(Child.gameObject);
         }
 
-        for (int i = 0; i < BuildingData.GetMaxWorker(); i++) {
+        for (int i = 0; i < BuildingData.MaxWorker; i++) {
             WorkerData Worker = BuildingData.Workers.Count > i ? BuildingData.Workers[i] : null;
             GameObject Prefab = Worker == null ? NoWorkerPrefab : WorkerPrefab;
             GameObject NewUI = Instantiate(Prefab);

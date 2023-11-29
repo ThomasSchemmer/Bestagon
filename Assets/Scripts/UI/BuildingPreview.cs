@@ -30,7 +30,7 @@ public class BuildingPreview : MonoBehaviour
 
         BuildingData Building = Card.GetBuildingData();
 
-        if (Building.GetBuildingType() != CurrentType) {
+        if (Building.BuildingType != CurrentType) {
             BuildingVisualization BuildingVis = BuildingVisualization.CreateFromData(Building);
 
             MeshFilter.mesh = BuildingVis.GetComponent<MeshFilter>().sharedMesh;
@@ -46,7 +46,7 @@ public class BuildingPreview : MonoBehaviour
         Renderer.SetPropertyBlock(Block);
     }
 
-    private BuildingData.Type CurrentType = BuildingData.Type.Default;
+    private BuildingData.Type CurrentType = BuildingData.Type.DEFAULT;
     private MeshFilter MeshFilter;
     private MeshRenderer Renderer;
 

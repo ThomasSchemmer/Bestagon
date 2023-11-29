@@ -166,7 +166,7 @@ public class Workers : MonoBehaviour
     public static List<WorkerData> UnassignedWorker = new List<WorkerData>();
     public static List<WorkerData> AssignedWorker = new List<WorkerData>();
 
-    public static Production CostsPerWorker = new Production(0, 0, 0, 1);
+    public static Production CostsPerWorker = new Production(Production.Type.Food, 1);
     public static List<Location> WorkerStartLocations = new() {
         new Location(new Vector2Int(0, 0), new Vector2Int(1, 3)),
         new Location(new Vector2Int(0, 0), new Vector2Int(1, 4)),

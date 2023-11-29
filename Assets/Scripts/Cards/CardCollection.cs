@@ -30,14 +30,9 @@ public abstract class CardCollection : MonoBehaviour
     }
 
     protected Card CreateRandomCard(int i) {
-        int TypeCount = Enum.GetNames(typeof(BuildingData.Type)).Length;
-        BuildingData.Type Type = (BuildingData.Type)UnityEngine.Random.Range(1, TypeCount);
-        switch (Type) {
-            case BuildingData.Type.Woodcutter: return Card.CreateCard<Woodcutter>(i, CardPrefab, transform);
-            case BuildingData.Type.Farm: return Card.CreateCard<Farm>(i, CardPrefab, transform);
-            case BuildingData.Type.Mine: return Card.CreateCard<Mine>(i, CardPrefab, transform);
-        }
-        return null;
+        int TypeCount = BuildingFactory.GetUnlockedBuildings().Count;
+        BuildingData.Type Type = (BuildingData.Type)(1 << UnityEngine.Random.Range(1, TypeCount));
+        return Card.CreateCard(Type, i, CardPrefab, transform);
     }
 
 

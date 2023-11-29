@@ -34,10 +34,10 @@ public class SelectWorkerScreen : MonoBehaviour
         for (int i = 0; i < MaxUnassignedShown; i++) {
             // use tuple data to create ui element
             Tuple<WorkerData, int> WorkerTuple = SelectedWorker[ShowIndex + i];
-            WorkerData Worker = WorkerTuple.Item1;
-            int MovementCost = WorkerTuple.Item2;
+            WorkerData Worker = WorkerTuple.Key;
+            int MovementCost = WorkerTuple.Value;
 
-            int Turns = (int)Mathf.Ceil((float)MovementCost / WorkerTuple.Item1.MovementPerTurn);
+            int Turns = (int)Mathf.Ceil((float)MovementCost / WorkerTuple.Key.MovementPerTurn);
 
             GameObject WorkerObject = Instantiate(SelectWorkerPrefab, Container);
             WorkerObject.transform.localPosition = ContainerWorkerOffset + WorkerOffset * i;

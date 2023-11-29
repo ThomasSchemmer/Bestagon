@@ -8,11 +8,11 @@ public class CardHand : CardCollection
     {
         Instance = this;
         Cards = new List<Card> {
-            Card.CreateCard<Woodcutter>(0, CardPrefab, transform),
-            Card.CreateCard<Mine>(1, CardPrefab, transform),
-            Card.CreateCard<Farm>(2, CardPrefab, transform),
-            Card.CreateCard<Farm>(3, CardPrefab, transform),
-            Card.CreateCard<Woodcutter>(4, CardPrefab, transform)
+            Card.CreateCard(BuildingData.Type.Woodcutter, 0, CardPrefab, transform),
+            Card.CreateCard(BuildingData.Type.Mine, 1, CardPrefab, transform),
+            Card.CreateCard(BuildingData.Type.Farm, 2, CardPrefab, transform),
+            Card.CreateCard(BuildingData.Type.Farm, 3, CardPrefab, transform),
+            Card.CreateCard(BuildingData.Type.Woodcutter, 4, CardPrefab, transform)
         };
         Sort(false);
     }

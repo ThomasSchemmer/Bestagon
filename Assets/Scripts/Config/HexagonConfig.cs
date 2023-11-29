@@ -40,29 +40,20 @@ public class HexagonConfig {
 
     public static float MapSize = 256;
 
-
+    [Flags]
     public enum HexagonType : uint {
-        DEFAULT,
-        Meadow,
-        Forest,
-        Mountain,
-        Ocean,
-        Desert,
-        Tundra,
-        Ice
+        DEFAULT = 0,
+        Meadow = 1 << 0,
+        Forest = 1 << 1,
+        Mountain = 1 << 2,
+        Ocean = 1 << 3,
+        Desert = 1 << 4,
+        Tundra = 1 << 5,
+        Ice = 1 << 6
     }
 
     // lookup table whether a specific type can have a higher tile 
-    public static bool[] CanHaveHeight = {
-        false,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        false
-    };
+    public static HexagonType CanHaveHeight = HexagonType.Forest | HexagonType.Mountain | HexagonType.Desert | HexagonType.Tundra;
 
     public static float ICE_CUTOFF = 0.15f;
     public static float TUNDRA_CUTOFF = 0.3f;
@@ -147,7 +138,7 @@ public class HexagonConfig {
         int Pos = GetMapPosFromLocation(Location);
         float Multiplier = 1;
 
-        if (CanHaveHeight[(int)Type]) {
+        if (CanHaveHeight.HasFlag(Type)) {
             Multiplier = Mathf.RoundToInt(MapData[Pos].x) * TileHeightMultiplier + 1;
         }
         return Multiplier * TileSize.y;
@@ -176,5 +167,15 @@ public class HexagonConfig {
             case HexagonType.Desert: return 1;
             default: return -1;
         }
+    }
+
+    public static int MaskToInt(int Mask, int Max)
+    {
+        for (int i = 0; i < Max; i++)
+        {
+            if ( (Mask & (1 << i)) > 0)
+                return i;
+        }
+        return -1;
     }
 }
