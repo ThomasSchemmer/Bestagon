@@ -5,7 +5,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-
+/**
+ * Helper class to wrap all selectors into one easily accesible UI element
+ */
 public class Selector : MonoBehaviour{
 
     public void Awake() {
@@ -15,13 +17,15 @@ public class Selector : MonoBehaviour{
         CardSelector.Layer = "Card";
         HexagonSelector.Layer = "Hexagon";
         UISelector.Layer = "UI";
-    }
-
-    public void Start() {
         Instance = this;
+        Game.Instance._OnPause += OnPause;
+        Game.Instance._OnResume += OnResume;
     }
 
     public void Update() {
+        if (!IsEnabled)
+            return;
+
         if (UISelector.RayCast())
             return;
 
@@ -29,6 +33,17 @@ public class Selector : MonoBehaviour{
             return;
 
         HexagonSelector.RayCast();
+    }
+
+    private void OnPause()
+    {
+        IsEnabled = false;
+        ForceDeselect();
+    }
+
+    private void OnResume()
+    {
+        IsEnabled = true;
     }
 
     public static Card GetSelectedCard() {
@@ -64,15 +79,23 @@ public class Selector : MonoBehaviour{
         Instance.CardSelector.Deselect(false);
         Instance.HexagonSelector.Deselect(true);
         Instance.HexagonSelector.Deselect(false);
+        Instance.UISelector.Deselect(true);
+        Instance.UISelector.Deselect(false);
     }
 
     public Selector<Card> CardSelector;
     public Selector<HexagonVisualization> HexagonSelector;
     public Selector<UIElement> UISelector;
 
+    private bool IsEnabled = true;
+
     public static Selector Instance;
 }
 
+/**
+ * Class that automates selecting gameobjects with the mouse easy. Checks by type if a hovered object is selectable
+ * and calls the Selectable interface accordingly
+ */
 public class Selector<T> where T : Selectable
 {
     public Selector(bool bIsUIOnly = false) {

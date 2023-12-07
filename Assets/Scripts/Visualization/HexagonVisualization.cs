@@ -21,10 +21,12 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         this.name = "Hex " + Location.HexLocation;
         Chunk = ChunkData;
         Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
+        MapGenerator = Game.GetService<MapGenerator>();
         GenerateMesh(Mat);
         Renderer = GetComponent<MeshRenderer>();
         SetSelected(false, false);
         SetHovered(false);
+
     }
 
     void GenerateMesh(Material Mat) {
@@ -234,4 +236,5 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     protected int[] Triangles;
 
     private MeshRenderer Renderer;
+    private MapGenerator MapGenerator;
 }

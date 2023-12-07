@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /**
@@ -45,8 +43,7 @@ public class ChunkData {
         Production Production = new();
         foreach (BuildingData Building in Buildings) {
             Production BuildingProduction = Building.GetProduction();
-            Production AdjacentProduction = Building.GetAdjacencyProduction();
-            Production += BuildingProduction + AdjacentProduction;
+            Production += BuildingProduction;
         }
 
         return Production;

@@ -7,23 +7,25 @@ using UnityEngine;
 /**
  * Helper class to generate/find the scriptable buildings for building types
  */ 
-public class BuildingFactory : MonoBehaviour
+public class BuildingFactory : GameService
 {
     public SerializedDictionary<BuildingData.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public static BuildingFactory instance;
-
-    public void Start()
-    {
-        instance = this;
-        Refresh();
-    }
 
     public void Refresh()
     {
         LoadBuildings();
         LoadTiles();
     }
+
+    protected override void StartServiceInternal()
+    {
+        instance = this;
+        Refresh();
+    }
+
+    protected override void StopServiceInternal() {}
 
     private void LoadBuildings()
     {

@@ -149,7 +149,11 @@ public class HexagonConfig {
         return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
     }
 
-    public static int GetCostsFromTo(Location locationA, Location locationB) {
+    public static int GetCostsFromTo(Location locationA, Location locationB)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return -1;
+
         if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA))
             return -1;
 

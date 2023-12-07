@@ -56,6 +56,9 @@ public class MalaiseVisualization : MonoBehaviour
         List<Vector2> UVs = new List<Vector2>();
         float[] UVSum = new float[Count];
 
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return new();
+
         HexagonData[] NeighbourData = MapGenerator.GetNeighboursDataArray(HexagonData.Location);
         bool bFullyMalaised = true;
         for (int i = 0; i < Count; i++) {

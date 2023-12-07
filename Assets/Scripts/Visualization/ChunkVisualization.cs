@@ -30,6 +30,9 @@ public class ChunkVisualization : MonoBehaviour
         CreateBuildings();
         CreateWorkers();
 
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            yield break;
+
         MapGenerator.UpdateMapBounds(this);
     }
 

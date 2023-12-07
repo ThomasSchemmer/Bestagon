@@ -1,30 +1,36 @@
 using System.Runtime.InteropServices;
+using System.Transactions;
 using UnityEngine;
 
-public class MiniMap : MonoBehaviour, UIElement
+public class MiniMap : GameService, UIElement
 {
-    public void Start() {
-        Instance = this;
-    }
-
     public void Init() {
-        double start = Time.realtimeSinceStartupAsDouble;
-        DTOs = MapGenerator.GetDTOs();
-        HexagonBuffer = new ComputeBuffer(DTOs.Length, Marshal.SizeOf(DTOs[0]));
-        HexagonBuffer.SetData(DTOs);
-        MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
-        MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
+
+        Game.RunAfterServiceInit((MapGenerator Generator) =>
+        {
+            MapGenerator = Generator;
+            DTOs = Generator.GetDTOs();
+            HexagonBuffer = new ComputeBuffer(DTOs.Length, Marshal.SizeOf(DTOs[0]));
+            HexagonBuffer.SetData(DTOs);
+            MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
+            MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
+            IsInit = true;
+            _OnInit?.Invoke();
+            FillBuffer();
+        });
     }
 
     public void FillBuffer() {
+        if (!IsInit)
+            return;
+
         DTOs = MapGenerator.GetDTOs();
         HexagonBuffer.SetData(DTOs);
     }
 
     public void Update() {
-        if (DTOs == null) {
-            Init();
-        }
+        if (!IsRunning || !IsInit)
+            return;
 
         MapGenerator.GetMapBounds(out Location BottomLeftMap, out Location TopRightMap);
         Vector4 BottomLeft = new Vector4(BottomLeftMap.GlobalTileLocation.x, BottomLeftMap.GlobalTileLocation.y);
@@ -41,11 +47,17 @@ public class MiniMap : MonoBehaviour, UIElement
         MiniMapRT.Update();
     }
 
-    public void OnDestroy() {
-        HexagonBuffer.Release();
+    public void OnDestroy()
+    {
+        if (HexagonBuffer != null) { 
+            HexagonBuffer.Release();
+        }
     }
 
     public void ClickOn(Vector2 PixelPos) {
+        if (!IsInit)
+            return;
+
         RectTransform transform = GetComponent<RectTransform>();
         Rect Rectangle = new Rect(transform.anchoredPosition - transform.sizeDelta / 2.0f, transform.sizeDelta);
         if (!Rectangle.Contains(PixelPos))
@@ -72,10 +84,25 @@ public class MiniMap : MonoBehaviour, UIElement
         return other is MiniMap;
     }
 
+    public void PassData(Vector4 TopView, Vector4 BottomView)
+    {
+        MiniMapRT.material.SetVector("_TopView", TopView);
+        MiniMapRT.material.SetVector("_BottomView", BottomView);
+    }
+
+    protected override void StartServiceInternal()
+    {
+        Init();
+    }
+
+    protected override void StopServiceInternal()
+    {
+        gameObject.SetActive(false);
+        IsInit = false;
+    }
 
     public CustomRenderTexture MiniMapRT;
     private ComputeBuffer HexagonBuffer;
     private HexagonDTO[] DTOs;
-
-    public static MiniMap Instance;
+    private MapGenerator MapGenerator;
 }

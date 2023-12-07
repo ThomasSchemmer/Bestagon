@@ -9,6 +9,26 @@ public class MessageSystem : MonoBehaviour
     {
         Instance = this;
         DisplayMessages();
+        Game.Instance._OnPause += OnPause;
+        Game.Instance._OnResume += OnResume;
+    }
+
+    private void OnPause()
+    {
+        EnableMessages(false);
+    }
+
+    private void OnResume()
+    {
+        EnableMessages(true);
+    }
+
+    private void EnableMessages(bool IsEnabled)
+    {
+        foreach (Message Message in Messages)
+        {
+            Message.gameObject.SetActive(IsEnabled);
+        }
     }
 
     public static void CreateMessage(Message.Type Type, string Text) {

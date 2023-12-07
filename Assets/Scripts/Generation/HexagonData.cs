@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Unity.Mathematics;
 using static HexagonConfig;
 
@@ -14,7 +15,8 @@ public class HexagonData
      * Only contains data necessary for the minimap
      */
     public HexagonDTO GetDTO() {
-        uint uType = (uint)Type;
+
+        uint uType = (uint)MaskToInt((int)Type, 16) + 1;
         uint Malaise = (uint)(bIsMalaised ? 1 : 0) << 7;
 
         return new HexagonDTO() {

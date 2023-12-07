@@ -4,7 +4,17 @@ using UnityEngine;
 
 public class Turn : MonoBehaviour
 {
+    public void OnEnable()
+    {
+        Instance = this;
+        Game.Instance._OnPause += OnPause;
+        Game.Instance._OnResume += OnResume;
+    }
+
     public void NextTurn() {
+        if (!IsEnabled)
+            return;
+
         MessageSystem.DeleteAllMessages();
         Stockpile.ProduceResources();
         TurnNr++;
@@ -13,7 +23,11 @@ public class Turn : MonoBehaviour
         UpdateMalaiseVisualization();
         Workers.HandleEndOfTurn();
         UpdateSelection();
-        MiniMap.Instance.FillBuffer();
+        MiniMap Map = Game.GetService<MiniMap>();
+        if (!Map)
+            return;
+
+        Map.FillBuffer();
     }
 
     private void SpreadMalaise() {
@@ -22,6 +36,16 @@ public class Turn : MonoBehaviour
             MalaiseData Data = ActiveMalaises[i];
             Data.Spread();
         }
+    }
+
+    private void OnPause()
+    {
+        IsEnabled = false;
+    }
+
+    private void OnResume()
+    {
+        IsEnabled = true;
     }
 
     private void UpdateMalaiseVisualization() {
@@ -77,6 +101,10 @@ public class Turn : MonoBehaviour
         Selector.SelectHexagon(Hex);
     }
 
-    public static int TurnNr = 1;
-    public static List<MalaiseData> ActiveMalaises = new List<MalaiseData>();
+    private bool IsEnabled = true;
+
+    public int TurnNr = 1;
+    public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();
+
+    public static Turn Instance;
 }

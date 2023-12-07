@@ -36,14 +36,6 @@ public class BuildingData : ScriptableObject
         Location = new Location(new Vector2Int(0, 0), new Vector2Int(0, 0));
     }
 
-    public Production GetProduction() {
-        return Effect.Production * GetWorkerMultiplier();
-    }
-
-    public virtual bool IsNeighbourBuildingBlocking() {
-        return false;
-    }
-
     public virtual Vector3 GetOffset() {
         return new Vector3(0, 5, 0);
     }
@@ -52,32 +44,19 @@ public class BuildingData : ScriptableObject
         return Quaternion.Euler(0, 180, 0);
     }
 
-    public Production GetAdjacencyProduction() {
-        List<HexagonData> NeighbourData = MapGenerator.GetNeighboursData(Location);
-        Production Production = new();
-
-        if (!TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production>  Bonus))
-            return Production;
-
-        foreach (HexagonData Data in NeighbourData) {
-            if (MapGenerator.IsBuildingAt(Data.Location) && IsNeighbourBuildingBlocking())
-                continue;
-
-            if (Bonus.TryGetValue(Data.Type, out Production AdjacentProduction)) {
-                Production += AdjacentProduction;
-            }
-        }
-        return Production * GetWorkerMultiplier();
-    }
-
-    public virtual bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus) {
-        Bonus = new Dictionary<HexagonConfig.HexagonType, Production>();
-        return false;
-    }
-
     public Production GetCosts()
     {
         return Cost;
+    }
+
+    public Production GetProduction()
+    {
+        return Effect.GetProduction(GetWorkerMultiplier(), Location);
+    }
+
+    public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
+    {
+        return Effect.TryGetAdjacencyBonus(out Bonus);
     }
 
     public bool CanBeBuildOn(HexagonVisualization Hex) {
@@ -90,7 +69,7 @@ public class BuildingData : ScriptableObject
         if (!BuildableOn.HasFlag(Hex.Data.Type))
             return false;
 
-        return !MapGenerator.IsBuildingAt(Hex.Location) && !Hex.Data.bIsMalaised;
+        return !Game.GetService<MapGenerator>().IsBuildingAt(Hex.Location) && !Hex.Data.bIsMalaised;
     }
 
     public int GetWorkerMultiplier() {
@@ -154,5 +133,10 @@ public class BuildingData : ScriptableObject
 
     public override int GetHashCode() {
         return Location.GetHashCode() + "Building".GetHashCode();
+    }
+
+    public bool IsNeighbourBuildingBlocking()
+    {
+        return Effect.IsProductionBlockedByBuilding;
     }
 }

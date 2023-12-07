@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Runtime.Remoting.Lifetime;
 using UnityEngine;
 
-public class WorldGenerator : MonoBehaviour
+public class WorldGenerator : GameService
 {
-    private void Start() {
-        Instance = this;    
+    protected override void StartServiceInternal() {
+        HexagonConfig.MapData = NoiseLand();
     }
+
+    protected override void StopServiceInternal() { }
 
     public void CreatePlates() {
         Init(false);
@@ -181,6 +183,4 @@ public class WorldGenerator : MonoBehaviour
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
     private static int NumCenters = 7;
-
-    public static WorldGenerator Instance;
 }

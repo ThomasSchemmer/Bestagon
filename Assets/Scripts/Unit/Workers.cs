@@ -85,6 +85,10 @@ public class Workers : MonoBehaviour
     private static void StarveWorker(WorkerData Worker) {
         Worker.RemoveFromBuilding();
         RemoveWorker(Worker);
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
         if (!MapGenerator.TryGetChunkData(Worker.Location, out ChunkData Chunk))
             return;
 

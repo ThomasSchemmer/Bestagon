@@ -67,7 +67,8 @@ public class BuildingEffectDrawer : PropertyDrawer
         SerializedProperty TileTypeProperty = Property.FindPropertyRelative("TileType");
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
         SerializedProperty RangeProperty = Property.FindPropertyRelative("Range");
-        
+        SerializedProperty BlockedByBuildingProperty = Property.FindPropertyRelative("IsProductionBlockedByBuilding");
+
         EditorGUILayout.BeginVertical("window");
         string[] Hexagons = Enum.GetNames(typeof(HexagonConfig.HexagonType));
         TileTypeProperty.intValue = EditorGUILayout.MaskField(
@@ -77,6 +78,7 @@ public class BuildingEffectDrawer : PropertyDrawer
         );
         EditorGUILayout.PropertyField(ProductionProperty);
         EditorGUILayout.PropertyField(RangeProperty);
+        EditorGUILayout.PropertyField(BlockedByBuildingProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
     }

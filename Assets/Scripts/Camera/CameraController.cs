@@ -6,16 +6,34 @@ public class CameraController : MonoBehaviour
 {
     private void Start() {
         Cam = GetComponent<Camera>();
+        Game.Instance._OnPause += OnPause;
+        Game.Instance._OnResume += OnResume;
     }
 
 
     void Update() {
+        if (!IsEnabled)
+            return;
+
         UpdatePosition();
         MoveToPosition();
         UpdateMiniMapData();
     }
 
+    private void OnPause()
+    {
+        IsEnabled = false;
+    }
+
+    private void OnResume()
+    {
+        IsEnabled = true;
+    }
+
     private void UpdateMiniMapData() {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
         // takes the 4 view frustrum corners and translates them into uv space 
         // according to world map position
         Plane Plane = new Plane(Vector3.up, Vector3.zero);
@@ -51,9 +69,11 @@ public class CameraController : MonoBehaviour
         BottomView.z = (BottomRightPos.x - MinBottomLeftWorld.x) / DistanceMap.x;
         BottomView.w = (BottomRightPos.z - MinBottomLeftWorld.z) / DistanceMap.z;
 
-        // ugly direct call
-        MiniMap.Instance.MiniMapRT.material.SetVector("_TopView", TopView);
-        MiniMap.Instance.MiniMapRT.material.SetVector("_BottomView", BottomView);
+        MiniMap Map = Game.GetService<MiniMap>();
+        if (!Map)
+            return;
+
+        Map.PassData(TopView, BottomView);
     }
 
     private void UpdatePosition() {
@@ -87,6 +107,8 @@ public class CameraController : MonoBehaviour
     }
 
     private Camera Cam;
+
+    private bool IsEnabled = true;
 
     public float MovementSpeed = 0.001f;
     public float PanningSpeed = 10;

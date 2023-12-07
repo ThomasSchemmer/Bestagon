@@ -24,9 +24,6 @@ public class WorldGeneratorInspector : Editor
                 Script.Move();
             }
         }
-        if (GUILayout.Button("Land")) {
-            Script.NoiseLand();
-        }
 
         GUILayout.Label(Script.EvenRT);
         GUILayout.Label(Script.OddRT);

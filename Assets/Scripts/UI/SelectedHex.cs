@@ -18,6 +18,10 @@ public class SelectedHex : MonoBehaviour
         ProductionText = transform.GetChild(4).gameObject.GetComponent<TextMeshProUGUI>();
         CorruptedText = transform.GetChild(5).gameObject.GetComponent<TextMeshProUGUI>();
         Hide();
+
+        MapGenerator = Game.GetService<MapGenerator>();
+
+        Game.Instance._OnPause += Hide;
     }
 
     public void Show(HexagonVisualization Hex) {
@@ -46,6 +50,7 @@ public class SelectedHex : MonoBehaviour
         ShowWorker(false);
         ShowUnits(false);
     }
+
 
     public void AddWorker(int Target) {
 
@@ -103,7 +108,7 @@ public class SelectedHex : MonoBehaviour
             return;
         }
 
-        Production Production = BuildingData.GetProduction() + BuildingData.GetAdjacencyProduction();
+        Production Production = BuildingData.GetProduction();
         ProductionText.text = Production.GetShortDescription();
     }
 
@@ -179,6 +184,7 @@ public class SelectedHex : MonoBehaviour
     private TextMeshProUGUI LocationText, TileText, BuildingTypeText, ProductionText, CorruptedText;
     private GameObject Background;
     private HexagonData SelectedHexTile;
+    private MapGenerator MapGenerator;
 
     private static Vector3 OffsetUIWorker = new Vector3(-100, 0, 0);
     private static Vector3 OffsetUIPerWorker = new Vector3(75, 0, 0);

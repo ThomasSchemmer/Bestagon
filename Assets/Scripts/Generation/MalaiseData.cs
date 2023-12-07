@@ -16,10 +16,14 @@ public class MalaiseData
 
     public void Infect() {
         bIsActive = true;
-        Turn.ActiveMalaises.Add(this);
+        Turn.Instance.ActiveMalaises.Add(this);
     }
 
     private void Spread(HexagonData Data) {
+        MapGenerator MapGenerator = Game.GetService<MapGenerator>();
+        if (!MapGenerator)
+            return;
+
         List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(Data.Location);
         for (int i = 0; i < 3; i++) {
             int Index = Random.Range(0, Neighbours.Count);
@@ -73,7 +77,7 @@ public class MalaiseData
             return;
 
         bHasStarted = true;
-        if (!MapGenerator.TryGetChunkData(StartLocation, out ChunkData ChunkData))
+        if (!Game.GetService<MapGenerator>().TryGetChunkData(StartLocation, out ChunkData ChunkData))
             return;
 
         if (ChunkData.Malaise == null)

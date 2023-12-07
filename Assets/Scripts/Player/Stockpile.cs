@@ -21,7 +21,7 @@ public class Stockpile : MonoBehaviour
     }
 
     private void ShowResources() {
-        string ResourceString = Resources.GetDescription() + "\t\tTurn: " + Turn.TurnNr + "\t\tWorking: "+Workers.GetAssignedWorkerCount() + "\tIdle: " + Workers.GetUnassignedWorkerCount();
+        string ResourceString = Resources.GetDescription() + "\t\tTurn: " + Turn.Instance.TurnNr + "\t\tWorking: "+Workers.GetAssignedWorkerCount() + "\tIdle: " + Workers.GetUnassignedWorkerCount();
         ResourceText.SetText(ResourceString);
     }
 
@@ -42,6 +42,9 @@ public class Stockpile : MonoBehaviour
     }
 
     public void _ProduceResources() {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
         Resources += MapGenerator.GetProductionPerTurn();
         Resources -= Workers.GetWorkerCosts();
         if (Resources[Production.Type.Food] < 0) {

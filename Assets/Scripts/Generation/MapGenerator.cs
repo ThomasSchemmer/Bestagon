@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class MapGenerator : MonoBehaviour
+public class MapGenerator : GameService
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -32,22 +32,32 @@ public class MapGenerator : MonoBehaviour
         return (Location.HexLocation.y % 2) == 0 ? EvenDirection : OddDirection;
     }
 
-    public void Start() {
-        Instance = this;
+    protected override void StartServiceInternal() {
         MainCam = Camera.main;
         MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        HexagonConfig.MapData = WorldGenerator.Instance.NoiseLand();
+        Game.RunAfterServiceStart((WorldGenerator Generator, BuildingFactory Factory) =>
+        {
+            CreateChunks();
+            GenerateGrid();
+            MalaiseData.SpreadInitially();
 
+            IsInit = true;
+            _OnInit?.Invoke();
+        });
+    }
 
-        CreateChunks();
-        GenerateGrid();
-        MalaiseData.SpreadInitially();
+    protected override void StopServiceInternal()
+    {
+        throw new System.NotImplementedException();
     }
 
     public void Update()
     {
+        if (!IsInit)
+            return;
+
         GenerateGrid();
     }
 
@@ -164,7 +174,7 @@ public class MapGenerator : MonoBehaviour
         return Set;
     }
 
-    public static List<HexagonVisualization> GetNeighbours(HexagonVisualization Hex) {
+    public List<HexagonVisualization> GetNeighbours(HexagonVisualization Hex) {
         List<HexagonVisualization> Neighbours = new List<HexagonVisualization>();
         List<Location> NeighbourTileLocations = GetNeighbourTileLocations(Hex.Location);
 
@@ -179,7 +189,7 @@ public class MapGenerator : MonoBehaviour
 
     }
 
-    public static List<HexagonConfig.HexagonType> GetNeighbourTypes(Location Location) {
+    public List<HexagonConfig.HexagonType> GetNeighbourTypes(Location Location) {
         List<HexagonConfig.HexagonType> Types = new List<HexagonConfig.HexagonType>();
         List<HexagonData> NeighbourDatas = GetNeighboursData(Location);
 
@@ -190,9 +200,9 @@ public class MapGenerator : MonoBehaviour
         return Types;
     }
 
-    public static List<HexagonData> GetNeighboursData(Location Location) {
+    public List<HexagonData> GetNeighboursData(Location Location, int Range = 1) {
         List<HexagonData> NeighbourDatas = new List<HexagonData>();
-        List<Location> NeighbourTileLocations = GetNeighbourTileLocations(Location);
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Location, Range);
 
         foreach (Location NeighbourTile in NeighbourTileLocations) {
             if (!TryGetHexagonData(NeighbourTile, out HexagonData Data))
@@ -204,7 +214,7 @@ public class MapGenerator : MonoBehaviour
         return NeighbourDatas;
     }
 
-    public static HexagonData[] GetNeighboursDataArray(Location Location) {
+    public HexagonData[] GetNeighboursDataArray(Location Location) {
         HexagonData[] NeighbourDatas = new HexagonData[6];
         List<Location> NeighbourTileLocations = GetNeighbourTileLocations(Location);
 
@@ -219,6 +229,7 @@ public class MapGenerator : MonoBehaviour
         return NeighbourDatas;
     }
 
+    /** Returns the locations of all neighbouring tiles around the target */
     public static List<Location> GetNeighbourTileLocations(Location Location) {
         List<Location> NeighbourLocations = new();
         Location[] Directions = GetDirections(Location);
@@ -229,17 +240,37 @@ public class MapGenerator : MonoBehaviour
         return NeighbourLocations;
     }
 
-    public static HashSet<Location> GetNeighbourTileLocationSet(Location Location) {
+    /**
+     * Returns the locations of all neighbouring tiles in a radius around the target. 
+     * Since this returns a HashSet its possible to easily check for duplicates
+     */
+    public static HashSet<Location> GetNeighbourTileLocationsInRange(Location Origin, int Range = 1) {
         HashSet<Location> NeighbourLocations = new();
-        Location[] Directions = GetDirections(Location);
+        HashSet<Location> Origins = new();
+        Origins.Add(Origin);
 
-        foreach (Location Direction in Directions) {
-            NeighbourLocations.Add(Location + Direction);
+        for (int i = 0; i < Range; i++)
+        {
+            HashSet<Location> NewAdds = new();
+            foreach (Location Location in Origins)
+            {
+                Location[] Directions = GetDirections(Location);
+                foreach (Location Direction in Directions)
+                {
+                    Location Neighbour = Location + Direction;
+                    if (!NeighbourLocations.Contains(Neighbour))
+                    {
+                        NeighbourLocations.Add(Neighbour);
+                        NewAdds.Add(Neighbour);
+                    }
+                }
+            }
+            Origins = NewAdds;
         }
         return NeighbourLocations;
     }
 
-    public static bool TryGetHexagon(Location Location, out HexagonVisualization Hex) {
+    public bool TryGetHexagon(Location Location, out HexagonVisualization Hex) {
         Hex = null;
 
         if (!TryGetChunkData(Location, out ChunkData ChunkData))
@@ -256,7 +287,7 @@ public class MapGenerator : MonoBehaviour
         return Hex != null;
     }
 
-    public static bool TryGetHexagonData(Location Location, out HexagonData HexData) {
+    public bool TryGetHexagonData(Location Location, out HexagonData HexData) {
         HexData = null;
 
         if (!TryGetChunkData(Location, out ChunkData ChunkData))
@@ -269,14 +300,14 @@ public class MapGenerator : MonoBehaviour
         return HexData != null;
     }
 
-    public static bool IsBuildingAt(Location Location) {
+    public bool IsBuildingAt(Location Location) {
         if (!TryGetChunkData(Location, out ChunkData Chunk))
             return false;
 
         return Chunk.IsBuildingAt(Location);
     }
 
-    public static bool TryGetBuildingAt(Location Location, out BuildingData Data) {
+    public bool TryGetBuildingAt(Location Location, out BuildingData Data) {
         Data = null;
 
         if (!TryGetChunkData(Location, out ChunkData Chunk))
@@ -285,7 +316,7 @@ public class MapGenerator : MonoBehaviour
         return Chunk.TryGetBuildingAt(Location, out Data);
     }
 
-    public static void AddBuilding(BuildingData BuildingData) {
+    public void AddBuilding(BuildingData BuildingData) {
         if (!TryGetHexagonData(BuildingData.Location, out HexagonData HexData))
             return;
 
@@ -301,9 +332,9 @@ public class MapGenerator : MonoBehaviour
         Chunk.Visualization.CreateBuilding(BuildingData);
     }
 
-    public static Production GetProductionPerTurn() {
+    public Production GetProductionPerTurn() {
         Production Production = new();
-        foreach (ChunkData Data in Instance.Chunks) {
+        foreach (ChunkData Data in Chunks) {
             Production += Data.GetProductionPerTurn();
         }
 
@@ -325,45 +356,38 @@ public class MapGenerator : MonoBehaviour
         return ChunkLocation - CenterLocation;
     }
 
-    public static bool TryGetChunkData(Location Location, out ChunkData Chunk) {
+    public bool TryGetChunkData(Location Location, out ChunkData Chunk) {
         Chunk = null;
-        if (!Instance) 
-            return false;
 
         if (!HexagonConfig.IsValidChunkIndex(Location.ChunkLocation)) 
             return false;
 
-        Chunk = Instance.Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y];
+        Chunk = Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y];
         return true;
     }
 
-    public static void UpdateMapBounds(ChunkVisualization Vis) {
-        if (!Instance)
-            return;
-
+    public void UpdateMapBounds(ChunkVisualization Vis) {
         Location BottomLeft = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(0, 0));
         Location TopRight = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(HexagonConfig.chunkSize, HexagonConfig.chunkSize));
-        Instance.MinBottomLeft = Location.Min(Instance.MinBottomLeft, BottomLeft);
-        Instance.MaxTopRight = Location.Max(Instance.MaxTopRight, TopRight);
+        MinBottomLeft = Location.Min(MinBottomLeft, BottomLeft);
+        MaxTopRight = Location.Max(MaxTopRight, TopRight);
     }
 
-    public static void GetMapBounds(out Location MinBottomLeft, out Location MaxTopRight) {
-        MinBottomLeft = Instance ? Instance.MinBottomLeft : Location.Zero;
-        MaxTopRight = Instance ? Instance.MaxTopRight : Location.Zero;
+    public void GetMapBounds(out Location _MinBottomLeft, out Location _MaxTopRight) {
+        _MinBottomLeft = MinBottomLeft;
+        _MaxTopRight = MaxTopRight;
     }
 
-    public static void GetMapBounds(out Vector3 MinBottomLeftWorld, out Vector3 MaxTopRightWorld) {
+    public void GetMapBounds(out Vector3 MinBottomLeftWorld, out Vector3 MaxTopRightWorld) {
         GetMapBounds(out Location BottomLeftMap, out Location TopRightMap);
         MinBottomLeftWorld = BottomLeftMap.WorldLocation;
         MaxTopRightWorld = TopRightMap.WorldLocation;
     }
 
-    public static HexagonDTO[] GetDTOs() {
+    public HexagonDTO[] GetDTOs() {
         int Count = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
 
         HexagonDTO[] DTOs = new HexagonDTO[Count];
-        if (!Instance)
-            return DTOs;
 
         /* Chunks are world partitions, each with a 2d array of their hexes
          * | 6 7 8 | 6 7 8 |
@@ -388,7 +412,7 @@ public class MapGenerator : MonoBehaviour
             for (int j = 0; j < HexagonConfig.chunkSize; j++) {
                 for (int x = 0; x < HexagonConfig.mapMaxChunk; x++) {
                     for (int i = 0; i < HexagonConfig.chunkSize; i++) {
-                        DTOs[Index] = Instance.Chunks[x, y].HexDatas[i, j].GetDTO();
+                        DTOs[Index] = Chunks[x, y].HexDatas[i, j].GetDTO();
                         Index++;
                     }
                 }
@@ -403,8 +427,6 @@ public class MapGenerator : MonoBehaviour
 
     public Material HexMat;
     public Material MalaiseMat;
-
-    public static MapGenerator Instance;
 
     private Camera MainCam;
     private Location LastCenterChunk = Location.MinValue;
