@@ -11,14 +11,19 @@ public class TileMeshGenerator : MonoBehaviour
     private static List<int> Triangles;
     private static List<Vector2> UVs;
 
-    public static Mesh CreateMesh(HexagonData Data) {
+    public static bool TryCreateMesh(HexagonData Data, out Mesh Mesh)
+    {
+        Mesh = null;
         Vertices = new();
         Triangles = new();
         UVs = new();
-        CreateBaseData(Data);
-        AddDecoration(Data);
+        if (!TryCreateBaseData(Data))
+            return false;
+        if (!TryAddDecoration(Data))
+            return false;
 
-        return CreateAndFillMesh();
+        Mesh = CreateAndFillMesh();
+        return true;
     }
 
     private static Mesh CreateAndFillMesh() {
@@ -32,13 +37,17 @@ public class TileMeshGenerator : MonoBehaviour
         return Mesh;
     }
 
-    private static void CreateBaseData(HexagonData Data) {
-        CreateBaseVertices(Data);
-        CreateBaseTriangles(Data);
-        CreateBaseUVs(Data);
+    private static bool TryCreateBaseData(HexagonData Data) {
+        if (!TryCreateBaseVertices(Data))
+            return false;
+        if (!TryCreateBaseTriangles(Data))
+            return false;
+        if (!TryCreateBaseUVs(Data))
+            return false;
+        return true;
     }
 
-    private static void CreateBaseUVs(HexagonData Data) { 
+    private static bool TryCreateBaseUVs(HexagonData Data) { 
         // every uv is only important for x, as y will be set by shader
         // uv.x is in range of 0..1, but will be interpreted as 1..16 to match color info
         // uv is on per vertex base, so pretty much duplicate vertex generation here
@@ -75,9 +84,10 @@ public class TileMeshGenerator : MonoBehaviour
         for (int i = 0; i < 6; i++) {
             UVs.Add(new Vector2(0.1f / 16.0f, 0));
         }
+        return true;
     }
 
-    private static void CreateBaseTriangles(HexagonData Data) {
+    private static bool TryCreateBaseTriangles(HexagonData Data) {
         // outer ring
         for (int i = 0; i < 6; i++) {
             int j = (i + 1) % 6;
@@ -104,9 +114,10 @@ public class TileMeshGenerator : MonoBehaviour
             Triangles.AddRange(new int[] { i + 25, j + 25, i + 31 });
             Triangles.AddRange(new int[] { j + 25, j + 31, i + 31 });
         }
+        return true;
     }
 
-    private static void CreateBaseVertices(HexagonData Data) {
+    private static bool TryCreateBaseVertices(HexagonData Data) {
         Vector3 HeightOffset = new Vector3(0, Data.Height, 0);
 
         // upper ring
@@ -151,11 +162,16 @@ public class TileMeshGenerator : MonoBehaviour
             Vertex.y *= HexagonConfig.TileBorderHeightMultiplier;
             Vertices.Add(Vertex);
         }
+        return true;
     }
 
-    private static void AddDecoration(HexagonData Data) {
+    private static bool TryAddDecoration(HexagonData Data) {
+        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+            return false;
 
         Mesh DecorationMesh = BuildingFactory.GetMeshFromType(Data.Type);
+        if (!DecorationMesh)
+            return false;
 
         int BaseVertexCount = Vertices.Count;
         Vector3 HeightOffset = new Vector3(0, Data.Height, 0) * HexagonConfig.TileBorderHeightMultiplier;
@@ -169,6 +185,8 @@ public class TileMeshGenerator : MonoBehaviour
         foreach (Vector2 UV in  DecorationMesh.uv) {
             UVs.Add(UV);
         }
+
+        return true;
     }
 
 }

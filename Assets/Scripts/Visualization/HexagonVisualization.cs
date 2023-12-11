@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -30,7 +31,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     }
 
     void GenerateMesh(Material Mat) {
-        Mesh Mesh = TileMeshGenerator.CreateMesh(Data);
+        if (!TileMeshGenerator.TryCreateMesh(Data, out Mesh Mesh))
+            return;
 
         MeshRenderer Renderer = GetComponent<MeshRenderer>();
         Renderer.material = Mat;
@@ -64,6 +66,9 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public void ClickOn(Vector2 PixelPos) { }
 
     public void Interact() {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
         Card Card = Selector.GetSelectedCard();
         if (Card) {
             InteractBuildBuilding(Card);
@@ -75,6 +80,35 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             InteractMoveWorker(SelectedHex);
             return;
         }
+
+        UIElement SelectedUIElement = Selector.GetSelectedUIElement();
+        if (SelectedUIElement is PlaceableHexagon)
+        {
+            InteractSwapType((PlaceableHexagon) SelectedUIElement);
+            return;
+        }
+    }
+
+    private void InteractSwapType(PlaceableHexagon PlaceableHex)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        Data.Type = PlaceableHex.Type;
+        if (!MapGenerator.TrySetHexagonData(Location, Data))
+            return;
+
+        if (!MapGenerator.TryGetChunkData(Location, out ChunkData Chunk))
+            return;
+
+        Chunk.Visualization?.Refresh();
+        GenerateMesh(MapGenerator.HexMat);
+        VisualizeSelection();
+
+        if (!Game.TryGetService(out MiniMap Minimap))
+            return;
+
+        Minimap.FillBuffer();
     }
 
     private void InteractMoveWorker(HexagonVisualization SelectedHex) {
@@ -90,7 +124,11 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         InteractMoveWorker(Worker, PathCosts);
     }
 
-    private void InteractMoveWorker(WorkerData Worker, int Costs) {
+    private void InteractMoveWorker(WorkerData Worker, int Costs)
+    {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
         // trigger movement range update
         Selector.DeselectHexagon();
 
@@ -116,7 +154,11 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Selector.SelectHexagon(NewHex);
     }
 
-    private void InteractBuildBuilding(Card Card) {
+    private void InteractBuildBuilding(Card Card)
+    {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
         if (MapGenerator.IsBuildingAt(Location)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
             return;
@@ -135,8 +177,12 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
         BuildBuildingFromCard(Building);
         Selector.ForceDeselect();
-        CardHand.Instance.DiscardCard(Card);
         Selector.SelectHexagon(this);
+
+        if (!Game.TryGetService(out CardHand CardHand))
+            return;
+
+        CardHand.DiscardCard(Card);
     }
 
     private void BuildBuildingFromCard(BuildingData Building) {
@@ -154,7 +200,11 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     public ChunkData GetChunk() { return Chunk; }
 
-    private void UpdateBuildingPreview() {
+    private void UpdateBuildingPreview()
+    {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
         Card SelectedCard = Selector.GetSelectedCard();
         if (!SelectedCard || !isHovered) {
             BuildingPreview.Hide();

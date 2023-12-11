@@ -152,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b54efb919fb69b54b9e25f2cdd2961d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
 --- !u!4 &46426697
 Transform:
   m_ObjectHideFlags: 0
@@ -604,6 +606,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 221619038}
   m_CullTransparentMesh: 1
+--- !u!1 &257611872
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 257611873}
+  - component: {fileID: 257611874}
+  m_Layer: 0
+  m_Name: HexagonPlacement
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &257611873
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257611872}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1942246720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 125}
+  m_SizeDelta: {x: 1000, y: 150}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &257611874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257611872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d52484bab8486b84dab6ab535601008b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  DisplayCount: 5
 --- !u!1 &294535299
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,6 +767,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 901f7ba4fe8f4a843ae26500a3bce4ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
   Cards: []
   Text: {fileID: 136479509}
   CardPrefab: {fileID: 0}
@@ -899,9 +954,7 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   MapShader: {fileID: 7200000, guid: 7b9578702f2160c4eb02a2c65cc2bb98, type: 3}
-  PlateShader: {fileID: 7200000, guid: 11055a02a10f6be4f9c44ffc75eaa95c, type: 3}
   EvenRT: {fileID: 555248857}
-  OddRT: {fileID: 1080739725}
 --- !u!4 &558157971
 Transform:
   m_ObjectHideFlags: 0
@@ -1067,6 +1120,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b646d3c86aecef4bb3c6ba3c918be62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
   MovementSpeed: 0.03
   PanningSpeed: 8
   MinimumZoom: 15
@@ -1499,21 +1554,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77a50bf3bb1e1eb4bb66e0a770ee887d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  State: 0
-  Mode: 1
+  State: 1
+  Mode: 2
   Services:
-  - IsForEditor: 0
+  - IsForEditor: 1
     IsForGame: 1
     TargetScript: {fileID: 542260989}
-  - IsForEditor: 0
+  - IsForEditor: 1
+    IsForGame: 1
+    TargetScript: {fileID: 46426696}
+  - IsForEditor: 1
     IsForGame: 1
     TargetScript: {fileID: 558157970}
-  - IsForEditor: 0
+  - IsForEditor: 1
     IsForGame: 1
     TargetScript: {fileID: 1156037802}
-  - IsForEditor: 0
+  - IsForEditor: 1
     IsForGame: 1
     TargetScript: {fileID: 1927283772}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1588273351}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 358714171}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1174939602}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1428331265}
+  - IsForEditor: 1
+    IsForGame: 1
+    TargetScript: {fileID: 577026643}
+  - IsForEditor: 1
+    IsForGame: 0
+    TargetScript: {fileID: 257611874}
 --- !u!4 &785273178
 Transform:
   m_ObjectHideFlags: 0
@@ -2298,44 +2374,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 110}
   m_SizeDelta: {x: 750, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!84 &1080739725
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 256
-  m_Height: 256
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 4
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 1
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 1
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 2
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &1152186754
 GameObject:
   m_ObjectHideFlags: 0
@@ -2560,6 +2598,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26b59eaa7367c1a49a3077459bda995b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
   Cards: []
   Text: {fileID: 0}
   CardPrefab: {fileID: 8726221788230207971, guid: e0353b83c8f8b2b43ac65f97782565a9,
@@ -2824,7 +2864,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23890ff01cd06094784b503f48634a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
   TurnNr: 1
+  TurnUI: {fileID: 790190525}
 --- !u!4 &1428331266
 Transform:
   m_ObjectHideFlags: 0
@@ -2994,6 +3037,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b395c5ee434f31f4bbd48304f49f83d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
   Cards: []
   Text: {fileID: 2126776551}
   CardPrefab: {fileID: 8726221788230207971, guid: e0353b83c8f8b2b43ac65f97782565a9,
@@ -4591,6 +4636,7 @@ RectTransform:
   - {fileID: 1592335316}
   - {fileID: 1152186755}
   - {fileID: 908851251}
+  - {fileID: 257611873}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

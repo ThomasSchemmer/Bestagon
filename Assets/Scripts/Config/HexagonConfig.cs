@@ -121,6 +121,21 @@ public class HexagonConfig {
         return Height < WATER_CUTOFF ? HexagonType.Ocean : Land;
     }
 
+    public static Vector2 GetMapDataFromType(HexagonType Type)
+    {
+        float Offset = 0.01f;
+        float Middle = 0.5f;
+        switch (Type)
+        {
+            case HexagonType.Ocean:  return new Vector2(WATER_CUTOFF - Offset, Middle);
+            case HexagonType.Ice:    return new Vector2(Middle, ICE_CUTOFF - Offset);
+            case HexagonType.Tundra: return new Vector2(Middle, TUNDRA_CUTOFF - Offset);
+            case HexagonType.Meadow: return new Vector2(Middle, MEADOW_CUTOFF - Offset);
+            case HexagonType.Desert: return new Vector2(Middle, MEADOW_CUTOFF + Offset);
+        }
+        return new Vector2(0, 0);
+    }
+
     public static int GetMapPosFromLocation(Location Location) {
         Vector2Int MaxGlobalTileLocation = GetMaxLocation().GlobalTileLocation + new Vector2Int(1, 1);
         Vector2Int GlobalTileLocation = Location.GlobalTileLocation;

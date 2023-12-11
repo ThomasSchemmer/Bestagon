@@ -1,18 +1,33 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Turn : MonoBehaviour
+public class Turn : GameService
 {
     public void OnEnable()
     {
-        Instance = this;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
     }
+    protected override void StartServiceInternal()
+    {
+        CardHand = Game.GetService<CardHand>();
+        CardDeck = Game.GetService<CardDeck>();
+        DiscardDeck = Game.GetService<DiscardDeck>();
+        gameObject.SetActive(true);
+        TurnUI.SetActive(true);
+        IsInit = true;
+        _OnInit?.Invoke();
+    }
+
+    protected override void StopServiceInternal() {
+        gameObject.SetActive(false);
+        TurnUI.SetActive(false);
+    }
 
     public void NextTurn() {
-        if (!IsEnabled)
+        if (!IsEnabled || !IsInit)
             return;
 
         MessageSystem.DeleteAllMessages();
@@ -58,24 +73,24 @@ public class Turn : MonoBehaviour
     }
 
     private void MoveCard() {
-        if (CardDeck.Instance.Cards.Count == 0) {
+        if (CardDeck.Cards.Count == 0) {
             FillCardDeck();
         }
 
-        Card RemovedCard = CardDeck.Instance.RemoveCard(); 
+        Card RemovedCard = CardDeck.RemoveCard(); 
         if (RemovedCard == null) 
             return; 
 
-        CardHand.Instance.AddCard(RemovedCard);
+        CardHand.AddCard(RemovedCard);
     }
 
     private void FillCardDeck() {
         List<Card> Cards = new();
         // first remove every card
-        Card CurrentCard = DiscardDeck.Instance.RemoveCard();
+        Card CurrentCard = DiscardDeck.RemoveCard();
         while (CurrentCard != null) {
             Cards.Add(CurrentCard);
-            CurrentCard = DiscardDeck.Instance.RemoveCard();
+            CurrentCard = DiscardDeck.RemoveCard();
         }
 
         // then shuffle
@@ -88,11 +103,14 @@ public class Turn : MonoBehaviour
 
         // and then add into the card deck
         for (int i = 0; i < Cards.Count; i++) {
-            CardDeck.Instance.AddCard(Cards[i]);
+            CardDeck.AddCard(Cards[i]);
         }
     }
 
     private void UpdateSelection() {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
         // this triggers all visualizations for the selected hex
         HexagonVisualization Hex = Selector.GetSelectedHexagon();
         if (Hex == null) 
@@ -102,9 +120,11 @@ public class Turn : MonoBehaviour
     }
 
     private bool IsEnabled = true;
+    private CardHand CardHand;
+    private CardDeck CardDeck;
+    private DiscardDeck DiscardDeck;
 
     public int TurnNr = 1;
     public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();
-
-    public static Turn Instance;
+    public GameObject TurnUI;
 }

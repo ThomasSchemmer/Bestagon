@@ -16,7 +16,10 @@ public class MalaiseData
 
     public void Infect() {
         bIsActive = true;
-        Turn.Instance.ActiveMalaises.Add(this);
+
+        if (!Game.TryGetService(out Turn Turn))
+            return;
+        Turn.ActiveMalaises.Add(this);
     }
 
     private void Spread(HexagonData Data) {

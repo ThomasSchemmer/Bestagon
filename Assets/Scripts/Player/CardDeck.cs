@@ -5,12 +5,13 @@ using UnityEngine;
 
 public class CardDeck : CardCollection
 {
-    void Start()
+    protected override void StartServiceInternal()
     {
-        Instance = this;
+        base.StartServiceInternal();
         Cards = new List<Card>();
-          
-        for (int i = 0; i < 10; i++) {
+
+        for (int i = 0; i < 10; i++)
+        {
             Card Card = CreateRandomCard(i);
             Card.transform.localPosition = new Vector3(0, Mathf.Min(i, 5) * 15, 0);
             Card.gameObject.layer = 0;
@@ -19,6 +20,4 @@ public class CardDeck : CardCollection
         }
         Text.text = "" + Cards.Count;
     }
-
-    public static CardDeck Instance;
 }

@@ -15,7 +15,11 @@ public class Card : MonoBehaviour, Selectable
     }
 
     public void Init(BuildingData.Type Type, int Index) {
+        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+            return;
+
         BuildingData = BuildingFactory.CreateFromType(Type);
+        CardHand = Game.GetService<CardHand>();
         id = GUID.Generate();
         this.Index = Index;
         gameObject.layer = LayerMask.NameToLayer("Card");
@@ -67,7 +71,7 @@ public class Card : MonoBehaviour, Selectable
         Vector3 CurrentPos = transform.localPosition;
         CurrentPos.y += isSelected ? SelectOffset : 0;
         transform.localPosition = CurrentPos;
-        CardHand.Instance.Sort(isHovered);
+        CardHand.Sort(isHovered);
         SetColor();
     }
 
@@ -75,7 +79,7 @@ public class Card : MonoBehaviour, Selectable
         isHovered = Hovered;
         transform.localScale = isHovered ? new Vector3(1.1f, 1.1f, 1.1f) : new Vector3(1, 1, 1);
         transform.parent.localPosition = isHovered ? CardHand.HoverPosition : CardHand.NormalPosition;
-        CardHand.Instance.Sort(isHovered);
+        CardHand.Sort(isHovered);
         SetColor();
     }
 
@@ -124,6 +128,7 @@ public class Card : MonoBehaviour, Selectable
     protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText;
     protected Image CardBase;
     protected BuildingData BuildingData;
+    protected CardHand CardHand;
 
     public static float SelectOffset = 25f;
     public static Color NormalColor = new Color(55 / 255f, 55 / 255f, 55 / 255f);

@@ -11,7 +11,6 @@ public class BuildingFactory : GameService
 {
     public SerializedDictionary<BuildingData.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
-    public static BuildingFactory instance;
 
     public void Refresh()
     {
@@ -21,7 +20,6 @@ public class BuildingFactory : GameService
 
     protected override void StartServiceInternal()
     {
-        instance = this;
         Refresh();
     }
 
@@ -71,52 +69,41 @@ public class BuildingFactory : GameService
         }
     }
 
-    public static BuildingData CreateFromType(BuildingData.Type Type)
+    public BuildingData CreateFromType(BuildingData.Type Type)
     {
-        if (!instance)
+        if (!AvailableBuildings.ContainsKey(Type))
             return null;
 
-        if (!instance.AvailableBuildings.ContainsKey(Type))
-            return null;
-
-        var Entry = instance.AvailableBuildings[Type];
+        var Entry = AvailableBuildings[Type];
         BuildingData Building = Entry.Key;
         BuildingData Copy = Instantiate(Building);
         return Copy;
     }
 
-    public static List<BuildingData.Type> GetUnlockedBuildings()
+    public List<BuildingData.Type> GetUnlockedBuildings()
     {
         List<BuildingData.Type> Result = new();
-        if (!instance)
-            return Result;
 
-        foreach (var Tuple in instance.AvailableBuildings)
+        foreach (var Tuple in AvailableBuildings)
         {
             Result.Add(Tuple.Key);
         }
         return Result;
     }
 
-    public static Mesh GetMeshFromType(BuildingData.Type Type)
+    public Mesh GetMeshFromType(BuildingData.Type Type)
     {
-        if (!instance)
+        if (!AvailableBuildings.ContainsKey(Type))
             return null;
 
-        if (!instance.AvailableBuildings.ContainsKey(Type))
-            return null;
-
-        return instance.AvailableBuildings[Type].Value;
+        return AvailableBuildings[Type].Value;
     }
 
-    public static Mesh GetMeshFromType(HexagonConfig.HexagonType Type)
+    public Mesh GetMeshFromType(HexagonConfig.HexagonType Type)
     {
-        if (!instance)
+        if (!AvailableTiles.ContainsKey(Type))
             return null;
 
-        if (!instance.AvailableTiles.ContainsKey(Type))
-            return null;
-
-        return instance.AvailableTiles[Type];
+        return AvailableTiles[Type];
     }
 }

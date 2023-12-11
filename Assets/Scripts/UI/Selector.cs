@@ -6,21 +6,22 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /**
- * Helper class to wrap all selectors into one easily accesible UI element
+ * Helper class to wrap all templated selectors into one easily accesible UI element / gameservice
  */
-public class Selector : MonoBehaviour{
-
-    public void Awake() {
+public class Selector : GameService{
+    protected override void StartServiceInternal()
+    {
         CardSelector = new Selector<Card>();
         HexagonSelector = new Selector<HexagonVisualization>();
         UISelector = new Selector<UIElement>(true);
         CardSelector.Layer = "Card";
         HexagonSelector.Layer = "Hexagon";
         UISelector.Layer = "UI";
-        Instance = this;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
     }
+
+    protected override void StopServiceInternal() {}
 
     public void Update() {
         if (!IsEnabled)
@@ -46,41 +47,34 @@ public class Selector : MonoBehaviour{
         IsEnabled = true;
     }
 
-    public static Card GetSelectedCard() {
-        if (!Instance)
-            return null;
-
-        return Instance.CardSelector.Selected;
+    public Card GetSelectedCard() {
+        return CardSelector.Selected;
     }
 
-    public static HexagonVisualization GetSelectedHexagon() {
-        if (!Instance)
-            return null;
-
-        return Instance.HexagonSelector.Selected;
+    public HexagonVisualization GetSelectedHexagon() {
+        return HexagonSelector.Selected;
     }
 
-    public static void SelectHexagon(HexagonVisualization Vis) {
-        if (!Instance)
-            return;
-
-        Instance.HexagonSelector.Select(Vis);
+    public UIElement GetSelectedUIElement() 
+    {
+        return UISelector.Selected;
     }
 
-    public static void DeselectHexagon() { 
-        if (!Instance) 
-            return;
-        
-        Instance.HexagonSelector.Deselect(true);
+    public void SelectHexagon(HexagonVisualization Vis) {
+        HexagonSelector.Select(Vis);
     }
 
-    public static void ForceDeselect() {
-        Instance.CardSelector.Deselect(true);
-        Instance.CardSelector.Deselect(false);
-        Instance.HexagonSelector.Deselect(true);
-        Instance.HexagonSelector.Deselect(false);
-        Instance.UISelector.Deselect(true);
-        Instance.UISelector.Deselect(false);
+    public void DeselectHexagon() { 
+        HexagonSelector.Deselect(true);
+    }
+
+    public void ForceDeselect() {
+        CardSelector.Deselect(true);
+        CardSelector.Deselect(false);
+        HexagonSelector.Deselect(true);
+        HexagonSelector.Deselect(false);
+        UISelector.Deselect(true);
+        UISelector.Deselect(false);
     }
 
     public Selector<Card> CardSelector;
@@ -88,8 +82,6 @@ public class Selector : MonoBehaviour{
     public Selector<UIElement> UISelector;
 
     private bool IsEnabled = true;
-
-    public static Selector Instance;
 }
 
 /**

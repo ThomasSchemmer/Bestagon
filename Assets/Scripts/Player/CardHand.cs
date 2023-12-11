@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class CardHand : CardCollection
 {
-    void Start()
+
+    protected override void StartServiceInternal()
     {
-        Instance = this;
+        base.StartServiceInternal();
         Cards = new List<Card> {
             Card.CreateCard(BuildingData.Type.Woodcutter, 0, CardPrefab, transform),
             Card.CreateCard(BuildingData.Type.Mine, 1, CardPrefab, transform),
@@ -16,7 +17,7 @@ public class CardHand : CardCollection
         };
         Sort(false);
     }
-
+        
     public void Sort(bool IsACardHovered) {
         transform.localPosition = IsACardHovered ? HoverPosition : NormalPosition;
         int i = 0;
@@ -41,7 +42,10 @@ public class CardHand : CardCollection
         }
         Sort(false);
 
-        DiscardDeck.Instance.AddCard(Card);
+        if (!Game.TryGetService(out DiscardDeck Deck))
+            return;
+        
+        Deck.AddCard(Card);
     }
 
     public override void AddCard(Card Card) {
@@ -58,7 +62,4 @@ public class CardHand : CardCollection
 
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);
     public static Vector3 HoverPosition = new Vector3(0, -350, 0);
-
-    public static CardHand Instance;
-
 }

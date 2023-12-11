@@ -41,17 +41,17 @@ public class MapGenerator : GameService
         {
             CreateChunks();
             GenerateGrid();
-            MalaiseData.SpreadInitially();
+            if (Game.Instance.Mode == Game.GameMode.Game)
+            {
+                MalaiseData.SpreadInitially();
+            }
 
             IsInit = true;
             _OnInit?.Invoke();
         });
     }
 
-    protected override void StopServiceInternal()
-    {
-        throw new System.NotImplementedException();
-    }
+    protected override void StopServiceInternal(){}
 
     public void Update()
     {
@@ -298,6 +298,21 @@ public class MapGenerator : GameService
 
         HexData = ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
         return HexData != null;
+    }
+
+    public bool TrySetHexagonData(Location Location, HexagonData HexData)
+    {
+        if (!TryGetChunkData(Location, out ChunkData ChunkData))
+            return false;
+
+        if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
+            return false;
+
+        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y] = HexData;
+        int Index = HexagonConfig.GetMapPosFromLocation(Location);
+        Vector2 TypeData = HexagonConfig.GetMapDataFromType(HexData.Type);
+        HexagonConfig.MapData[Index] = TypeData;
+        return true;
     }
 
     public bool IsBuildingAt(Location Location) {

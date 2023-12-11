@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public class CameraController : GameService
 {
-    private void Start() {
+    protected override void StartServiceInternal()
+    {
         Cam = GetComponent<Camera>();
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
+        Game.RunAfterServiceInit((MapGenerator MapGen) =>
+        {
+            IsInit = true;
+        });
     }
 
+    protected override void StopServiceInternal() {}
 
     void Update() {
-        if (!IsEnabled)
+        if (IsPaused || !IsInit)
             return;
 
         UpdatePosition();
@@ -22,12 +28,12 @@ public class CameraController : MonoBehaviour
 
     private void OnPause()
     {
-        IsEnabled = false;
+        IsPaused = true;
     }
 
     private void OnResume()
     {
-        IsEnabled = true;
+        IsPaused = false;
     }
 
     private void UpdateMiniMapData() {
@@ -108,7 +114,7 @@ public class CameraController : MonoBehaviour
 
     private Camera Cam;
 
-    private bool IsEnabled = true;
+    private bool IsPaused = false;
 
     public float MovementSpeed = 0.001f;
     public float PanningSpeed = 10;

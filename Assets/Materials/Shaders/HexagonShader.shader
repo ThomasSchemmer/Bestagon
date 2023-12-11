@@ -182,6 +182,7 @@
                 float2 uv = float2(u, v) / 16.0;
                 fixed4 color = tex2D(_TypeTex, uv);
                 color *= i.diff;
+                color.a = 1;
                 return color;
             }
             ENDCG

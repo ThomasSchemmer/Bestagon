@@ -21,8 +21,12 @@ public class Stockpile : MonoBehaviour
     }
 
     private void ShowResources() {
-        string ResourceString = Resources.GetDescription() + "\t\tTurn: " + Turn.Instance.TurnNr + "\t\tWorking: "+Workers.GetAssignedWorkerCount() + "\tIdle: " + Workers.GetUnassignedWorkerCount();
-        ResourceText.SetText(ResourceString);
+        string ResourcesString = Resources.GetDescription() + "\t\t";
+        Turn Turn = Game.GetService<Turn>();
+        string TurnString = "Turn: " + (Turn ? Turn.TurnNr : -1) + "\t\t";
+        string WorkersString = "Working: "+Workers.GetAssignedWorkerCount() + "\tIdle: " + Workers.GetUnassignedWorkerCount();
+        string FinalString = ResourcesString + TurnString + WorkersString;
+        ResourceText.SetText(FinalString);
     }
 
     public static bool Pay(Production Costs) {
