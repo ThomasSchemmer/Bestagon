@@ -112,7 +112,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HexPerLine: 90
+    - _HexPerLine: 27
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -130,14 +130,14 @@ Material:
     - _BottomLeft: {r: 0, g: 0, b: 0, a: 0}
     - _BottomLeftView: {r: -83.10465, g: -0.0000019073486, b: 30.032402, a: 0}
     - _BottomRightView: {r: -83.045715, g: 0, b: 29.973476, a: 0}
-    - _BottomView: {r: 0.09254295, g: 0.24684557, b: 0.19622506, a: 0.16304033}
+    - _BottomView: {r: -0.12036312, g: 0.13779363, b: 0.11716323, a: -0.14155705}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HexDistance: {r: 63, g: 90, b: 0, a: 0}
+    - _HexDistance: {r: 27, g: 27, b: 0, a: 0}
     - _LineColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _TopLeftView: {r: -83.036575, g: -0.0000019073486, b: 30.100452, a: 0}
     - _TopRight: {r: 63, g: 63, b: 0, a: 0}
     - _TopRightView: {r: -82.97768, g: -0.0000019073486, b: 30.041553, a: 0}
-    - _TopView: {r: 0.15988643, g: 0.30127862, b: 0.26356855, a: 0.21747342}
+    - _TopView: {r: 0.03391475, g: 0.31923726, b: 0.27144104, a: 0.03988651}
   m_BuildTextureStacks: []

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 
 public class MapGenerator : GameService
@@ -39,8 +40,8 @@ public class MapGenerator : GameService
 
         Game.RunAfterServiceStart((WorldGenerator Generator, BuildingFactory Factory) =>
         {
-            CreateChunks();
-            GenerateGrid();
+            GenerateMap();
+
             if (Game.Instance.Mode == Game.GameMode.Game)
             {
                 MalaiseData.SpreadInitially();
@@ -61,7 +62,23 @@ public class MapGenerator : GameService
         GenerateGrid();
     }
 
-    public void GenerateGrid()
+    public void GenerateMap()
+    {
+        if (!Game.TryGetService(out Selector Selector))
+            return;
+
+        Selector.ForceDeselect();
+        DestroyChunks();
+        CreateChunks();
+        GenerateGrid();
+
+        if (!Game.TryGetService(out MiniMap Minimap))
+            return;
+
+        Minimap.FillBuffer();
+    }
+
+    private void GenerateGrid()
     {
         Location CenterChunk = GetCameraPosChunkSpace();
         if (CenterChunk.Equals(LastCenterChunk))
@@ -99,6 +116,17 @@ public class MapGenerator : GameService
             UnusedVis.Generator = StartCoroutine(UnusedVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat));
         }
         Enumerator.Dispose();
+    }
+
+    private void DestroyChunks()
+    {
+        if (ChunkVis == null)
+            return;
+        
+        foreach (ChunkVisualization Vis in ChunkVis)
+        {
+            Destroy(Vis.gameObject);
+        }
     }
 
     private void CreateChunks()
@@ -300,7 +328,7 @@ public class MapGenerator : GameService
         return HexData != null;
     }
 
-    public bool TrySetHexagonData(Location Location, HexagonData HexData)
+    public bool TrySetHexagonData(Location Location, HexagonConfig.HexagonHeight Height, HexagonConfig.HexagonType Type)
     {
         if (!TryGetChunkData(Location, out ChunkData ChunkData))
             return false;
@@ -308,10 +336,11 @@ public class MapGenerator : GameService
         if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
             return false;
 
-        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y] = HexData;
         int Index = HexagonConfig.GetMapPosFromLocation(Location);
-        Vector2 TypeData = HexagonConfig.GetMapDataFromType(HexData.Type);
-        HexagonConfig.MapData[Index] = TypeData;
+        HexagonConfig.MapData[Index] = new(Height, Type);
+
+        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Type = Type;
+        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Height = Height;
         return true;
     }
 

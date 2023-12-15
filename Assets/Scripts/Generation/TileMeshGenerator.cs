@@ -118,7 +118,7 @@ public class TileMeshGenerator : MonoBehaviour
     }
 
     private static bool TryCreateBaseVertices(HexagonData Data) {
-        Vector3 HeightOffset = new Vector3(0, Data.Height, 0);
+        Vector3 HeightOffset = new Vector3(0, Data.WorldHeight, 0);
 
         // upper ring
         for (int i = 0; i < 6; i++) {
@@ -174,7 +174,7 @@ public class TileMeshGenerator : MonoBehaviour
             return false;
 
         int BaseVertexCount = Vertices.Count;
-        Vector3 HeightOffset = new Vector3(0, Data.Height, 0) * HexagonConfig.TileBorderHeightMultiplier;
+        Vector3 HeightOffset = new Vector3(0, Data.WorldHeight, 0) * HexagonConfig.TileBorderHeightMultiplier;
 
         foreach (Vector3 Vertex in DecorationMesh.vertices) {
             Vertices.Add(Vertex + HeightOffset);

@@ -21,10 +21,11 @@ public class ChunkData {
             for (int x = 0; x < HexagonConfig.chunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
+                HexagonConfig.Tile Tile = HexagonConfig.GetTileAtLocation(HexLocation);
                 HexagonData Data = new HexagonData();
                 Data.Location = HexLocation;
-                Data.Type = HexagonConfig.GetTypeAtTileLocation(HexLocation);
-                Data.Height = HexagonConfig.GetHeightAtTileLocation(HexLocation, Data.Type);
+                Data.Type = Tile.Type;
+                Data.Height = Tile.Height;
 
                 HexDatas[x, y] = Data;
             }

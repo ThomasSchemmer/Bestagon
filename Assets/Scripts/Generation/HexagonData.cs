@@ -2,12 +2,17 @@ using System.Diagnostics;
 using Unity.Mathematics;
 using static HexagonConfig;
 
+/** Includes all data necessary to display and update a hexagon */
 public class HexagonData 
 {
     public Location Location;
     public HexagonType Type;
+    public HexagonHeight Height;
     public float Value;
-    public float Height;
+    public float WorldHeight
+    {
+        get { return GetWorldHeightFromTile(new(Height, Type)); }
+    }
     public bool bIsMalaised;
 
     /** 

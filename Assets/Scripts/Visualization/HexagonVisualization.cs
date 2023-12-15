@@ -95,7 +95,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Data.Type = PlaceableHex.Type;
-        if (!MapGenerator.TrySetHexagonData(Location, Data))
+        Data.Height = PlaceableHex.Height;
+        if (!MapGenerator.TrySetHexagonData(Location, Data.Height, Data.Type))
             return;
 
         if (!MapGenerator.TryGetChunkData(Location, out ChunkData Chunk))

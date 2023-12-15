@@ -10,9 +10,9 @@ using UnityEngine;
  */
 public class HexagonPlacement : GameService
 {
-    public int DisplayCount = 5;
     protected override void StartServiceInternal()
     {
+        gameObject.SetActive(true);
         Game.RunAfterServiceStart((BuildingFactory Factory) =>
         {
             InitPlaceables();
@@ -23,8 +23,7 @@ public class HexagonPlacement : GameService
     {
         HexagonConfig.HexagonType[] Types = (HexagonConfig.HexagonType[])Enum.GetValues(typeof(HexagonConfig.HexagonType));
         Types = Types[1..];
-        int Max = Mathf.Min(DisplayCount, Types.Length);
-        for (int i = 0; i < Max; i++)
+        for (int i = 0; i < Types.Length; i++)
         {
             GameObject Child = new GameObject();
             Child.transform.parent = this.transform;
@@ -40,12 +39,19 @@ public class HexagonPlacement : GameService
         int Count = transform.childCount;
         foreach (Transform Child in transform)
         {
-            float offset = i - Count / 2.0f;
-            Child.transform.localPosition = new Vector3(offset * (PlaceableHexagon.SIZE + PlaceableHexagon.OFFSET), 0, 0);
+            int Row = i / DISPLAY_PER_ROW;
+            int Column = i % DISPLAY_PER_ROW;
+            float Offset = Column - Count / 2.0f;
+            Child.transform.localPosition = new Vector3(Offset * (PlaceableHexagon.SIZE + PlaceableHexagon.OFFSET), Row * PlaceableHexagon.SIZE, 0);
             i++;
         }
         Canvas.ForceUpdateCanvases();
     }
 
-    protected override void StopServiceInternal() {}
+    protected override void StopServiceInternal()
+    {
+        gameObject.SetActive(false);
+    }
+
+    private static int DISPLAY_PER_ROW = 6;
 }

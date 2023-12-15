@@ -12,6 +12,7 @@ using UnityEngine.UI;
 public class PlaceableHexagon : MonoBehaviour, UIElement
 {
     public HexagonConfig.HexagonType Type;
+    public HexagonConfig.HexagonHeight Height = HexagonConfig.HexagonHeight.Flat;
 
     public void ClickOn(Vector2 PixelPos) { }
 

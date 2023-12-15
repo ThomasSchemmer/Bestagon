@@ -639,7 +639,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 125}
+  m_AnchoredPosition: {x: 0, y: 75}
   m_SizeDelta: {x: 1000, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &257611874
@@ -656,7 +656,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  DisplayCount: 5
 --- !u!1 &294535299
 GameObject:
   m_ObjectHideFlags: 0
@@ -1556,6 +1555,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   State: 1
   Mode: 2
+  ChunkCount: 3
   Services:
   - IsForEditor: 1
     IsForGame: 1
@@ -3713,7 +3713,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1699612068}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 558157970}
+        m_TargetAssemblyTypeName: WorldGenerator, Assembly-CSharp
+        m_MethodName: Load
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1699612068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4270,7 +4282,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1885440089}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 558157970}
+        m_TargetAssemblyTypeName: WorldGenerator, Assembly-CSharp
+        m_MethodName: Save
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1885440089
 MonoBehaviour:
   m_ObjectHideFlags: 0

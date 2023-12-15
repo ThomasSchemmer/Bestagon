@@ -11,19 +11,20 @@ public class WorldGenerator : GameService
 
     protected override void StopServiceInternal() { }
 
-    private Vector2[] EmptyLand()
+    private HexagonConfig.Tile[] EmptyLand()
     {
         if (MapValuesBuffer == null)
         {
             Init();
         }
-        Vector2[] LandData = new Vector2[ImageWidth * ImageWidth];
+        HexagonConfig.Tile[] LandData = new HexagonConfig.Tile[HexagonConfig.MapWidth * HexagonConfig.MapWidth];
         // set to water at meadow temperature
-        System.Array.Fill(LandData, new Vector2(0.1f, 0.6f));
+        HexagonConfig.Tile EmptyTile = HexagonConfig.GetTileFromMapValue(new Vector2(0.1f, 0.6f));
+        System.Array.Fill(LandData, EmptyTile);
         return LandData;
     }
 
-    private Vector2[] NoiseLand() {
+    private HexagonConfig.Tile[] NoiseLand() {
         if (MapValuesBuffer == null) {
             Init();
         }
@@ -39,10 +40,44 @@ public class WorldGenerator : GameService
         MapShader.SetTexture(NoiseLandKernel, "Image", EvenRT);
 
         MapShader.Dispatch(NoiseLandKernel, GroupCount, GroupCount, 1);
-        Vector2[] LandData = new Vector2[ImageWidth * ImageWidth];
-        MapValuesBuffer.GetData(LandData);
+        Vector2[] ImageData = new Vector2[ImageWidth * ImageWidth];
+        MapValuesBuffer.GetData(ImageData);
 
-        return LandData;
+        // convert image data (x: height, y: temp) to actual type
+        // aspect ratio changes!
+        float SizeMultiplier = (float)ImageWidth / HexagonConfig.MapWidth;
+        HexagonConfig.Tile[] MapData = new HexagonConfig.Tile[HexagonConfig.MapWidth * HexagonConfig.MapWidth];
+        for (int i = 0; i < MapData.Length; i++)
+        {
+            Vector2Int MapPos = new(i % HexagonConfig.MapWidth, i / HexagonConfig.MapWidth);
+            Vector2Int ImagePos = new((int)(MapPos.x * SizeMultiplier), (int)(MapPos.y * SizeMultiplier));
+            int ImageIndex = ImagePos.y * ImageWidth + ImagePos.x;
+            Vector2 Value = ImageData[ImageIndex];
+            MapData[i] = new HexagonConfig.Tile(
+                HexagonConfig.GetHeightFromMapValue(Value),
+                HexagonConfig.GetTypeFromMapValue(Value)
+            );
+        }
+
+        return MapData;
+    }
+
+    public void Save()
+    {
+        byte[] Bytes = HexagonConfig.MapToBinary();
+        string Filename = SaveGamePath + "Save.map";
+        System.IO.File.WriteAllBytes(Filename, Bytes);
+    }
+
+    public void Load()
+    {
+        string Filename = SaveGamePath + "Save.map";
+        byte[] Bytes = System.IO.File.ReadAllBytes(Filename);
+        HexagonConfig.LoadMap(Bytes);
+        if (!Game.TryGetService(out MapGenerator Generator))
+            return;
+
+        Generator.GenerateMap();
     }
 
     private void OnDestroy() {
@@ -89,4 +124,6 @@ public class WorldGenerator : GameService
     // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
+
+    private static string SaveGamePath = Application.dataPath + "/Resources/Pictures/";
 }

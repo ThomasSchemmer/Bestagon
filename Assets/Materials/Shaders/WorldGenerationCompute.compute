@@ -20,7 +20,6 @@ float LandNoise(float2 uv){
     return result;
 }
 
-
 // layered simplex noise to land
 [numthreads(16,16,1)]
 void NoiseLand (uint3 ID : SV_DispatchThreadID)
@@ -47,5 +46,4 @@ void NoiseLand (uint3 ID : SV_DispatchThreadID)
     uint Pos = ID.y * Width + ID.x;
     Values[Pos] = float2(Height, Temperature);
     Image[ID.xy] = float4(Height, 0, 0, 1);
-
 }

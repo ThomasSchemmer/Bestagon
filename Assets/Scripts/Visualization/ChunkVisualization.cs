@@ -78,6 +78,9 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     public void Reset() {
+        if (BuildingVisualizations == null || WorkerVisualizations == null) 
+            return;
+
         foreach (BuildingVisualization Building in BuildingVisualizations) {
             Destroy(Building.gameObject);
         }
@@ -87,6 +90,16 @@ public class ChunkVisualization : MonoBehaviour
             Destroy(Worker.gameObject);
         }
         WorkerVisualizations.Clear();
+    }
+
+    public void OnDestroy()
+    {
+        Reset();
+        foreach (HexagonVisualization Vis in Hexes)
+        {
+            Destroy(Vis.gameObject);
+        }
+        Destroy(MalaiseVisualization.gameObject);
     }
 
     public void Refresh() {

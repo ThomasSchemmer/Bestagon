@@ -10,6 +10,7 @@ public class Game : MonoBehaviour
 {
     public GameState State = GameState.Paused;
     public GameMode Mode = GameMode.Menu;
+    public int ChunkCount;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
 
@@ -67,6 +68,7 @@ public class Game : MonoBehaviour
     {
         MainMenu.Instance._OnOpenBegin += OnOpenMenu;
         MainMenu.Instance._OnClose += OnCloseMenu;
+        HexagonConfig.SetChunkCount(ChunkCount);
 
         InitMode();
 
