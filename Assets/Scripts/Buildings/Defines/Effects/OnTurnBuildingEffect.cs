@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using UnityEditor.Build.Content;
 using UnityEngine;
 
 [Serializable]
-public class OnTurnBuildingEffect : BuildingEffect
+public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 {
     public enum Type
     {
@@ -84,5 +86,30 @@ public class OnTurnBuildingEffect : BuildingEffect
     private Production GetProductionIncreaseYield()
     {
         return new Production();
+    }
+
+    public int GetSize()
+    {
+        return 4 + sizeof(int) + sizeof(float) + Production.GetSize();
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)EffectType);
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)TileType);
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
+        Pos = SaveGameManager.AddFloat(Bytes, Pos, ProductionIncrease);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Data)
+    {
+        throw new NotImplementedException();
     }
 }

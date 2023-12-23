@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
-public class BuildingData : ScriptableObject
+public class BuildingData : ScriptableObject, ISaveable
 {
     [Flags]
     public enum Type
@@ -138,5 +139,35 @@ public class BuildingData : ScriptableObject
     public bool IsNeighbourBuildingBlocking()
     {
         return Effect.IsProductionBlockedByBuilding;
+    }
+
+    public int GetSize()
+    {
+        int WorkerSize = Workers.Count > 0 ? Workers.Count * Workers[0].GetSize() : 0;
+        return Location.GetSize() + Workers.Count * WorkerSize + Cost.GetSize() + 2 + Effect.GetSize() + sizeof(int);
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Workers.Count);
+        foreach (WorkerData Worker in Workers)
+        {
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Worker);
+        }
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildableOn);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Dsata)
+    {
+        throw new NotImplementedException();
     }
 }

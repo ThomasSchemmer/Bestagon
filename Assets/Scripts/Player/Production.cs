@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
 /**
  * Wrapper to have defined access to production data
  */ 
-public class Production {
+public class Production : ISaveable
+{
     [Serializable]
     public enum Type
     {
@@ -125,7 +127,31 @@ public class Production {
     public string GetShortDescription(Type Type) {
         return GetDescription(Type)[..1];
     }
-  
+
+    public int GetSize()
+    {
+        // each type has a enum index and amount of this resource 
+        return Enum.GetValues(typeof(Type)).Length * 2;
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        foreach (Type Type in Enum.GetValues(typeof(Type)))
+        {
+            Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Type);
+            Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)this[Type]);
+        }
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Data)
+    {
+        throw new NotImplementedException();
+    }
+
     public SerializedDictionary<Type, int> _Production;
     public int this[Type Type]
     {

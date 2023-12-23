@@ -8,10 +8,10 @@ public class Workers : MonoBehaviour
 {
     public void Start() {
         for (int i = 0; i < WorkerStartLocations.Count; i++) {
-            UnassignedWorker.Add(new WorkerData() {
-                Name = "Worker " + i,
-                Location = WorkerStartLocations[i]
-            });
+            WorkerData Worker = new WorkerData();
+            Worker.SetName("Worker " + i);
+            Worker.Location = WorkerStartLocations[i];
+            UnassignedWorker.Add(Worker);
         }    
     }
 

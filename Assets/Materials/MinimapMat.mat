@@ -130,7 +130,7 @@ Material:
     - _BottomLeft: {r: 0, g: 0, b: 0, a: 0}
     - _BottomLeftView: {r: -83.10465, g: -0.0000019073486, b: 30.032402, a: 0}
     - _BottomRightView: {r: -83.045715, g: 0, b: 29.973476, a: 0}
-    - _BottomView: {r: -0.12036312, g: 0.13779363, b: 0.11716323, a: -0.14155705}
+    - _BottomView: {r: 0.07330312, g: 0.4036684, b: 0.36361298, a: 0.06223971}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HexDistance: {r: 27, g: 27, b: 0, a: 0}
@@ -139,5 +139,5 @@ Material:
     - _TopLeftView: {r: -83.036575, g: -0.0000019073486, b: 30.100452, a: 0}
     - _TopRight: {r: 63, g: 63, b: 0, a: 0}
     - _TopRightView: {r: -82.97768, g: -0.0000019073486, b: 30.041553, a: 0}
-    - _TopView: {r: 0.03391475, g: 0.31923726, b: 0.27144104, a: 0.03988651}
+    - _TopView: {r: 0.26186493, g: 0.62543285, b: 0.5521748, a: 0.28400418}
   m_BuildTextureStacks: []

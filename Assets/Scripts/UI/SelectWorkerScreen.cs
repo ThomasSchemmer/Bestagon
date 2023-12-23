@@ -41,7 +41,7 @@ public class SelectWorkerScreen : MonoBehaviour
 
             GameObject WorkerObject = Instantiate(SelectWorkerPrefab, Container);
             WorkerObject.transform.localPosition = ContainerWorkerOffset + WorkerOffset * i;
-            WorkerObject.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = Worker.Name;
+            WorkerObject.transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>().text = Worker.GetName();
             WorkerObject.transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>().text = MovementCost + " / " + Turns;
             WorkerObject.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() => {
                 AssignWorkerToBuilding(Worker);

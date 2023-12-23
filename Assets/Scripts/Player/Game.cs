@@ -145,6 +145,17 @@ public class Game : MonoBehaviour
         Instance.Delegates.Add(Delegate);
     }
 
+    public static void RunAfterServiceInit<X, Y>(Action<X, Y> Callback) where X : GameService where Y : GameService
+    {
+        X ServiceX = GetService<X>();
+        Y ServiceY = GetService<Y>();
+        if (ServiceX == null || ServiceY == null || !Instance || Callback == null)
+            return;
+
+        GameServiceDelegate<X, Y> Delegate = new(ServiceX, ServiceY, Callback, GameServiceDelegate.DelegateType.OnInit);
+        Instance.Delegates.Add(Delegate);
+    }
+
     public static void RemoveServiceDelegate(GameServiceDelegate Delegate) { 
         Instance.Delegates.Remove(Delegate);
     }

@@ -1,7 +1,10 @@
 using System;
+using System.Drawing;
+using Unity.Collections;
 using UnityEngine;
+using UnityEngine.XR;
 [Serializable]
-public class Location 
+public class Location : ISaveable
 {
     public Location(Vector2Int ChunkLocation, Vector2Int HexLocation) {
         _ChunkLocation = ChunkLocation;
@@ -120,5 +123,38 @@ public class Location
             Mathf.Max(A.HexLocation.x, B.HexLocation.x),
             Mathf.Max(A.HexLocation.y, B.HexLocation.y)
         );
+    }
+
+    public int GetSize()
+    {
+        return sizeof(int) * 4;
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddInt(Bytes, Pos, _ChunkLocation.x);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, _ChunkLocation.y);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, _HexLocation.x);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, _HexLocation.y);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Data)
+    {
+        NativeArray<byte> Bytes = new(Data, Allocator.Temp);
+        NativeSlice<byte> Slice;
+        Slice = new NativeSlice<byte>(Bytes, 0, 4);
+        int CX = BitConverter.ToInt32(Slice.ToArray());
+        Slice = new NativeSlice<byte>(Bytes, 4, 4);
+        int CY = BitConverter.ToInt32(Slice.ToArray());
+        Slice = new NativeSlice<byte>(Bytes, 8, 4);
+        int HX = BitConverter.ToInt32(Slice.ToArray());
+        Slice = new NativeSlice<byte>(Bytes, 12, 4);
+        int HY = BitConverter.ToInt32(Slice.ToArray());
+        _ChunkLocation = new Vector2Int(CX, CY);
+        _HexLocation = new Vector2Int(HX, HY);
     }
 }

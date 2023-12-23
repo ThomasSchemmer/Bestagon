@@ -6,17 +6,18 @@ using UnityEngine;
 public class WorldGenerator : GameService
 {
     protected override void StartServiceInternal() {
-        HexagonConfig.MapData = Game.Instance.Mode == Game.GameMode.Game ? NoiseLand() : EmptyLand();
+        Init();
+        IsInit = true;
+        _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() { }
 
-    private HexagonConfig.Tile[] EmptyLand()
+    public HexagonConfig.Tile[] EmptyLand()
     {
-        if (MapValuesBuffer == null)
-        {
-            Init();
-        }
+        if (!IsInit)
+            return new HexagonConfig.Tile[0];
+
         HexagonConfig.Tile[] LandData = new HexagonConfig.Tile[HexagonConfig.MapWidth * HexagonConfig.MapWidth];
         // set to water at meadow temperature
         HexagonConfig.Tile EmptyTile = HexagonConfig.GetTileFromMapValue(new Vector2(0.1f, 0.6f));
@@ -24,10 +25,9 @@ public class WorldGenerator : GameService
         return LandData;
     }
 
-    private HexagonConfig.Tile[] NoiseLand() {
-        if (MapValuesBuffer == null) {
-            Init();
-        }
+    public HexagonConfig.Tile[] NoiseLand() {
+        if (!IsInit)
+            return new HexagonConfig.Tile[0];
 
         SetDataMap(NoiseLandKernel);
 
@@ -60,24 +60,6 @@ public class WorldGenerator : GameService
         }
 
         return MapData;
-    }
-
-    public void Save()
-    {
-        byte[] Bytes = HexagonConfig.MapToBinary();
-        string Filename = SaveGamePath + "Save.map";
-        System.IO.File.WriteAllBytes(Filename, Bytes);
-    }
-
-    public void Load()
-    {
-        string Filename = SaveGamePath + "Save.map";
-        byte[] Bytes = System.IO.File.ReadAllBytes(Filename);
-        HexagonConfig.LoadMap(Bytes);
-        if (!Game.TryGetService(out MapGenerator Generator))
-            return;
-
-        Generator.GenerateMap();
     }
 
     private void OnDestroy() {
@@ -125,5 +107,4 @@ public class WorldGenerator : GameService
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
 
-    private static string SaveGamePath = Application.dataPath + "/Resources/Pictures/";
 }

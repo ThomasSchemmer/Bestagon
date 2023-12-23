@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
+using Unity.Collections;
 using UnityEngine;
 
-public class MapGenerator : GameService
+public class MapGenerator : GameService, ISaveable
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -38,7 +39,7 @@ public class MapGenerator : GameService
         MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        Game.RunAfterServiceStart((WorldGenerator Generator, BuildingFactory Factory) =>
+        Game.RunAfterServiceStart((Map Map, BuildingFactory Factory) =>
         {
             GenerateMap();
 
@@ -134,6 +135,9 @@ public class MapGenerator : GameService
         Chunks = new ChunkData[HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk];
         ChunkVis = new ChunkVisualization[HexagonConfig.loadedChunkVisualizations, HexagonConfig.loadedChunkVisualizations];
 
+        if (!Game.TryGetService(out Map Map))
+            return;
+
         HashSet<Location> AllChunks = GetAllChunkIndices();
         foreach (Location Location in AllChunks) {
             ChunkData ChunkData = new ChunkData();
@@ -149,7 +153,7 @@ public class MapGenerator : GameService
                 Location TargetChunkIndx = NecChunkEnumerator.Current;
                 GameObject ChunkVisObj = new GameObject();
                 ChunkVisualization Vis = ChunkVisObj.AddComponent<ChunkVisualization>();
-                Vis.transform.parent = this.transform;
+                Vis.transform.parent = Map.transform;
                 Vis.Data = Chunks[TargetChunkIndx.ChunkLocation.x, TargetChunkIndx.ChunkLocation.y];
                 Vis.Initialize();
                 Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(Vis.Data, HexMat, MalaiseMat));
@@ -337,7 +341,10 @@ public class MapGenerator : GameService
             return false;
 
         int Index = HexagonConfig.GetMapPosFromLocation(Location);
-        HexagonConfig.MapData[Index] = new(Height, Type);
+        if (!Game.TryGetService(out Map Map))
+            return false;
+
+        Map.MapData[Index] = new(Height, Type);
 
         ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Type = Type;
         ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Height = Height;
@@ -464,6 +471,35 @@ public class MapGenerator : GameService
         }
 
         return DTOs;
+    }
+
+    public int GetSize()
+    {
+        int Size = sizeof(int);
+        foreach (ChunkData Chunk in Chunks)
+        {
+            Size += Chunk.GetSize();
+        }
+        return Size;
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Chunks.Length);
+        foreach (ChunkData Chunk in Chunks)
+        {
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Chunk);
+        }
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Data)
+    {
+        throw new System.NotImplementedException();
     }
 
     public ChunkData[,] Chunks;

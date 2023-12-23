@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
-public class MalaiseData
+public class MalaiseData : ISaveable
 {
     public void Init(ChunkData InData) {
         Chunk = InData;
@@ -90,6 +91,25 @@ public class MalaiseData
         HexData.bIsMalaised = true;
         ChunkData.Malaise.Spread(HexData);
         ChunkData.Malaise.Infect();
+    }
+
+    public int GetSize()
+    {
+        return sizeof(int);
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsActive);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Data)
+    {
+        throw new System.NotImplementedException();
     }
 
     public ChunkData Chunk;

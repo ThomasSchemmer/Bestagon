@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 /**
@@ -7,7 +8,8 @@ using UnityEngine;
  * Should be a fixed size and should never get overwritten
  */
 [System.Serializable]
-public class ChunkData {
+public class ChunkData : ISaveable
+{
 
     public void GenerateData(Location Location)
     {
@@ -15,13 +17,16 @@ public class ChunkData {
         Malaise = new MalaiseData();
         Malaise.Chunk = this;
 
+        if (!Game.TryGetService(out Map Map))
+            return;
+
         HexDatas = new HexagonData[HexagonConfig.chunkSize, HexagonConfig.chunkSize];
         for (int y = 0; y < HexagonConfig.chunkSize; y++)
         {
             for (int x = 0; x < HexagonConfig.chunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
-                HexagonConfig.Tile Tile = HexagonConfig.GetTileAtLocation(HexLocation);
+                HexagonConfig.Tile Tile = Map.GetTileAtLocation(HexLocation);
                 HexagonData Data = new HexagonData();
                 Data.Location = HexLocation;
                 Data.Type = Tile.Type;
@@ -104,6 +109,51 @@ public class ChunkData {
         }
 
         DestroyBuildingAt(Location);
+    }
+
+    private int GetBuildingsSize()
+    {
+        int Size = 0;
+        foreach (BuildingData Building in Buildings)
+        {
+            Size += Building.GetSize();
+        }
+        return Size;
+    }
+
+    public int GetSize()
+    {
+        int HexagonSize = HexDatas.Length > 0 ? HexDatas.Length * HexDatas[0, 0].GetSize() : 0;
+        int BuildingSize = GetBuildingsSize();
+        // Add the length of the lists as well
+        return HexagonSize + BuildingSize + 2 * sizeof(int) + Location.GetSize() + Malaise.GetSize();
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddInt(Bytes, Pos, HexDatas.Length);
+        foreach (HexagonData Hexagon in HexDatas)
+        {
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Hexagon);
+        }
+
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Buildings.Count);
+        foreach (BuildingData Building in Buildings)
+        {
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Building);
+        }
+
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(byte[] Dsata)
+    {
+        throw new System.NotImplementedException();
     }
 
     public HexagonData[,] HexDatas;

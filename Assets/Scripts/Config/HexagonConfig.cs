@@ -56,16 +56,14 @@ public class HexagonConfig {
     /** Highest index of a chunk in the world, describes the border location */
     public static int mapMaxChunk = 10;
 
+    /** Tile width for the complete map */
+    public static int MapWidth = chunkSize * mapMaxChunk;
+
     /** world space offset in x direction per hex*/
     public static float offsetX = Mathf.Sqrt(3) * TileSize.x;
 
     /** world space offset in y direction per hex*/
     public static float offsetY = 3.0f / 2.0f * TileSize.z;
-
-    /** Contains height and temperature map data */
-    public static Tile[] MapData;
-
-    public static int MapWidth = chunkSize * mapMaxChunk;
 
     public enum HexagonHeight : uint
     {
@@ -100,13 +98,21 @@ public class HexagonConfig {
     public static float HEIGHT_HILL_CUTOFF = 0.4f;
     public static float HEIGHT_MOUNTAIN_CUTOFF = 0.7f;
 
-    public static void GlobalTileToChunkAndTileSpace(Vector2Int GlobalPos, out Location Location) {
+    public static void SetChunkCount(int ChunkCount)
+    {
+        mapMaxChunk = ChunkCount;
+        MapWidth = chunkSize * mapMaxChunk;
+    }
+
+    public static void GlobalTileToChunkAndTileSpace(Vector2Int GlobalPos, out Location Location)
+    {
         Vector2Int ChunkPos = TileSpaceToChunkSpace(GlobalPos);
         Vector2Int TilePos = GlobalPos - ChunkSpaceToTileSpace(ChunkPos);
         Location = new Location(ChunkPos, TilePos);
     }
 
-    public static Vector2Int WorldSpaceToChunkSpace(Vector3 WorldPos) {
+    public static Vector2Int WorldSpaceToChunkSpace(Vector3 WorldPos)
+    {
         int y = Mathf.RoundToInt(WorldPos.z / offsetY);
         int x = Mathf.RoundToInt(WorldPos.x / offsetX);
         int ChunkPosX = Mathf.RoundToInt(x / chunkSize);
@@ -114,40 +120,79 @@ public class HexagonConfig {
         return new Vector2Int(ChunkPosX, ChunkPosY);
     }
 
-    public static Vector3 ChunkSpaceToWorldSpace(Vector2Int ChunkPos) {
+    public static Vector3 ChunkSpaceToWorldSpace(Vector2Int ChunkPos)
+    {
         Vector2Int TilePos = ChunkSpaceToTileSpace(ChunkPos);
         return TileSpaceToWorldSpace(TilePos);
     }
 
-    public static Vector3 TileSpaceToWorldSpace(Vector2Int TilePos) {
+    public static Vector3 TileSpaceToWorldSpace(Vector2Int TilePos)
+    {
         float x = offsetX * TilePos.x + (TilePos.y % 2) * 0.5f * offsetX;
         float y = offsetY * TilePos.y;
         return new Vector3(x, 0, y);
     }
 
-    public static Vector2Int TileSpaceToChunkSpace(Vector2Int TilePos) {
+    public static Vector2Int TileSpaceToChunkSpace(Vector2Int TilePos)
+    {
         int x = Mathf.FloorToInt(TilePos.x / chunkSize);
         int y = Mathf.FloorToInt(TilePos.y / chunkSize);
         return new Vector2Int(x, y);
     }
 
     /** returns the bottom left tile of a chunk, aka (0, 0) */
-    public static Vector2Int ChunkSpaceToTileSpace(Vector2Int ChunkPos) {
+    public static Vector2Int ChunkSpaceToTileSpace(Vector2Int ChunkPos)
+    {
         return new Vector2Int(ChunkPos.x * chunkSize, ChunkPos.y * chunkSize);
     }
 
-    public static bool IsValidChunkIndex(Vector2Int Index) {
+    public static bool IsValidChunkIndex(Vector2Int Index)
+    {
         return Index.x >= mapMinChunk && Index.x < mapMaxChunk &&
                 Index.y >= mapMinChunk && Index.y < mapMaxChunk;
     }
 
-    public static bool IsValidHexIndex(Vector2Int Index) {
+    public static bool IsValidHexIndex(Vector2Int Index)
+    {
         return Index.x >= 0 && Index.x < chunkSize &&
                 Index.y >= 0 && Index.y < chunkSize;
     }
 
-    public static Location GetMaxLocation() {
+    public static Location GetMaxLocation()
+    {
         return new Location(new Vector2Int(mapMaxChunk - 1, mapMaxChunk - 1), new Vector2Int(chunkSize - 1, chunkSize - 1));
+    }
+
+
+    public static Vector3 GetVertex(int i)
+    {
+        float Angle = 60.0f * i * Mathf.Deg2Rad;
+        return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
+    }
+
+    public static int GetCostsFromTo(Location locationA, Location locationB)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return -1;
+
+        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA))
+            return -1;
+
+        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB))
+            return -1;
+
+        if (DataB.bIsMalaised)
+            return -1;
+
+        switch (DataB.Type)
+        {
+            case HexagonType.Meadow: return 1;
+            case HexagonType.Forest: return 2;
+            case HexagonType.Ocean: return -1;
+            case HexagonType.Mountain: return 3;
+            case HexagonType.Desert: return 1;
+            default: return -1;
+        }
     }
 
     public static Tile GetTileFromMapValue(Vector2 MapValue)
@@ -158,7 +203,8 @@ public class HexagonConfig {
         );
     }
 
-    public static HexagonType GetTypeFromMapValue(Vector2 MapValue) {
+    public static HexagonType GetTypeFromMapValue(Vector2 MapValue)
+    {
         float Temperature = MapValue.y;
         HexagonType Land = Temperature < TEMP_ICE_CUTOFF ? HexagonType.Ice :
                             Temperature < TEMP_TUNDRA_CUTOFF ? HexagonType.Tundra :
@@ -169,7 +215,8 @@ public class HexagonConfig {
         return HexHeight == HexagonHeight.Sea ? HexagonType.Ocean : Land;
     }
 
-    public static HexagonHeight GetHeightFromMapValue(Vector2 MapValue) {
+    public static HexagonHeight GetHeightFromMapValue(Vector2 MapValue)
+    {
         float Height = MapValue.x;
         if (Height < HEIGHT_SEA_CUTOFF)
             return HexagonHeight.Sea;
@@ -213,23 +260,13 @@ public class HexagonConfig {
         return new(-1, -1);
     }
 
-    public static int GetMapPosFromLocation(Location Location) {
+    public static int GetMapPosFromLocation(Location Location)
+    {
         Vector2Int MaxGlobalTileLocation = GetMaxLocation().GlobalTileLocation + new Vector2Int(1, 1);
         Vector2Int GlobalTileLocation = Location.GlobalTileLocation;
         Vector2 UV = new Vector2(GlobalTileLocation.x / (float)MaxGlobalTileLocation.x, GlobalTileLocation.y / (float)MaxGlobalTileLocation.y);
         Vector2Int UVI = new Vector2Int((int)(UV.x * MapWidth), (int)(UV.y * MapWidth));
         return UVI.x + UVI.y * (int)MapWidth;
-    }
-
-    public static Tile GetTileAtLocation(Location Location) {
-        int Pos = GetMapPosFromLocation(Location);
-        return MapData[Pos];
-    }
-
-    public static float GetWorldHeightAtTileLocation(Location Location) {
-        int Pos = GetMapPosFromLocation(Location);
-        Tile Tile = MapData[Pos];
-        return GetWorldHeightFromTile(Tile);
     }
 
     public static float GetWorldHeightFromTile(Tile Tile)
@@ -246,40 +283,11 @@ public class HexagonConfig {
         return Multiplier * TileSize.y;
     }
 
-    public static Vector3 GetVertex(int i) {
-        float Angle = 60.0f * i * Mathf.Deg2Rad;
-        return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
-    }
-
-    public static int GetCostsFromTo(Location locationA, Location locationB)
-    {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return -1;
-
-        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA))
-            return -1;
-
-        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB))
-            return -1;
-
-        if (DataB.bIsMalaised)
-            return -1;
-
-        switch (DataB.Type) {
-            case HexagonType.Meadow: return 1;
-            case HexagonType.Forest: return 2;
-            case HexagonType.Ocean: return -1;
-            case HexagonType.Mountain: return 3;
-            case HexagonType.Desert: return 1;
-            default: return -1;
-        }
-    }
-
     public static int MaskToInt(int Mask, int Max)
     {
         for (int i = 0; i < Max; i++)
         {
-            if ( (Mask & (1 << i)) > 0)
+            if ((Mask & (1 << i)) > 0)
                 return i;
         }
         return -1;
@@ -290,37 +298,4 @@ public class HexagonConfig {
         return 1 << (Number);
     }
 
-    public static byte[] MapToBinary()
-    {
-        byte[] bytes = new byte[MapData.Length + 1];
-        bytes[0] = (byte)mapMaxChunk;
-        for (int i = 0; i < MapData.Length; i++)
-        {
-            bytes[i + 1] = MapData[i].ToByte();
-        }
-        return bytes;
-    }
-
-    public static Tile[] BinaryToMap(byte[] Data)
-    {
-        Tile[] Tiles = new Tile[Data.Length - 1];
-        SetChunkCount((int)Data[0]);
-        for (int i = 1; i < Data.Length; i++)
-        {
-            Tiles[i - 1] = new Tile(Data[i]);
-        }
-        return Tiles;
-    }
-
-    public static void LoadMap(byte[] Data)
-    {
-        MapData = BinaryToMap(Data);
-
-    }
-
-    public static void SetChunkCount(int ChunkCount)
-    {
-        mapMaxChunk = ChunkCount;
-        MapWidth = chunkSize * mapMaxChunk;
-    }
 }

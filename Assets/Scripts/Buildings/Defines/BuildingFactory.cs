@@ -21,6 +21,8 @@ public class BuildingFactory : GameService
     protected override void StartServiceInternal()
     {
         Refresh();
+        IsInit = true;
+        _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() {}
