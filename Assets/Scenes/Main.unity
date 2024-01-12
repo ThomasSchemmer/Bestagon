@@ -1517,7 +1517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   State: 1
-  Mode: 1
+  Mode: 2
   ChunkCount: 3
   Services:
   - IsForEditor: 1

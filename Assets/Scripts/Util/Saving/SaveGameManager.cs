@@ -44,12 +44,8 @@ public class SaveGameManager : MonoBehaviour
             if (Saveable == null)
                 continue;
 
-            Bytes[i] = (byte)Tuple.Key;
-            // use slices to avoid looping
-            NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, i + 1, Saveable.GetSize());
-            Slice.CopyFrom(Saveable.GetData());
-
-            i += Saveable.GetSize() + 1;
+            i = AddEnumAsInt(Bytes, i, (int)Tuple.Key);
+            i = AddSaveable(Bytes, i, Saveable);
         }
 
         string Filename = SaveGamePath + "Save.map";
@@ -105,6 +101,7 @@ public class SaveGameManager : MonoBehaviour
         Slice.CopyFrom(BitConverter.GetBytes(Value));
         return Start + sizeof(int);
     }
+
     public static int AddByte(NativeArray<byte> Bytes, int Start, byte Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, 1);
@@ -112,11 +109,11 @@ public class SaveGameManager : MonoBehaviour
         return Start + 1;
     }
 
-    public static int AddFloat(NativeArray<byte> Bytes, int Start, float Value)
+    public static int AddDouble(NativeArray<byte> Bytes, int Start, double Value)
     {
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(float));
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(double));
         Slice.CopyFrom(BitConverter.GetBytes(Value));
-        return Start + sizeof(float);
+        return Start + sizeof(double);
     }
 
     public static int AddEnumAsInt(NativeArray<byte> Bytes, int Start, int Value)
@@ -145,6 +142,57 @@ public class SaveGameManager : MonoBehaviour
         int Size = Value.Length * sizeof(char);
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
         Slice.CopyFrom(System.Text.Encoding.UTF8.GetBytes(Value));
+        return Start + Size;
+    }
+
+    public static int GetInt(NativeArray<byte> Bytes, int Start, out int Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(int));
+        Value = BitConverter.ToInt32(Slice.ToArray());
+        return Start + sizeof(int);
+    }
+
+    public static int GetByte(NativeArray<byte> Bytes, int Start, out byte Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, 1);
+        Value = Slice[0];
+        return Start + 1;
+    }
+
+    public static int GetDouble(NativeArray<byte> Bytes, int Start, out double Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(double));
+        Value = BitConverter.ToDouble(Slice.ToArray());
+        return Start + sizeof(double);
+    }
+
+    public static int GetEnumAsInt(NativeArray<byte> Bytes, int Start, out int Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, 1);
+        Value = (int)Slice[0];
+        return Start + 1;
+    }
+
+    public static int GetBool(NativeArray<byte> Bytes, int Start, bool Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(bool));
+        Value = BitConverter.ToBoolean(Slice.ToArray());
+        return Start + sizeof(bool);
+    }
+
+    /** Unlike the other getters we don't actually want to recreate the object, so we just set the values and keep the object*/
+    public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveable Value)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Value.GetSize());
+        Value.SetData(Slice.ToArray());
+        return Start + Value.GetSize();
+    }
+
+    public static int GetString(NativeArray<byte> Bytes, int Start, int Length, out string Value)
+    {
+        int Size = Length * sizeof(char);
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
+        Value = System.Text.Encoding.UTF8.GetString(Slice.ToArray());
         return Start + Size;
     }
 }

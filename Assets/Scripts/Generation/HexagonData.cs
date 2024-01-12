@@ -46,7 +46,7 @@ public class HexagonData : ISaveable
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Type);
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Height);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsMalaised);
-        Pos = SaveGameManager.AddFloat(Bytes, Pos, Value);
+        Pos = SaveGameManager.AddDouble(Bytes, Pos, Value);
 
         return Bytes.ToArray();
     }

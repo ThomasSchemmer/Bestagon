@@ -103,7 +103,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
-        Pos = SaveGameManager.AddFloat(Bytes, Pos, ProductionIncrease);
+        Pos = SaveGameManager.AddDouble(Bytes, Pos, ProductionIncrease);
 
         return Bytes.ToArray();
     }
