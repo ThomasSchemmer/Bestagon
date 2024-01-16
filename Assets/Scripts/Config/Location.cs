@@ -127,6 +127,11 @@ public class Location : ISaveable
 
     public int GetSize()
     {
+        return GetStaticSize();
+    }
+
+    public static int GetStaticSize()
+    {
         return sizeof(int) * 4;
     }
 
@@ -142,18 +147,13 @@ public class Location : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        NativeArray<byte> Bytes = new(Data, Allocator.Temp);
-        NativeSlice<byte> Slice;
-        Slice = new NativeSlice<byte>(Bytes, 0, 4);
-        int CX = BitConverter.ToInt32(Slice.ToArray());
-        Slice = new NativeSlice<byte>(Bytes, 4, 4);
-        int CY = BitConverter.ToInt32(Slice.ToArray());
-        Slice = new NativeSlice<byte>(Bytes, 8, 4);
-        int HX = BitConverter.ToInt32(Slice.ToArray());
-        Slice = new NativeSlice<byte>(Bytes, 12, 4);
-        int HY = BitConverter.ToInt32(Slice.ToArray());
+        int Pos = 0;
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int CX);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int CY);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HX);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HY);
         _ChunkLocation = new Vector2Int(CX, CY);
         _HexLocation = new Vector2Int(HX, HY);
     }

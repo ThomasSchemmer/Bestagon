@@ -46,5 +46,6 @@ MonoBehaviour:
           Value: 0
     Range: 1
     ProductionIncrease: 1.2
+    IsProductionBlockedByBuilding: 0
   MaxWorker: 1
   BuildableOn: 4

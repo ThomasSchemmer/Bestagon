@@ -29,7 +29,7 @@ MonoBehaviour:
         Value: 0
   Effect:
     EffectType: 1
-    TileType: 0
+    TileType: 128
     BuildingType: 0
     Production:
       _Production:
@@ -45,6 +45,7 @@ MonoBehaviour:
         - Key: 4
           Value: 0
     Range: 1
-    ProductionIncrease: 1.2
+    ProductionIncrease: 1
+    IsProductionBlockedByBuilding: 0
   MaxWorker: 1
   BuildableOn: 1

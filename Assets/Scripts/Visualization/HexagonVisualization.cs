@@ -113,7 +113,10 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     }
 
     private void InteractMoveWorker(HexagonVisualization SelectedHex) {
-        if (!Workers.TryGetWorkersAt(SelectedHex.Location, out List<WorkerData> WorkersOnTile))
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        if (!WorkerService.TryGetWorkersAt(SelectedHex.Location, out List<WorkerData> WorkersOnTile))
             return;
 
         WorkerData Worker = WorkersOnTile[0];
@@ -243,8 +246,12 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         }
     }
 
-    private void ShowReachableLocations(bool bShow) {
-        Workers.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
+    private void ShowReachableLocations(bool bShow)
+    {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
         WorkerData Worker = WorkersOnTile.Count > 0 ? WorkersOnTile[0] : null;
         bool bIsVisible = Worker != null && bShow;
         int Range = Worker != null ? Worker.RemainingMovement : 0;

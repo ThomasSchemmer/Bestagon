@@ -81,6 +81,9 @@ public class ChunkData : ISaveable
     }
 
     public void DestroyBuildingAt(Location Location) {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
         if (!TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
@@ -91,7 +94,7 @@ public class ChunkData : ISaveable
                 continue;
             
             Building.RemoveWorkerAt(0);
-            Workers.ReturnWorker(Worker);
+            WorkerService.ReturnWorker(Worker);
         }
         Buildings.Remove(Building);
 
@@ -101,11 +104,15 @@ public class ChunkData : ISaveable
         Visualization.Refresh();
     }
 
-    public void DestroyAt(Location Location) {
-        Workers.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
+    public void DestroyAt(Location Location)
+    {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
         foreach (WorkerData Worker in WorkersOnTile) { 
             Worker.RemoveFromBuilding();
-            Workers.RemoveWorker(Worker);
+            WorkerService.RemoveWorker(Worker);
         }
 
         DestroyBuildingAt(Location);
@@ -125,35 +132,76 @@ public class ChunkData : ISaveable
     {
         int HexagonSize = HexDatas.Length > 0 ? HexDatas.Length * HexDatas[0, 0].GetSize() : 0;
         int BuildingSize = GetBuildingsSize();
-        // Add the length of the lists as well
-        return HexagonSize + BuildingSize + 2 * sizeof(int) + Location.GetSize() + Malaise.GetSize();
+        // Location and malaise, data of hexes and buildings, as well as size info for hex, building and overall size
+        return HexagonSize + BuildingSize + 3 * sizeof(int) + Location.GetStaticSize() + Malaise.GetSize();
     }
 
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+
         int Pos = 0;
+        // save the size to make reading it easier
+        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, HexDatas.Length);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Buildings.Count);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
+
+        // save the lists
         foreach (HexagonData Hexagon in HexDatas)
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, Hexagon);
         }
 
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Buildings.Count);
         foreach (BuildingData Building in Buildings)
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, Building);
         }
 
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
-
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Dsata)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new System.NotImplementedException();
+        Location = Location.Zero;
+        Malaise = new();
+
+        // skip overall size info at the beginning
+        int Pos = sizeof(int);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HexLength);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int BuildingsLength);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Malaise);
+
+        int SqrtLength = (int)Mathf.Sqrt(HexLength);
+
+        HexDatas = new HexagonData[SqrtLength, SqrtLength];
+        for (int y = 0; y < SqrtLength; y++)
+        {
+            for (int x = 0; x < SqrtLength; x++)
+            {
+                HexDatas[x, y] = new HexagonData();
+                Pos = SaveGameManager.SetSaveable(Bytes, Pos, HexDatas[x, y]);
+            }
+        }
+
+        Buildings = new();
+        for (int i = 0; i <  BuildingsLength; i++) { 
+            BuildingData Building = new BuildingData();
+            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Building);
+            Buildings.Add(Building);
+        }
+    }
+
+    public static int CreateTempFromBytes(NativeArray<byte> Bytes, int Pos, out ChunkData Chunk)
+    {
+        // ignore reading of the size attribute, still start reading from the chunk origin
+        SaveGameManager.GetInt(Bytes, Pos, out int Size);
+        Chunk = new ChunkData();
+
+        Pos = SaveGameManager.SetSaveableWithSize(Bytes, Pos, Chunk, Size);
+        return Pos;
     }
 
     public HexagonData[,] HexDatas;

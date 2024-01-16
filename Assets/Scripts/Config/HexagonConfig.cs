@@ -41,9 +41,6 @@ public class HexagonConfig {
     /** How high should the inner border of a tile be of TileSize.y? */
     public static float TileBorderHeightMultiplier = 0.9f;
 
-    /** How high should the tile be of TileSize.y? */
-    public static float TileToWorldHeightMultiplier = 0.5f;
-
     /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr */
     public static int chunkSize = 9;
 
@@ -57,7 +54,10 @@ public class HexagonConfig {
     public static int mapMaxChunk = 10;
 
     /** Tile width for the complete map */
-    public static int MapWidth = chunkSize * mapMaxChunk;
+    public static int MapWidth
+    {
+        get { return chunkSize * mapMaxChunk; }
+    }
 
     /** world space offset in x direction per hex*/
     public static float offsetX = Mathf.Sqrt(3) * TileSize.x;
@@ -90,19 +90,6 @@ public class HexagonConfig {
 
     // lookup table whether a specific type can have a higher tile 
     public static HexagonType CanHaveHeight = HexagonType.Forest | HexagonType.Mountain | HexagonType.Desert | HexagonType.Tundra;
-
-    public static float TEMP_ICE_CUTOFF = 0.15f;
-    public static float TEMP_TUNDRA_CUTOFF = 0.3f;
-    public static float TEMP_MEADOW_CUTOFF = 0.7f;
-    public static float HEIGHT_SEA_CUTOFF = 0.2f;
-    public static float HEIGHT_HILL_CUTOFF = 0.4f;
-    public static float HEIGHT_MOUNTAIN_CUTOFF = 0.7f;
-
-    public static void SetChunkCount(int ChunkCount)
-    {
-        mapMaxChunk = ChunkCount;
-        MapWidth = chunkSize * mapMaxChunk;
-    }
 
     public static void GlobalTileToChunkAndTileSpace(Vector2Int GlobalPos, out Location Location)
     {
@@ -195,78 +182,36 @@ public class HexagonConfig {
         }
     }
 
-    public static Tile GetTileFromMapValue(Vector2 MapValue)
+    public static Tile GetTileFromMapValue(Vector2 MapValue, WorldGenerator World)
     {
         return new Tile(
-            GetHeightFromMapValue(MapValue),
-            GetTypeFromMapValue(MapValue)
+            GetHeightFromMapValue(MapValue, World),
+            GetTypeFromMapValue(MapValue, World)
         );
     }
 
-    public static HexagonType GetTypeFromMapValue(Vector2 MapValue)
+    public static HexagonHeight GetHeightFromMapValue(Vector2 MapValue, WorldGenerator World)
     {
-        float Temperature = MapValue.y;
-        HexagonType Land = Temperature < TEMP_ICE_CUTOFF ? HexagonType.Ice :
-                            Temperature < TEMP_TUNDRA_CUTOFF ? HexagonType.Tundra :
-                            Temperature < TEMP_MEADOW_CUTOFF ? HexagonType.Meadow :
-                            HexagonType.Desert;
-
-        HexagonHeight HexHeight = GetHeightFromMapValue(MapValue);
-        return HexHeight == HexagonHeight.Sea ? HexagonType.Ocean : Land;
+        World.TryGetHexagonHeightForHeight(MapValue.x, out HexagonHeight Height);
+        return Height;
     }
 
-    public static HexagonHeight GetHeightFromMapValue(Vector2 MapValue)
+    public static HexagonType GetTypeFromMapValue(Vector2 MapValue, WorldGenerator World)
     {
         float Height = MapValue.x;
-        if (Height < HEIGHT_SEA_CUTOFF)
-            return HexagonHeight.Sea;
+        float Temperature = MapValue.y;
 
-        if (Height < HEIGHT_HILL_CUTOFF)
-            return HexagonHeight.Flat;
+        if (World.TryGetHexagonTypeOverrideForHeight(Height, out HexagonType Override))
+            return Override;
 
-        if (Height < HEIGHT_MOUNTAIN_CUTOFF)
-            return HexagonHeight.Hill;
-
-        return HexagonHeight.Mountain;
-    }
-
-    public static Vector2 GetMapValueFromHeight(HexagonHeight Height)
-    {
-        float Offset = 0.01f;
-        switch (Height)
-        {
-            case HexagonHeight.Sea: return new(HEIGHT_SEA_CUTOFF - Offset, 0);
-            case HexagonHeight.Flat: return new(HEIGHT_HILL_CUTOFF - Offset, 0);
-            case HexagonHeight.Hill: return new(HEIGHT_MOUNTAIN_CUTOFF - Offset, 0);
-            case HexagonHeight.Mountain: return new(1 - Offset, 0);
-        }
-        return new(-1, -1);
-    }
-
-    public static Vector2 GetMapValueFromTile(Tile Tile)
-    {
-        /** We cannot get the map values by type alone, since the ocean is dependent on height */
-        float Height = GetMapValueFromHeight(Tile.Height).x;
-        float Offset = 0.01f;
-        switch (Tile.Type)
-        {
-            // for ocean the actual temp doesnt matter
-            case HexagonType.Ocean: return new Vector2(HEIGHT_SEA_CUTOFF - Offset, 0.5f);
-            case HexagonType.Ice: return new Vector2(Height, TEMP_ICE_CUTOFF - Offset);
-            case HexagonType.Tundra: return new Vector2(Height, TEMP_TUNDRA_CUTOFF - Offset);
-            case HexagonType.Meadow: return new Vector2(Height, TEMP_MEADOW_CUTOFF - Offset);
-            case HexagonType.Desert: return new Vector2(Height, TEMP_MEADOW_CUTOFF + Offset);
-        }
-        return new(-1, -1);
+        World.TryGetHexagonTypeForTemperature(Temperature, out HexagonType Land);
+        return Land;
     }
 
     public static int GetMapPosFromLocation(Location Location)
     {
-        Vector2Int MaxGlobalTileLocation = GetMaxLocation().GlobalTileLocation + new Vector2Int(1, 1);
         Vector2Int GlobalTileLocation = Location.GlobalTileLocation;
-        Vector2 UV = new Vector2(GlobalTileLocation.x / (float)MaxGlobalTileLocation.x, GlobalTileLocation.y / (float)MaxGlobalTileLocation.y);
-        Vector2Int UVI = new Vector2Int((int)(UV.x * MapWidth), (int)(UV.y * MapWidth));
-        return UVI.x + UVI.y * (int)MapWidth;
+        return GlobalTileLocation.y * MapWidth + GlobalTileLocation.x;
     }
 
     public static float GetWorldHeightFromTile(Tile Tile)
@@ -275,12 +220,21 @@ public class HexagonConfig {
 
         if (CanHaveHeight.HasFlag(Tile.Type))
         {
-            Multiplier = (int)Tile.Height * TileToWorldHeightMultiplier;
+            Multiplier = GetWorldHeightFromHeight(Tile);
         }
-
-        // can't have a value < 1, as we would shrink the mesh too much
-        Multiplier = Mathf.Max(Multiplier, 1);
         return Multiplier * TileSize.y;
+    }
+
+    private static float GetWorldHeightFromHeight(Tile Tile)
+    {
+        switch (Tile.Height)
+        {
+            case HexagonHeight.Sea:
+            case HexagonHeight.Flat: return 1;
+            case HexagonHeight.Hill:
+            case HexagonHeight.Mountain: return 1.5f;
+        }
+        return 0;
     }
 
     public static int MaskToInt(int Mask, int Max)

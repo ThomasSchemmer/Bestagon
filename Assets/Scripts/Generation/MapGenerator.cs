@@ -475,7 +475,8 @@ public class MapGenerator : GameService, ISaveable
 
     public int GetSize()
     {
-        int Size = sizeof(int);
+        // Tile count and chunk count
+        int Size = sizeof(int) * 2;
         foreach (ChunkData Chunk in Chunks)
         {
             Size += Chunk.GetSize();
@@ -485,9 +486,13 @@ public class MapGenerator : GameService, ISaveable
 
     public byte[] GetData()
     {
+        if (!Game.TryGetService(out Map Map))
+            return new byte[0];
+
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Map.MapData.Length);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Chunks.Length);
         foreach (ChunkData Chunk in Chunks)
         {
@@ -497,10 +502,26 @@ public class MapGenerator : GameService, ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new System.NotImplementedException();
+        if (!Game.TryGetService(out Map Map))
+            return;
+
+        //load as temporary chunk data, write the hex data into the map and then create new chunks from the map
+        int Pos = 0;
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int TileCount);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int ChunkCount);
+        int ChunksPerSide = (int)Mathf.Sqrt(ChunkCount);
+
+        Map.OverwriteSettings(TileCount, ChunksPerSide);
+
+        for (int i = 0; i < ChunkCount; i++)
+        {
+            Pos = ChunkData.CreateTempFromBytes(Bytes, Pos, out ChunkData Temp);
+            Map.SetDataFromChunk(Temp);
+        }
     }
+
 
     public ChunkData[,] Chunks;
     public ChunkVisualization[,] ChunkVis;

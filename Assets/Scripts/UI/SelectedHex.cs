@@ -60,12 +60,16 @@ public class SelectedHex : MonoBehaviour
         SelectWorkerScreen.OpenForBuilding(Building);
     }
 
-    public void RemoveWorker(int Target) {
+    public void RemoveWorker(int Target)
+    {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
         if (!MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
 
         WorkerData ReturnedWorker = Building.RemoveWorkerAt(Target);
-        Workers.ReturnWorker(ReturnedWorker);
+        WorkerService.ReturnWorker(ReturnedWorker);
         Show();
         SelectWorkerScreen.InitWorkerDistances();
     }
@@ -77,7 +81,9 @@ public class SelectedHex : MonoBehaviour
     private void ShowTile(bool bShouldShow) {
         if (bShouldShow) {
             LocationText.text = SelectedHexTile.Location.GlobalTileLocation.ToString();
-            TileText.text = SelectedHexTile.Type.ToString();
+            TileText.text =
+                SelectedHexTile.Type.ToString() + "\n" +
+                "Height: " + SelectedHexTile.Height;
         } else {
             TileText.text = string.Empty;
             LocationText.text = string.Empty;
@@ -131,7 +137,10 @@ public class SelectedHex : MonoBehaviour
         bool bHasBuilding = MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building);
         UnitsUI.transform.localPosition = bHasBuilding ? OffsetUIUnit_OnBuilding : OffsetUIUnit;
 
-        Workers.TryGetWorkersAt(SelectedHexTile.Location, out List<WorkerData> WorkersAtHex);
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        WorkerService.TryGetWorkersAt(SelectedHexTile.Location, out List<WorkerData> WorkersAtHex);
 
         for (int i = 0; i < WorkersAtHex.Count; i++) {
             WorkerData Worker = WorkersAtHex[i];

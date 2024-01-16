@@ -147,8 +147,7 @@ public class Production : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
-    {
+    public void SetData(NativeArray<byte> Bytes) { 
         throw new NotImplementedException();
     }
 

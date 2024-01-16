@@ -56,7 +56,10 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     private void CreateWorkers() {
-        foreach (WorkerData WorkerData in Workers.GetWorkersInChunk(Data.Location)) {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        foreach (WorkerData WorkerData in WorkerService.GetWorkersInChunk(Data.Location)) {
             WorkerVisualization Vis = WorkerVisualization.CreateFromData(WorkerData);
             Vis.transform.parent = transform;
             WorkerVisualizations.Add(Vis);

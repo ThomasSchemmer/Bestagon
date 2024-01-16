@@ -2,22 +2,46 @@
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
-float4 Seed;
+// used as the equivalent to a dic<float2, biome>
+struct BiomeMap
+{
+    float2 Range;
+    uint BiomeIndex;
+};
+
 int GroupCount;
 int Width;
-RWStructuredBuffer<float2> Values;
+// noise variables
+float Seed;
+float Scale;
+float Factor;
+float Offset;
+float Amount;
+// biome mapping and coloring variables
+int TemperatureCount;
+int HeightCount;
+RWStructuredBuffer<BiomeMap> TemperatureMap;
+RWStructuredBuffer<BiomeMap> HeightMap;
+Texture2D<float4> BiomeColors;
+//output variables
+RWStructuredBuffer<float2> Output;
 RWTexture2D<float4> Image;
 
-float LandNoise(float2 uv){
-    float result = 0;
-    float frequency = 3;
-    float factor = 3;
-    for (int i = 0; i < 5; i++){
-        result = result + snoise(uv * frequency + 4) * factor;
-        factor *= 0.5;
-        frequency *= 2;
+float LandNoise(float3 uv)
+{
+    float Result = snoise(uv * Scale + Offset);
+    
+    for (int i = 1; i < Amount; i++)
+    {
+        Factor *= 0.5;
+        Scale *= 2;
+        float Noise = snoise(uv * Scale + Offset) * Factor;
+        // old range is already from 0..1, if we add another 0..Factor its too much again
+        // Simply add both results proportionally
+        float Proportion = pow(2, i);
+        Result = (Result + Noise) * (Proportion / (Proportion + 1));
     }
-    return result;
+    return Result;
 }
 
 // layered simplex noise to land
@@ -25,25 +49,38 @@ float LandNoise(float2 uv){
 void NoiseLand (uint3 ID : SV_DispatchThreadID)
 {
     float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
-    uv += Seed.xy;
-    float Height = LandNoise(uv);
-
+    float Height = LandNoise(float3(uv.xy, Seed));
+    // bring from -1..1 to 0..1 range
+    Height = Height / 2 + 0.5f;
+    float Warning = Height > 1 || Height < 0;
+    Image[ID.xy] = float4(Height, Warning, 0, 1);
+    
     // take uv.y distance to center line as temperature range
     float Temperature = 1 - smoothstep(-0.5, 1.5, abs(0.5 - uv.y + snoise(uv * 20) / 20) * 2.5);
-
-    float4 WaterColor = float4(28.0 / 255, 163.0 / 255, 236.0 / 255, 1);
-    float4 LandColor = float4(169.0 / 255, 218.0 / 255, 63.0 / 255, 1);
-    float4 BeachColor = float4(248.0 / 255, 235.0 / 255, 146.0 / 255, 1);
-    float4 IceColor = float4(0.9, 0.9, 1, 1);
-    float4 TundraColor = float4(0.65, 0.75, 0.4, 1);
-    float4 DesertColor = float4(239/255.0, 221/255.0, 111/255.0, 1);
-    float4 Land = Temperature < 0.15 ? IceColor : 
-                  Temperature < 0.3 ? TundraColor :
-                  Temperature > 0.7 ? DesertColor : LandColor;
-    Image[ID.xy] = Height > 0.6 ? Land :
-                       Height > 0.2 ? BeachColor : WaterColor;
+    Image[ID.xy] = float4(Temperature, 0, 0, 1);
+    
+    int Index = -1;
+    for (int i = 0; i < TemperatureCount; i++)
+    {
+        if (TemperatureMap[i].Range.x < Temperature && TemperatureMap[i].Range.y > Temperature)
+        {
+            Index = TemperatureMap[i].BiomeIndex;
+        }
+    }
+    for (i = 0; i < HeightCount; i++)
+    {
+        if (HeightMap[i].Range.x < Height && HeightMap[i].Range.y > Height)
+        {
+            Index = HeightMap[i].BiomeIndex;
+        }
+    }
+    
+    float4 Color = BiomeColors[uv];
+    
+    
+    Image[ID.xy] = BiomeColors[float2(0, Index + 1)];
+    
 
     uint Pos = ID.y * Width + ID.x;
-    Values[Pos] = float2(Height, Temperature);
-    Image[ID.xy] = float4(Height, 0, 0, 1);
+    Output[Pos] = float2(Height, Temperature);
 }

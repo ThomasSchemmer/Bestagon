@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 /**
@@ -53,6 +54,18 @@ public class MainMenu : MonoBehaviour
     public void OnEnable()
     {
         Instance = this;
+    }
+
+    public void OnClickExit()
+    {
+        if (Application.isEditor)
+        {
+            EditorApplication.isPlaying = false;
+        }
+        else
+        {
+            Application.Quit();
+        }
     }
 
     private bool IsShown = false;

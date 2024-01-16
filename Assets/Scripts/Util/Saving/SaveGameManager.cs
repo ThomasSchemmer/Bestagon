@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class SaveGameManager : MonoBehaviour
 {
@@ -59,7 +60,8 @@ public class SaveGameManager : MonoBehaviour
 
         for (int i = 0; i < Bytes.Length; i++)
         {
-            SaveGameType Type = (SaveGameType)Bytes[i];
+            i = GetEnumAsInt(Bytes, i, out int Value);
+            SaveGameType Type = (SaveGameType)Value;
             if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
                 return;
 
@@ -67,17 +69,13 @@ public class SaveGameManager : MonoBehaviour
             if (Saveable == null)
                 return;
 
-            NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, i + 1, Saveable.GetSize());
-            Saveable.SetData(Slice.ToArray());
-
-            i += Saveable.GetSize() + 1;
+            i = SetSaveable(Bytes, i, Saveable);
         }
 
         if (!Game.TryGetService(out MapGenerator Generator))
             return;
 
         Generator.GenerateMap();
-
     }
 
     private int GetSaveableSize()
@@ -173,7 +171,7 @@ public class SaveGameManager : MonoBehaviour
         return Start + 1;
     }
 
-    public static int GetBool(NativeArray<byte> Bytes, int Start, bool Value)
+    public static int GetBool(NativeArray<byte> Bytes, int Start, out bool Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(bool));
         Value = BitConverter.ToBoolean(Slice.ToArray());
@@ -181,11 +179,23 @@ public class SaveGameManager : MonoBehaviour
     }
 
     /** Unlike the other getters we don't actually want to recreate the object, so we just set the values and keep the object*/
-    public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveable Value)
+    public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
     {
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Value.GetSize());
-        Value.SetData(Slice.ToArray());
-        return Start + Value.GetSize();
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Saveable.GetSize());
+        NativeArray<byte> NewBytes = new(Slice.Length, Allocator.Temp);
+        Slice.CopyTo(NewBytes);
+        Saveable.SetData(NewBytes);
+        return Start + Saveable.GetSize();
+    }
+
+    /** Since we can't calculate the size of a dynamic saveable before its loaded, simply tell it how long its going to be */
+    public static int SetSaveableWithSize(NativeArray<byte> Bytes, int Start, ISaveable Saveable, int Size)
+    {
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
+        NativeArray<byte> NewBytes = new(Slice.Length, Allocator.Temp);
+        Slice.CopyTo(NewBytes);
+        Saveable.SetData(NewBytes);
+        return Start + Size;
     }
 
     public static int GetString(NativeArray<byte> Bytes, int Start, int Length, out string Value)

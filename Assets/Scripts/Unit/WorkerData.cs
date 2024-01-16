@@ -11,6 +11,7 @@ public class WorkerData : ISaveable
 {
     public WorkerData() {
         RemainingMovement = MovementPerTurn;
+        ID = CURRENT_WORKER_ID++;
     }
 
     public int GetMovementCostTo(Location ToLocation) {
@@ -48,7 +49,7 @@ public class WorkerData : ISaveable
     public int GetSize()
     {
         // 2 bytes, one each for MovementPerTurn and RemainingMovement
-        return MAX_NAME_LENGTH * sizeof(char) + 2 + Location.GetSize();
+        return MAX_NAME_LENGTH * sizeof(char) + 2 + Location.GetStaticSize();
     }
 
     public byte[] GetData()
@@ -56,6 +57,7 @@ public class WorkerData : ISaveable
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddString(Bytes, Pos, Name);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)RemainingMovement);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
@@ -63,9 +65,17 @@ public class WorkerData : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Dsata)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new NotImplementedException();
+        int Pos = 0;
+        Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out Name);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bMovementPerTurn);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bRemainingMovement);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+
+        MovementPerTurn = bMovementPerTurn;
+        RemainingMovement = bRemainingMovement;
     }
 
     public string GetName()
@@ -90,9 +100,12 @@ public class WorkerData : ISaveable
     public int MovementPerTurn = 3;
     public int RemainingMovement = 0;
     public Location Location;
+    public int ID = 0;
 
+    //save as bool and location!
     public BuildingData AssignedBuilding;
     public WorkerVisualization Visualization;
 
     public static int MAX_NAME_LENGTH = 10;
+    public static int CURRENT_WORKER_ID = 0;
 }

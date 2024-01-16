@@ -108,8 +108,20 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new NotImplementedException();
+        int Pos = 0;
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iEffectType);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iTileType);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out IsProductionBlockedByBuilding);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
+        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dProductionIncrease);
+
+        EffectType = (Type)iEffectType;
+        TileType = (HexagonConfig.HexagonType)iTileType;
+        BuildingType = (BuildingData.Type)iBuildingType;
+        ProductionIncrease = (float)dProductionIncrease;
     }
 }

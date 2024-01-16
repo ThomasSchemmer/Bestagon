@@ -144,7 +144,7 @@ public class BuildingData : ScriptableObject, ISaveable
     public int GetSize()
     {
         int WorkerSize = Workers.Count > 0 ? Workers.Count * Workers[0].GetSize() : 0;
-        return Location.GetSize() + Workers.Count * WorkerSize + Cost.GetSize() + 2 + Effect.GetSize() + sizeof(int);
+        return Location.GetStaticSize() + Workers.Count * WorkerSize + Cost.GetSize() + 2 + Effect.GetSize() + sizeof(int);
     }
 
     public byte[] GetData()
@@ -155,7 +155,7 @@ public class BuildingData : ScriptableObject, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, Workers.Count);
         foreach (WorkerData Worker in Workers)
         {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Worker);
+            Pos = SaveGameManager.AddInt(Bytes, Pos, Worker.ID);
         }
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildableOn);
@@ -166,8 +166,32 @@ public class BuildingData : ScriptableObject, ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Dsata)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new NotImplementedException();
+        int Pos = 0;
+        Location = Location.Zero;
+        Workers = new();
+        Cost = new();
+        Effect = new();
+
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerCount);
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        for (int i = 0; i < WorkerCount; i++)
+        {
+            Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerID);
+            Workers.Add(WorkerService.GetWorkerByID(WorkerID));
+        }
+
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildableOn);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
+
+        BuildingType = (Type)iBuildingType;
+        BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
     }
 }

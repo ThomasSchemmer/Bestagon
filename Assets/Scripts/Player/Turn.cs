@@ -36,10 +36,13 @@ public class Turn : GameService
         MoveCard();
         SpreadMalaise();
         UpdateMalaiseVisualization();
-        Workers.HandleEndOfTurn();
+
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+        WorkerService.HandleEndOfTurn();
+
         UpdateSelection();
-        MiniMap Map = Game.GetService<MiniMap>();
-        if (!Map)
+        if (!Game.TryGetService(out MiniMap Map))
             return;
 
         Map.FillBuffer();

@@ -35,7 +35,7 @@ public class HexagonData : ISaveable
     public int GetSize()
     {
         // Type, Height and malaise each get a byte
-        return Location.GetSize() + 3 + sizeof(float);
+        return Location.GetStaticSize() + 3 + sizeof(double);
     }
 
     public byte[] GetData()
@@ -51,12 +51,19 @@ public class HexagonData : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        //Location Location;
-        //HexagonType Type;
-        //HexagonHeight Height;
-        //float Value;
-        //bool bIsMalaised;
+        Location = Location.Zero;
+
+        int Pos = 0;
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iType);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iHeight);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsMalaised);
+        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dValue);
+
+        Type = (HexagonType)iType;
+        Height = (HexagonHeight)iHeight;
+        Value = (float)dValue;
     }
 }

@@ -1,5 +1,6 @@
 
 using System;
+using Unity.Collections;
 using UnityEngine;
 
 /** 
@@ -11,5 +12,5 @@ public interface ISaveable
 
     public abstract byte[] GetData();
 
-    public abstract void SetData(byte[] Data);
+    public abstract void SetData(NativeArray<byte> Bytes);
 }

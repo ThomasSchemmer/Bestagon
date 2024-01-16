@@ -68,7 +68,7 @@ public class Game : MonoBehaviour
     {
         MainMenu.Instance._OnOpenBegin += OnOpenMenu;
         MainMenu.Instance._OnClose += OnCloseMenu;
-        HexagonConfig.SetChunkCount(ChunkCount);
+        HexagonConfig.mapMaxChunk = ChunkCount;
 
         InitMode();
 
@@ -111,6 +111,10 @@ public class Game : MonoBehaviour
     public static bool TryGetService<T>(out T Service) where T: GameService
     {
         Service = GetService<T>();
+        if (Service == null)
+        {
+            throw new Exception("Missing Service: " + Service.name);
+        }
         return Service != null;
     }
 

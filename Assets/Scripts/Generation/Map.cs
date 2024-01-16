@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 
 /** 
@@ -24,20 +25,19 @@ public class Map : GameService
         return HexagonConfig.GetWorldHeightFromTile(Tile);
     }
 
-    public HexagonConfig.Tile[] BinaryToMap(byte[] Data)
+    public void OverwriteSettings(int TileCount, int ChunkCount)
     {
-        HexagonConfig.Tile[] Tiles = new HexagonConfig.Tile[Data.Length - 1];
-        HexagonConfig.SetChunkCount((int)Data[0]);
-        for (int i = 1; i < Data.Length; i++)
-        {
-            Tiles[i - 1] = new HexagonConfig.Tile(Data[i]);
-        }
-        return Tiles;
+        MapData = new HexagonConfig.Tile[TileCount];
+        HexagonConfig.mapMaxChunk = ChunkCount;
     }
 
-    public void SetData(byte[] Data)
+    public void SetDataFromChunk(ChunkData Chunk)
     {
-        MapData = BinaryToMap(Data);
+        foreach (HexagonData Hex in Chunk.HexDatas)
+        {
+            int Pos = HexagonConfig.GetMapPosFromLocation(Hex.Location);
+            MapData[Pos] = new HexagonConfig.Tile(Hex.Height, Hex.Type);
+        }
     }
 
     protected override void StartServiceInternal()

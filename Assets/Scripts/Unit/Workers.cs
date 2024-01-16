@@ -4,22 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class Workers : MonoBehaviour
+public class Workers : GameService
 {
-    public void Start() {
-        for (int i = 0; i < WorkerStartLocations.Count; i++) {
-            WorkerData Worker = new WorkerData();
-            Worker.SetName("Worker " + i);
-            Worker.Location = WorkerStartLocations[i];
-            UnassignedWorker.Add(Worker);
-        }    
-    }
-
-    public static Production GetWorkerCosts() {
+    public Production GetWorkerCosts() {
         return CostsPerWorker * GetTotalWorkerCount();
     }
 
-    public static WorkerData GetWorker() {
+    public WorkerData GetWorker() {
         if (UnassignedWorker.Count == 0) {
             MessageSystem.CreateMessage(Message.Type.Error, "No idle worker available!");
             return null;
@@ -31,7 +22,22 @@ public class Workers : MonoBehaviour
         return Worker;
     }
 
-    public static void MakeWorkerWork(WorkerData Worker) {
+    public WorkerData GetWorkerByID(int ID)
+    {
+        foreach (WorkerData Worker in UnassignedWorker)
+        {
+            if (Worker.ID == ID)
+                return Worker;
+        }
+        foreach (WorkerData Worker in AssignedWorker)
+        {
+            if (Worker.ID == ID)
+                return Worker;
+        }
+        return null;
+    }
+
+    public void MakeWorkerWork(WorkerData Worker) {
         if (!UnassignedWorker.Contains(Worker)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Worker is already working, should be unassigned!");
             return;
@@ -41,7 +47,7 @@ public class Workers : MonoBehaviour
         UnassignedWorker.Remove(Worker);
     }
 
-    public static void ReturnWorker(WorkerData Worker) {
+    public void ReturnWorker(WorkerData Worker) {
         if (Worker == null)
             return;
 
@@ -49,19 +55,19 @@ public class Workers : MonoBehaviour
         UnassignedWorker.Add(Worker);
     }
 
-    public static int GetAssignedWorkerCount() {
+    public int GetAssignedWorkerCount() {
         return AssignedWorker.Count;
     }
 
-    public static int GetUnassignedWorkerCount() {
+    public int GetUnassignedWorkerCount() {
         return UnassignedWorker.Count;
     }
 
-    public static int GetTotalWorkerCount() {
+    public int GetTotalWorkerCount() {
         return GetUnassignedWorkerCount() + GetAssignedWorkerCount();
     }
 
-    public static void Starve(int Food) {
+    public void Starve(int Food) {
         if (Food >= 0)
             return;
 
@@ -82,7 +88,7 @@ public class Workers : MonoBehaviour
         MessageSystem.CreateMessage(Message.Type.Warning, AmountToStarve + " workers died of starvation!");
     }
 
-    private static void StarveWorker(WorkerData Worker) {
+    private void StarveWorker(WorkerData Worker) {
         Worker.RemoveFromBuilding();
         RemoveWorker(Worker);
 
@@ -98,12 +104,12 @@ public class Workers : MonoBehaviour
         Chunk.Visualization.Refresh();
     }
 
-    public static void RemoveWorker(WorkerData Worker) {
+    public void RemoveWorker(WorkerData Worker) {
         UnassignedWorker.Remove(Worker);
         AssignedWorker.Remove(Worker);
     }
 
-    public static List<WorkerData> GetWorkersInChunk(Location Location) {
+    public List<WorkerData> GetWorkersInChunk(Location Location) {
         List<WorkerData> WorkersInChunk = new List<WorkerData>();
         foreach (WorkerData Worker in UnassignedWorker) {
             if (Worker.Location.ChunkLocation != Location.ChunkLocation)
@@ -121,7 +127,7 @@ public class Workers : MonoBehaviour
         return WorkersInChunk;
     }
 
-    public static bool TryGetWorkersAt(Location Location, out List<WorkerData> FoundWorker) {
+    public bool TryGetWorkersAt(Location Location, out List<WorkerData> FoundWorker) {
         FoundWorker = new();
         foreach (WorkerData Worker in UnassignedWorker) {
             if (Worker.Location.Equals(Location)) {
@@ -137,12 +143,12 @@ public class Workers : MonoBehaviour
         return FoundWorker.Count > 0;
     }
 
-    public static void HandleEndOfTurn() {
+    public void HandleEndOfTurn() {
         MoveToBuildings();
         Refresh();
     }
 
-    private static void MoveToBuildings() {
+    private void MoveToBuildings() {
         foreach (WorkerData Worker in AssignedWorker) {
             Assert.IsNotNull(Worker.AssignedBuilding, "Worker with null-building in assigned list");
             if (Worker.Location.Equals(Worker.AssignedBuilding.Location))
@@ -157,7 +163,7 @@ public class Workers : MonoBehaviour
         }
     }
 
-    private static void Refresh() {
+    private void Refresh() {
         foreach (WorkerData Worker in UnassignedWorker) {
             Worker.RemainingMovement = Worker.MovementPerTurn;
         }
@@ -167,8 +173,21 @@ public class Workers : MonoBehaviour
         }
     }
 
-    public static List<WorkerData> UnassignedWorker = new List<WorkerData>();
-    public static List<WorkerData> AssignedWorker = new List<WorkerData>();
+    protected override void StartServiceInternal()
+    {
+        for (int i = 0; i < WorkerStartLocations.Count; i++)
+        {
+            WorkerData Worker = new WorkerData();
+            Worker.SetName("Worker " + i);
+            Worker.Location = WorkerStartLocations[i];
+            UnassignedWorker.Add(Worker);
+        }
+    }
+
+    protected override void StopServiceInternal() {}
+
+    public List<WorkerData> UnassignedWorker = new List<WorkerData>();
+    public List<WorkerData> AssignedWorker = new List<WorkerData>();
 
     public static Production CostsPerWorker = new Production(Production.Type.Food, 1);
     public static List<Location> WorkerStartLocations = new() {

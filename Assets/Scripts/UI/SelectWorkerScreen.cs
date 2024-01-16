@@ -49,14 +49,18 @@ public class SelectWorkerScreen : MonoBehaviour
         }
     }
 
-    private void AssignWorkerToBuilding(WorkerData Worker) {
+    private void AssignWorkerToBuilding(WorkerData Worker)
+    {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
         if (Worker.AssignedBuilding != null) {
             Worker.RemoveFromBuilding();
-            Workers.ReturnWorker(Worker);
+            WorkerService.ReturnWorker(Worker);
         }
 
         Building.AddWorker(Worker);
-        Workers.MakeWorkerWork(Worker);
+        WorkerService.MakeWorkerWork(Worker);
         Show(false);
         SelectedHex.Show();
         InitWorkerDistances();
@@ -68,7 +72,10 @@ public class SelectWorkerScreen : MonoBehaviour
         AssignedWorkerShowIndex = 0;
         UnassignedWorkerShowIndex = 0;
 
-        foreach (WorkerData Worker in Workers.UnassignedWorker) {
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
+        foreach (WorkerData Worker in WorkerService.UnassignedWorker) {
             if (Worker.AssignedBuilding != null && Worker.AssignedBuilding.Equals(Building))
                 continue;
 
@@ -79,7 +86,7 @@ public class SelectWorkerScreen : MonoBehaviour
             UnassignedWorker.Enqueue(Worker, MovementCost);
         }
 
-        foreach (WorkerData Worker in Workers.AssignedWorker) {
+        foreach (WorkerData Worker in WorkerService.AssignedWorker) {
             if (Worker.AssignedBuilding != null && Worker.AssignedBuilding.Equals(Building))
                 continue;
 

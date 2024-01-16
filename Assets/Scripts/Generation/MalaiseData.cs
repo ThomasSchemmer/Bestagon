@@ -107,9 +107,10 @@ public class MalaiseData : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(byte[] Data)
+    public void SetData(NativeArray<byte> Bytes)
     {
-        throw new System.NotImplementedException();
+        int Pos = 0;
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsActive);
     }
 
     public ChunkData Chunk;
