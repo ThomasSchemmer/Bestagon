@@ -1,31 +1,59 @@
-#pragma kernel NoiseLand
+#pragma kernel HeightTemperatureCalculation
+#pragma kernel JumpFlood
+#pragma kernel TypeCalculation
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
 // used as the equivalent to a dic<float2, biome>
-struct BiomeMap
+struct RangeStruct
 {
     float2 Range;
     uint BiomeIndex;
 };
 
+// used as a equivalent to Rect->Biome mapping. Used for temperature and humidity
+struct BiomeStruct
+{
+    float2 Pos;
+    float2 Size;
+    uint BiomeIndex;
+};
+
+struct HexagonInfo
+{
+    float Height;
+    float Temperature;
+    float Humidity;
+};
+
+static int2 FloodFillDirs[] =
+{
+    int2(-1, +1), int2(+0, +1), int2(+1, +1),
+        int2(-1, +0), int2(+0, +0), int2(+1, +0),
+        int2(-1, -1), int2(+0, -1), int2(+1, -1),
+};
+
 int GroupCount;
 int Width;
-// noise variables
+// land noise variables
 float Seed;
 float Scale;
 float Factor;
 float Offset;
 float Amount;
-// biome mapping and coloring variables
+// temporary output and debug variables
+RWTexture2D<float4> InputImage;
+RWTexture2D<float4> OutputImage;
+RWStructuredBuffer<HexagonInfo> HexagonInfos;
+// flood fill variables
+int StepSize;
+float Decay;
+// Type calculation variables
 int TemperatureCount;
 int HeightCount;
-RWStructuredBuffer<BiomeMap> TemperatureMap;
-RWStructuredBuffer<BiomeMap> HeightMap;
+RWStructuredBuffer<BiomeStruct> ClimateMap;
+RWStructuredBuffer<RangeStruct> HeightMap;
 Texture2D<float4> BiomeColors;
-//output variables
-RWStructuredBuffer<float2> Output;
-RWTexture2D<float4> Image;
 
 float LandNoise(float3 uv)
 {
@@ -44,20 +72,87 @@ float LandNoise(float3 uv)
     return Result;
 }
 
-// layered simplex noise to land
+// Compute height with a simplex noise map and cutoff values
+// Temperature is based on distance to equator of image
 [numthreads(16,16,1)]
-void NoiseLand (uint3 ID : SV_DispatchThreadID)
+void HeightTemperatureCalculation (uint3 ID : SV_DispatchThreadID)
 {
     float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
     float Height = LandNoise(float3(uv.xy, Seed));
     // bring from -1..1 to 0..1 range
     Height = Height / 2 + 0.5f;
-    float Warning = Height > 1 || Height < 0;
-    Image[ID.xy] = float4(Height, Warning, 0, 1);
     
+    float DistSqr = pow(0.5f - uv.x, 2) + pow(0.5f - uv.y, 2);
+    //Height = DistSqr;
     // take uv.y distance to center line as temperature range
     float Temperature = 1 - smoothstep(-0.5, 1.5, abs(0.5 - uv.y + snoise(uv * 20) / 20) * 2.5);
-    Image[ID.xy] = float4(Temperature, 0, 0, 1);
+    InputImage[ID.xy] = float4(Temperature, 0, 0, 1);
+    
+    uint Pos = ID.y * Width + ID.x;
+    HexagonInfos[Pos].Height = Height;
+    HexagonInfos[Pos].Temperature = Temperature;
+    
+    // Use as floodfill input data
+    float CutOff = HeightMap[0].Range.y;
+    // float4 gets clamped to 0..1 in the shader, so we have to bring it in range 
+    float4 WaterValue = float4(ID.xy / (float) Width, 1, 1);
+    float4 LandValue = float4(0, 0, 0, 1);
+    InputImage[ID.xy] = Height < CutOff ? WaterValue : LandValue;
+}
+
+
+// Jump flooding to spread the water distance and compute humidity from it
+[numthreads(16, 16, 1)]
+void JumpFlood(uint3 ID : SV_DispatchThreadID)
+{
+    float MinDis = pow(Width + 1, 2);
+    int2 ClosestWater = int2(0, 0);
+    bool bFoundWater = false;
+         
+    // check all the neighbours if they have water, then get the distance to the closest water position
+    // -> this is the new water location we save
+    for (int i = 0; i < 9; i++)
+    {
+        int2 TargetID = ID.xy + FloodFillDirs[i] * StepSize;
+        if (TargetID.x < 0 || TargetID.x >= Width || TargetID.y < 0 || TargetID.y >= Width)
+            continue;
+        
+        float4 TargetValue = InputImage[TargetID.xy];
+        
+        if (TargetValue.z <= 0)
+            continue;
+                
+        // get the original position from before
+        int2 WaterID = int2((int) (TargetValue.x * Width), (int) (TargetValue.y * Width));
+        
+        float DistanceSqr = distance(WaterID, ID.xy);
+        if (DistanceSqr >= MinDis)
+            continue;
+
+        bFoundWater = true;
+        ClosestWater = WaterID;
+        MinDis = DistanceSqr;
+    }
+    
+    // at the last iteration only the inverted distance is interesting to us
+    // we also need to bring it back to 0..1
+    float2 ClosestPos = StepSize > 1 ? ClosestWater : float2(0, 0);
+    ClosestPos /= (float) Width;
+    float Distance = bFoundWater ? MinDis : 0;
+    Distance /= (float) Width;
+    Distance = StepSize > 1 ? Distance : (1 - Distance * Decay);
+   
+    OutputImage[ID.xy] = float4(ClosestPos, Distance, 1);
+}
+
+
+// use height, humidity and temperature to compute the hexagon type 
+[numthreads(16, 16, 1)]
+void TypeCalculation(uint3 ID : SV_DispatchThreadID)
+{
+    float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
+    
+    /*
     
     int Index = -1;
     for (int i = 0; i < TemperatureCount; i++)
@@ -79,8 +174,6 @@ void NoiseLand (uint3 ID : SV_DispatchThreadID)
     
     
     Image[ID.xy] = BiomeColors[float2(0, Index + 1)];
-    
+    */
 
-    uint Pos = ID.y * Width + ID.x;
-    Output[Pos] = float2(Height, Temperature);
 }

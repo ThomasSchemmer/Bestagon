@@ -78,14 +78,22 @@ public class HexagonConfig {
     public enum HexagonType : uint
     {
         /** Must not have values > 32 to still allow being combined into a byte with Height */
-        DEFAULT = 0,
         Meadow = 1 << 0,
         Forest = 1 << 1,
         Mountain = 1 << 2,
         Ocean = 1 << 3,
         Desert = 1 << 4,
         Tundra = 1 << 5,
-        Ice = 1 << 6
+        Ice = 1 << 6,
+        RainForest = 1 << 7,
+        SparseRainForest = 1 << 8,
+        DarkForest = 1 << 9,
+        Plains = 1 << 10,
+        Savanna = 1 << 11,
+        Shrubland = 1 << 12,
+        Swamp = 1 << 13,
+        Taiga = 1 << 14,
+        DeepOcean = 1 << 15,
     }
 
     // lookup table whether a specific type can have a higher tile 
@@ -182,31 +190,6 @@ public class HexagonConfig {
         }
     }
 
-    public static Tile GetTileFromMapValue(Vector2 MapValue, WorldGenerator World)
-    {
-        return new Tile(
-            GetHeightFromMapValue(MapValue, World),
-            GetTypeFromMapValue(MapValue, World)
-        );
-    }
-
-    public static HexagonHeight GetHeightFromMapValue(Vector2 MapValue, WorldGenerator World)
-    {
-        World.TryGetHexagonHeightForHeight(MapValue.x, out HexagonHeight Height);
-        return Height;
-    }
-
-    public static HexagonType GetTypeFromMapValue(Vector2 MapValue, WorldGenerator World)
-    {
-        float Height = MapValue.x;
-        float Temperature = MapValue.y;
-
-        if (World.TryGetHexagonTypeOverrideForHeight(Height, out HexagonType Override))
-            return Override;
-
-        World.TryGetHexagonTypeForTemperature(Temperature, out HexagonType Land);
-        return Land;
-    }
 
     public static int GetMapPosFromLocation(Location Location)
     {

@@ -914,56 +914,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  HeightOverrideMap:
-    Tuples:
-    - Key:
-        Min: 0
-        Max: 0.4
-      Value: 8
-    - Key:
-        Min: 0.7
-        Max: 1
-      Value: 4
-  HeightMap:
-    Tuples:
-    - Key:
-        Min: 0
-        Max: 0.25
-      Value: 0
-    - Key:
-        Min: 0.25
-        Max: 0.5
-      Value: 1
-    - Key:
-        Min: 0.5
-        Max: 0.7
-      Value: 2
-    - Key:
-        Min: 0.7
-        Max: 1
-      Value: 3
-  TemperatureMap:
-    Tuples:
-    - Key:
-        Min: 0
-        Max: 0.15
-      Value: 64
-    - Key:
-        Min: 0.15
-        Max: 0.3
-      Value: 32
-    - Key:
-        Min: 0.3
-        Max: 0.55
-      Value: 1
-    - Key:
-        Min: 0.55
-        Max: 0.7
-      Value: 2
-    - Key:
-        Min: 0.7
-        Max: 1
-      Value: 16
+  BiomeMap: {fileID: 11400000, guid: 555217ff6ea451f4d93ccbb72aabdb4c, type: 2}
   MapShader: {fileID: 7200000, guid: 7b9578702f2160c4eb02a2c65cc2bb98, type: 3}
   EvenRT: {fileID: 0}
   BiomeColors: {fileID: 2800000, guid: 9432c37858f3a0a4aa525ee43096caf0, type: 3}
@@ -1585,7 +1536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   State: 1
-  Mode: 2
+  Mode: 1
   ChunkCount: 3
   Services:
   - IsForEditor: 1

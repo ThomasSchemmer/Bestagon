@@ -31,7 +31,7 @@ public class BuildingData : ScriptableObject, ISaveable
     public Production Cost = new Production();
     public OnTurnBuildingEffect Effect = null;
     public int MaxWorker = 1;
-    public HexagonConfig.HexagonType BuildableOn = HexagonConfig.HexagonType.DEFAULT;
+    public HexagonConfig.HexagonType BuildableOn = 0;
 
     public BuildingData() {
         Location = new Location(new Vector2Int(0, 0), new Vector2Int(0, 0));

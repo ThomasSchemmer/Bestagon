@@ -143,6 +143,15 @@ public class SaveGameManager : MonoBehaviour
         return Start + Size;
     }
 
+    public static int AddRect(NativeArray<byte> Bytes, int Start, Rect Rect)
+    {
+        Start = AddDouble(Bytes, Start, Rect.x);
+        Start = AddDouble(Bytes, Start, Rect.y);
+        Start = AddDouble(Bytes, Start, Rect.width);
+        Start = AddDouble(Bytes, Start, Rect.height);
+        return Start;
+    }
+
     public static int GetInt(NativeArray<byte> Bytes, int Start, out int Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(int));
@@ -204,6 +213,17 @@ public class SaveGameManager : MonoBehaviour
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
         Value = System.Text.Encoding.UTF8.GetString(Slice.ToArray());
         return Start + Size;
+    }
+
+    public static int GetRect(NativeArray<byte> Bytes, int Start, out Rect Rect)
+    {
+        Start = GetDouble(Bytes, Start, out double X);
+        Start = GetDouble(Bytes, Start, out double Y);
+        Start = GetDouble(Bytes, Start, out double Width);
+        Start = GetDouble(Bytes, Start, out double Height);
+        Rect = new Rect((float)X, (float)Y, (float)Width, (float)Height);
+
+        return Start;
     }
 }
 

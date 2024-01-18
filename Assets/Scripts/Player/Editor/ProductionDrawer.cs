@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
-using static Codice.CM.Common.CmCallContext;
 
 [CustomPropertyDrawer(typeof(Production))]
 public class ProductionDrawer : PropertyDrawer

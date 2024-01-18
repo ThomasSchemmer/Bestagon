@@ -18,7 +18,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     }
 
     public Type EffectType = Type.YieldPerWorker;
-    public HexagonConfig.HexagonType TileType = HexagonConfig.HexagonType.DEFAULT;
+    public HexagonConfig.HexagonType TileType = 0;
     public BuildingData.Type BuildingType = BuildingData.Type.DEFAULT;
     public Production Production = new Production();
     public int Range = 1;

@@ -11,13 +11,25 @@ public class WorldGenerationInspector : Editor
     {
         WorldGenerator Generator = (WorldGenerator)target;
         DrawDefaultInspector();
-        if (GUILayout.Button(new GUIContent("Redo")))
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button(new GUIContent("Land")))
         {
-            Generator.NoiseLand();
+            Generator.NoiseLand(false);
         }
-        if (Generator.EvenRT != null)
+
+        if (GUILayout.Button(new GUIContent("Humidity")))
         {
-            GUILayout.Label(Generator.EvenRT);
+            Generator.NoiseLand(true);
+        }
+        EditorGUILayout.EndHorizontal();
+
+        if (Generator.InputRT != null)
+        {
+            GUILayout.Label(Generator.InputRT);
+        }
+        if (Generator.OutputRT != null)
+        {
+            GUILayout.Label(Generator.OutputRT);
         }
     }
 }

@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\Util\Tuple.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
+    <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
     <Compile Include="Assets\Scripts\UI\BuildingPreview.cs" />
     <Compile Include="Assets\Scripts\UI\SelectWorkerScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\OnTurnBuildingEffect.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
+    <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
@@ -128,6 +130,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Materials\Shaders\Util\Util.cginc" />
     <None Include="Assets\Materials\Shaders\MalaiseShader.shader" />
+    <None Include="Assets\Scripts\Config\BiomeMapBack.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />

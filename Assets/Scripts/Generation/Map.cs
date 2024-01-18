@@ -44,7 +44,7 @@ public class Map : GameService
     {
         Game.RunAfterServiceInit((WorldGenerator WorldGenerator) =>
         {
-            MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand() : WorldGenerator.EmptyLand();
+            MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
         });
     }
 

@@ -1,0 +1,158 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01b645eeefccb14abaa73195b3af7e7, type: 3}
+  m_Name: BiomeMap
+  m_EditorClassIdentifier: 
+  ClimateMap:
+  - Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 15
+      height: 20
+    HexagonType: 64
+  - Rect:
+      serializedVersion: 2
+      x: 15
+      y: 0
+      width: 25
+      height: 20
+    HexagonType: 32
+  - Rect:
+      serializedVersion: 2
+      x: 40
+      y: 0
+      width: 30
+      height: 20
+    HexagonType: 2048
+  - Rect:
+      serializedVersion: 2
+      x: 70
+      y: 0
+      width: 30
+      height: 20
+    HexagonType: 16
+  - Rect:
+      serializedVersion: 2
+      x: 0
+      y: 20
+      width: 15
+      height: 35
+    HexagonType: 32
+  - Rect:
+      serializedVersion: 2
+      x: 0
+      y: 55
+      width: 15
+      height: 45
+    HexagonType: 16384
+  - Rect:
+      serializedVersion: 2
+      x: 15
+      y: 20
+      width: 40
+      height: 20
+    HexagonType: 5120
+  - Rect:
+      serializedVersion: 2
+      x: 55
+      y: 20
+      width: 30
+      height: 20
+    HexagonType: 1
+  - Rect:
+      serializedVersion: 2
+      x: 85
+      y: 20
+      width: 15
+      height: 20
+    HexagonType: 2048
+  - Rect:
+      serializedVersion: 2
+      x: 15
+      y: 40
+      width: 15
+      height: 40
+    HexagonType: 16384
+  - Rect:
+      serializedVersion: 2
+      x: 15
+      y: 80
+      width: 30
+      height: 20
+    HexagonType: 8192
+  - Rect:
+      serializedVersion: 2
+      x: 30
+      y: 30
+      width: 45
+      height: 40
+    HexagonType: 2
+  - Rect:
+      serializedVersion: 2
+      x: 30
+      y: 60
+      width: 15
+      height: 20
+    HexagonType: 512
+  - Rect:
+      serializedVersion: 2
+      x: 45
+      y: 80
+      width: 15
+      height: 20
+    HexagonType: 512
+  - Rect:
+      serializedVersion: 2
+      x: 60
+      y: 80
+      width: 40
+      height: 20
+    HexagonType: 128
+  - Rect:
+      serializedVersion: 2
+      x: 60
+      y: 65
+      width: 40
+      height: 15
+    HexagonType: 384
+  - Rect:
+      serializedVersion: 2
+      x: 75
+      y: 40
+      width: 25
+      height: 25
+    HexagonType: 1024
+  HeightOverrideMap:
+    Tuples:
+    - Key: 0
+      Value: 8
+    - Key: 3
+      Value: 4
+  HeightMap:
+    Tuples:
+    - Key:
+        Min: 0
+        Max: 0.425
+      Value: 0
+    - Key:
+        Min: 0.425
+        Max: 0.6
+      Value: 1
+    - Key:
+        Min: 0.6
+        Max: 0.8
+      Value: 2
+    - Key:
+        Min: 0.8
+        Max: 1
+      Value: 3
