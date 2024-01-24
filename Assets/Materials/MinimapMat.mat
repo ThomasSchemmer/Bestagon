@@ -81,7 +81,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TypesTex:
-        m_Texture: {fileID: 2800000, guid: 9432c37858f3a0a4aa525ee43096caf0, type: 3}
+        m_Texture: {fileID: 2800000, guid: de1c92f2d81c5a840a8cd2e02d52d0b1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -112,7 +112,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HexPerLine: 27
+    - _HexPerLine: 90
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -130,14 +130,14 @@ Material:
     - _BottomLeft: {r: 0, g: 0, b: 0, a: 0}
     - _BottomLeftView: {r: -83.10465, g: -0.0000019073486, b: 30.032402, a: 0}
     - _BottomRightView: {r: -83.045715, g: 0, b: 29.973476, a: 0}
-    - _BottomView: {r: -0.20660143, g: 0.111937955, b: 0.09517849, a: -0.24298044}
+    - _BottomView: {r: -0.012376235, g: 0.46787637, b: 0.110571146, a: 0.32590902}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HexDistance: {r: 27, g: 27, b: 0, a: 0}
+    - _HexDistance: {r: 90, g: 90, b: 0, a: 0}
     - _LineColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
     - _TopLeftView: {r: -83.036575, g: -0.0000019073486, b: 30.100452, a: 0}
     - _TopRight: {r: 63, g: 63, b: 0, a: 0}
     - _TopRightView: {r: -82.97768, g: -0.0000019073486, b: 30.041553, a: 0}
-    - _TopView: {r: -0.05232362, g: 0.29338163, b: 0.24945629, a: -0.061536748}
+    - _TopView: {r: 0.0504777, g: 0.5404538, b: 0.17342502, a: 0.39848647}
   m_BuildTextureStacks: []

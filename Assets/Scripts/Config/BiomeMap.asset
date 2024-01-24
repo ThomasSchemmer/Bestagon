@@ -135,24 +135,30 @@ MonoBehaviour:
   HeightOverrideMap:
     Tuples:
     - Key: 0
+      Value: 32768
+    - Key: 1
       Value: 8
-    - Key: 3
+    - Key: 4
       Value: 4
   HeightMap:
     Tuples:
     - Key:
         Min: 0
-        Max: 0.425
+        Max: 0.35
       Value: 0
+    - Key:
+        Min: 0.35
+        Max: 0.425
+      Value: 1
     - Key:
         Min: 0.425
         Max: 0.6
-      Value: 1
-    - Key:
-        Min: 0.6
-        Max: 0.8
       Value: 2
     - Key:
-        Min: 0.8
-        Max: 1
+        Min: 0.6
+        Max: 0.65
       Value: 3
+    - Key:
+        Min: 0.65
+        Max: 1
+      Value: 4

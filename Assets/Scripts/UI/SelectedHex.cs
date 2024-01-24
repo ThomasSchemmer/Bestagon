@@ -83,7 +83,7 @@ public class SelectedHex : MonoBehaviour
             LocationText.text = SelectedHexTile.Location.GlobalTileLocation.ToString();
             TileText.text =
                 SelectedHexTile.Type.ToString() + "\n" +
-                "Height: " + SelectedHexTile.Height;
+                SelectedHexTile.HexHeight +" "+ SelectedHexTile.Temperature + " "+SelectedHexTile.Humidity;
         } else {
             TileText.text = string.Empty;
             LocationText.text = string.Empty;

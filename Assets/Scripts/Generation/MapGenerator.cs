@@ -347,7 +347,7 @@ public class MapGenerator : GameService, ISaveable
         Map.MapData[Index] = new(Height, Type);
 
         ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Type = Type;
-        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Height = Height;
+        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].HexHeight = Height;
         return true;
     }
 

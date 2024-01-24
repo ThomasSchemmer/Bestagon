@@ -1,10 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Lifetime;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEngine.Windows;
 using static HexagonConfig;
 
 public class WorldGenerator : GameService
@@ -20,7 +15,7 @@ public class WorldGenerator : GameService
     struct RangeStruct
     {
         public Vector2 Range;
-        public uint BiomeIndex;
+        public uint Index;
     }
     
     public struct HexagonInfo
@@ -28,12 +23,16 @@ public class WorldGenerator : GameService
         public float Height;
         public float Temperature;
         public float Humidity;
+        public uint TypeIndex;
+        public uint HexHeightIndex;
 
-        public HexagonInfo(float a, float b, float c)
+        public HexagonInfo(float a, float b, float c, uint d, uint e)
         {
             Height = a;
             Temperature = b;
             Humidity = c;
+            TypeIndex = d;
+            HexHeightIndex = e;
         }
     }
 
@@ -45,22 +44,23 @@ public class WorldGenerator : GameService
 
     protected override void StopServiceInternal() { }
 
-    public Tile[] EmptyLand()
+    public HexagonData[] EmptyLand()
     {
         if (!IsInit)
-            return new Tile[0];
+            return new HexagonData[0];
 
-        Tile[] LandData = new Tile[MapWidth * MapWidth];
-        // set to water at meadow temperature
-        Tile EmptyTile = GetTileFromMapValue(new HexagonInfo(0.1f, 0.6f, 0f));
+        HexagonData[] LandData = new HexagonData[MapWidth * MapWidth];
+        // set to water
+        HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
         System.Array.Fill(LandData, EmptyTile);
         return LandData;
     }
 
-    public Tile[] NoiseLand(bool bIncludeHumidity) {
+    public HexagonData[] NoiseLand(bool bIncludeHumidity) {
         Init();
 
         MapShader.Dispatch(HeightTemperatureKernel, GroupCount, GroupCount, 1);
+
         int Count = bIncludeHumidity ? (int)Mathf.Log(ImageWidth, 2) : 0;
         int StepSize = ImageWidth / 2;
         for (int i = 0; i < Count; i++) 
@@ -70,31 +70,9 @@ public class WorldGenerator : GameService
             StepSize /= 2;
         }
 
+        MapShader.Dispatch(TypeKernel, GroupCount, GroupCount, 1);
+
         return GetMapData();
-    }
-
-    public Tile GetTileFromMapValue(HexagonInfo HexagonInfo)
-    {
-        return new Tile(
-            GetHeightFromMapValue(HexagonInfo),
-            GetTypeFromMapValue(HexagonInfo)
-        );
-    }
-
-    public HexagonHeight GetHeightFromMapValue(HexagonInfo HexagonInfo)
-    {
-        BiomeMap.TryGetHexagonHeightForHeight(HexagonInfo.Height, out HexagonHeight Height);
-        return Height;
-    }
-
-    public HexagonType GetTypeFromMapValue(HexagonInfo HexagonInfo)
-    {
-        BiomeMap.TryGetHexagonHeightForHeight(HexagonInfo.Height, out HexagonHeight HexHeight);
-        if (BiomeMap.TryGetHexagonTypeForHeightOverride(HexHeight, out HexagonType Override))
-            return Override;
-
-        BiomeMap.TryGetHexagonTypeForClimate(new Climate(HexagonInfo.Temperature, HexagonInfo.Humidity), out HexagonType Land);
-        return Land;
     }
 
     private void OnDestroy() {
@@ -112,6 +90,8 @@ public class WorldGenerator : GameService
            ClimateBuffer.Release();
         if (HeightOverrideBuffer != null) 
             HeightOverrideBuffer.Release();
+        if (HeightBuffer != null)
+            HeightBuffer.Release();
     }
 
     private void Init() {
@@ -122,7 +102,6 @@ public class WorldGenerator : GameService
 
         SetDataGlobal();
         SetDataHeightTemperature();
-        // jump fill is set for each iteration
         SetDataType();
 
         FillBuffers();
@@ -132,9 +111,10 @@ public class WorldGenerator : GameService
         HeightTemperatureKernel = MapShader.FindKernel("HeightTemperatureCalculation");
         JumpFloodKernel = MapShader.FindKernel("JumpFlood");
         TypeKernel = MapShader.FindKernel("TypeCalculation");
-        HexagonInfoBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(float) * 3);
+        HexagonInfoBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(float) * 3 + sizeof(uint) * 2);
         ClimateBuffer = new ComputeBuffer(BiomeMap.ClimateMap.Count, sizeof(float) * 4 + sizeof(uint));
         HeightOverrideBuffer = new ComputeBuffer(BiomeMap.HeightOverrideMap.Count, sizeof(float) * 2 + sizeof(uint));
+        HeightBuffer = new ComputeBuffer(BiomeMap.HeightMap.Count, sizeof(float) * 2 + sizeof(int));
     }
 
     private void SetDataHeightTemperature() {
@@ -143,9 +123,7 @@ public class WorldGenerator : GameService
         MapShader.SetFloat("Factor", Factor);
         MapShader.SetFloat("Offset", Offset);
         MapShader.SetFloat("Amount", Amount);
-
-        MapShader.SetInt("TemperatureCount", BiomeMap.ClimateMap.Count);
-        MapShader.SetInt("HeightCount", BiomeMap.HeightOverrideMap.Count);
+        MapShader.SetFloat("WaterCutoff", GetWaterCutoff());
 
         SetBuffersForKernel(HeightTemperatureKernel);
     }
@@ -164,7 +142,9 @@ public class WorldGenerator : GameService
 
     private void SetDataType()
     {
-
+        MapShader.SetInt("ClimateCount", BiomeMap.ClimateMap.Count);
+        MapShader.SetInt("HeightCount", BiomeMap.HeightMap.Count);
+        MapShader.SetInt("HeightOverrideCount", BiomeMap.HeightOverrideMap.Count);
         SetBuffersForKernel(TypeKernel);
     }
 
@@ -176,8 +156,9 @@ public class WorldGenerator : GameService
 
     private void SetBuffersForKernel(int Kernel)
     {
-        MapShader.SetBuffer(Kernel, "TemperatureMap", ClimateBuffer);
-        MapShader.SetBuffer(Kernel, "HeightMap", HeightOverrideBuffer);
+        MapShader.SetBuffer(Kernel, "ClimateMap", ClimateBuffer);
+        MapShader.SetBuffer(Kernel, "HeightOverrideMap", HeightOverrideBuffer);
+        MapShader.SetBuffer(Kernel, "HeightMap", HeightBuffer);
         MapShader.SetBuffer(Kernel, "HexagonInfos", HexagonInfoBuffer);
         MapShader.SetTexture(Kernel, "BiomeColors", BiomeColors);
         MapShader.SetTexture(Kernel, "InputImage", InputRT);
@@ -204,6 +185,7 @@ public class WorldGenerator : GameService
         HexagonInfo[] Map = new HexagonInfo[ImageWidth * ImageWidth];
         List<BiomeStruct> Climates = new();
         List<RangeStruct> HeightOverrides = new();
+        List<RangeStruct> Heights = new();
         foreach (Biome Biome in BiomeMap.ClimateMap)
         {
             Climates.Add(new BiomeStruct()
@@ -223,31 +205,52 @@ public class WorldGenerator : GameService
             HeightOverrides.Add(new RangeStruct()
             {
                 Range = new Vector2(Tuple.Key.Min, Tuple.Key.Max),
-                BiomeIndex = (uint)MaskToInt((int)OverrideType, 16)
+                Index = (uint)MaskToInt((int)OverrideType, 16)
+            });
+        }
+        foreach (var Tuple in BiomeMap.HeightMap)
+        {
+            Heights.Add(new()
+            {
+                Range = new Vector2(Tuple.Key.Min, Tuple.Key.Max),
+                Index = (uint)Tuple.Value
             });
         }
 
         ClimateBuffer.SetData(Climates);
         HeightOverrideBuffer.SetData(HeightOverrides);
+        HeightBuffer.SetData(Heights);
         HexagonInfoBuffer.SetData(Map);
     }
 
-    private Tile[] GetMapData()
+    private float GetWaterCutoff()
+    {
+        foreach (var Tuple in BiomeMap.HeightMap)
+        {
+            if (Tuple.Value == HexagonHeight.Sea)
+                return Tuple.Key.Max;
+        }
+        return 0.1f;
+    }
+
+    private HexagonData[] GetMapData()
     {
         HexagonInfo[] ImageData = new HexagonInfo[ImageWidth * ImageWidth];
         HexagonInfoBuffer.GetData(ImageData);
 
-        // convert image data (x: height, y: temp) to actual type
-        // aspect ratio changes!
+        BiomeStruct[] Biomes = new BiomeStruct[BiomeMap.ClimateMap.Count];
+        ClimateBuffer.GetData(Biomes);
+
+        // convert shader data to actual map
+        // size changes!
         float SizeMultiplier = (float)ImageWidth / MapWidth;
-        Tile[] MapData = new Tile[MapWidth * MapWidth];
+        HexagonData[] MapData = new HexagonData[MapWidth * MapWidth];
         for (int i = 0; i < MapData.Length; i++)
         {
             Vector2Int MapPos = new(i % MapWidth, i / MapWidth);
             Vector2Int ImagePos = new((int)(MapPos.x * SizeMultiplier), (int)(MapPos.y * SizeMultiplier));
             int ImageIndex = ImagePos.y * ImageWidth + ImagePos.x;
-            HexagonInfo Value = ImageData[ImageIndex];
-            MapData[i] = GetTileFromMapValue(Value);
+            MapData[i] = HexagonData.CreateFromInfo(ImageData[ImageIndex]);
         }
 
         return MapData;
@@ -274,6 +277,7 @@ public class WorldGenerator : GameService
     private ComputeBuffer HexagonInfoBuffer;
     private ComputeBuffer ClimateBuffer;
     private ComputeBuffer HeightOverrideBuffer;
+    private ComputeBuffer HeightBuffer;
 
     // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
     private static int ImageWidth = 256;

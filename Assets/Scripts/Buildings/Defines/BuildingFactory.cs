@@ -59,6 +59,10 @@ public class BuildingFactory : GameService
         var TileTypes = Enum.GetValues(typeof(HexagonConfig.HexagonType));
         foreach (var TileType in TileTypes)
         {
+            if ((HexagonConfig.HexagonType)TileType == HexagonConfig.HexagonType.DeepOcean)
+            {
+                Debug.Log("");
+            }
             GameObject MeshObject = Resources.Load("Tiles/" + TileType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<MeshFilter>())
                 continue;

@@ -5,32 +5,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 public class HexagonConfig {
-    public class Tile
-    {
-        public HexagonHeight Height = HexagonHeight.Flat;
-        public HexagonType Type;
-
-        public byte ToByte()
-        {
-            byte Height_B = (byte)Height;
-            byte Type_B = (byte)MaskToInt((int)Type, 32);
-            return (byte)((Type_B << 3) | (Height_B));
-        }
-
-        public Tile(byte Byte) 
-        {
-            int Height = (Byte & 0x7);
-            int Type = IntToMask(Byte >> 3);
-            this.Height = (HexagonHeight)Height;
-            this.Type = (HexagonType)Type;
-        }
-
-        public Tile(HexagonHeight Height, HexagonType Type)
-        {
-            this.Type = Type;
-            this.Height = Height;
-        }
-    }
 
     /** How many unity world space units should each hexagon be?*/
     public static Vector3 TileSize = new Vector3(10, 5, 10);
@@ -68,10 +42,11 @@ public class HexagonConfig {
     public enum HexagonHeight : uint
     {
         /** Must not have values > 8 to still allow being combined into a byte with Type */
-        Sea = 0,
-        Flat = 1,
-        Hill = 2,
-        Mountain = 3
+        DeepSea = 0,
+        Sea = 1,
+        Flat = 2,
+        Hill = 3,
+        Mountain = 4
     }
 
     [Flags]
@@ -197,21 +172,22 @@ public class HexagonConfig {
         return GlobalTileLocation.y * MapWidth + GlobalTileLocation.x;
     }
 
-    public static float GetWorldHeightFromTile(Tile Tile)
+    public static float GetWorldHeightFromTile(HexagonData Hexagon)
     {
         float Multiplier = 1;
 
-        if (CanHaveHeight.HasFlag(Tile.Type))
+        if (CanHaveHeight.HasFlag(Hexagon.Type))
         {
-            Multiplier = GetWorldHeightFromHeight(Tile);
+            Multiplier = GetWorldHeightFromHeight(Hexagon);
         }
         return Multiplier * TileSize.y;
     }
 
-    private static float GetWorldHeightFromHeight(Tile Tile)
+    private static float GetWorldHeightFromHeight(HexagonData Hexagon)
     {
-        switch (Tile.Height)
+        switch (Hexagon.HexHeight)
         {
+            case HexagonHeight.DeepSea:
             case HexagonHeight.Sea:
             case HexagonHeight.Flat: return 1;
             case HexagonHeight.Hill:

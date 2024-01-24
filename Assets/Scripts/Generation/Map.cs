@@ -9,25 +9,28 @@ using UnityEngine;
  */
 public class Map : GameService
 {
-    /** Contains height and temperature map data */
-    public HexagonConfig.Tile[] MapData;
+    /** 
+     * Contains height and temperature map data 
+     * Filled by compute shader with correct size
+     */
+    public HexagonData[] MapData;
 
-    public HexagonConfig.Tile GetTileAtLocation(Location Location)
+    public HexagonData GetHexagonAtLocation(Location Location)
     {
         int Pos = HexagonConfig.GetMapPosFromLocation(Location);
         return MapData[Pos];
     }
 
-    public float GetWorldHeightAtTileLocation(Location Location)
+    public float GetWorldHeightAtLocation(Location Location)
     {
         int Pos = HexagonConfig.GetMapPosFromLocation(Location);
-        HexagonConfig.Tile Tile = MapData[Pos];
-        return HexagonConfig.GetWorldHeightFromTile(Tile);
+        HexagonData Hex = MapData[Pos];
+        return HexagonConfig.GetWorldHeightFromTile(Hex);
     }
 
     public void OverwriteSettings(int TileCount, int ChunkCount)
     {
-        MapData = new HexagonConfig.Tile[TileCount];
+        MapData = new HexagonData[TileCount];
         HexagonConfig.mapMaxChunk = ChunkCount;
     }
 
@@ -36,7 +39,7 @@ public class Map : GameService
         foreach (HexagonData Hex in Chunk.HexDatas)
         {
             int Pos = HexagonConfig.GetMapPosFromLocation(Hex.Location);
-            MapData[Pos] = new HexagonConfig.Tile(Hex.Height, Hex.Type);
+            MapData[Pos] = new HexagonData(Hex.HexHeight, Hex.Type);
         }
     }
 

@@ -169,6 +169,82 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &54568862
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 4
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
+--- !u!84 &79481089
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 256
+  m_Height: 256
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 4
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 1
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 0
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &94603682
 GameObject:
   m_ObjectHideFlags: 0
@@ -863,10 +939,9 @@ MonoBehaviour:
   AvailableTiles:
     Tuples:
     - Key: 1
-      Value: {fileID: -4575734979276873811, guid: 25f9eb49fd100034ca028d7be4765c4f,
-        type: 3}
+      Value: {fileID: 639433941965197, guid: 25f9eb49fd100034ca028d7be4765c4f, type: 3}
     - Key: 2
-      Value: {fileID: -4575734979276873811, guid: aebac64476fd5a04687fe5c086ffbfdb,
+      Value: {fileID: 7692385569407833450, guid: b7820cb513c54ce4d97dc2c7bee113c2,
         type: 3}
     - Key: 4
       Value: {fileID: -4575734979276873811, guid: 8693db10365dc30438873d55f79c9828,
@@ -882,6 +957,21 @@ MonoBehaviour:
         type: 3}
     - Key: 64
       Value: {fileID: -8215804180744794619, guid: a88dd01b339b16a4d810fadc8594be4e,
+        type: 3}
+    - Key: 128
+      Value: {fileID: 7692385569407833450, guid: b2bb6e0eb3a74b24d82c82fdbf0dca16,
+        type: 3}
+    - Key: 512
+      Value: {fileID: -4575734979276873811, guid: aebac64476fd5a04687fe5c086ffbfdb,
+        type: 3}
+    - Key: 1024
+      Value: {fileID: -7212309046148571136, guid: 3ee6d5d1d4e4f0749adda02a2e1999d1,
+        type: 3}
+    - Key: 16384
+      Value: {fileID: -4575734979276873811, guid: 0262223100b7b4943a1fbea558ac285b,
+        type: 3}
+    - Key: 32768
+      Value: {fileID: -4575734979276873811, guid: a96aa5806cf63b8458ac793f07fd2fca,
         type: 3}
 --- !u!1 &558157969
 GameObject:
@@ -916,13 +1006,15 @@ MonoBehaviour:
   IsInit: 0
   BiomeMap: {fileID: 11400000, guid: 555217ff6ea451f4d93ccbb72aabdb4c, type: 2}
   MapShader: {fileID: 7200000, guid: 7b9578702f2160c4eb02a2c65cc2bb98, type: 3}
-  EvenRT: {fileID: 0}
+  InputRT: {fileID: 79481089}
+  OutputRT: {fileID: 54568862}
   BiomeColors: {fileID: 2800000, guid: 9432c37858f3a0a4aa525ee43096caf0, type: 3}
   Amount: 5
   Scale: 3
   Factor: 1
   Offset: 0
   Seed: 315
+  HumidityDecay: 15
 --- !u!4 &558157971
 Transform:
   m_ObjectHideFlags: 0
@@ -1405,7 +1497,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 50}
+  m_AnchoredPosition: {x: 0, y: 99.9}
   m_SizeDelta: {x: 235, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &729179357
@@ -1455,7 +1547,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 31.3
+  m_fontSize: 35
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1491,7 +1583,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: -32.76963}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1756,7 +1848,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 15}
+  m_AnchoredPosition: {x: 0, y: 22}
   m_SizeDelta: {x: 235, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &838927778
@@ -3483,7 +3575,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 60, y: 90}
+  m_AnchoredPosition: {x: 60, y: 6}
   m_SizeDelta: {x: 100, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1648332426

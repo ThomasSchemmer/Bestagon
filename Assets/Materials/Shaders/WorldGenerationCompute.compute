@@ -8,7 +8,7 @@
 struct RangeStruct
 {
     float2 Range;
-    uint BiomeIndex;
+    uint Index;
 };
 
 // used as a equivalent to Rect->Biome mapping. Used for temperature and humidity
@@ -16,7 +16,7 @@ struct BiomeStruct
 {
     float2 Pos;
     float2 Size;
-    uint BiomeIndex;
+    uint Index;
 };
 
 struct HexagonInfo
@@ -24,6 +24,8 @@ struct HexagonInfo
     float Height;
     float Temperature;
     float Humidity;
+    uint HexagonType;
+    uint HexagonHeight;
 };
 
 static int2 FloodFillDirs[] =
@@ -41,6 +43,7 @@ float Scale;
 float Factor;
 float Offset;
 float Amount;
+float WaterCutoff;
 // temporary output and debug variables
 RWTexture2D<float4> InputImage;
 RWTexture2D<float4> OutputImage;
@@ -49,15 +52,18 @@ RWStructuredBuffer<HexagonInfo> HexagonInfos;
 int StepSize;
 float Decay;
 // Type calculation variables
-int TemperatureCount;
+int ClimateCount;
+int HeightOverrideCount;
 int HeightCount;
 RWStructuredBuffer<BiomeStruct> ClimateMap;
+RWStructuredBuffer<RangeStruct> HeightOverrideMap;
 RWStructuredBuffer<RangeStruct> HeightMap;
 Texture2D<float4> BiomeColors;
 
 float LandNoise(float3 uv)
 {
     float Result = snoise(uv * Scale + Offset);
+    
     
     for (int i = 1; i < Amount; i++)
     {
@@ -92,12 +98,10 @@ void HeightTemperatureCalculation (uint3 ID : SV_DispatchThreadID)
     HexagonInfos[Pos].Height = Height;
     HexagonInfos[Pos].Temperature = Temperature;
     
-    // Use as floodfill input data
-    float CutOff = HeightMap[0].Range.y;
     // float4 gets clamped to 0..1 in the shader, so we have to bring it in range 
     float4 WaterValue = float4(ID.xy / (float) Width, 1, 1);
     float4 LandValue = float4(0, 0, 0, 1);
-    InputImage[ID.xy] = Height < CutOff ? WaterValue : LandValue;
+    InputImage[ID.xy] = Height < WaterCutoff ? WaterValue : LandValue;
 }
 
 
@@ -140,9 +144,17 @@ void JumpFlood(uint3 ID : SV_DispatchThreadID)
     ClosestPos /= (float) Width;
     float Distance = bFoundWater ? MinDis : 0;
     Distance /= (float) Width;
-    Distance = StepSize > 1 ? Distance : (1 - Distance * Decay);
-   
+    
+    if (StepSize == 1)
+    {
+        Distance = 1 - Distance * Decay;
+        Distance = clamp(Distance, 0, 1);
+    }
+    
     OutputImage[ID.xy] = float4(ClosestPos, Distance, 1);
+    
+    uint Pos = ID.y * Width + ID.x;
+    HexagonInfos[Pos].Humidity = Distance;
 }
 
 
@@ -150,30 +162,41 @@ void JumpFlood(uint3 ID : SV_DispatchThreadID)
 [numthreads(16, 16, 1)]
 void TypeCalculation(uint3 ID : SV_DispatchThreadID)
 {
-    float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
+    uint Pos = ID.y * Width + ID.x;
     
-    /*
-    
-    int Index = -1;
-    for (int i = 0; i < TemperatureCount; i++)
+    float Height = HexagonInfos[Pos].Height;
+    float Temperature = HexagonInfos[Pos].Temperature;
+    float Humidity = HexagonInfos[Pos].Humidity;
+        
+    int TypeIndex = -1;
+    for (int i = 0; i < ClimateCount; i++)
     {
-        if (TemperatureMap[i].Range.x < Temperature && TemperatureMap[i].Range.y > Temperature)
+        float MinX = ClimateMap[i].Pos.x / 100.0;
+        float MinY = ClimateMap[i].Pos.y / 100.0;
+        float MaxX = (ClimateMap[i].Pos.x + ClimateMap[i].Size.x) / 100.0;
+        float MaxY = (ClimateMap[i].Pos.y + ClimateMap[i].Size.y) / 100.0;
+        if (Temperature >= MinX && Temperature <= MaxX && Humidity >= MinY && Humidity <= MaxY) 
         {
-            Index = TemperatureMap[i].BiomeIndex;
+            TypeIndex = ClimateMap[i].Index;
         }
     }
+    
+    for (i = 0; i < HeightOverrideCount; i++)
+    {        
+        if (HeightOverrideMap[i].Range.x < Height && HeightOverrideMap[i].Range.y > Height)
+        {
+            TypeIndex = HeightOverrideMap[i].Index;
+        }
+    }
+    int HeightIndex = -1;
     for (i = 0; i < HeightCount; i++)
     {
         if (HeightMap[i].Range.x < Height && HeightMap[i].Range.y > Height)
         {
-            Index = HeightMap[i].BiomeIndex;
+            HeightIndex = HeightMap[i].Index;
         }
     }
+    HexagonInfos[Pos].HexagonHeight = HeightIndex;
+    HexagonInfos[Pos].HexagonType = TypeIndex;
     
-    float4 Color = BiomeColors[uv];
-    
-    
-    Image[ID.xy] = BiomeColors[float2(0, Index + 1)];
-    */
-
 }

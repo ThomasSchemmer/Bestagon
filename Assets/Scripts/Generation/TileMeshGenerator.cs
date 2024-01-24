@@ -168,7 +168,7 @@ public class TileMeshGenerator : MonoBehaviour
     private static bool TryAddDecoration(HexagonData Data) {
         if (!Game.TryGetService(out BuildingFactory BuildingFactory))
             return false;
-
+        
         Mesh DecorationMesh = BuildingFactory.GetMeshFromType(Data.Type);
         if (!DecorationMesh)
             return false;

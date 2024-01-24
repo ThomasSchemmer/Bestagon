@@ -95,8 +95,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Data.Type = PlaceableHex.Type;
-        Data.Height = PlaceableHex.Height;
-        if (!MapGenerator.TrySetHexagonData(Location, Data.Height, Data.Type))
+        Data.HexHeight = PlaceableHex.Height;
+        if (!MapGenerator.TrySetHexagonData(Location, Data.HexHeight, Data.Type))
             return;
 
         if (!MapGenerator.TryGetChunkData(Location, out ChunkData Chunk))
@@ -276,7 +276,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (Data != null) {
             Block.SetFloat("_Malaised", Data.bIsMalaised ? 1 : 0);
             Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, 16) + 1);
-            Block.SetFloat("_Value", Data.Value);
+            Block.SetFloat("_Value", Data.DebugValue);
         }
         if (!Renderer)
             return;

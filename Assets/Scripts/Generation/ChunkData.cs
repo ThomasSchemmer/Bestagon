@@ -26,13 +26,8 @@ public class ChunkData : ISaveable
             for (int x = 0; x < HexagonConfig.chunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
-                HexagonConfig.Tile Tile = Map.GetTileAtLocation(HexLocation);
-                HexagonData Data = new HexagonData();
-                Data.Location = HexLocation;
-                Data.Type = Tile.Type;
-                Data.Height = Tile.Height;
-
-                HexDatas[x, y] = Data;
+                HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
+                HexDatas[x, y].Location = HexLocation;
             }
         }
     }

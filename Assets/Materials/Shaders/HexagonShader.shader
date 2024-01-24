@@ -78,7 +78,7 @@
 
             inline bool IsWater(){
                 // ocean value can be checked in hexagonconfig, currently 4
-                return _Type == 4;
+                return _Type == 4 || _Type == 16;
             }
 
             inline bool IsBorder(float2 uv) {
@@ -177,10 +177,16 @@
                                 _Hovered > 0 ? 2 :
                                 _Adjacent > 0 ? 3 : 0;
                 bool isHighlighted = isBorder && highlight > 0;
-                float u = isHighlighted ? highlight - 1 : i.uv.x * 16.0;
-                float v = isHighlighted ? 0 : _Type;
+    
+                // as we have a split uv map we need to wrap around
+                int xType = _Type / 16.0;
+                int yType = _Type % 16;
+                float StandardColor = (i.uv.x * 16.0) + xType * 16/2;
+                float HighlightColor = highlight - 1;
+                float u = isHighlighted ? HighlightColor : StandardColor;
+                float v = isHighlighted ? 0 : yType;
                 float2 uv = float2(u, v) / 16.0;
-                fixed4 color = tex2D(_TypeTex, uv);
+                float4 color = tex2D(_TypeTex, uv);
                 color *= i.diff;
                 color.a = 1;
                 return color;
