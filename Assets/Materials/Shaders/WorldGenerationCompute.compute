@@ -1,6 +1,7 @@
 #pragma kernel HeightTemperatureCalculation
 #pragma kernel JumpFlood
 #pragma kernel TypeCalculation
+#pragma kernel HistogramNormalization;
 
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
@@ -50,7 +51,6 @@ RWTexture2D<float4> OutputImage;
 RWStructuredBuffer<HexagonInfo> HexagonInfos;
 // flood fill variables
 int StepSize;
-float Decay;
 // Type calculation variables
 int ClimateCount;
 int HeightOverrideCount;
@@ -59,11 +59,16 @@ RWStructuredBuffer<BiomeStruct> ClimateMap;
 RWStructuredBuffer<RangeStruct> HeightOverrideMap;
 RWStructuredBuffer<RangeStruct> HeightMap;
 Texture2D<float4> BiomeColors;
+// Equalizing variables
+RWStructuredBuffer<uint> HistogramInput; // contains CdfMin at max index
+RWStructuredBuffer<uint> HistogramResult;
+uint HistogramResolution;
+
+
 
 float LandNoise(float3 uv)
 {
     float Result = snoise(uv * Scale + Offset);
-    
     
     for (int i = 1; i < Amount; i++)
     {
@@ -98,10 +103,16 @@ void HeightTemperatureCalculation (uint3 ID : SV_DispatchThreadID)
     HexagonInfos[Pos].Height = Height;
     HexagonInfos[Pos].Temperature = Temperature;
     
+    uint uHeight = (uint) (Height * HistogramResolution);
+    uint uTemperature = (uint) (Temperature * HistogramResolution);
+    InterlockedAdd(HistogramInput[uHeight + HistogramResolution * 0], 1);
+    InterlockedAdd(HistogramInput[uTemperature + HistogramResolution * 1], 1);
+    
     // float4 gets clamped to 0..1 in the shader, so we have to bring it in range 
     float4 WaterValue = float4(ID.xy / (float) Width, 1, 1);
     float4 LandValue = float4(0, 0, 0, 1);
     InputImage[ID.xy] = Height < WaterCutoff ? WaterValue : LandValue;
+    
 }
 
 
@@ -118,7 +129,7 @@ void JumpFlood(uint3 ID : SV_DispatchThreadID)
     for (int i = 0; i < 9; i++)
     {
         int2 TargetID = ID.xy + FloodFillDirs[i] * StepSize;
-        if (TargetID.x < 0 || TargetID.x >= Width || TargetID.y < 0 || TargetID.y >= Width)
+        if (TargetID.x < 0 || TargetID.x > Width || TargetID.y < 0 || TargetID.y > Width)
             continue;
         
         float4 TargetValue = InputImage[TargetID.xy];
@@ -127,7 +138,7 @@ void JumpFlood(uint3 ID : SV_DispatchThreadID)
             continue;
                 
         // get the original position from before
-        int2 WaterID = int2((int) (TargetValue.x * Width), (int) (TargetValue.y * Width));
+        int2 WaterID = int2(round(TargetValue.x * Width), round(TargetValue.y * Width));
         
         float DistanceSqr = distance(WaterID, ID.xy);
         if (DistanceSqr >= MinDis)
@@ -140,63 +151,142 @@ void JumpFlood(uint3 ID : SV_DispatchThreadID)
     
     // at the last iteration only the inverted distance is interesting to us
     // we also need to bring it back to 0..1
-    float2 ClosestPos = StepSize > 1 ? ClosestWater : float2(0, 0);
+    float2 ClosestPos = ClosestWater;//    StepSize > 1 ? ClosestWater : float2(0, 0);
     ClosestPos /= (float) Width;
     float Distance = bFoundWater ? MinDis : 0;
     Distance /= (float) Width;
     
+    OutputImage[ID.xy] = float4(ClosestPos.x, ClosestPos.y, Distance, 1);
+    
+    // only do this at the last step
+    // TODO: there is an error somewhere in this! it doesnt propagate correctly
     if (StepSize == 1)
-    {
-        Distance = 1 - Distance * Decay;
-        Distance = clamp(Distance, 0, 1);
+    {        
+        uint Pos = ID.y * Width + ID.x;
+        HexagonInfos[Pos].Humidity = Distance;
+        
+        uint uHumidity = (uint) (Distance * HistogramResolution);
+        InterlockedAdd(HistogramInput[uHumidity + HistogramResolution * 2], 1);
     }
-    
-    OutputImage[ID.xy] = float4(ClosestPos, Distance, 1);
-    
-    uint Pos = ID.y * Width + ID.x;
-    HexagonInfos[Pos].Humidity = Distance;
 }
 
+// Calculate histograms of all hexagon attributes and normalize them
+// see https://en.wikipedia.org/wiki/Histogram_equalization
+[numthreads(16, 16, 1)]
+void HistogramNormalization(uint ID : SV_GroupIndex, uint3 GroupID : SV_GroupID)
+{
+    // Height, temperature and humidity are all included in one buffer
+    // find out where we should start and count up to
+    uint BufferStart = GroupID.x * HistogramResolution;
+    
+    uint Cdf = 0;
+    for (uint i = 0; i < ID; i++)
+    {
+        Cdf += HistogramInput[BufferStart + i];
+    }
+    
+    HistogramResult[BufferStart + ID] = Cdf;
+    
+    if (Cdf > 0)
+    {
+        InterlockedMin(HistogramInput[HistogramResolution * 3 + GroupID.x], Cdf);
+    }
+     
+    GroupMemoryBarrierWithGroupSync();
+    if (Cdf == 0)
+    {
+        HistogramResult[BufferStart + ID] = 0;
+        return;
+    }
+    
+    uint CdfMin = HistogramInput[HistogramResolution * 3 + GroupID.x];
+    
+    uint A = Cdf - CdfMin;
+    uint B = pow(Width, 2) - CdfMin;
+    uint C = HistogramResolution - 1;
+    
+    HistogramResult[BufferStart + ID] = round(((float) A / B) * C);
+}
+
+int GetRandomBit(uint Index, float2 UV)
+{
+    // count amount of set bits
+    // see https://graphics.stanford.edu/~seander/bithacks.html
+    uint Copy = Index;
+    Copy = Copy - ((Copy >> 1) & 0x55555555);
+    Copy = (Copy & 0x33333333) + ((Copy >> 2) & 0x33333333);
+    int BitAmount = ((Copy + (Copy >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+    
+    if (BitAmount == 0)
+        return 0;
+        
+    // save set bits' position and pick a random one from them
+    int RandomIndex = round(((snoise(UV) + 1.0) / 2.0) * (BitAmount - 1));
+    
+    int BitCount = -1;
+    for (int i = 0; i < 32 && BitCount < BitAmount; i++)
+    {
+        int Bit = (Index & (1 << i)) >> i;
+        BitCount += Bit;
+        if (BitCount == RandomIndex && Bit > 0)
+            return 1 << i;
+    }
+    
+    // can only be reached on error
+    return -1;
+}
 
 // use height, humidity and temperature to compute the hexagon type 
 [numthreads(16, 16, 1)]
 void TypeCalculation(uint3 ID : SV_DispatchThreadID)
 {
+    float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
     uint Pos = ID.y * Width + ID.x;
     
     float Height = HexagonInfos[Pos].Height;
     float Temperature = HexagonInfos[Pos].Temperature;
     float Humidity = HexagonInfos[Pos].Humidity;
+    
+    // We can use this info to look up the normalized values to garuantee a better distribution
+    uint uHeight = (uint) (Height * HistogramResolution);
+    uint uTemperature = (uint) (Temperature * HistogramResolution);
+    uint uHumidity = (uint) (Humidity * HistogramResolution);
+    float NormalizedHeight = HistogramResult[uHeight + HistogramResolution * 0] / (float) HistogramResolution;
+    float NormalizedTemperature = HistogramResult[uTemperature + HistogramResolution * 1] / (float) HistogramResolution;
+    float NormalizedHumidity = HistogramResult[uHumidity + HistogramResolution * 2] / (float) HistogramResolution;
+    NormalizedHumidity = 1 - NormalizedHumidity;
         
-    int TypeIndex = -1;
+    int TypeIndex = 0;
     for (int i = 0; i < ClimateCount; i++)
     {
         float MinX = ClimateMap[i].Pos.x / 100.0;
         float MinY = ClimateMap[i].Pos.y / 100.0;
         float MaxX = (ClimateMap[i].Pos.x + ClimateMap[i].Size.x) / 100.0;
         float MaxY = (ClimateMap[i].Pos.y + ClimateMap[i].Size.y) / 100.0;
-        if (Temperature >= MinX && Temperature <= MaxX && Humidity >= MinY && Humidity <= MaxY) 
+        if (NormalizedTemperature >= MinX && NormalizedTemperature <= MaxX && NormalizedHumidity >= MinY && NormalizedHumidity <= MaxY) 
         {
-            TypeIndex = ClimateMap[i].Index;
+            TypeIndex |= ClimateMap[i].Index;
         }
     }
     
     for (i = 0; i < HeightOverrideCount; i++)
-    {        
-        if (HeightOverrideMap[i].Range.x < Height && HeightOverrideMap[i].Range.y > Height)
+    {
+        if (HeightOverrideMap[i].Range.x < NormalizedHeight && HeightOverrideMap[i].Range.y > NormalizedHeight)
         {
             TypeIndex = HeightOverrideMap[i].Index;
         }
     }
+    
+    TypeIndex = GetRandomBit(TypeIndex, uv);
+    
     int HeightIndex = -1;
     for (i = 0; i < HeightCount; i++)
     {
-        if (HeightMap[i].Range.x < Height && HeightMap[i].Range.y > Height)
+        if (HeightMap[i].Range.x < NormalizedHeight && HeightMap[i].Range.y > NormalizedHeight)
         {
             HeightIndex = HeightMap[i].Index;
         }
     }
     HexagonInfos[Pos].HexagonHeight = HeightIndex;
-    HexagonInfos[Pos].HexagonType = TypeIndex;
-    
+    HexagonInfos[Pos].HexagonType = TypeIndex;   
 }

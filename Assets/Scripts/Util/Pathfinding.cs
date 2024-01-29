@@ -103,14 +103,6 @@ public class Pathfinding
         }
     }
 
-    private static int GetCostsFromTo(Location LocationA, Location LocationB) {
-        List<Location> Neighbours = MapGenerator.GetNeighbourTileLocations(LocationA);
-        if (Neighbours.Contains(LocationB))
-            return -1;
-
-        return GetCostsFromToUnchecked(LocationA, LocationB);
-    }
-
     private static int GetCostsFromToUnchecked(Location LocationA, Location LocationB) {
         // this assumes A and B are neighbours!
         return HexagonConfig.GetCostsFromTo(LocationA, LocationB);

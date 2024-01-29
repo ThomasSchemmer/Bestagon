@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class HexagonConfig {
 
@@ -154,15 +151,36 @@ public class HexagonConfig {
         if (DataB.bIsMalaised)
             return -1;
 
-        switch (DataB.Type)
+        int CostsA = GetTraversingCosts(DataA.Type);
+        int CostsB = GetTraversingCosts(DataB.Type);
+        if (CostsA < 0 || CostsB < 0)
+            return -1;
+
+        return Mathf.CeilToInt((CostsA + CostsB) / 2.0f);
+    }
+
+    public static int GetTraversingCosts(HexagonType Type)
+    {
+        switch (Type)
         {
             case HexagonType.Meadow: return 1;
-            case HexagonType.Forest: return 2;
-            case HexagonType.Ocean: return -1;
+            case HexagonType.Forest: return 1;
             case HexagonType.Mountain: return 3;
-            case HexagonType.Desert: return 1;
-            default: return -1;
+            case HexagonType.Ocean: return -1;
+            case HexagonType.Desert: return 2;
+            case HexagonType.Tundra: return 2;
+            case HexagonType.Ice: return 2;
+            case HexagonType.RainForest: return 2;
+            case HexagonType.SparseRainForest: return 1;
+            case HexagonType.DarkForest: return 1;
+            case HexagonType.Plains: return 1;
+            case HexagonType.Savanna: return 1;
+            case HexagonType.Shrubland: return 1;
+            case HexagonType.Swamp: return 2;
+            case HexagonType.Taiga: return 1;
+            case HexagonType.DeepOcean: return -2;
         }
+        return -1;
     }
 
 
@@ -198,6 +216,9 @@ public class HexagonConfig {
 
     public static int MaskToInt(int Mask, int Max)
     {
+        if (Mask == 0)
+            return 0;
+
         for (int i = 0; i < Max; i++)
         {
             if ((Mask & (1 << i)) > 0)

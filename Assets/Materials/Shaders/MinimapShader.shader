@@ -22,6 +22,7 @@ Shader "Custom/MinimapShader"
 
             CGPROGRAM
             #include "UnityCustomRenderTexture.cginc"
+            #include "Assets/Materials/Shaders/Util/Util.cginc" 
             #pragma vertex CustomRenderTextureVertexShader
             #pragma fragment frag
             #pragma target 3.0
@@ -57,8 +58,12 @@ Shader "Custom/MinimapShader"
                 HexagonData Data = HexagonBuffer[Index];
                 uint Malaised = Data.Type & 0x80;
                 uint Type = Data.Type & 0x7F;
+    
+                float U = Type * 0.5 + 0.5;
+                float V = Type % 16;
+                float2 MappedUV = float2(U, V) / 16.0;
 
-                float4 Colour = tex2D(_TypesTex, float2(0, Type / 16.0));
+                float4 Colour = tex2D(_TypesTex, MappedUV);
                 float4 MalaisedColor = tex2D(_TypesTex, float2(3 / 16.0, 0));
                 return Malaised > 0 ? MalaisedColor : Colour;
             }

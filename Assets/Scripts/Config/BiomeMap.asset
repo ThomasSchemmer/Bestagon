@@ -144,21 +144,21 @@ MonoBehaviour:
     Tuples:
     - Key:
         Min: 0
-        Max: 0.35
+        Max: 0.15
       Value: 0
     - Key:
-        Min: 0.35
-        Max: 0.425
+        Min: 0.15
+        Max: 0.35
       Value: 1
     - Key:
-        Min: 0.425
+        Min: 0.35
         Max: 0.6
       Value: 2
     - Key:
         Min: 0.6
-        Max: 0.65
+        Max: 0.85
       Value: 3
     - Key:
-        Min: 0.65
+        Min: 0.85
         Max: 1
       Value: 4

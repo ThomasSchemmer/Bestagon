@@ -55,14 +55,15 @@ public class HexagonData : ISaveable
 
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
-        HexagonType TempType = (HexagonType)IntToMask((int)Info.TypeIndex);
+        HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));
+        
         return new()
         {
             Height = Info.Height,
             Humidity = Info.Humidity,
             Temperature = Info.Temperature,
             HexHeight = (HexagonHeight)Info.HexHeightIndex,
-            Type = (HexagonType)IntToMask((int)Info.TypeIndex),
+            Type = TempType,
         };
     }
 

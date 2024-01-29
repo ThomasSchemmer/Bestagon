@@ -69,8 +69,16 @@ public class WorldGenerator : GameService
             MapShader.Dispatch(JumpFloodKernel, GroupCount, GroupCount, 1);
             StepSize /= 2;
         }
+        uint[] HistogramInput = new uint[HistogramInputBuffer.count];
+        HistogramInputBuffer.GetData(HistogramInput);
+
+        MapShader.Dispatch(HistogramNormalizationKernel, 3, 1, 1);
+        HistogramInputBuffer.GetData(HistogramInput);
 
         MapShader.Dispatch(TypeKernel, GroupCount, GroupCount, 1);
+
+        uint[] HistogramOutput = new uint[HistogramResultBuffer.count];
+        HistogramResultBuffer.GetData(HistogramOutput);
 
         return GetMapData();
     }
@@ -92,6 +100,10 @@ public class WorldGenerator : GameService
             HeightOverrideBuffer.Release();
         if (HeightBuffer != null)
             HeightBuffer.Release();
+        if (HistogramInputBuffer != null)
+            HistogramInputBuffer.Release();
+        if (HistogramResultBuffer != null)
+            HistogramResultBuffer.Release();
     }
 
     private void Init() {
@@ -103,6 +115,7 @@ public class WorldGenerator : GameService
         SetDataGlobal();
         SetDataHeightTemperature();
         SetDataType();
+        SetDataHistogram();
 
         FillBuffers();
     }
@@ -111,10 +124,14 @@ public class WorldGenerator : GameService
         HeightTemperatureKernel = MapShader.FindKernel("HeightTemperatureCalculation");
         JumpFloodKernel = MapShader.FindKernel("JumpFlood");
         TypeKernel = MapShader.FindKernel("TypeCalculation");
+        HistogramNormalizationKernel = MapShader.FindKernel("HistogramNormalization");
+
         HexagonInfoBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(float) * 3 + sizeof(uint) * 2);
         ClimateBuffer = new ComputeBuffer(BiomeMap.ClimateMap.Count, sizeof(float) * 4 + sizeof(uint));
         HeightOverrideBuffer = new ComputeBuffer(BiomeMap.HeightOverrideMap.Count, sizeof(float) * 2 + sizeof(uint));
         HeightBuffer = new ComputeBuffer(BiomeMap.HeightMap.Count, sizeof(float) * 2 + sizeof(int));
+        HistogramInputBuffer = new ComputeBuffer(HistogramResolution * 3 + 3, sizeof(uint));
+        HistogramResultBuffer = new ComputeBuffer(HistogramResolution * 3, sizeof(uint));
     }
 
     private void SetDataHeightTemperature() {
@@ -131,7 +148,6 @@ public class WorldGenerator : GameService
     private void SetDataJumpFlood(int StepSize, int StepCount)
     {
         MapShader.SetInt("StepSize", StepSize);
-        MapShader.SetFloat("Decay", HumidityDecay);
 
         bool IsEven = StepCount % 2 == 0;
 
@@ -152,6 +168,12 @@ public class WorldGenerator : GameService
     {
         MapShader.SetInt("GroupCount", GroupCount);
         MapShader.SetInt("Width", ImageWidth);
+        MapShader.SetInt("HistogramResolution", HistogramResolution);
+    }
+
+    private void SetDataHistogram()
+    {
+        SetBuffersForKernel(HistogramNormalizationKernel);
     }
 
     private void SetBuffersForKernel(int Kernel)
@@ -160,6 +182,9 @@ public class WorldGenerator : GameService
         MapShader.SetBuffer(Kernel, "HeightOverrideMap", HeightOverrideBuffer);
         MapShader.SetBuffer(Kernel, "HeightMap", HeightBuffer);
         MapShader.SetBuffer(Kernel, "HexagonInfos", HexagonInfoBuffer);
+        MapShader.SetBuffer(Kernel, "HistogramInput", HistogramInputBuffer);
+        MapShader.SetBuffer(Kernel, "HistogramResult", HistogramResultBuffer);
+
         MapShader.SetTexture(Kernel, "BiomeColors", BiomeColors);
         MapShader.SetTexture(Kernel, "InputImage", InputRT);
         MapShader.SetTexture(Kernel, "OutputImage", OutputRT);
@@ -192,7 +217,7 @@ public class WorldGenerator : GameService
             {
                 Position = Biome.Rect.position,
                 Size = Biome.Rect.size,
-                BiomeIndex = (uint)MaskToInt((int)Biome.HexagonType, 16)
+                BiomeIndex = (uint)Biome.HexagonType
             });
         }
         foreach (var Tuple in BiomeMap.HeightMap)
@@ -205,7 +230,7 @@ public class WorldGenerator : GameService
             HeightOverrides.Add(new RangeStruct()
             {
                 Range = new Vector2(Tuple.Key.Min, Tuple.Key.Max),
-                Index = (uint)MaskToInt((int)OverrideType, 16)
+                Index = (uint)OverrideType
             });
         }
         foreach (var Tuple in BiomeMap.HeightMap)
@@ -221,6 +246,14 @@ public class WorldGenerator : GameService
         HeightOverrideBuffer.SetData(HeightOverrides);
         HeightBuffer.SetData(Heights);
         HexagonInfoBuffer.SetData(Map);
+
+        // write a uint max for each CdfMin
+        int Max = -1;
+        uint[] HistogramData = new uint[HistogramInputBuffer.count];
+        HistogramData[HistogramData.Length - 3] = (uint)Max;
+        HistogramData[HistogramData.Length - 2] = (uint)Max;
+        HistogramData[HistogramData.Length - 1] = (uint)Max;
+        HistogramInputBuffer.SetData(HistogramData);
     }
 
     private float GetWaterCutoff()
@@ -248,6 +281,10 @@ public class WorldGenerator : GameService
         for (int i = 0; i < MapData.Length; i++)
         {
             Vector2Int MapPos = new(i % MapWidth, i / MapWidth);
+            if (MapPos.x == 14 && MapPos.y == 31)
+            {
+                Debug.Log("");
+            }
             Vector2Int ImagePos = new((int)(MapPos.x * SizeMultiplier), (int)(MapPos.y * SizeMultiplier));
             int ImageIndex = ImagePos.y * ImageWidth + ImagePos.x;
             MapData[i] = HexagonData.CreateFromInfo(ImageData[ImageIndex]);
@@ -271,18 +308,19 @@ public class WorldGenerator : GameService
     public float Factor = 1;
     public float Offset = 0;
     public float Seed = 0;
-    public float HumidityDecay = 5;
 
-    private int HeightTemperatureKernel, JumpFloodKernel, TypeKernel;
+    private int HeightTemperatureKernel, JumpFloodKernel, TypeKernel, HistogramNormalizationKernel;
     private ComputeBuffer HexagonInfoBuffer;
     private ComputeBuffer ClimateBuffer;
     private ComputeBuffer HeightOverrideBuffer;
     private ComputeBuffer HeightBuffer;
+    private ComputeBuffer HistogramInputBuffer;
+    private ComputeBuffer HistogramResultBuffer;
 
     // to make compute calculations easier, make sure that GroupCount * NumThreads = RT.width!
     private static int ImageWidth = 256;
     private static int GroupCount = ImageWidth / 16;
-
+    private static int HistogramResolution = 256;
 
 
     public void TestJumpFlood()

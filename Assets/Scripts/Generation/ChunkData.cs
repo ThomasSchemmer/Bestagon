@@ -26,6 +26,10 @@ public class ChunkData : ISaveable
             for (int x = 0; x < HexagonConfig.chunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
+                if (x == 14 && y == 31)
+                {
+                    Debug.Log("");
+                }
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
                 HexDatas[x, y].Location = HexLocation;
             }

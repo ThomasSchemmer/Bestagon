@@ -73,6 +73,9 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
     {
         Bonus = new Dictionary<HexagonConfig.HexagonType, Production>();
+        if (EffectType != Type.YieldPerAreaAndWorker)
+            return false;
+
         foreach (var RawEnum in Enum.GetValues(typeof(HexagonConfig.HexagonType))) {
             HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)RawEnum;
             if (TileType.HasFlag(Type))
