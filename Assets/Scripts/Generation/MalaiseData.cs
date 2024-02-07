@@ -44,6 +44,8 @@ public class MalaiseData : ISaveable
                 NeighbourChunk.Malaise.Infect();
             }
 
+            NeighbourChunk.Visualization?.RefreshTokens();
+
             if (!MapGenerator.TryGetHexagon(Neighbour.Location, out HexagonVisualization Hex))
                 continue;
 
@@ -68,7 +70,7 @@ public class MalaiseData : ISaveable
     public List<HexagonData> GetMalaisedHexes() {
         List<HexagonData> MalaisedHexes = new();
         foreach (HexagonData Data in Chunk.HexDatas) {
-            if (Data.bIsMalaised) {
+            if (Data.bIsMalaised && Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted) {
                 MalaisedHexes.Add(Data);
             }
         }
@@ -81,16 +83,21 @@ public class MalaiseData : ISaveable
             return;
 
         bHasStarted = true;
-        if (!Game.GetService<MapGenerator>().TryGetChunkData(StartLocation, out ChunkData ChunkData))
-            return;
 
-        if (ChunkData.Malaise == null)
-            return;
+        foreach (Location StartLocation in StartLocations)
+        {
+            if (!Game.GetService<MapGenerator>().TryGetChunkData(StartLocation, out ChunkData ChunkData))
+                continue;
 
-        HexagonData HexData = ChunkData.HexDatas[StartLocation.HexLocation.x, StartLocation.HexLocation.y];
-        HexData.bIsMalaised = true;
-        ChunkData.Malaise.Spread(HexData);
-        ChunkData.Malaise.Infect();
+            if (ChunkData.Malaise == null)
+                continue;
+
+            HexagonData HexData = ChunkData.HexDatas[StartLocation.HexLocation.x, StartLocation.HexLocation.y];
+            HexData.bIsMalaised = true;
+            ChunkData.Malaise.Spread(HexData);
+            ChunkData.Malaise.Infect();
+
+        }
     }
 
     public int GetSize()
@@ -116,6 +123,11 @@ public class MalaiseData : ISaveable
     public ChunkData Chunk;
     public bool bIsActive = false;
 
-    public static Location StartLocation = new Location(new Vector2Int(0, 0), new Vector2Int(0, 0));
+    public static List<Location> StartLocations = new() {
+        new Location(0, 0, 0, 0),
+        new Location(0, 0, 0, 1),
+        new Location(0, 0, 1, 1),
+        new Location(2, 0, 0, 0),
+    };
     public static bool bHasStarted = false;
 }

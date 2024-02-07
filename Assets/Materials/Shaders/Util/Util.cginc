@@ -192,5 +192,78 @@ float snoise(float3 v)
     return 105.0 * dot(m * m, float4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
+/** stacked simplex noise */
+float ssnoise(float3 uv, float Scale, float Offset, float Iterations, float Factor)
+{
+    float Result = snoise(uv * Scale + Offset);
+    
+    for (int i = 1; i < Iterations; i++)
+    {
+        Factor *= 0.5;
+        Scale *= 2;
+        float Noise = snoise(uv * Scale + Offset) * Factor;
+        // old range is already from 0..1, if we add another 0..Factor its too much again
+        // Simply add both results proportionally
+        float Proportion = pow(2, i);
+        Result = (Result + Noise) * (Proportion / (Proportion + 1));
+    }
+    return Result;
+}
+
+
+float voronoi(float2 position)
+{
+    float2 base = floor(position);
+    float minDistanceSqr = 10000;
+                [unroll]
+    for (int x = -1; x <= 1; x++)
+    {
+                    [unroll]   
+        for (int y = -1; y <= 1; y++)
+        {
+            float2 cell = base + float2(x, y);
+            float2 posInCell = cell + hash22(cell);
+            float2 diff = posInCell - position;
+            float distanceSqr = diff.x * diff.x + diff.y * diff.y;
+            if (distanceSqr < minDistanceSqr)
+            {
+                minDistanceSqr = distanceSqr;
+            }
+        }
+    }
+    return minDistanceSqr;
+}
+
+/** Draws a line between each two voronoi cells */
+void LineVoronoi(float2 Position, float Thickness, out bool bIsCorner, out int TargetCell)
+{
+    float2 base = floor(Position);
+    float FirstDistanceSqr = 10000;
+    float SecondDistanceSqr = 10000;
+                [unroll]
+    for (int x = -1; x <= 1; x++)
+    {
+                    [unroll]   
+        for (int y = -1; y <= 1; y++)
+        {
+            float2 cell = base + float2(x, y);
+            float2 posInCell = cell + hash22(cell);
+            float2 diff = posInCell - Position;
+            float distanceSqr = diff.x * diff.x + diff.y * diff.y;
+            if (distanceSqr < FirstDistanceSqr)
+            {
+                if (FirstDistanceSqr < SecondDistanceSqr)
+                {
+                    SecondDistanceSqr = FirstDistanceSqr;
+                }
+                FirstDistanceSqr = distanceSqr;
+                TargetCell = (y + 1) * 3 + (x + 1);
+            }
+        }
+    }
+    float Diff = abs(FirstDistanceSqr - SecondDistanceSqr);
+    bIsCorner = Diff < Thickness;
+}
+
 #endif // INCLUDE_UTIL
             

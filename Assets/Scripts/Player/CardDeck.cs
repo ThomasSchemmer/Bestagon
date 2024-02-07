@@ -20,4 +20,12 @@ public class CardDeck : CardCollection
         }
         Text.text = "" + Cards.Count;
     }
+
+    public override void Load()
+    {
+        foreach (Card Card in Cards)
+        {
+            Card.gameObject.SetActive(false);
+        }
+    }
 }

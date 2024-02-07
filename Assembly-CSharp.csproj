@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
+    <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\Util\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Visualization\MalaiseVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\MainMenu.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
+    <Compile Include="Assets\Scripts\UI\GameOverScreen.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
     <Compile Include="Assets\Scripts\Util\Tuple.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
@@ -91,12 +93,14 @@
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
+    <Compile Include="Assets\Scripts\Player\CardStash.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
@@ -120,6 +124,7 @@
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Materials\Shaders\BackgroundShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\Materials\Shaders\BuildingShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />

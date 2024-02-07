@@ -14,10 +14,8 @@ public class SelectWorkerScreen : MonoBehaviour
     }
 
     public void OpenForBuilding(BuildingData Building) {
-        if (!Building.Equals(this.Building)) {
-            this.Building = Building;
-            InitWorkerDistances();
-        }
+        this.Building = Building;
+        InitWorkerDistances();
         Show(true);
     }
 

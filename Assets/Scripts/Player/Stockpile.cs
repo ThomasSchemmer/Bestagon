@@ -8,10 +8,10 @@ public class Stockpile : MonoBehaviour
         Instance = this;
 
         Tuple<Production.Type, int>[] Tuples = {
-            new(Production.Type.Wood, 10),
-            new(Production.Type.Stone, 10),
-            new(Production.Type.Metal, 10),
-            new(Production.Type.Food, 10)
+            new(Production.Type.Wood, 4),
+            new(Production.Type.Stone, 2),
+            new(Production.Type.Metal, 0),
+            new(Production.Type.Food, 5)
         };
         Resources = new Production(Tuples);
     }

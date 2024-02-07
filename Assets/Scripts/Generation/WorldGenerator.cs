@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using static HexagonConfig;
 
@@ -50,9 +51,13 @@ public class WorldGenerator : GameService
             return new HexagonData[0];
 
         HexagonData[] LandData = new HexagonData[MapWidth * MapWidth];
-        // set to water
-        HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
-        System.Array.Fill(LandData, EmptyTile);
+        // set to water, cant use array.copy as it apparently doesnt clone
+        for (int i = 0; i < LandData.Length; i++)
+        {
+            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
+            EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+            LandData[i] = EmptyTile;
+        }    
         return LandData;
     }
 

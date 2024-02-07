@@ -17,121 +17,107 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 0
-      width: 15
-      height: 20
-    HexagonType: 64
-  - Rect:
-      serializedVersion: 2
-      x: 15
-      y: 0
-      width: 25
-      height: 20
-    HexagonType: 32
-  - Rect:
-      serializedVersion: 2
-      x: 40
-      y: 0
       width: 30
       height: 20
-    HexagonType: 2048
+    HexagonType: 1024
   - Rect:
       serializedVersion: 2
-      x: 70
+      x: 0
+      y: 20
+      width: 30
+      height: 20
+    HexagonType: 5120
+  - Rect:
+      serializedVersion: 2
+      x: 0
+      y: 40
+      width: 30
+      height: 20
+    HexagonType: 5121
+  - Rect:
+      serializedVersion: 2
+      x: 0
+      y: 60
+      width: 30
+      height: 40
+    HexagonType: 3
+  - Rect:
+      serializedVersion: 2
+      x: 30
       y: 0
       width: 30
       height: 20
     HexagonType: 16
   - Rect:
       serializedVersion: 2
-      x: 0
-      y: 20
-      width: 15
-      height: 35
-    HexagonType: 32
-  - Rect:
-      serializedVersion: 2
-      x: 0
-      y: 55
-      width: 15
-      height: 45
-    HexagonType: 16384
-  - Rect:
-      serializedVersion: 2
-      x: 15
-      y: 20
-      width: 40
-      height: 20
-    HexagonType: 5120
-  - Rect:
-      serializedVersion: 2
-      x: 55
+      x: 30
       y: 20
       width: 30
       height: 20
-    HexagonType: 1
+    HexagonType: 2064
   - Rect:
       serializedVersion: 2
-      x: 85
-      y: 20
-      width: 15
+      x: 30
+      y: 40
+      width: 30
       height: 20
     HexagonType: 2048
   - Rect:
       serializedVersion: 2
-      x: 15
-      y: 40
-      width: 15
-      height: 40
-    HexagonType: 16384
-  - Rect:
-      serializedVersion: 2
-      x: 15
-      y: 80
+      x: 30
+      y: 60
       width: 30
       height: 20
     HexagonType: 8192
   - Rect:
       serializedVersion: 2
       x: 30
-      y: 30
+      y: 70
       width: 45
-      height: 40
-    HexagonType: 2
-  - Rect:
-      serializedVersion: 2
-      x: 30
-      y: 60
-      width: 15
-      height: 20
-    HexagonType: 512
-  - Rect:
-      serializedVersion: 2
-      x: 45
-      y: 80
-      width: 15
-      height: 20
-    HexagonType: 512
-  - Rect:
-      serializedVersion: 2
-      x: 60
-      y: 80
-      width: 40
-      height: 20
-    HexagonType: 128
-  - Rect:
-      serializedVersion: 2
-      x: 60
-      y: 65
-      width: 40
       height: 15
-    HexagonType: 384
+    HexagonType: 256
+  - Rect:
+      serializedVersion: 2
+      x: 60
+      y: 0
+      width: 15
+      height: 30
+    HexagonType: 32
+  - Rect:
+      serializedVersion: 2
+      x: 60
+      y: 30
+      width: 15
+      height: 20
+    HexagonType: 16416
+  - Rect:
+      serializedVersion: 2
+      x: 60
+      y: 50
+      width: 30
+      height: 20
+    HexagonType: 512
   - Rect:
       serializedVersion: 2
       x: 75
-      y: 40
+      y: 0
       width: 25
-      height: 25
-    HexagonType: 1024
+      height: 55
+    HexagonType: 64
+  - Rect:
+      serializedVersion: 2
+      x: 75
+      y: 55
+      width: 25
+      height: 15
+    HexagonType: 16384
+  - Rect:
+      serializedVersion: 2
+      x: 75
+      y: 70
+      width: 25
+      height: 30
+    HexagonType: 128
   HeightOverrideMap:
     Tuples:
     - Key: 0

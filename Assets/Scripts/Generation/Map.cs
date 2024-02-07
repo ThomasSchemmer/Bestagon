@@ -39,7 +39,7 @@ public class Map : GameService
         foreach (HexagonData Hex in Chunk.HexDatas)
         {
             int Pos = HexagonConfig.GetMapPosFromLocation(Hex.Location);
-            MapData[Pos] = new HexagonData(Hex.HexHeight, Hex.Type);
+            MapData[Pos] = Hex;
         }
     }
 

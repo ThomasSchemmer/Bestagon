@@ -64,40 +64,19 @@ RWStructuredBuffer<uint> HistogramInput; // contains CdfMin at max index
 RWStructuredBuffer<uint> HistogramResult;
 uint HistogramResolution;
 
-
-
-float LandNoise(float3 uv)
-{
-    float Result = snoise(uv * Scale + Offset);
-    
-    for (int i = 1; i < Amount; i++)
-    {
-        Factor *= 0.5;
-        Scale *= 2;
-        float Noise = snoise(uv * Scale + Offset) * Factor;
-        // old range is already from 0..1, if we add another 0..Factor its too much again
-        // Simply add both results proportionally
-        float Proportion = pow(2, i);
-        Result = (Result + Noise) * (Proportion / (Proportion + 1));
-    }
-    return Result;
-}
-
 // Compute height with a simplex noise map and cutoff values
 // Temperature is based on distance to equator of image
 [numthreads(16,16,1)]
 void HeightTemperatureCalculation (uint3 ID : SV_DispatchThreadID)
 {
     float2 uv = float2(ID.x / (GroupCount * 16.0), ID.y / (GroupCount * 16.0));
-    float Height = LandNoise(float3(uv.xy, Seed));
+    float Height = ssnoise(float3(uv.xy, Seed), Scale, Offset, Amount, Factor);
     // bring from -1..1 to 0..1 range
     Height = Height / 2 + 0.5f;
     
-    float DistSqr = pow(0.5f - uv.x, 2) + pow(0.5f - uv.y, 2);
-    //Height = DistSqr;
     // take uv.y distance to center line as temperature range
-    float Temperature = 1 - smoothstep(-0.5, 1.5, abs(0.5 - uv.y + snoise(uv * 20) / 20) * 2.5);
-    InputImage[ID.xy] = float4(Temperature, 0, 0, 1);
+    float Temperature = 1 - smoothstep(-0.5, 1.5, abs(0.4 - uv.y + snoise(uv * 20) / 20));
+    Temperature = clamp(uv.y + snoise(uv * 20.0) / 20.0, 0, 1);
     
     uint Pos = ID.y * Width + ID.x;
     HexagonInfos[Pos].Height = Height;
@@ -255,6 +234,10 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
     float NormalizedTemperature = HistogramResult[uTemperature + HistogramResolution * 1] / (float) HistogramResolution;
     float NormalizedHumidity = HistogramResult[uHumidity + HistogramResolution * 2] / (float) HistogramResolution;
     NormalizedHumidity = 1 - NormalizedHumidity;
+    
+    HexagonInfos[Pos].Height = NormalizedHeight;
+    HexagonInfos[Pos].Temperature = NormalizedTemperature;
+    HexagonInfos[Pos].Humidity = NormalizedHumidity;
         
     int TypeIndex = 0;
     for (int i = 0; i < ClimateCount; i++)
@@ -289,4 +272,5 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
     }
     HexagonInfos[Pos].HexagonHeight = HeightIndex;
     HexagonInfos[Pos].HexagonType = TypeIndex;   
+    OutputImage[ID.xy] = float4(Temperature, 0, 0, 1);
 }

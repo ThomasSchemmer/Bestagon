@@ -130,6 +130,11 @@ public class Production : ISaveable
 
     public int GetSize()
     {
+        return GetStaticSize();
+    }
+
+    public static int GetStaticSize()
+    {
         // each type has a enum index and amount of this resource 
         return Enum.GetValues(typeof(Type)).Length * 2;
     }
@@ -147,8 +152,15 @@ public class Production : ISaveable
         return Bytes.ToArray();
     }
 
-    public void SetData(NativeArray<byte> Bytes) { 
-        throw new NotImplementedException();
+    public void SetData(NativeArray<byte> Bytes) {
+        int Pos = 0;
+        for (int i = 0; i < Enum.GetValues(typeof(Type)).Length; i++)
+        {
+            Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iType);
+            Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bValue);
+            Type Type = (Type)iType;
+            this[Type] = (int)bValue;
+        }
     }
 
     public SerializedDictionary<Type, int> _Production;

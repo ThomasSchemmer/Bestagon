@@ -4,26 +4,42 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class Card : MonoBehaviour, Selectable
+public class Card : Draggable, Selectable
 {        
-    public static Card CreateCard(BuildingData.Type Type, int Index, GameObject CardPrefab, Transform Parent) {
-        GameObject GO = Canvas.Instantiate(CardPrefab, Parent);
+    public static Card CreateCard(BuildingData.Type Type, int Index, Transform Parent)
+    {
+        GameObject CardPrefab = Resources.Load("/Models/Card") as GameObject;
+        GameObject GO = Instantiate(CardPrefab, Parent);
         Card Card = GO.AddComponent<Card>();
-        Card.Init(Type, Index);
+
+        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+            return null;
+
+        BuildingData BuildingData = BuildingFactory.CreateFromType(Type);
+        Card.Init(BuildingData, Index);
         return Card;
     }
 
-    public void Init(BuildingData.Type Type, int Index) {
-        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
-            return;
+    public static Card CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent)
+    {
+        GameObject CardPrefab = Resources.Load("Models/Card") as GameObject;
+        GameObject GO = Instantiate(CardPrefab, Parent);
+        Card Card = GO.AddComponent<Card>();
 
-        BuildingData = BuildingFactory.CreateFromType(Type);
+        Card.Init(DTO.BuildingData, Index);
+        return Card;
+    }
+
+    public void Init(BuildingData BuildingData, int Index) {
+        this.BuildingData = BuildingData;
         CardHand = Game.GetService<CardHand>();
-        id = GUID.Generate();
+        ID = GUID.Generate();
         this.Index = Index;
         gameObject.layer = LayerMask.NameToLayer("Card");
         GenerateCard();
+        Init();
     }
 
     private void GenerateCard() {
@@ -98,7 +114,7 @@ public class Card : MonoBehaviour, Selectable
             return false;
 
         Card OtherCard = other as Card;
-        return id == OtherCard.id;
+        return ID == OtherCard.ID;
     }
 
     public bool IsSelected() {
@@ -122,7 +138,15 @@ public class Card : MonoBehaviour, Selectable
         return BuildingData;
     }
 
-    protected GUID id;
+    
+
+    public void GetDTOData(out GUID OutID, out BuildingData OutBuildingData)
+    {
+        OutID = ID;
+        OutBuildingData = BuildingData;
+    }
+
+    protected GUID ID;
     protected int Index;
     protected bool isHovered, isSelected;
     protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText;

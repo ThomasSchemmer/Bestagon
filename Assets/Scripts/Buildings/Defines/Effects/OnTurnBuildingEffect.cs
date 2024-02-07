@@ -19,7 +19,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     public Type EffectType = Type.YieldPerWorker;
     public HexagonConfig.HexagonType TileType = 0;
-    public BuildingData.Type BuildingType = BuildingData.Type.DEFAULT;
     public Production Production = new Production();
     public int Range = 1;
     public float ProductionIncrease = 1.2f;
@@ -93,7 +92,12 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     public int GetSize()
     {
-        return 4 + sizeof(int) + sizeof(float) + Production.GetSize();
+        return GetStaticSize();
+    }
+
+    public static int GetStaticSize()
+    {
+        return 2 + sizeof(int) * 2 + sizeof(double) + Production.GetStaticSize();
     }
 
     public byte[] GetData()
@@ -101,8 +105,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)EffectType);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)TileType);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)TileType);
         Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
@@ -115,8 +118,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     {
         int Pos = 0;
         Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iEffectType);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iTileType);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iTileType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out IsProductionBlockedByBuilding);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
@@ -124,7 +126,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
         EffectType = (Type)iEffectType;
         TileType = (HexagonConfig.HexagonType)iTileType;
-        BuildingType = (BuildingData.Type)iBuildingType;
         ProductionIncrease = (float)dProductionIncrease;
     }
 }

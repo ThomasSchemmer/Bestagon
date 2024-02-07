@@ -101,12 +101,17 @@ public class Workers : GameService
         if (!Chunk.Visualization)
             return;
 
-        Chunk.Visualization.Refresh();
+        Chunk.Visualization.RefreshTokens();
     }
 
     public void RemoveWorker(WorkerData Worker) {
         UnassignedWorker.Remove(Worker);
         AssignedWorker.Remove(Worker);
+
+        if (UnassignedWorker.Count + AssignedWorker.Count <= 0)
+        {
+            Game.Instance.GameOver();
+        }
     }
 
     public List<WorkerData> GetWorkersInChunk(Location Location) {
@@ -175,13 +180,16 @@ public class Workers : GameService
 
     protected override void StartServiceInternal()
     {
-        for (int i = 0; i < WorkerStartLocations.Count; i++)
+        Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {
-            WorkerData Worker = new WorkerData();
-            Worker.SetName("Worker " + i);
-            Worker.Location = WorkerStartLocations[i];
-            UnassignedWorker.Add(Worker);
-        }
+            for (int i = 0; i < WorkerStartLocations.Count; i++)
+            {
+                WorkerData Worker = new WorkerData();
+                Worker.SetName("Worker " + i);
+                Worker.MoveTo(WorkerStartLocations[i], 0);
+                UnassignedWorker.Add(Worker);
+            }
+        });
     }
 
     protected override void StopServiceInternal() {}
@@ -191,8 +199,8 @@ public class Workers : GameService
 
     public static Production CostsPerWorker = new Production(Production.Type.Food, 1);
     public static List<Location> WorkerStartLocations = new() {
-        new Location(new Vector2Int(0, 0), new Vector2Int(1, 3)),
         new Location(new Vector2Int(0, 0), new Vector2Int(1, 4)),
+        new Location(new Vector2Int(0, 0), new Vector2Int(1, 5)),
         new Location(new Vector2Int(0, 0), new Vector2Int(2, 4)),
     };
 }

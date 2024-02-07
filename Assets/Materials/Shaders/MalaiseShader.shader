@@ -34,25 +34,6 @@ Shader "Custom/MalaiseShader"
             float3 _Direction;
             float4 _Color;
 
-            float voronoi(float2 position){                            
-                float2 base = floor(position);
-                float minDistanceSqr = 10000;
-                [unroll]
-                for (int x = -1; x <= 1; x++){
-                    [unroll]   
-                    for (int y = -1; y <= 1; y++){
-                        float2 cell = base + float2(x, y);
-                        float2 posInCell = cell + hash22(cell);
-                        float2 diff = posInCell - position;
-                        float distanceSqr = diff.x * diff.x + diff.y * diff.y;
-                        if (distanceSqr < minDistanceSqr){
-                            minDistanceSqr = distanceSqr;
-                        }
-                    }
-                }
-                return minDistanceSqr;
-            }
-
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -92,7 +73,7 @@ Shader "Custom/MalaiseShader"
                 float alpha = clamp(c, _AlphaRamp.x, _AlphaRamp.y);
                 alpha = 1 - map(alpha, _AlphaRamp.x, _AlphaRamp.y, 0, 1);
 
-                float3 color = float3(1, 1, 1);
+                float3 color = _Color.xyz;
                 
                 // alpha represents how many border tiles are also malaised (uv.x = 1 if both are infected)
                 return float4(color, alpha * i.uv.x);

@@ -11,6 +11,7 @@ public class BuildingFactory : GameService
 {
     public SerializedDictionary<BuildingData.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
+    public Mesh UnknownMesh;
 
     public void Refresh()
     {
@@ -69,6 +70,16 @@ public class BuildingFactory : GameService
 
             AvailableTiles.Add((HexagonConfig.HexagonType)TileType, Mesh);
         }
+
+        GameObject UnknownObject = Resources.Load("Tiles/Unknown") as GameObject;
+        if (!UnknownObject || !UnknownObject.GetComponent<MeshFilter>())
+            return;
+
+        Mesh UnknownMesh = UnknownObject.GetComponent<MeshFilter>().sharedMesh;
+        if (!UnknownMesh)
+            return;
+
+        this.UnknownMesh = UnknownMesh;
     }
 
     public BuildingData CreateFromType(BuildingData.Type Type)

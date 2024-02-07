@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 
@@ -47,9 +48,6 @@ public class MapGenerator : GameService, ISaveable
             {
                 MalaiseData.SpreadInitially();
             }
-
-            IsInit = true;
-            _OnInit?.Invoke();
         });
     }
 
@@ -132,6 +130,7 @@ public class MapGenerator : GameService, ISaveable
 
     private void CreateChunks()
     {
+        FinishedVisualizationCount = 0;
         Chunks = new ChunkData[HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk];
         ChunkVis = new ChunkVisualization[HexagonConfig.loadedChunkVisualizations, HexagonConfig.loadedChunkVisualizations];
 
@@ -435,6 +434,16 @@ public class MapGenerator : GameService, ISaveable
         MaxTopRightWorld = TopRightMap.WorldLocation;
     }
 
+    public void FinishChunkVisualization()
+    {
+        Interlocked.Increment(ref FinishedVisualizationCount);
+        if (FinishedVisualizationCount >= ChunkVis.Length)
+        {
+            IsInit = true;
+            _OnInit?.Invoke();
+        }
+    }
+
     public HexagonDTO[] GetDTOs() {
         int Count = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
 
@@ -517,9 +526,15 @@ public class MapGenerator : GameService, ISaveable
 
         for (int i = 0; i < ChunkCount; i++)
         {
-            Pos = ChunkData.CreateTempFromBytes(Bytes, Pos, out ChunkData Temp);
+            ChunkData Temp = new();
+            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Temp);
             Map.SetDataFromChunk(Temp);
         }
+    }
+
+    public void Load()
+    {
+        GenerateMap();
     }
 
 
@@ -532,4 +547,5 @@ public class MapGenerator : GameService, ISaveable
     private Camera MainCam;
     private Location LastCenterChunk = Location.MinValue;
     private Location MinBottomLeft, MaxTopRight;
+    private int FinishedVisualizationCount = 0;
 }

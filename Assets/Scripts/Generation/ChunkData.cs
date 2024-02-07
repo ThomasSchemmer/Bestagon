@@ -26,10 +26,6 @@ public class ChunkData : ISaveable
             for (int x = 0; x < HexagonConfig.chunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
-                if (x == 14 && y == 31)
-                {
-                    Debug.Log("");
-                }
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
                 HexDatas[x, y].Location = HexLocation;
             }
@@ -100,7 +96,7 @@ public class ChunkData : ISaveable
         if (!Visualization)
             return;
 
-        Visualization.Refresh();
+        Visualization.RefreshTokens();
     }
 
     public void DestroyAt(Location Location)
@@ -186,22 +182,14 @@ public class ChunkData : ISaveable
         }
 
         Buildings = new();
-        for (int i = 0; i <  BuildingsLength; i++) { 
-            BuildingData Building = new BuildingData();
+        for (int i = 0; i <  BuildingsLength; i++) {
+            BuildingData Building = ScriptableObject.CreateInstance<BuildingData>();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, Building);
             Buildings.Add(Building);
         }
     }
 
-    public static int CreateTempFromBytes(NativeArray<byte> Bytes, int Pos, out ChunkData Chunk)
-    {
-        // ignore reading of the size attribute, still start reading from the chunk origin
-        SaveGameManager.GetInt(Bytes, Pos, out int Size);
-        Chunk = new ChunkData();
-
-        Pos = SaveGameManager.SetSaveableWithSize(Bytes, Pos, Chunk, Size);
-        return Pos;
-    }
+    public bool ShouldLoadWithLoadedSize() {  return true; }
 
     public HexagonData[,] HexDatas;
     public List<BuildingData> Buildings = new();

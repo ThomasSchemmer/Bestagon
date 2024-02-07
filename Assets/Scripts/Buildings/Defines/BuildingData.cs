@@ -33,8 +33,16 @@ public class BuildingData : ScriptableObject, ISaveable
     public int MaxWorker = 1;
     public HexagonConfig.HexagonType BuildableOn = 0;
 
+    /** 
+     * set this if you want to ignore workers while saving,
+     * eg when transfering cards to the cardselection screen */
+    [HideInInspector] public bool bIncludeWorker = true;
+
     public BuildingData() {
-        Location = new Location(new Vector2Int(0, 0), new Vector2Int(0, 0));
+        Location = Location.Zero;
+        Workers = new();
+        Cost = new();
+        Effect = new();
     }
 
     public virtual Vector3 GetOffset() {
@@ -143,8 +151,16 @@ public class BuildingData : ScriptableObject, ISaveable
 
     public int GetSize()
     {
-        int WorkerSize = Workers.Count > 0 ? Workers.Count * Workers[0].GetSize() : 0;
-        return Location.GetStaticSize() + Workers.Count * WorkerSize + Cost.GetSize() + 2 + Effect.GetSize() + sizeof(int);
+
+        int WorkerSize = (Workers.Count > 0 && bIncludeWorker) ? Workers.Count * Workers[0].GetSize() : 0;
+        WorkerSize *= Workers.Count;
+        return WorkerSize + GetStaticSize();
+    }
+
+    public static int GetStaticSize()
+    {
+        // Type and buildable on as well as count Workers, max workers
+        return Location.GetStaticSize() + Production.GetStaticSize() + 1 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 3;
     }
 
     public byte[] GetData()
@@ -152,16 +168,20 @@ public class BuildingData : ScriptableObject, ISaveable
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Workers.Count);
-        foreach (WorkerData Worker in Workers)
-        {
-            Pos = SaveGameManager.AddInt(Bytes, Pos, Worker.ID);
-        }
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildableOn);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)BuildingType);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Workers.Count);
+        if (bIncludeWorker)
+        {
+            foreach (WorkerData Worker in Workers)
+            {
+                Pos = SaveGameManager.AddInt(Bytes, Pos, Worker.ID);
+            }
+        }
+
 
         return Bytes.ToArray();
     }
@@ -169,29 +189,26 @@ public class BuildingData : ScriptableObject, ISaveable
     public void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
-        Location = Location.Zero;
-        Workers = new();
-        Cost = new();
-        Effect = new();
 
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerCount);
-        if (!Game.TryGetService(out Workers WorkerService))
-            return;
-
-        for (int i = 0; i < WorkerCount; i++)
-        {
-            Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerID);
-            Workers.Add(WorkerService.GetWorkerByID(WorkerID));
-        }
-
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildableOn);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerCount);
+
+        if (Game.TryGetService(out Workers WorkerService))
+        {
+            for (int i = 0; i < WorkerCount; i++)
+            {
+                Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerID);
+                Workers.Add(WorkerService.GetWorkerByID(WorkerID));
+            }
+        }
 
         BuildingType = (Type)iBuildingType;
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
     }
+
 }

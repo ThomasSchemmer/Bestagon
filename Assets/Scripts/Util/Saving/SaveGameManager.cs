@@ -3,22 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
+using static ISaveable;
 
-public class SaveGameManager : MonoBehaviour
+public class SaveGameManager : GameService
 {
     public SerializedDictionary<SaveGameType, MonoBehaviour> Saveables;
 
     private static string SaveGamePath = Application.dataPath + "/Resources/Maps/";
 
-    public enum SaveGameType
-    {
-        MapGenerator = 0
-    }
 
-    /** hack to fully fill the saveables dictionary */
-    public void Start()
+    protected override void StartServiceInternal()
     {
+        /** hack to fully fill the saveables dictionary */
         if (Saveables == null)
         {
             Saveables = new();
@@ -31,7 +27,11 @@ public class SaveGameManager : MonoBehaviour
 
             Saveables.Add((SaveGameType)Type, null);
         }
+
+        _OnInit?.Invoke();
     }
+
+    protected override void StopServiceInternal(){ }
 
     public void Save()
     {
@@ -46,6 +46,7 @@ public class SaveGameManager : MonoBehaviour
                 continue;
 
             i = AddEnumAsInt(Bytes, i, (int)Tuple.Key);
+            i = AddInt(Bytes, i, Saveable.GetSize());
             i = AddSaveable(Bytes, i, Saveable);
         }
 
@@ -58,24 +59,29 @@ public class SaveGameManager : MonoBehaviour
         string Filename = SaveGamePath + "Save.map";
         NativeArray<byte> Bytes = new(System.IO.File.ReadAllBytes(Filename), Allocator.Temp);
 
-        for (int i = 0; i < Bytes.Length; i++)
+        // no increase after loop, its done by reading the data
+        for (int i = 0; i < Bytes.Length;)
         {
             i = GetEnumAsInt(Bytes, i, out int Value);
+            i = GetInt(Bytes, i, out int Size);
             SaveGameType Type = (SaveGameType)Value;
             if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
-                return;
+            {
+                i += Size;
+                continue;
+            }
 
             ISaveable Saveable = Behaviour as ISaveable;
             if (Saveable == null)
-                return;
+            {
+                i += Size;
+                continue;
+            }
 
             i = SetSaveable(Bytes, i, Saveable);
+
+            Saveable.Load();
         }
-
-        if (!Game.TryGetService(out MapGenerator Generator))
-            return;
-
-        Generator.GenerateMap();
     }
 
     private int GetSaveableSize()
@@ -87,8 +93,10 @@ public class SaveGameManager : MonoBehaviour
             if (Saveable == null)
                 continue;
 
-            // actual data + id field
-            Size += Saveable.GetSize() + 1;
+            // actual data + id field + size field
+            // some of the saveables internally save their size as well,
+            // but using/enforcing it would be too much overhead for the little saving space
+            Size += Saveable.GetSize() + 1 + sizeof(int);
         }
         return Size;
     }
@@ -137,9 +145,10 @@ public class SaveGameManager : MonoBehaviour
 
     public static int AddString(NativeArray<byte> Bytes, int Start, string Value)
     {
-        int Size = Value.Length * sizeof(char);
+        int Size = Value.Length;
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
-        Slice.CopyFrom(System.Text.Encoding.UTF8.GetBytes(Value));
+        byte[] Temp = System.Text.Encoding.UTF8.GetBytes(Value);
+        Slice.CopyFrom(Temp);
         return Start + Size;
     }
 
@@ -187,32 +196,32 @@ public class SaveGameManager : MonoBehaviour
         return Start + sizeof(bool);
     }
 
-    /** Unlike the other getters we don't actually want to recreate the object, so we just set the values and keep the object*/
+    /** Unlike the other getters we don't actually want to recreate the object, so we just set the values and keep the object
+     * We might not be able to always load a saveable with the same size
+     */
     public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
     {
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Saveable.GetSize());
+        int Size = Saveable.ShouldLoadWithLoadedSize() ? LoadSizeOfSaveable(Bytes, Start, Saveable) : Saveable.GetSize();
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
         NativeArray<byte> NewBytes = new(Slice.Length, Allocator.Temp);
         Slice.CopyTo(NewBytes);
         Saveable.SetData(NewBytes);
         return Start + Saveable.GetSize();
     }
 
-    /** Since we can't calculate the size of a dynamic saveable before its loaded, simply tell it how long its going to be */
-    public static int SetSaveableWithSize(NativeArray<byte> Bytes, int Start, ISaveable Saveable, int Size)
+    private static int LoadSizeOfSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
     {
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
-        NativeArray<byte> NewBytes = new(Slice.Length, Allocator.Temp);
-        Slice.CopyTo(NewBytes);
-        Saveable.SetData(NewBytes);
-        return Start + Size;
+        // ignore reading of the size attribute, still start reading from the chunk origin
+        GetInt(Bytes, Start, out int Size);
+
+        return Size;
     }
 
     public static int GetString(NativeArray<byte> Bytes, int Start, int Length, out string Value)
     {
-        int Size = Length * sizeof(char);
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Length);
         Value = System.Text.Encoding.UTF8.GetString(Slice.ToArray());
-        return Start + Size;
+        return Start + Length;
     }
 
     public static int GetRect(NativeArray<byte> Bytes, int Start, out Rect Rect)

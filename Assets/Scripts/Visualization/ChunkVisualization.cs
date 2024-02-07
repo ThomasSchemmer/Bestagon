@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -16,6 +18,7 @@ public class ChunkVisualization : MonoBehaviour
         this.Data.Visualization = null;
         this.Data = Data;
         Data.Visualization = this;
+        FinishedVisualizationCount = 0;
 
         for (int y = 0; y < HexagonConfig.chunkSize; y++) {
             for (int x = 0; x < HexagonConfig.chunkSize; x++) {
@@ -105,10 +108,22 @@ public class ChunkVisualization : MonoBehaviour
         Destroy(MalaiseVisualization.gameObject);
     }
 
-    public void Refresh() {
+    public void RefreshTokens() {
         Reset();
         CreateBuildings();
         CreateWorkers();
+    }
+
+    public void FinishVisualization()
+    {
+        Interlocked.Increment(ref FinishedVisualizationCount);
+        if (FinishedVisualizationCount < Hexes.Length)
+            return;
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        MapGenerator.FinishChunkVisualization();
     }
 
     public HexagonVisualization[,] Hexes;
@@ -117,4 +132,6 @@ public class ChunkVisualization : MonoBehaviour
     public MalaiseVisualization MalaiseVisualization;
     public ChunkData Data;
     public Coroutine Generator;
+
+    private int FinishedVisualizationCount = 0;
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class CardHand : CardCollection
@@ -9,11 +10,11 @@ public class CardHand : CardCollection
     {
         base.StartServiceInternal();
         Cards = new List<Card> {
-            Card.CreateCard(BuildingData.Type.Woodcutter, 0, CardPrefab, transform),
-            Card.CreateCard(BuildingData.Type.Mine, 1, CardPrefab, transform),
-            Card.CreateCard(BuildingData.Type.Farm, 2, CardPrefab, transform),
-            Card.CreateCard(BuildingData.Type.Farm, 3, CardPrefab, transform),
-            Card.CreateCard(BuildingData.Type.Woodcutter, 4, CardPrefab, transform)
+            Card.CreateCard(BuildingData.Type.Woodcutter, 0, transform),
+            Card.CreateCard(BuildingData.Type.Mine, 1, transform),
+            Card.CreateCard(BuildingData.Type.Farm, 2, transform),
+            Card.CreateCard(BuildingData.Type.Farm, 3, transform),
+            Card.CreateCard(BuildingData.Type.Woodcutter, 4, transform)
         };
         Sort(false);
     }
@@ -57,6 +58,11 @@ public class CardHand : CardCollection
             Other.SetIndex(i);
             i++;
         }
+        Sort(false);
+    }
+
+    public override void Load()
+    {
         Sort(false);
     }
 

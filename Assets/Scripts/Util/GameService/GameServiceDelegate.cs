@@ -75,7 +75,8 @@ public class GameServiceDelegate<T> : GameServiceDelegate where T : GameService
 
     public GameServiceDelegate(T RequiredService, Action<T> Callback, DelegateType Type = DelegateType.OnStart)
     {
-        RequiredServices.Add(RequiredService, RequiredService.IsRunning);
+        bool bIsReady = Type == DelegateType.OnStart ? RequiredService.IsRunning : RequiredService.IsInit;
+        RequiredServices.Add(RequiredService, bIsReady);
         this.Action = Callback;
         switch (Type)
         {
@@ -109,8 +110,11 @@ public class GameServiceDelegate<X, Y> : GameServiceDelegate where X : GameServi
 
     public GameServiceDelegate(X RequiredServiceX, Y RequiredServiceY, Action<X, Y> Callback, DelegateType Type = DelegateType.OnStart)
     {
-        RequiredServices.Add(RequiredServiceX, RequiredServiceX.IsRunning);
-        RequiredServices.Add(RequiredServiceY, RequiredServiceY.IsRunning);
+
+        bool bIsReadyX = Type == DelegateType.OnStart ? RequiredServiceX.IsRunning : RequiredServiceX.IsInit;
+        bool bIsReadyY = Type == DelegateType.OnStart ? RequiredServiceY.IsRunning : RequiredServiceY.IsInit;
+        RequiredServices.Add(RequiredServiceX, bIsReadyX);
+        RequiredServices.Add(RequiredServiceY, bIsReadyY);
         this.Action = Callback;
         switch (Type)
         {

@@ -1,15 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using static Game;
-using static GameService;
 
 public class Game : MonoBehaviour
 {
-    public GameState State = GameState.Paused;
-    public GameMode Mode = GameMode.Menu;
+    public GameState State = GameState.IngameMenu;
+    public GameMode Mode = GameMode.Game;
     public int ChunkCount;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
@@ -25,17 +21,18 @@ public class Game : MonoBehaviour
 
     public static Game Instance;
 
-    private GameMode OldMode = GameMode.Menu;
+    private GameState OldState = GameState.IngameMenu;
 
     public enum GameState
     {
         Playing,
         Paused,
+        IngameMenu,
+        CardSelection,
     }
 
     public enum GameMode
     {
-        Menu = 0,
         Game,
         MapEditor
     }
@@ -47,9 +44,8 @@ public class Game : MonoBehaviour
 
     public void OnOpenMenu()
     {
-        State = GameState.Paused;
-        OldMode = Mode;
-        Mode = GameMode.Menu;
+        OldState = State;
+        State = GameState.IngameMenu;
         _OnStateChange?.Invoke(State);
         _OnModeChange?.Invoke(Mode);
         _OnPause?.Invoke();
@@ -57,8 +53,7 @@ public class Game : MonoBehaviour
 
     public void OnCloseMenu()
     {
-        State = GameState.Playing;
-        Mode = OldMode;
+        State = OldState;
         _OnStateChange?.Invoke(State);
         _OnModeChange?.Invoke(Mode);
         _OnResume?.Invoke();
@@ -66,13 +61,25 @@ public class Game : MonoBehaviour
 
     public void Start()
     {
-        MainMenu.Instance._OnOpenBegin += OnOpenMenu;
-        MainMenu.Instance._OnClose += OnCloseMenu;
+        if (MainMenu.Instance)
+        {
+            MainMenu.Instance._OnOpenBegin += OnOpenMenu;
+            MainMenu.Instance._OnClose += OnCloseMenu;
+        }
         HexagonConfig.mapMaxChunk = ChunkCount;
 
         InitMode();
 
-        MainMenu.Instance.Show();
+        if (MainMenu.Instance)
+        {
+            MainMenu.Instance.Show();
+        }
+    }
+
+    public void GameOver()
+    {
+        OnOpenMenu();
+        GameOverScreen.Instance.Show();
     }
 
     private void InitMode()
@@ -108,12 +115,12 @@ public class Game : MonoBehaviour
         return null;
     }
 
-    public static bool TryGetService<T>(out T Service) where T: GameService
+    public static bool TryGetService<T>(out T Service, bool ForceLoad = false) where T: GameService
     {
         Service = GetService<T>();
-        if (Service == null)
+        if (Service == null && ForceLoad)
         {
-            throw new Exception("Missing Service: " + Service.name);
+            throw new Exception("Missing Service: " + typeof(T).ToString());
         }
         return Service != null;
     }
@@ -162,6 +169,14 @@ public class Game : MonoBehaviour
 
     public static void RemoveServiceDelegate(GameServiceDelegate Delegate) { 
         Instance.Delegates.Remove(Delegate);
+    }
+
+    public static bool IsDraggingAllowed()
+    {
+        if (!Instance)
+            return false;
+
+        return Instance.State == GameState.CardSelection;
     }
 
 }

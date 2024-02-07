@@ -4,7 +4,6 @@ using System.Numerics;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static UnityEngine.Rendering.DebugUI;
 
 [Serializable]
 public class WorkerData : ISaveable
@@ -22,6 +21,14 @@ public class WorkerData : ISaveable
     public void MoveTo(Location Location, int Costs) {
         this.Location = Location;
         this.RemainingMovement -= Costs;
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        if (!MapGenerator.TryGetHexagon(Location, out HexagonVisualization NewHex))
+            return;
+
+        NewHex.UpdateDiscoveryState(VisitingRange, ScoutingRange);
     }
 
     public void MoveAlong(List<Location> Path) {
@@ -48,8 +55,8 @@ public class WorkerData : ISaveable
 
     public int GetSize()
     {
-        // 2 bytes, one each for MovementPerTurn and RemainingMovement
-        return MAX_NAME_LENGTH * sizeof(char) + 2 + Location.GetStaticSize();
+        // 4 bytes, one each for MovementPerTurn, RemainingMovement, Visiting and ScoutingRange
+        return MAX_NAME_LENGTH * sizeof(char) + 4 * sizeof(byte) + Location.GetStaticSize();
     }
 
     public byte[] GetData()
@@ -60,6 +67,8 @@ public class WorkerData : ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)RemainingMovement);
+        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)VisitingRange);
+        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ScoutingRange);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
 
         return Bytes.ToArray();
@@ -72,10 +81,14 @@ public class WorkerData : ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bMovementPerTurn);
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bRemainingMovement);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bVisitingRange);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bScoutingRage);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
 
         MovementPerTurn = bMovementPerTurn;
         RemainingMovement = bRemainingMovement;
+        VisitingRange = bVisitingRange;
+        ScoutingRange = bScoutingRage;
     }
 
     public string GetName()
@@ -97,10 +110,13 @@ public class WorkerData : ISaveable
     }
 
     public string Name;
-    public int MovementPerTurn = 3;
+    public int MovementPerTurn = 1;
     public int RemainingMovement = 0;
     public Location Location;
     public int ID = 0;
+    // should always be greater than the MovementPerTurn!
+    public int VisitingRange = 2;
+    public int ScoutingRange = 3;
 
     //save as bool and location!
     public BuildingData AssignedBuilding;

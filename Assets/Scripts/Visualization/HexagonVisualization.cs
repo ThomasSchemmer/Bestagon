@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using System.Threading;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -20,14 +21,25 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         this.Location = Location;
         this.gameObject.layer = LayerMask.NameToLayer("Hexagon");
         this.name = "Hex " + Location.HexLocation;
+        this.Mat = Mat;
         Chunk = ChunkData;
         Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
+
         MapGenerator = Game.GetService<MapGenerator>();
+        UpdateMesh();
+        Data._OnDiscovery = UpdateMesh;
+        ChunkData.Visualization?.FinishVisualization();
+    }
+
+    void UpdateMesh()
+    {
+        MeshFilter Filter = GetComponent<MeshFilter>();
+        Destroy(Filter.mesh);
+
         GenerateMesh(Mat);
         Renderer = GetComponent<MeshRenderer>();
         SetSelected(false, false);
         SetHovered(false);
-
     }
 
     void GenerateMesh(Material Mat) {
@@ -102,7 +114,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!MapGenerator.TryGetChunkData(Location, out ChunkData Chunk))
             return;
 
-        Chunk.Visualization?.Refresh();
+        Chunk.Visualization?.RefreshTokens();
         GenerateMesh(MapGenerator.HexMat);
         VisualizeSelection();
 
@@ -133,6 +145,9 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Game.TryGetService(out Selector Selector))
             return;
 
+        if (!Game.TryGetService(out Workers WorkerService))
+            return;
+
         // trigger movement range update
         Selector.DeselectHexagon();
 
@@ -140,17 +155,18 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!MapGenerator.TryGetChunkData(Worker.Location, out ChunkData Chunk))
             return;
 
-        Chunk.Visualization.Refresh();
+        Chunk.Visualization.RefreshTokens();
 
         if (Worker.AssignedBuilding != null) {
             Worker.RemoveFromBuilding();
+            WorkerService.ReturnWorker(Worker);
         }
         Worker.MoveTo(this.Location, Costs);
 
         if (!MapGenerator.TryGetChunkData(Worker.Location, out Chunk))
             return;
 
-        Chunk.Visualization.Refresh();
+        Chunk.Visualization.RefreshTokens();
 
         if (!MapGenerator.TryGetHexagon(Worker.Location, out HexagonVisualization NewHex))
             return;
@@ -268,6 +284,32 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         }
     }
 
+    public void UpdateDiscoveryState(int VisitingRange, int ScoutingRange)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        HashSet<Location> DirectNeighbours = MapGenerator.GetNeighbourTileLocationsInRange(this.Location, VisitingRange);
+        HashSet<Location> OtherNeighbours = MapGenerator.GetNeighbourTileLocationsInRange(this.Location, ScoutingRange);
+        OtherNeighbours.ExceptWith(DirectNeighbours);
+
+        foreach (Location Location in DirectNeighbours)
+        {
+            if (!MapGenerator.TryGetHexagonData(Location, out HexagonData NeighbourHex))
+                continue;
+
+            NeighbourHex.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+        }
+
+        foreach (Location Location in OtherNeighbours)
+        {
+            if (!MapGenerator.TryGetHexagonData(Location, out HexagonData NeighbourHex))
+                continue;
+
+            NeighbourHex.UpdateDiscoveryState(HexagonData.DiscoveryState.Scouted);
+        }
+    }
+
     public void VisualizeSelection() {
         MaterialPropertyBlock Block = new MaterialPropertyBlock();
         Block.SetFloat("_Selected", isSelected ? 1 : 0);
@@ -295,4 +337,5 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private MeshRenderer Renderer;
     private MapGenerator MapGenerator;
+    private Material Mat;
 }
