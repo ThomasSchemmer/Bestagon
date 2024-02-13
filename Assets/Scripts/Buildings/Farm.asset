@@ -30,7 +30,6 @@ MonoBehaviour:
   Effect:
     EffectType: 1
     TileType: 5121
-    BuildingType: 0
     Production:
       _Production:
         Tuples:
@@ -47,6 +46,27 @@ MonoBehaviour:
     Range: 1
     ProductionIncrease: 1
     IsProductionBlockedByBuilding: 0
+    UpgradeTileType: 0
+    UpgradeProduction:
+      _Production:
+        Tuples:
+        - Key: 0
+          Value: 0
+        - Key: 1
+          Value: 0
+        - Key: 2
+          Value: 0
+        - Key: 3
+          Value: 0
+        - Key: 4
+          Value: 0
+    UpgradeRange: 1
+    UpgradeProductionIncrease: 1.2
   MaxWorker: 1
   BuildableOn: 5121
+  CurrentUsages: 1
+  MaxUsages: 1
+  UpgradeMaxWorker: 3
+  UpgradeBuildableOn: 24451
+  UpgradeMaxUsages: 4
   bIncludeWorker: 1

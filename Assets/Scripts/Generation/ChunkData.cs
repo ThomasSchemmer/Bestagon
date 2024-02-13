@@ -93,21 +93,31 @@ public class ChunkData : ISaveable
         }
         Buildings.Remove(Building);
 
+        string Text = Building.BuildingType.ToString()+" has been destroyed by the malaise";
+        MessageSystem.CreateMessage(Message.Type.Warning, Text);
+
         if (!Visualization)
             return;
 
         Visualization.RefreshTokens();
     }
 
-    public void DestroyAt(Location Location)
+    public void DestroyTokensAt(Location Location)
     {
         if (!Game.TryGetService(out Workers WorkerService))
             return;
 
         WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
+        int WorkerCount = WorkersOnTile.Count;
         foreach (WorkerData Worker in WorkersOnTile) { 
             Worker.RemoveFromBuilding();
             WorkerService.RemoveWorker(Worker);
+        }
+
+        if (WorkerCount > 0)
+        {
+            string Text = WorkerCount + " worker " + (WorkerCount == 1 ? "has " : "have ") + "been killed by malaise";
+            MessageSystem.CreateMessage(Message.Type.Warning, Text);
         }
 
         DestroyBuildingAt(Location);

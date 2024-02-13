@@ -40,12 +40,20 @@ public class MapGenerator : GameService, ISaveable
         MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        Game.RunAfterServiceStart((Map Map, BuildingFactory Factory) =>
+        Game.RunAfterServiceInit((Map Map, BuildingFactory Factory) =>
         {
+            if (!Game.TryGetService(out SaveGameManager Manager))
+                return;
+
+            // already loaded then
+            if (Manager.HasDataFor(ISaveable.SaveGameType.MapGenerator))
+                return;
+
             GenerateMap();
 
             if (Game.Instance.Mode == Game.GameMode.Game)
             {
+                MalaiseData.bHasStarted = false;
                 MalaiseData.SpreadInitially();
             }
         });
@@ -484,8 +492,8 @@ public class MapGenerator : GameService, ISaveable
 
     public int GetSize()
     {
-        // Tile count and chunk count
-        int Size = sizeof(int) * 2;
+        // Tile count and chunk count, overall size
+        int Size = sizeof(int) * 3;
         foreach (ChunkData Chunk in Chunks)
         {
             Size += Chunk.GetSize();
@@ -501,6 +509,7 @@ public class MapGenerator : GameService, ISaveable
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
+        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, Map.MapData.Length);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Chunks.Length);
         foreach (ChunkData Chunk in Chunks)
@@ -517,7 +526,7 @@ public class MapGenerator : GameService, ISaveable
             return;
 
         //load as temporary chunk data, write the hex data into the map and then create new chunks from the map
-        int Pos = 0;
+        int Pos = sizeof(int);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int TileCount);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int ChunkCount);
         int ChunksPerSide = (int)Mathf.Sqrt(ChunkCount);
@@ -536,6 +545,8 @@ public class MapGenerator : GameService, ISaveable
     {
         GenerateMap();
     }
+
+    public bool ShouldLoadWithLoadedSize() { return true; }
 
 
     public ChunkData[,] Chunks;

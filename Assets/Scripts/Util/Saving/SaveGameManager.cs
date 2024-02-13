@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Unity.Collections;
 using UnityEngine;
 using static ISaveable;
@@ -9,10 +10,29 @@ public class SaveGameManager : GameService
 {
     public SerializedDictionary<SaveGameType, MonoBehaviour> Saveables;
 
-    private static string SaveGamePath = Application.dataPath + "/Resources/Maps/";
-
+    // static so that it can be shared between scenes and a delayed load can be executed
+    private static string FileToLoad = null;
+    private static bool bShouldCreateNewFile = false;
 
     protected override void StartServiceInternal()
+    {
+        FillSaveables();
+        HandleDelayedLoading();
+
+        _OnInit?.Invoke();
+    }
+
+    protected override void StopServiceInternal(){ }
+
+    private void HandleDelayedLoading()
+    {
+        if (FileToLoad == null)
+            return;
+
+        TryLoad();
+    }
+
+    private void FillSaveables()
     {
         /** hack to fully fill the saveables dictionary */
         if (Saveables == null)
@@ -27,13 +47,20 @@ public class SaveGameManager : GameService
 
             Saveables.Add((SaveGameType)Type, null);
         }
-
-        _OnInit?.Invoke();
     }
 
-    protected override void StopServiceInternal(){ }
+    public void OnSave()
+    {
+        Save();
+    }
 
-    public void Save()
+    public void OnLoad()
+    {
+        bShouldCreateNewFile = false;
+        TryLoad();
+    }
+
+    public string Save()
     {
         int Size = GetSaveableSize();
         NativeArray<byte> Bytes = new(Size, Allocator.Temp);
@@ -50,14 +77,64 @@ public class SaveGameManager : GameService
             i = AddSaveable(Bytes, i, Saveable);
         }
 
-        string Filename = SaveGamePath + "Save.map";
-        System.IO.File.WriteAllBytes(Filename, Bytes.ToArray());
+        string FileName = "Save.map";
+        string FullPath = GetSavegamePath() + FileName;
+        File.WriteAllBytes(FullPath, Bytes.ToArray());
+        FileInfo fileInfo = new FileInfo(FullPath);
+        fileInfo.IsReadOnly = false;
+        return FileName;
     }
 
-    public void Load()
+    public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
     {
-        string Filename = SaveGamePath + "Save.map";
-        NativeArray<byte> Bytes = new(System.IO.File.ReadAllBytes(Filename), Allocator.Temp);
+        // still can be null, eg if we transition to CardSelection and only use a temp file
+        FileToLoad = FileName;
+        SaveGameManager.bShouldCreateNewFile = bShouldCreateNewFile;
+    }
+
+    public bool HasDataFor(SaveGameType TargetType)
+    {
+        return TryLoad(TargetType);
+    }
+
+    public string[] GetSavegameNames()
+    {
+        string[] Files = Directory.GetFiles(GetSavegamePath());
+        string[] Names = new string[Files.Length];
+        for (int i = 0; i < Files.Length; i++)
+        {
+            Names[i] = Path.GetFileName(Files[i]);
+        }
+        return Names;
+    }
+
+    private string GetMostRecentSave()
+    {
+        string[] Saves = GetSavegameNames();
+        DateTime MaxTime = DateTime.MinValue;
+        int TargetIndex = -1;
+        for (int i = 0; i < Saves.Length; i++) 
+        {
+            string Filename = GetSavegamePath() + Saves[i];
+            FileInfo FileInfo = new FileInfo(Filename);
+            if (FileInfo.CreationTime > MaxTime)
+            {
+                MaxTime = FileInfo.CreationTime;
+                TargetIndex = i;
+            }
+        }
+        return TargetIndex >= 0 ? Saves[TargetIndex] : "";
+    }
+
+    /** Loads the save or returns true if the targeted saveable is in the savegame (but doesn#t actually load it then) */
+    public bool TryLoad(SaveGameType TargetType = SaveGameType.None)
+    {
+        if (bShouldCreateNewFile)
+            return false;
+
+        string SaveGame = FileToLoad != null ? FileToLoad : GetMostRecentSave();
+        string Filename = GetSavegamePath() + SaveGame;
+        NativeArray<byte> Bytes = new(File.ReadAllBytes(Filename), Allocator.Temp);
 
         // no increase after loop, its done by reading the data
         for (int i = 0; i < Bytes.Length;)
@@ -66,6 +143,16 @@ public class SaveGameManager : GameService
             i = GetInt(Bytes, i, out int Size);
             SaveGameType Type = (SaveGameType)Value;
             if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
+            {
+                i += Size;
+                continue;
+            }
+
+            // don't actually load, just check if data exists
+            if (Type == TargetType)
+                return true;
+
+            if (TargetType != SaveGameType.None)
             {
                 i += Size;
                 continue;
@@ -82,6 +169,8 @@ public class SaveGameManager : GameService
 
             Saveable.Load();
         }
+
+        return TargetType == SaveGameType.None ? true : false;
     }
 
     private int GetSaveableSize()
@@ -206,7 +295,7 @@ public class SaveGameManager : GameService
         NativeArray<byte> NewBytes = new(Slice.Length, Allocator.Temp);
         Slice.CopyTo(NewBytes);
         Saveable.SetData(NewBytes);
-        return Start + Saveable.GetSize();
+        return Start + Size;
     }
 
     private static int LoadSizeOfSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
@@ -234,5 +323,16 @@ public class SaveGameManager : GameService
 
         return Start;
     }
+
+    private static string GetSavegamePath()
+    {
+        string FilePath = Application.persistentDataPath + "/Maps/";
+        if (!Directory.Exists(FilePath))
+        {
+            Directory.CreateDirectory(FilePath);
+        }
+        // can't use it as a field initializer
+        return FilePath;
+    }   
 }
 

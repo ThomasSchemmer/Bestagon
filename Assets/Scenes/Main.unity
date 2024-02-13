@@ -520,7 +520,6 @@ MonoBehaviour:
   IsInit: 0
   Cards: []
   Text: {fileID: 0}
-  CardPrefab: {fileID: 0}
 --- !u!1 &196202728
 GameObject:
   m_ObjectHideFlags: 0
@@ -1059,7 +1058,6 @@ MonoBehaviour:
   IsInit: 0
   Cards: []
   Text: {fileID: 136479509}
-  CardPrefab: {fileID: 0}
 --- !u!114 &358714172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2166,7 +2164,7 @@ GameObject:
   - component: {fileID: 785273177}
   - component: {fileID: 785273179}
   m_Layer: 0
-  m_Name: StateManager
+  m_Name: GameState
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2186,6 +2184,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   State: 1
   Mode: 0
+  bIsPaused: 0
   ChunkCount: 3
   Services:
   - IsForEditor: 1
@@ -2565,7 +2564,7 @@ GameObject:
   - component: {fileID: 908851251}
   - component: {fileID: 908851252}
   m_Layer: 0
-  m_Name: MainMenu
+  m_Name: IngameMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2603,7 +2602,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 908851250}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 614219c107da8604bb3e693a34b0d930, type: 3}
+  m_Script: {fileID: 11500000, guid: 357dc932400d66844980ada612d331d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &914190666
@@ -3403,8 +3402,6 @@ MonoBehaviour:
   IsInit: 0
   Cards: []
   Text: {fileID: 0}
-  CardPrefab: {fileID: 8726221788230207971, guid: e0353b83c8f8b2b43ac65f97782565a9,
-    type: 3}
 --- !u!224 &1174939603
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3917,8 +3914,6 @@ MonoBehaviour:
   IsInit: 0
   Cards: []
   Text: {fileID: 2126776551}
-  CardPrefab: {fileID: 8726221788230207971, guid: e0353b83c8f8b2b43ac65f97782565a9,
-    type: 3}
 --- !u!114 &1588273352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3990,7 +3985,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -225, y: 0}
+  m_AnchoredPosition: {x: -225, y: -300}
   m_SizeDelta: {x: 450, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1592335317
@@ -4591,8 +4586,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 785273179}
-        m_TargetAssemblyTypeName: SaveGameManager, Assembly-CSharp
-        m_MethodName: Load
+        m_TargetAssemblyTypeName: SaveGameManager, ScriptsAssemblyDef
+        m_MethodName: OnLoad
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5160,8 +5155,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 785273179}
-        m_TargetAssemblyTypeName: SaveGameManager, Assembly-CSharp
-        m_MethodName: Save
+        m_TargetAssemblyTypeName: SaveGameManager, ScriptsAssemblyDef
+        m_MethodName: OnSave
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

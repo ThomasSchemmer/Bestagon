@@ -5,12 +5,14 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEditor.Profiling.Memory.Experimental;
+using System.Security.Cryptography;
 
 public class Card : Draggable, Selectable
 {        
     public static Card CreateCard(BuildingData.Type Type, int Index, Transform Parent)
     {
-        GameObject CardPrefab = Resources.Load("/Models/Card") as GameObject;
+        GameObject CardPrefab = Resources.Load("Models/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Parent);
         Card Card = GO.AddComponent<Card>();
 
@@ -42,7 +44,7 @@ public class Card : Draggable, Selectable
         Init();
     }
 
-    private void GenerateCard() {
+    public void GenerateCard() {
         GenerateText();
         SetColor();
     }
@@ -53,21 +55,33 @@ public class Card : Draggable, Selectable
         SymbolText.SetText(GetSymbol());
         CostText.SetText(GetCostText());
         EffectText.SetText(GetDescription());
+        UsagesText.SetText(GetUsages());
+        MaxWorkerText.SetText(GetMaxWorkers());
     }
 
-    private string GetName()
+    public string GetUsages()
+    {
+        return BuildingData.CurrentUsages + "/" + BuildingData.MaxUsages;
+    }
+
+    public string GetName()
     {
         return BuildingData.BuildingType.ToString();
     }
 
-    private string GetSymbol()
+    public string GetSymbol()
     {
         return GetName()[..1];
     }
 
-    private string GetDescription()
+    public string GetDescription()
     {
         return BuildingData.Effect.GetDescription();
+    }
+
+    public string GetMaxWorkers()
+    {
+        return BuildingData.MaxWorker + "";
     }
 
     private void LinkTexts() {
@@ -76,13 +90,18 @@ public class Card : Draggable, Selectable
         SymbolText = transform.Find("Symbol").GetComponent<TextMeshProUGUI>();
         CostText = transform.Find("Costs/Costs").GetComponent<TextMeshProUGUI>();
         EffectText = transform.Find("Effects/Effect").GetComponent<TextMeshProUGUI>();
+        UsagesText = transform.Find("Usages").GetComponent<TextMeshProUGUI>();
+        MaxWorkerText = transform.Find("MaxWorker").GetComponent<TextMeshProUGUI>();
     }
 
-    private string GetCostText() {
+    public string GetCostText() {
         return GetBuildingData().GetCosts().GetShortDescription();
     }
 
     public void SetSelected(bool Selected) {
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return;
+
         isSelected = Selected;
         Vector3 CurrentPos = transform.localPosition;
         CurrentPos.y += isSelected ? SelectOffset : 0;
@@ -92,6 +111,26 @@ public class Card : Draggable, Selectable
     }
 
     public void SetHovered(bool Hovered) {
+        if (Game.IsIn(Game.GameState.CardSelection))
+        {
+            SetHoveredCardSelection(Hovered);
+        }
+        else
+        {
+            SetHoveredGame(Hovered);
+        }
+    }
+
+    private void SetHoveredCardSelection(bool Hovered)
+    {
+        if (!Game.TryGetService(out CardUpgradeScreen CardScreen))
+            return;
+
+        CardScreen.ShowButtonAtCard(this, Hovered);
+    }
+
+    private void SetHoveredGame(bool Hovered)
+    {
         isHovered = Hovered;
         transform.localScale = isHovered ? new Vector3(1.1f, 1.1f, 1.1f) : new Vector3(1, 1, 1);
         transform.parent.localPosition = isHovered ? CardHand.HoverPosition : CardHand.NormalPosition;
@@ -138,7 +177,10 @@ public class Card : Draggable, Selectable
         return BuildingData;
     }
 
-    
+    public void SetBuildingData(BuildingData BuildingData)
+    {
+        this.BuildingData = BuildingData;
+    }
 
     public void GetDTOData(out GUID OutID, out BuildingData OutBuildingData)
     {
@@ -146,13 +188,30 @@ public class Card : Draggable, Selectable
         OutBuildingData = BuildingData;
     }
 
+    public override void SetDragParent(RectTransform NewParent)
+    {
+        base.SetDragParent(NewParent);
+
+        CardCollection NewCollection = transform.parent.GetComponent<CardCollection>();
+        OldCollection.RemoveCard(this);
+        NewCollection.AddCard(this);
+    }
+
+    public override void OnBeginDrag(PointerEventData eventData)
+    {
+        OldCollection = transform.parent.GetComponent<CardCollection>();
+        base.OnBeginDrag(eventData);
+    }
+
     protected GUID ID;
     protected int Index;
     protected bool isHovered, isSelected;
-    protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText;
+    protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText, UsagesText, MaxWorkerText;
     protected Image CardBase;
     protected BuildingData BuildingData;
     protected CardHand CardHand;
+
+    protected CardCollection OldCollection;
 
     public static float SelectOffset = 25f;
     public static Color NormalColor = new Color(55 / 255f, 55 / 255f, 55 / 255f);

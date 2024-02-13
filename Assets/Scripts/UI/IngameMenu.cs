@@ -4,9 +4,9 @@ using UnityEditor;
 using UnityEngine;
 
 /**
- * Represents the main menu of the game
+ * Represents the ingame menu (escape)
  */
-public class MainMenu : MonoBehaviour
+public class IngameMenu : MonoBehaviour
 {
     public void ButtonClick()
     {
@@ -58,14 +58,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnClickExit()
     {
-        if (Application.isEditor)
-        {
-            EditorApplication.isPlaying = false;
-        }
-        else
-        {
-            Application.Quit();
-        }
+        Game.ExitGame();
     }
 
     private bool IsShown = false;
@@ -77,5 +70,5 @@ public class MainMenu : MonoBehaviour
     public OnOpenFinish _OnOpenFinish;
     public OnClose _OnClose;
 
-    public static MainMenu Instance;
+    public static IngameMenu Instance;
 }

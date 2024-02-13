@@ -20,9 +20,9 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         RectTransform.anchoredPosition += eventData.delta;
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public virtual void OnBeginDrag(PointerEventData eventData)
     {
-        bIsBeingDragged = Game.IsDraggingAllowed();
+        bIsBeingDragged = Game.IsIn(Game.GameState.CardSelection);
         if (!bIsBeingDragged)
             return;
 
@@ -49,7 +49,7 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         HandleHighlight();
     }
 
-    public void SetDragParent(RectTransform NewParent)
+    public virtual void SetDragParent(RectTransform NewParent)
     {
         RectTransform Target;
         if (NewParent)

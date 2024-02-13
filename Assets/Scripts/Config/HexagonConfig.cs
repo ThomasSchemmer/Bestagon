@@ -232,4 +232,19 @@ public class HexagonConfig {
         return 1 << (Number);
     }
 
+    public static string GetShortTypeDescription(HexagonType Type)
+    {
+        string Result = "";
+        for (int i = 0; i < 32; i++)
+        {
+            HexagonType TempType = (HexagonType)(1 << i);
+            if (Type.HasFlag(TempType))
+            {
+                Result = Result + TempType.ToString()[..1] + " ";
+            }
+        }
+
+        return Result;
+    }
+
 }

@@ -29,7 +29,9 @@ Shader "Custom/MinimapShader"
 
             struct HexagonData {
                 //contains "bIsMalaised" at bit 0
+                //contains IsVisible at bit 1
                 uint Type;
+                
             };
 
             sampler2D _TypesTex;
@@ -57,16 +59,20 @@ Shader "Custom/MinimapShader"
                 // convert data to actual colour
                 HexagonData Data = HexagonBuffer[Index];
                 uint Malaised = Data.Type & 0x80;
-                uint Type = Data.Type & 0x7F;
+                uint Scouted = Data.Type & 0x40;
+                uint Type = Data.Type & 0x3F;
     
-                float U = Type * 0.5 + 0.5;
+                // split type into two colums from 1..15->0.5 and 16..32->8.5, offset slightly to avoid read errors
+                float U = (int) (Type / 16) * 16 / 2 + 0.5; // * 8 + 0.5;
                 float V = Type % 16;
                 float2 MappedUV = float2(U, V) / 16.0;
-
-                float4 Colour = tex2D(_TypesTex, MappedUV);
+    
+                float4 Color = tex2D(_TypesTex, MappedUV);
                 float4 MalaisedColor = tex2D(_TypesTex, float2(3 / 16.0, 0));
-                return Malaised > 0 ? MalaisedColor : Colour;
-            }
+                float4 InvisColor = float4(0, 0, 0, 0);
+                return Scouted == 0 ? InvisColor :
+                        Malaised > 0 ? MalaisedColor : Color;
+}
 
             // https://gist.github.com/unitycoder/2fe0bfd2498041dedd5c326c9d4c727e
             float4 distanceLine(float2 uv, float2 a, float2 b){

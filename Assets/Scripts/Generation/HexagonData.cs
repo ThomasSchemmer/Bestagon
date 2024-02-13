@@ -52,9 +52,10 @@ public class HexagonData : ISaveable
 
         uint uType = (uint)MaskToInt((int)Type, 16) + 1;
         uint Malaise = (uint)(bIsMalaised ? 1 : 0) << 7;
+        uint uDiscovery = (uint)(Discovery > DiscoveryState.Unknown ? 1 : 0) << 6;
 
         return new HexagonDTO() {
-            Type = uType + Malaise,
+            Type = uType + Malaise + uDiscovery,
         };
     }
 

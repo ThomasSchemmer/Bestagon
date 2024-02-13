@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static CardUpgradeScreen;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingData : ScriptableObject, ISaveable
@@ -32,6 +33,13 @@ public class BuildingData : ScriptableObject, ISaveable
     public OnTurnBuildingEffect Effect = null;
     public int MaxWorker = 1;
     public HexagonConfig.HexagonType BuildableOn = 0;
+    public int CurrentUsages = 1;
+    public int MaxUsages = 1;
+
+    public int UpgradeMaxWorker = 1;
+    public HexagonConfig.HexagonType UpgradeBuildableOn = 0;
+    public int UpgradeMaxUsages = 1;
+
 
     /** 
      * set this if you want to ignore workers while saving,
@@ -149,6 +157,20 @@ public class BuildingData : ScriptableObject, ISaveable
         return Effect.IsProductionBlockedByBuilding;
     }
 
+    public void Upgrade(UpgradeableAttributes SelectedAttribute)
+    {
+        switch (SelectedAttribute)
+        {
+            case UpgradeableAttributes.MaxUsages:
+                MaxUsages = Mathf.Clamp(MaxUsages + 1, 0, UpgradeMaxUsages);
+                CurrentUsages = MaxUsages;
+                return;
+            case UpgradeableAttributes.MaxWorker:
+                MaxWorker = Mathf.Clamp(MaxWorker + 1, 0, UpgradeMaxWorker); 
+                return;
+        }
+    }
+
     public int GetSize()
     {
 
@@ -160,7 +182,7 @@ public class BuildingData : ScriptableObject, ISaveable
     public static int GetStaticSize()
     {
         // Type and buildable on as well as count Workers, max workers
-        return Location.GetStaticSize() + Production.GetStaticSize() + 1 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 3;
+        return Location.GetStaticSize() + Production.GetStaticSize() + 1 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 8;
     }
 
     public byte[] GetData()
@@ -173,7 +195,7 @@ public class BuildingData : ScriptableObject, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Workers.Count);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, bIncludeWorker ? Workers.Count : 0);
         if (bIncludeWorker)
         {
             foreach (WorkerData Worker in Workers)
@@ -181,6 +203,11 @@ public class BuildingData : ScriptableObject, ISaveable
                 Pos = SaveGameManager.AddInt(Bytes, Pos, Worker.ID);
             }
         }
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentUsages);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxUsages);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxWorker);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeBuildableOn);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxUsages);
 
 
         return Bytes.ToArray();
@@ -207,8 +234,15 @@ public class BuildingData : ScriptableObject, ISaveable
             }
         }
 
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentUsages);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxUsages);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxWorker);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
+
         BuildingType = (Type)iBuildingType;
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
+        UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
     }
 
 }

@@ -24,6 +24,11 @@ public class DraggableManager : GameService
     public void EndDrag(Draggable Draggable, PointerEventData Event) 
     {
         Draggable.SetDragParent(GetTarget(Event));
+
+        if (!Game.TryGetService(out CardUpgradeScreen Screen))
+            return;
+
+        Screen.HideUpgradeButton();
     }
 
     private RectTransform GetTarget(PointerEventData Event)

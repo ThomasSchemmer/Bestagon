@@ -45,9 +45,16 @@ public class Map : GameService
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((WorldGenerator WorldGenerator) =>
+        Game.RunAfterServiceInit((WorldGenerator WorldGenerator, SaveGameManager Manager) =>
         {
-            MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
+            // the savegame will fil the map data on its own, no need to generate new 
+            // we still need to query the manager object to ensure its already loaded at that point!
+            if (!Manager.HasDataFor(ISaveable.SaveGameType.MapGenerator))
+            {
+                MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
+            }
+
+            _OnInit?.Invoke();
         });
     }
 

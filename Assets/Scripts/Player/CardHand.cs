@@ -9,6 +9,14 @@ public class CardHand : CardCollection
     protected override void StartServiceInternal()
     {
         base.StartServiceInternal();
+
+        if (!Game.TryGetService(out SaveGameManager Manager))
+            return;
+
+        // will be loaded
+        if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
+            return;
+
         Cards = new List<Card> {
             Card.CreateCard(BuildingData.Type.Woodcutter, 0, transform),
             Card.CreateCard(BuildingData.Type.Mine, 1, transform),
@@ -63,6 +71,7 @@ public class CardHand : CardCollection
 
     public override void Load()
     {
+        
         Sort(false);
     }
 

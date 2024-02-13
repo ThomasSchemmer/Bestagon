@@ -105,7 +105,7 @@ public class SelectWorkerScreen : MonoBehaviour
     public GameObject SelectWorkerPrefab;
     public Button CloseButton;
 
-    public SelectedHex SelectedHex;
+    public SelectedHexScreen SelectedHex;
 
     public PriorityQueue<WorkerData> UnassignedWorker;
     public PriorityQueue<WorkerData> AssignedWorker;

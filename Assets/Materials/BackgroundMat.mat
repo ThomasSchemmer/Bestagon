@@ -97,7 +97,7 @@ Material:
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _Factor: 1.6
-    - _FlatIntensity: 0.15
+    - _FlatIntensity: 0.2
     - _FoldIntensity: 0.1
     - _FoldScale: 0.001
     - _FoldThickness: 0.003
@@ -110,8 +110,8 @@ Material:
     - _LineThickness: 0.005
     - _Metallic: 0
     - _NoiseFactor: 2
-    - _NoiseIterations: 3
-    - _NoiseScale: 1
+    - _NoiseIterations: 4
+    - _NoiseScale: 5
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0

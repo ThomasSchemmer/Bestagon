@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class CardContainerUI : CardCollection, IDragTarget
 {
     public Scrollbar VerticalBar;
+    public CardUpgradeScreen CardScreen;
     public bool bIsActiveCards = false;
 
     private float PrevScrollValue = 0;
@@ -12,11 +13,6 @@ public class CardContainerUI : CardCollection, IDragTarget
     public void Start()
     {
         PrevScrollValue = VerticalBar.value;
-
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
-
-        Manager.Load();
     }
 
     public void OnScroll(Vector2 Position)
@@ -27,6 +23,7 @@ public class CardContainerUI : CardCollection, IDragTarget
         VerticalBar.value -= Diff * ScrollSpeed;
         VerticalBar.value = Mathf.Clamp(VerticalBar.value, 0, 1);
         PrevScrollValue = VerticalBar.value;
+        CardScreen.HideUpgradeButton();
     }
 
     public void OnStartDragOver()
@@ -39,5 +36,15 @@ public class CardContainerUI : CardCollection, IDragTarget
 
     }
 
-    private static float ScrollSpeed = 30f;
+    public override void Load()
+    {
+        base.Load();
+        CanvasGroup CanvasGroup = GetComponent<CanvasGroup>();
+        if (!CanvasGroup)
+            return;
+
+        CanvasGroup.alpha = bIsActiveCards ? 1 : 0.8f;
+    }
+
+    private static float ScrollSpeed = 60f;
 }

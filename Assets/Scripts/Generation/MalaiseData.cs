@@ -37,7 +37,7 @@ public class MalaiseData : ISaveable
             if (!MapGenerator.TryGetChunkData(Neighbour.Location, out ChunkData NeighbourChunk))
                 continue;
 
-            NeighbourChunk.DestroyAt(Neighbour.Location);
+            NeighbourChunk.DestroyTokensAt(Neighbour.Location);
 
             // update so that we can find it quicker
             if (!NeighbourChunk.Equals(Chunk) && !NeighbourChunk.Malaise.bIsActive) {

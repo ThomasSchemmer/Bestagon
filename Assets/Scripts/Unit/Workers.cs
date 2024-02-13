@@ -189,6 +189,7 @@ public class Workers : GameService
                 Worker.MoveTo(WorkerStartLocations[i], 0);
                 UnassignedWorker.Add(Worker);
             }
+            _OnInit?.Invoke();
         });
     }
 

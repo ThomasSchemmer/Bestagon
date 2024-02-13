@@ -24,10 +24,11 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     public float ProductionIncrease = 1.2f;
     public bool IsProductionBlockedByBuilding = false;
 
-    public string GetDescription()
-    {
-        return "FILL OUT DESCRIPTION GEN";
-    }
+    public HexagonConfig.HexagonType UpgradeTileType = 0;
+    public Production UpgradeProduction = new Production();
+    public int UpgradeRange = 1;
+    public float UpgradeProductionIncrease = 1.2f;
+
 
     public Production GetProduction(int Worker, Location Location)
     {
@@ -90,6 +91,29 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         return new Production();
     }
 
+    public string GetDescription()
+    {
+        switch (EffectType)
+        {
+            case Type.YieldPerWorker: return "Produces " + Production.GetShortDescription() + " per Worker and turns";
+            case Type.YieldPerAreaAndWorker: return GetDescriptionYieldAreaWorker();
+            case Type.YieldWorkerPerWorker: return "Creates X worker if Y worker occupy for a turn";
+            case Type.IncreaseYield: return GetDescriptionIncreaseYield();
+
+            default: return "No effect";
+        }
+    }
+
+    private string GetDescriptionYieldAreaWorker()
+    {
+        return "Produces " + Production.GetShortDescription() + " per Worker for each surrounding " + HexagonConfig.GetShortTypeDescription(TileType);
+    }
+
+    private string GetDescriptionIncreaseYield()
+    {
+        return "Increases production of neighbouring X by Y";
+    }
+
     public int GetSize()
     {
         return GetStaticSize();
@@ -97,7 +121,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     public static int GetStaticSize()
     {
-        return 2 + sizeof(int) * 2 + sizeof(double) + Production.GetStaticSize();
+        return 2 + sizeof(int) * 4 + sizeof(double) * 2 + Production.GetStaticSize() * 2;
     }
 
     public byte[] GetData()
@@ -110,6 +134,11 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, ProductionIncrease);
+
+        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeTileType);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UpgradeProduction);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeRange);
+        Pos = SaveGameManager.AddDouble(Bytes, Pos, UpgradeProductionIncrease);
 
         return Bytes.ToArray();
     }
@@ -124,8 +153,15 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dProductionIncrease);
 
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeTileType);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UpgradeProduction);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeRange);
+        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dUpgradeProductionIncrease);
+
         EffectType = (Type)iEffectType;
         TileType = (HexagonConfig.HexagonType)iTileType;
         ProductionIncrease = (float)dProductionIncrease;
+        UpgradeTileType = (HexagonConfig.HexagonType)iUpgradeTileType;
+        UpgradeProductionIncrease = (float)dUpgradeProductionIncrease;
     }
 }

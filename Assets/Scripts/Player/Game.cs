@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
-    public GameState State = GameState.IngameMenu;
+    public GameState State = GameState.GameMenu;
     public GameMode Mode = GameMode.Game;
+    public bool bIsPaused = false;
     public int ChunkCount;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
@@ -21,14 +24,12 @@ public class Game : MonoBehaviour
 
     public static Game Instance;
 
-    private GameState OldState = GameState.IngameMenu;
-
     public enum GameState
     {
-        Playing,
-        Paused,
-        IngameMenu,
+        Game,
+        GameMenu,
         CardSelection,
+        MainMenu,
     }
 
     public enum GameMode
@@ -44,8 +45,8 @@ public class Game : MonoBehaviour
 
     public void OnOpenMenu()
     {
-        OldState = State;
-        State = GameState.IngameMenu;
+        bIsPaused = true;
+        State = GameState.GameMenu;
         _OnStateChange?.Invoke(State);
         _OnModeChange?.Invoke(Mode);
         _OnPause?.Invoke();
@@ -53,7 +54,8 @@ public class Game : MonoBehaviour
 
     public void OnCloseMenu()
     {
-        State = OldState;
+        bIsPaused = false;
+        State = GameState.Game;
         _OnStateChange?.Invoke(State);
         _OnModeChange?.Invoke(Mode);
         _OnResume?.Invoke();
@@ -61,18 +63,18 @@ public class Game : MonoBehaviour
 
     public void Start()
     {
-        if (MainMenu.Instance)
+        if (IngameMenu.Instance)
         {
-            MainMenu.Instance._OnOpenBegin += OnOpenMenu;
-            MainMenu.Instance._OnClose += OnCloseMenu;
+            IngameMenu.Instance._OnOpenBegin += OnOpenMenu;
+            IngameMenu.Instance._OnClose += OnCloseMenu;
         }
         HexagonConfig.mapMaxChunk = ChunkCount;
 
         InitMode();
 
-        if (MainMenu.Instance)
+        if (IngameMenu.Instance)
         {
-            MainMenu.Instance.Show();
+            IngameMenu.Instance.Show();
         }
     }
 
@@ -171,12 +173,46 @@ public class Game : MonoBehaviour
         Instance.Delegates.Remove(Delegate);
     }
 
-    public static bool IsDraggingAllowed()
+    /** Marks the given save as to be loaded and transitions to the provided scene
+     * If a SaveGameName is not given, either a new savegame will be created or a temp save will be used.
+     * This is useful eg when transitioning to the card selection screen, as we dont save everything so no actual
+     * savegame should be created
+     */
+    public static void LoadGame(string SaveGameName, string SceneName, bool bCreateNewGame = false)
+    {
+        if (!TryGetService(out SaveGameManager Manager))
+            return;
+
+        if (bCreateNewGame && SaveGameName != null)
+        {
+            bCreateNewGame = false;
+        }
+
+        Manager.MarkSaveForLoading(SaveGameName, bCreateNewGame);
+        
+        AsyncOperation Op = SceneManager.LoadSceneAsync(SceneName);
+        Op.allowSceneActivation = true;
+    }
+
+    public static void ExitGame()
+    {
+        if (Application.isEditor)
+        {
+            EditorApplication.isPlaying = false;
+        }
+        else
+        {
+            Application.Quit();
+        }
+    }
+
+    // todo: make states actually meaningful
+    public static bool IsIn(GameState TargetState)
     {
         if (!Instance)
             return false;
 
-        return Instance.State == GameState.CardSelection;
+        return Instance.State == TargetState;
     }
 
 }

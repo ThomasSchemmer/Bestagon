@@ -55,7 +55,7 @@ public class MessageSystem : MonoBehaviour
             return;
 
         Instance.Messages.Remove(Message);
-        Destroy(Message.gameObject);
+        DestroyImmediate(Message.gameObject);
 
         Instance.DisplayMessages();
     }
@@ -81,6 +81,7 @@ public class MessageSystem : MonoBehaviour
         for (int i = 0; i < transform.childCount; i++) {
             Transform Child = transform.GetChild(i);
             Child.transform.localPosition = Offset * i + Position;
+            Child.transform.localScale = Vector3.one;
         }
     }
 

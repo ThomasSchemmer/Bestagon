@@ -8,6 +8,14 @@ public class CardDeck : CardCollection
     protected override void StartServiceInternal()
     {
         base.StartServiceInternal();
+
+        if (!Game.TryGetService(out SaveGameManager Manager))
+            return;
+
+        // will be loaded
+        if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
+            return;
+
         Cards = new List<Card>();
 
         for (int i = 0; i < 10; i++)
@@ -26,6 +34,27 @@ public class CardDeck : CardCollection
         foreach (Card Card in Cards)
         {
             Card.gameObject.SetActive(false);
+        }
+
+        if (Game.IsIn(Game.GameState.Game) || Game.IsIn(Game.GameState.GameMenu))
+        {
+            Fill(2);
+        }
+
+        Text.text = "" + Cards.Count;
+    }
+
+    private void Fill(int MaxAmount)
+    {
+        if (!Game.TryGetService(out CardHand Hand))
+            return;
+
+        MaxAmount = Mathf.Min(MaxAmount, Cards.Count);
+
+        for (int i = Hand.Cards.Count; i < MaxAmount; i++)
+        {
+            Card Card = RemoveCard();
+            Hand.AddCard(Card);
         }
     }
 }

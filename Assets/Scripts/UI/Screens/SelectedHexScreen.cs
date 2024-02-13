@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SelectedHex : MonoBehaviour
+public class SelectedHexScreen : MonoBehaviour
 {
     public void Start() {
         Selector = GameObject.Find("Selector").GetComponent<Selector>().HexagonSelector;

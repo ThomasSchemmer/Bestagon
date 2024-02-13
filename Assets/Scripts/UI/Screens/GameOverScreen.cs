@@ -22,9 +22,7 @@ public class GameOverScreen : MonoBehaviour
         CardHand.MoveAllCardsTo(CardDeck);
 
         SaveGameManager.Save();
-
-        AsyncOperation Op = SceneManager.LoadSceneAsync("CardSelection");
-        Op.allowSceneActivation = true;
+        Game.LoadGame(null, "CardSelection", false);
     }
 
     public void Show()
