@@ -37,7 +37,7 @@ public class MapGenerator : GameService, ISaveable
 
     protected override void StartServiceInternal() {
         MainCam = Camera.main;
-        MinBottomLeft = new Location(HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk, HexagonConfig.chunkSize, HexagonConfig.chunkSize);
+        MinBottomLeft = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
         Game.RunAfterServiceInit((Map Map, BuildingFactory Factory) =>
@@ -424,11 +424,16 @@ public class MapGenerator : GameService, ISaveable
         return true;
     }
 
-    public void UpdateMapBounds(ChunkVisualization Vis) {
-        Location BottomLeft = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(0, 0));
-        Location TopRight = new Location(Vis.Data.Location.ChunkLocation, new Vector2Int(HexagonConfig.chunkSize, HexagonConfig.chunkSize));
-        MinBottomLeft = Location.Min(MinBottomLeft, BottomLeft);
-        MaxTopRight = Location.Max(MaxTopRight, TopRight);
+    public void UpdateMapBounds(Location MinDiscoveredLoc, Location MaxDiscoveredLoc) {
+        MinBottomLeft = Location.Min(MinBottomLeft, MinDiscoveredLoc);
+        MaxTopRight = Location.Max(MaxTopRight, MaxDiscoveredLoc);
+        MinBottomLeft = MinBottomLeft.GetMirrorLocation(true);
+        MaxTopRight = MaxTopRight.GetMirrorLocation(false);
+
+        if (!Game.TryGetService(out MiniMap Map))
+            return;
+
+        Map.FillBuffer();
     }
 
     public void GetMapBounds(out Location _MinBottomLeft, out Location _MaxTopRight) {

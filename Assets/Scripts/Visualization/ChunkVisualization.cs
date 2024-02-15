@@ -19,12 +19,17 @@ public class ChunkVisualization : MonoBehaviour
         this.Data = Data;
         Data.Visualization = this;
         FinishedVisualizationCount = 0;
+        Location MaxDiscoveredLoc = new Location(0, 0, 0, 0);
 
         for (int y = 0; y < HexagonConfig.chunkSize; y++) {
             for (int x = 0; x < HexagonConfig.chunkSize; x++) {
                 // simply add the base position of the chunk as the bottom left corner
                 Location Location = Location.CreateHex(x, y) + Data.Location;
                 Hexes[x, y].Init(Data, Location, HexMat);
+                if (Hexes[x, y].Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted)
+                {
+                    MaxDiscoveredLoc = Location.Max(MaxDiscoveredLoc, Hexes[x, y].Location);
+                }
             }
             yield return null;
         }
@@ -36,7 +41,7 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             yield break;
 
-        MapGenerator.UpdateMapBounds(this);
+        MapGenerator.UpdateMapBounds(Data.Location, MaxDiscoveredLoc);
     }
 
     public void Initialize() {

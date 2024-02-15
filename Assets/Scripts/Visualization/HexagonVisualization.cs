@@ -40,6 +40,14 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Renderer = GetComponent<MeshRenderer>();
         SetSelected(false, false);
         SetHovered(false);
+
+        if (Data.GetDiscoveryState() == HexagonData.DiscoveryState.Unknown)
+            return;
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        MapGenerator.UpdateMapBounds(Chunk.Location, Location);
     }
 
     void GenerateMesh(Material Mat) {

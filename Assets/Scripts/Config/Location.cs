@@ -51,6 +51,23 @@ public class Location : ISaveable
         return new Vector4(ChunkLocation.x, ChunkLocation.y, HexLocation.x, HexLocation.y);
     }
 
+    public Location GetMaxLocationInChunk()
+    {
+        return new Location(ChunkLocation.x, ChunkLocation.y, HexagonConfig.chunkSize - 1, HexagonConfig.chunkSize - 1);
+    }
+
+    public Location GetMinLocationInChunk()
+    {
+        return new Location(ChunkLocation.x, ChunkLocation.y, 0, 0);
+    }
+
+    public Location GetMirrorLocation(bool IsMin)
+    {
+        int Chunk = IsMin ? Mathf.Min(ChunkLocation.x, ChunkLocation.y) : Mathf.Max(ChunkLocation.x, ChunkLocation.y);
+        int Hex = IsMin ? Mathf.Min(HexLocation.x, HexLocation.y) : Mathf.Max(HexLocation.x, HexLocation.y);
+        return new(Chunk, Chunk, Hex, Hex);
+    }
+
     public override string ToString() {
         return "("+ChunkLocation.x+", "+ChunkLocation.y+") - ("+HexLocation.x+", "+HexLocation.y+")";
     }

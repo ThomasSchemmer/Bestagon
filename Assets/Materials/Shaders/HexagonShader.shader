@@ -1,4 +1,4 @@
-﻿Shader "Custom/HexagonShader"
+﻿Shader"Custom/HexagonShader"
 {
     Properties
     {
@@ -10,6 +10,7 @@
         _Adjacent("Adjacent", Float) = 0
         _Malaised("Malaised", Float) = 0
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
+        _Desaturation("Desaturation", Float) = 0
         // unused debug value
         _Value("Value", Float) = 0
             
@@ -65,6 +66,8 @@
 
             // contains size of world in (x, y, 0, 0)
             float4 _WorldSize;
+
+            float _Desaturation;
 
             // each hexagon mesh sets these values for itself, todo: should be bitmask
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -187,7 +190,16 @@
                 float v = isHighlighted ? 0 : yType;
                 float2 uv = float2(u, v) / 16.0;
                 float4 color = tex2D(_TypeTex, uv);
+    
+                // light influence
                 color *= i.diff;
+    
+                float Desaturated = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
+                color.rgb = float3(
+                    lerp(color.r, Desaturated, _Desaturation),
+                    lerp(color.g, Desaturated, _Desaturation),
+                    lerp(color.b, Desaturated, _Desaturation)
+                );
                 color.a = 1;
                 return color;
             }
