@@ -4,22 +4,21 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public class WorkerVisualization : MonoBehaviour
+public class UnitVisualization : MonoBehaviour
 {
     public void UpdateLocation() {
-        Assert.IsNotNull(Worker);
-        transform.position = Worker.Location.WorldLocation + Offset;
+        transform.position = Unit.Location.WorldLocation + Offset;
     }
 
-    public static WorkerVisualization CreateFromData(WorkerData InWorker) {
-        GameObject WorkerObject = LoadPrefabFromFile("Worker");
-        WorkerObject.transform.position = InWorker.Location.WorldLocation + Offset;
+    public static UnitVisualization CreateFromData<T>(T Unit) where T : UnitData {
+        GameObject UnitObject = LoadPrefabFromFile(Unit.GetPrefabName());
+        UnitObject.transform.position = Unit.Location.WorldLocation + Offset;
 
-        WorkerVisualization WorkerVis = WorkerObject.AddComponent<WorkerVisualization>();
-        WorkerVis.Worker = InWorker;
-        InWorker.Visualization = WorkerVis;
+        UnitVisualization UnitVis = UnitObject.AddComponent<UnitVisualization>();
+        UnitVis.Unit = Unit;
+        Unit.Visualization = UnitVis;
 
-        return WorkerVis;
+        return UnitVis;
     }
 
     private static GameObject LoadPrefabFromFile(string Name) {
@@ -31,7 +30,12 @@ public class WorkerVisualization : MonoBehaviour
         return Instantiate(Prefab);
     }
 
-    WorkerData Worker;
+    public T GetUnitData<T>() where T : UnitData
+    {
+        return (T)Unit;
+    }
+
+    private UnitData Unit;
 
     public static Vector3 Offset = new Vector3(0, 6, 0);
 }

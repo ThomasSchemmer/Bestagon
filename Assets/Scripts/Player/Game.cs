@@ -78,10 +78,10 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void GameOver()
+    public void GameOver(string Message = null)
     {
         OnOpenMenu();
-        GameOverScreen.Instance.Show();
+        GameOverScreen.GameOver(Message);
     }
 
     private void InitMode()
@@ -125,6 +125,29 @@ public class Game : MonoBehaviour
             throw new Exception("Missing Service: " + typeof(T).ToString());
         }
         return Service != null;
+    }
+
+    public static bool TryGetServices<X, Y>(out X ServiceX, out Y ServiceY, bool ForceLoad = false) where X : GameService where Y : GameService
+    {
+        ServiceX = GetService<X>();
+        ServiceY = GetService<Y>();
+        if ((ServiceX ==  null || ServiceY == null) && ForceLoad)
+        {
+            throw new Exception("Missing Service: " + typeof(X).ToString() + " or "+typeof(Y).ToString());
+        }
+        return ServiceX != null && ServiceY != null;
+    }
+
+    public static bool TryGetServices<X, Y, Z>(out X ServiceX, out Y ServiceY, out Z ServiceZ, bool ForceLoad = false) where X : GameService where Y : GameService where Z : GameService
+    {
+        ServiceX = GetService<X>();
+        ServiceY = GetService<Y>();
+        ServiceZ = GetService<Z>();
+        if ((ServiceX == null || ServiceY == null || ServiceZ == null) && ForceLoad)
+        {
+            throw new Exception("Missing Service: " + typeof(X).ToString() + " or " + typeof(Y).ToString() + " or " + typeof(Z).ToString());
+        }
+        return ServiceX != null && ServiceY != null;
     }
 
     public static void RunAfterServiceStart<T>(Action<T> Callback) where T : GameService

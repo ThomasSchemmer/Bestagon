@@ -110,8 +110,7 @@ public class ChunkData : ISaveable
         WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
         int WorkerCount = WorkersOnTile.Count;
         foreach (WorkerData Worker in WorkersOnTile) { 
-            Worker.RemoveFromBuilding();
-            WorkerService.RemoveWorker(Worker);
+            WorkerService.DestroyWorker(Worker);
         }
 
         if (WorkerCount > 0)

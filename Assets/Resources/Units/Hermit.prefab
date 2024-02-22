@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7065132146981108855}
   - component: {fileID: 1046724622213284013}
   m_Layer: 0
-  m_Name: Worker
+  m_Name: Hermit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,7 +40,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2794737047199554117}
-  m_Mesh: {fileID: -462981019419857548, guid: 1539f2cfaf7cf23498184e4044d0e88c, type: 3}
+  m_Mesh: {fileID: 3048862978360459235, guid: bdb70dd548fcc9a4f9dea8df5645c041, type: 3}
 --- !u!23 &1046724622213284013
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -80,9 +80,13 @@ public class Turn : GameService
             FillCardDeck();
         }
 
-        Card RemovedCard = CardDeck.RemoveCard(); 
-        if (RemovedCard == null) 
-            return; 
+        Card RemovedCard = CardDeck.RemoveCard();
+        if (CardHand.Cards.Count == 0 && RemovedCard == null)
+        {
+            Game.Instance.GameOver("You have run out of cards to play!");
+        }
+        if (RemovedCard == null)
+            return;
 
         CardHand.AddCard(RemovedCard);
     }

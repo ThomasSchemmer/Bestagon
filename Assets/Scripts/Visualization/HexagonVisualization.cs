@@ -207,10 +207,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Selector.ForceDeselect();
         Selector.SelectHexagon(this);
 
-        if (!Game.TryGetService(out CardHand CardHand))
-            return;
-
-        CardHand.DiscardCard(Card);
+        Card.Use();
     }
 
     private void BuildBuildingFromCard(BuildingData Building) {

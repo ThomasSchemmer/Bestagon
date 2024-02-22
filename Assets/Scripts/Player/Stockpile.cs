@@ -60,7 +60,7 @@ public class Stockpile : MonoBehaviour
         Resources += MapGenerator.GetProductionPerTurn();
         Resources -= WorkerService.GetWorkerCosts();
         if (Resources[Production.Type.Food] < 0) {
-            WorkerService.Starve(Resources[Production.Type.Food]);
+            WorkerService.HandleStarvation(Resources[Production.Type.Food]);
             Resources[Production.Type.Food] = 0;
         }
 

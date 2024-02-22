@@ -18,7 +18,7 @@ public class CardDeck : CardCollection
 
         Cards = new List<Card>();
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 0; i++)
         {
             Card Card = CreateRandomCard(i);
             Card.transform.localPosition = new Vector3(0, Mathf.Min(i, 5) * 15, 0);

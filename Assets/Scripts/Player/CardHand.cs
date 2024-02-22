@@ -19,10 +19,10 @@ public class CardHand : CardCollection
 
         Cards = new List<Card> {
             Card.CreateCard(BuildingData.Type.Woodcutter, 0, transform),
-            Card.CreateCard(BuildingData.Type.Mine, 1, transform),
-            Card.CreateCard(BuildingData.Type.Farm, 2, transform),
-            Card.CreateCard(BuildingData.Type.Farm, 3, transform),
-            Card.CreateCard(BuildingData.Type.Woodcutter, 4, transform)
+            //Card.CreateCard(BuildingData.Type.Mine, 1, transform),
+            //Card.CreateCard(BuildingData.Type.Farm, 2, transform),
+            //Card.CreateCard(BuildingData.Type.Farm, 3, transform),
+            //Card.CreateCard(BuildingData.Type.Woodcutter, 4, transform)
         };
         Sort(false);
     }
@@ -43,18 +43,24 @@ public class CardHand : CardCollection
     }
 
     public void DiscardCard(Card Card) {
+        if (!Game.TryGetService(out DiscardDeck Deck))
+            return;
+
+        DiscardCard(Card, Deck);
+    }
+
+    public void DiscardCard(Card Card, CardCollection Target)
+    {
         RemoveCard(Card);
         int i = 0;
-        foreach(Card Other in Cards) {
+        foreach (Card Other in Cards)
+        {
             Other.SetIndex(i);
             i++;
         }
         Sort(false);
 
-        if (!Game.TryGetService(out DiscardDeck Deck))
-            return;
-        
-        Deck.AddCard(Card);
+        Target.AddCard(Card);
     }
 
     public override void AddCard(Card Card) {

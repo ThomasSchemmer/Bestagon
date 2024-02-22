@@ -11,4 +11,10 @@ public class CardStash : CardCollection
             Card.gameObject.SetActive(false);
         }
     }
+
+    public override void AddCard(Card Card)
+    {
+        base.AddCard(Card);
+        Card.gameObject.SetActive(false);
+    }
 }

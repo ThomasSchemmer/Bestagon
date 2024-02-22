@@ -60,7 +60,7 @@ public class ChunkVisualization : MonoBehaviour
         MalaiseVisualization = MalaiseObj.AddComponent<MalaiseVisualization>();
 
         BuildingVisualizations = new();
-        WorkerVisualizations = new();
+        UnitVisualizations = new();
     }
 
     private void CreateWorkers() {
@@ -68,9 +68,9 @@ public class ChunkVisualization : MonoBehaviour
             return;
 
         foreach (WorkerData WorkerData in WorkerService.GetWorkersInChunk(Data.Location)) {
-            WorkerVisualization Vis = WorkerVisualization.CreateFromData(WorkerData);
-            Vis.transform.parent = transform;
-            WorkerVisualizations.Add(Vis);
+            UnitVisualization WorkerVis = UnitVisualization.CreateFromData(WorkerData);
+            WorkerVis.transform.parent = transform;
+            UnitVisualizations.Add(WorkerVis);
         }
     }
 
@@ -89,7 +89,7 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     public void Reset() {
-        if (BuildingVisualizations == null || WorkerVisualizations == null) 
+        if (BuildingVisualizations == null || UnitVisualizations == null) 
             return;
 
         foreach (BuildingVisualization Building in BuildingVisualizations) {
@@ -97,10 +97,10 @@ public class ChunkVisualization : MonoBehaviour
         }
         BuildingVisualizations.Clear();
 
-        foreach (WorkerVisualization Worker in WorkerVisualizations) {
-            Destroy(Worker.gameObject);
+        foreach (UnitVisualization Unit in UnitVisualizations) {
+            Destroy(Unit.gameObject);
         }
-        WorkerVisualizations.Clear();
+        UnitVisualizations.Clear();
     }
 
     public void OnDestroy()
@@ -133,7 +133,7 @@ public class ChunkVisualization : MonoBehaviour
 
     public HexagonVisualization[,] Hexes;
     public List<BuildingVisualization> BuildingVisualizations;
-    public List<WorkerVisualization> WorkerVisualizations;
+    public List<UnitVisualization> UnitVisualizations;
     public MalaiseVisualization MalaiseVisualization;
     public ChunkData Data;
     public Coroutine Generator;

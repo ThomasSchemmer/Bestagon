@@ -177,6 +177,27 @@ public class Card : Draggable, Selectable
         return BuildingData;
     }
 
+    public void Use()
+    {
+        if (!Game.TryGetServices(out CardHand CardHand, out CardStash CardStash, out CardDeck CardDeck))
+            return;
+
+        BuildingData.CurrentUsages--;
+        bool bIsUsedUp = BuildingData.CurrentUsages <= 0;
+        if (bIsUsedUp)
+        {
+            MessageSystem.CreateMessage(Message.Type.Warning, "A card has been lost due to durability");
+        }
+        CardCollection Target = bIsUsedUp ? CardStash : CardDeck;
+
+        CardHand.DiscardCard(this, Target);
+    }
+
+    public void RefreshUsage()
+    {
+        BuildingData.CurrentUsages = BuildingData.MaxUsages;
+    }
+
     public void SetBuildingData(BuildingData BuildingData)
     {
         this.BuildingData = BuildingData;

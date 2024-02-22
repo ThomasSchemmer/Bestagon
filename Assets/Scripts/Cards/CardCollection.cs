@@ -103,6 +103,14 @@ public abstract class CardCollection : GameService, ISaveable
         }
     }
 
+    public void RefreshAllUsages()
+    {
+        foreach (Card Card in Cards)
+        {
+            Card.RefreshUsage();
+        }
+    }
+
     public virtual void Load() { }
 
     public bool ShouldLoadWithLoadedSize() { return true; }

@@ -6,10 +6,6 @@ using UnityEngine.Assertions;
 
 public class Workers : GameService
 {
-    public Production GetWorkerCosts() {
-        return CostsPerWorker * GetTotalWorkerCount();
-    }
-
     public WorkerData GetWorker() {
         if (UnassignedWorker.Count == 0) {
             MessageSystem.CreateMessage(Message.Type.Error, "No idle worker available!");
@@ -67,7 +63,7 @@ public class Workers : GameService
         return GetUnassignedWorkerCount() + GetAssignedWorkerCount();
     }
 
-    public void Starve(int Food) {
+    public void HandleStarvation(int Food) {
         if (Food >= 0)
             return;
 
@@ -78,19 +74,61 @@ public class Workers : GameService
 
         // unassigned, so we don't need to update the building
         for (int i = 0; i < AmountOfUnassignedToStarve; i++) {
-            StarveWorker(UnassignedWorker[0]);
+            DestroyWorker(UnassignedWorker[0]);
         }
 
         for (int i = 0; i < AmountOfAssignedToStarve; i++) {
-            StarveWorker(AssignedWorker[0]);
+            DestroyWorker(AssignedWorker[0]);
         }
 
         MessageSystem.CreateMessage(Message.Type.Warning, AmountToStarve + " workers died of starvation!");
     }
 
-    private void StarveWorker(WorkerData Worker) {
+    public Production GetWorkerCosts()
+    {
+        Production Cost = new Production();
+        foreach (WorkerData Worker in GetAllWorkers())
+        {
+            Cost += Worker.GetFoodCosts();
+        }
+
+        return Cost;
+    }
+
+    private void UpdateWorkerFamily()
+    {
+        List<WorkerData> AllWorkers = GetAllWorkers();
+        List<WorkerData> WorkersToDelete = new();
+
+        // might be better to do in a quadtree later. Can probably be mirrored
+        for (int i = 0; i < AllWorkers.Count; i++)
+        {
+            int MinDistance = int.MaxValue;
+            for (int j = 0; j < AllWorkers.Count; j++)
+            {
+                if (i == j)
+                    continue;
+
+                List<Location> Path = Pathfinding.FindPathFromTo(AllWorkers[i].Location, AllWorkers[j].Location);
+                if (Path.Count < MinDistance)
+                {
+                    MinDistance = Path.Count;
+                }
+            }
+            AllWorkers[i].UpdateFamilyState(MinDistance);
+        }
+    }
+
+    public void DestroyWorker(WorkerData Worker)
+    {
         Worker.RemoveFromBuilding();
-        RemoveWorker(Worker);
+        UnassignedWorker.Remove(Worker);
+        AssignedWorker.Remove(Worker);
+
+        if (UnassignedWorker.Count + AssignedWorker.Count <= 0)
+        {
+            Game.Instance.GameOver("Your tribe has died out!");
+        }
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
@@ -102,16 +140,6 @@ public class Workers : GameService
             return;
 
         Chunk.Visualization.RefreshTokens();
-    }
-
-    public void RemoveWorker(WorkerData Worker) {
-        UnassignedWorker.Remove(Worker);
-        AssignedWorker.Remove(Worker);
-
-        if (UnassignedWorker.Count + AssignedWorker.Count <= 0)
-        {
-            Game.Instance.GameOver();
-        }
     }
 
     public List<WorkerData> GetWorkersInChunk(Location Location) {
@@ -148,6 +176,14 @@ public class Workers : GameService
         return FoundWorker.Count > 0;
     }
 
+    public List<WorkerData> GetAllWorkers()
+    {
+        List<WorkerData> AllWorkers = new List<WorkerData>(GetTotalWorkerCount());
+        AllWorkers.AddRange(UnassignedWorker);
+        AllWorkers.AddRange(AssignedWorker);
+        return AllWorkers;
+    }
+
     public void HandleEndOfTurn() {
         MoveToBuildings();
         Refresh();
@@ -176,6 +212,8 @@ public class Workers : GameService
         foreach (WorkerData Worker in AssignedWorker) {
             Worker.RemainingMovement = Worker.MovementPerTurn;
         }
+
+        UpdateWorkerFamily();
     }
 
     protected override void StartServiceInternal()
