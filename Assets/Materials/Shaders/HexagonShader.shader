@@ -145,8 +145,8 @@ Shader"Custom/HexagonShader"
 
             g2f HandleLighting(v2g IN, g2f o, float3 triangleNormal){
                 //diffuse lighting calculations
-                VertexNormalInputs Normals = GetVertexNormalInputs(IN.normal);
-                float3 normal = IsWater() ? triangleNormal : Normals.normalWS;
+                VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN.normal);
+                float3 normal = IsWater() ? triangleNormal : NormalInputs.normalWS;
                 float4 lighting = NormalLighting(normal);
                 o.diff = IsWater() ? 1 : lighting;
                 bool shouldChangeUV = IsWater() && !IsBorder(IN.uv);

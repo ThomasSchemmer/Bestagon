@@ -234,6 +234,51 @@ float voronoi(float2 position)
     return minDistanceSqr;
 }
 
+// https://www.shadertoy.com/view/ldl3Dl for both the hash and 3d voronoi below
+
+float3 hash3(float3 x)
+{
+    x = float3(dot(x, float3(127.1, 311.7, 74.7)),
+			  dot(x, float3(269.5, 183.3, 246.1)),
+			  dot(x, float3(113.5, 271.9, 124.6)));
+
+    return frac(sin(x) * 43758.5453123);
+}
+
+float3 voronoi3(float3 x, bool CalcPos = false)
+{
+    float3 Position = floor(x);
+    float3 f = frac(x);
+
+    float id = 0.0;
+    float2 res = float2(100.0, 100.0);
+    float3 pos = float3(0, 0, 0);
+    for (int k = -1; k <= 1; k++)
+        for (int j = -1; j <= 1; j++)
+            for (int i = -1; i <= 1; i++)
+            {
+                float3 CellOffset = float3(float(i), float(j), float(k));
+                
+                float3 OffsetInCell = hash3(Position + CellOffset);
+                float3 t = f - OffsetInCell;
+                float3 Distance = float3(CellOffset) - t;
+                float DistanceSqr = dot(Distance, Distance);
+
+                if (DistanceSqr < res.x)
+                {
+                    pos = Position + CellOffset + OffsetInCell;
+                    id = dot(Position + CellOffset, float3(5.0, 57.0, 113.0));
+                    res = float2(DistanceSqr, res.x);
+                }
+                else if (DistanceSqr < res.y)
+                {
+                    res.y = DistanceSqr;
+                }
+            }
+    
+    return CalcPos ? pos : float3(sqrt(res), abs(id));
+}
+
 /** Draws a line between each two voronoi cells */
 void LineVoronoi(float2 Position, float Thickness, out bool bIsCorner, out int TargetCell)
 {
