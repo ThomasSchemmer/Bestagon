@@ -13,7 +13,7 @@ public class HexagonConfig {
     public static float TileBorderHeightMultiplier = 0.9f;
 
     /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr */
-    public static int chunkSize = 9;
+    public static int chunkSize = 8;
 
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
     public static int loadedChunkVisualizations = 3;
@@ -68,6 +68,12 @@ public class HexagonConfig {
         DeepOcean = 1 << 15,
     }
 
+    public enum HexagonDecoration : uint
+    {
+        None = 0,
+        Ruins = 1
+    }
+
     // lookup table whether a specific type can have a higher tile 
     public static HexagonType CanHaveHeight = HexagonType.Forest | HexagonType.Mountain | HexagonType.Desert | HexagonType.Tundra;
 
@@ -98,6 +104,15 @@ public class HexagonConfig {
         float x = offsetX * TilePos.x + (TilePos.y % 2) * 0.5f * offsetX;
         float y = offsetY * TilePos.y;
         return new Vector3(x, 0, y);
+    }
+    public static Vector2Int WorldSpaceToTileSpace(Vector3 WorldSpace)
+    {
+        WorldSpace += new Vector3(0.5f * offsetX, 0, 0.5f * offsetY);
+        Vector2Int TilePos = new();
+        TilePos.y = (int)((WorldSpace.z)/ offsetY);
+        float Offset = (TilePos.y % 2) * 0.5f * offsetX;
+        TilePos.x = (int)((WorldSpace.x - Offset) / offsetX);
+        return TilePos;
     }
 
     public static Vector2Int TileSpaceToChunkSpace(Vector2Int TilePos)
@@ -135,6 +150,35 @@ public class HexagonConfig {
     {
         float Angle = 60.0f * i * Mathf.Deg2Rad;
         return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
+    }
+
+    public static Location GetHexLocationFromScreenPos(Vector3 ScreenPos, float PlaneHeight)
+    {
+        Ray Ray = Camera.main.ScreenPointToRay(ScreenPos);
+        Vector3 Intersection = GetPointOnPlane(
+            new Vector3(0, PlaneHeight, 0), 
+            Vector3.up, 
+            Ray.origin, 
+            Ray.direction
+        );
+
+        Vector2 GlobalTileCoords = WorldSpaceToTileSpace(Intersection);
+
+        int ChunkX = (int)(GlobalTileCoords.x / chunkSize);
+        int ChunkY = (int)(GlobalTileCoords.y / chunkSize);
+        int HexX = (int)(GlobalTileCoords.x - ChunkX * chunkSize);
+        int HexY = (int)(GlobalTileCoords.y - ChunkY * chunkSize);
+
+        Location HexLocation = new Location(ChunkX, ChunkY, HexX, HexY);
+        return HexLocation;
+    }
+
+    public static Vector3 GetPointOnPlane(Vector3 PlaneOrigin, Vector3 PlaneNormal, Vector3 Origin, Vector3 Direction)
+    {
+        float A = Vector3.Dot(PlaneOrigin - Origin, PlaneNormal);
+        float B = Vector3.Dot(Direction, PlaneNormal);
+        float d = A / B;
+        return Origin + Direction * d;
     }
 
     public static int GetCostsFromTo(Location locationA, Location locationB)

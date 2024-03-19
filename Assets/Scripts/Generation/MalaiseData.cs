@@ -94,7 +94,7 @@ public class MalaiseData : ISaveable
 
             HexagonData HexData = ChunkData.HexDatas[StartLocation.HexLocation.x, StartLocation.HexLocation.y];
             HexData.bIsMalaised = true;
-            ChunkData.Malaise.Spread(HexData);
+            //ChunkData.Malaise.Spread(HexData);
             ChunkData.Malaise.Infect();
 
         }
@@ -126,8 +126,6 @@ public class MalaiseData : ISaveable
     public static List<Location> StartLocations = new() {
         new Location(0, 0, 0, 0),
         new Location(0, 0, 0, 1),
-        new Location(0, 0, 1, 1),
-        new Location(2, 0, 0, 0),
     };
     public static bool bHasStarted = false;
 }

@@ -43,7 +43,6 @@ public class CardDTO : ISaveable
     public CardDTO(Card Card)
     {
         Card.GetDTOData(out this.ID, out this.BuildingData);
-        this.BuildingData.bIncludeWorker = false;
     }
 
     public CardDTO() {

@@ -234,49 +234,92 @@ float voronoi(float2 position)
     return minDistanceSqr;
 }
 
-// https://www.shadertoy.com/view/ldl3Dl for both the hash and 3d voronoi below
-
-float3 hash3(float3 x)
+//https://www.shadertoy.com/view/4djSRW old hash had sine, with was unstable
+float3 hash3(float3 p3)
 {
-    x = float3(dot(x, float3(127.1, 311.7, 74.7)),
-			  dot(x, float3(269.5, 183.3, 246.1)),
-			  dot(x, float3(113.5, 271.9, 124.6)));
-
-    return frac(sin(x) * 43758.5453123);
+    p3 = frac(p3 * float3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz + 33.33);
+    return frac((p3.xxy + p3.yxx) * p3.zyx);
 }
 
-float3 voronoi3(float3 x, bool CalcPos = false)
+// https://www.shadertoy.com/view/ldl3Dl 
+float3 voronoi3(float3 Position)
 {
-    float3 Position = floor(x);
-    float3 f = frac(x);
+    float3 PositionOfCell = floor(Position);
 
-    float id = 0.0;
-    float2 res = float2(100.0, 100.0);
-    float3 pos = float3(0, 0, 0);
+    float ClosestID = 0.0;
+    float ClosestDistanceSqr = 100;
+    float3 ClosestVertexPosition = float3(100, 100, 100);
+    
+    for (int k = -1; k <= 1; k++)
+        for (int j = -1; j <= 1; j++)
+            for (int i = -1; i <= 1; i++)
+            {
+                float3 OffsetOfCell = float3(float(i), float(j), float(k));
+                
+                // avoid passing in 0 
+                float3 OffsetInCell = hash3(PositionOfCell + OffsetOfCell + float3(0, 0.1, 0));
+                float3 VertexPosition = PositionOfCell + OffsetOfCell + OffsetInCell;
+                float3 Distance = Position - VertexPosition;
+                float DistanceSqr = dot(Distance, Distance);
+
+                if (DistanceSqr < ClosestDistanceSqr)
+                {
+                    ClosestVertexPosition = VertexPosition;
+                    ClosestID = dot(PositionOfCell + OffsetOfCell, float3(5.0, 57.0, 113.0));
+                    ClosestDistanceSqr = DistanceSqr;
+                }
+            }
+    
+    return ClosestVertexPosition;
+}
+
+float voronoi3Tiled(float3 Position, float CellCount)
+{
+    float3 PositionCenter = floor(Position);
+
+    float ClosestDistanceSqr = CellCount * CellCount;
+    
     for (int k = -1; k <= 1; k++)
         for (int j = -1; j <= 1; j++)
             for (int i = -1; i <= 1; i++)
             {
                 float3 CellOffset = float3(float(i), float(j), float(k));
+                float3 CellPosition = PositionCenter + CellOffset;
+                float3 WrappedCellPosition = (CellPosition + CellCount) % CellCount;
                 
-                float3 OffsetInCell = hash3(Position + CellOffset);
-                float3 t = f - OffsetInCell;
-                float3 Distance = float3(CellOffset) - t;
+                // avoid passing in 0 
+                float3 OffsetInCell = hash3(WrappedCellPosition + float3(0, 0.1, 0));
+                float3 VertexPosition = WrappedCellPosition + OffsetInCell;
+                float3 Distance = (Position - VertexPosition) - (CellPosition - WrappedCellPosition);
                 float DistanceSqr = dot(Distance, Distance);
 
-                if (DistanceSqr < res.x)
+                if (DistanceSqr < ClosestDistanceSqr)
                 {
-                    pos = Position + CellOffset + OffsetInCell;
-                    id = dot(Position + CellOffset, float3(5.0, 57.0, 113.0));
-                    res = float2(DistanceSqr, res.x);
-                }
-                else if (DistanceSqr < res.y)
-                {
-                    res.y = DistanceSqr;
+                    ClosestDistanceSqr = DistanceSqr;
                 }
             }
+
     
-    return CalcPos ? pos : float3(sqrt(res), abs(id));
+    return ClosestDistanceSqr;
+}
+
+float svoronoi3Tiled(float3 Position, float CellCount, float Iterations, float Factor)
+{
+    float Result = voronoi3Tiled(Position, CellCount);
+    float Scale = 1;
+    
+    for (int i = 1; i < Iterations; i++)
+    {
+        Factor *= 0.5;
+        Scale *= 2;
+        float Noise = voronoi3Tiled(Position * Scale, CellCount) * Factor;
+        // old range is already from 0..1, if we add another 0..Factor its too much again
+        // Simply add both results proportionally
+        float Proportion = pow(2, i);
+        Result = (Result + Noise) * (Proportion / (Proportion + 1));
+    }
+    return Result;
 }
 
 /** Draws a line between each two voronoi cells */
@@ -309,6 +352,7 @@ void LineVoronoi(float2 Position, float Thickness, out bool bIsCorner, out int T
     float Diff = abs(FirstDistanceSqr - SecondDistanceSqr);
     bIsCorner = Diff < Thickness;
 }
+
 
 #endif // INCLUDE_UTIL
             

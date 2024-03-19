@@ -97,7 +97,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
         HexagonVisualization SelectedHex = Selector.GetSelectedHexagon();
         if (SelectedHex) {
-            InteractMoveWorker(SelectedHex);
+            InteractMoveUnit(SelectedHex);
             return;
         }
 
@@ -132,51 +132,44 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Minimap.FillBuffer();
     }
 
-    private void InteractMoveWorker(HexagonVisualization SelectedHex) {
-        if (!Game.TryGetService(out Workers WorkerService))
+    private void InteractMoveUnit(HexagonVisualization SelectedHex) {
+        if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!WorkerService.TryGetWorkersAt(SelectedHex.Location, out List<WorkerData> WorkersOnTile))
+        if (!UnitService.TryGetUnitsAt(SelectedHex.Location, out List<UnitData> UnitsOnTile))
             return;
 
-        WorkerData Worker = WorkersOnTile[0];
+        UnitData Unit = UnitsOnTile[0];
         List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
         int PathCosts = Pathfinding.GetCostsForPath(Path);
-        if (Path.Count == 0 || PathCosts > Worker.RemainingMovement)
+        if (Path.Count == 0 || PathCosts > Unit.RemainingMovement)
             return;
 
-        InteractMoveWorker(Worker, PathCosts);
+        InteractMoveUnit(Unit, PathCosts);
     }
 
-    private void InteractMoveWorker(WorkerData Worker, int Costs)
+    private void InteractMoveUnit(UnitData Unit, int Costs)
     {
         if (!Game.TryGetService(out Selector Selector))
-            return;
-
-        if (!Game.TryGetService(out Workers WorkerService))
             return;
 
         // trigger movement range update
         Selector.DeselectHexagon();
 
         // update both chunks where the worker was and is going to
-        if (!MapGenerator.TryGetChunkData(Worker.Location, out ChunkData Chunk))
+        if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
             return;
 
         Chunk.Visualization.RefreshTokens();
 
-        if (Worker.AssignedBuilding != null) {
-            Worker.RemoveFromBuilding();
-            WorkerService.ReturnWorker(Worker);
-        }
-        Worker.MoveTo(this.Location, Costs);
+        Unit.MoveTo(this.Location, Costs);
 
-        if (!MapGenerator.TryGetChunkData(Worker.Location, out Chunk))
+        if (!MapGenerator.TryGetChunkData(Unit.Location, out Chunk))
             return;
 
         Chunk.Visualization.RefreshTokens();
 
-        if (!MapGenerator.TryGetHexagon(Worker.Location, out HexagonVisualization NewHex))
+        if (!MapGenerator.TryGetHexagon(Unit.Location, out HexagonVisualization NewHex))
             return;
 
         Selector.SelectHexagon(NewHex);
@@ -184,7 +177,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void InteractBuildBuilding(Card Card)
     {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
             return;
 
         if (MapGenerator.IsBuildingAt(Location)) {
@@ -267,15 +260,15 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         }
     }
 
-    private void ShowReachableLocations(bool bShow)
+    public void ShowReachableLocations(bool bShow)
     {
-        if (!Game.TryGetService(out Workers WorkerService))
+        if (!Game.TryGetService(out Units UnitService))
             return;
 
-        WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
-        WorkerData Worker = WorkersOnTile.Count > 0 ? WorkersOnTile[0] : null;
-        bool bIsVisible = Worker != null && bShow;
-        int Range = Worker != null ? Worker.RemainingMovement : 0;
+        UnitService.TryGetUnitsAt(Location, out List<UnitData> UnitsOnTile);
+        UnitData Unit = UnitsOnTile.Count > 0 ? UnitsOnTile[0] : null;
+        bool bIsVisible = Unit != null && bShow;
+        int Range = Unit != null ? Unit.RemainingMovement : 0;
 
         // check for each reachable tile if it should be highlighted
         HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range);

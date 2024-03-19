@@ -41,7 +41,7 @@ public abstract class CardCollection : GameService, ISaveable
     }
 
     protected Card CreateRandomCard(int i) {
-        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+        if (!Game.TryGetService(out TileFactory BuildingFactory))
             return null;
 
         int TypeCount = BuildingFactory.GetUnlockedBuildings().Count;

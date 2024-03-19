@@ -40,7 +40,7 @@ public class MapGenerator : GameService, ISaveable
         MinBottomLeft = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        Game.RunAfterServiceInit((Map Map, BuildingFactory Factory) =>
+        Game.RunAfterServiceInit((Map Map, TileFactory Factory) =>
         {
             if (!Game.TryGetService(out SaveGameManager Manager))
                 return;
@@ -374,6 +374,16 @@ public class MapGenerator : GameService, ISaveable
         return Chunk.TryGetBuildingAt(Location, out Data);
     }
 
+    public bool TryGetAllBuildings(out List<BuildingData> Buildings)
+    {
+        Buildings = new List<BuildingData>();
+        foreach (ChunkData Chunk in Chunks)
+        {
+            Buildings.AddRange(Chunk.Buildings);
+        }
+        return Buildings.Count > 0;
+    }
+
     public void AddBuilding(BuildingData BuildingData) {
         if (!TryGetHexagonData(BuildingData.Location, out HexagonData HexData))
             return;
@@ -416,6 +426,9 @@ public class MapGenerator : GameService, ISaveable
 
     public bool TryGetChunkData(Location Location, out ChunkData Chunk) {
         Chunk = null;
+
+        if (Chunks == null)
+            return false;
 
         if (!HexagonConfig.IsValidChunkIndex(Location.ChunkLocation)) 
             return false;
@@ -488,6 +501,62 @@ public class MapGenerator : GameService, ISaveable
                         DTOs[Index] = Chunks[x, y].HexDatas[i, j].GetDTO();
                         Index++;
                     }
+                }
+            }
+        }
+
+        return DTOs;
+    }
+
+    public int GetMalaiseDTOByteCount()
+    {
+        // since we pack every malaise info into a bit and the shader needs 32bit variables, we just write it into an uint
+        int ByteCount = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
+        int IntCount = Mathf.RoundToInt(ByteCount / 4.0f);
+        return IntCount;
+    }
+
+    public uint[] GetMalaiseDTOs()
+    {
+        // see GetDTOs for explanation, this merges it even more:
+        // one bit per hex, indicating malaise
+        // requires the chunks to be multiple of 8 big, best exactly 8
+        uint[] DTOs = new uint[GetMalaiseDTOByteCount()];
+
+        int ByteIndex = 0;
+        int IntIndex = 0;
+        int OverallIndex = 0;
+        for (int y = 0; y < HexagonConfig.mapMaxChunk; y++)
+        {
+            for (int j = 0; j < HexagonConfig.chunkSize; j++)
+            {
+                for (int x = 0; x < HexagonConfig.mapMaxChunk; x++)
+                {
+                    ByteIndex = 0;
+                    for (int i = 0; i < HexagonConfig.chunkSize; i++)
+                    {
+                        // read part of the int into a byte, then check if the bit position should be set
+                        uint OldInt = DTOs[OverallIndex];
+                        byte OldValue = (byte)((OldInt >> ((3 - IntIndex) * 8)) & 0xFF);
+
+                        bool bIsMalaised = Chunks[x, y].HexDatas[i, j].bIsMalaised;
+                        byte NewValue = (byte)((bIsMalaised ? 1 : 0) << (7 - ByteIndex));
+    
+                        // now write it back into the buffer
+                        NewValue = (byte)(OldValue | NewValue);
+                        uint NewInt = (uint)(NewValue << ((3 - IntIndex) * 8));
+                        DTOs[OverallIndex] = OldInt | NewInt; 
+
+                        ByteIndex++;
+                    }
+
+                    IntIndex++;
+                    if (IntIndex == 4)
+                    {
+                        IntIndex = 0;
+                        OverallIndex++;
+                    }
+
                 }
             }
         }

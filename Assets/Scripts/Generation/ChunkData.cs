@@ -28,6 +28,12 @@ public class ChunkData : ISaveable
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
                 HexDatas[x, y].Location = HexLocation;
+
+                //todo remove debug
+                if (HexLocation.GlobalTileLocation.x == 0 && HexLocation.GlobalTileLocation.y == 4)
+                {
+                    HexDatas[x, y].Decoration = HexagonConfig.HexagonDecoration.Ruins;
+                }
             }
         }
     }
@@ -82,15 +88,7 @@ public class ChunkData : ISaveable
         if (!TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
-        for (int i = 0; i < Building.Workers.Count; i++) {
-            WorkerData Worker = Building.GetWorkerAt(0);
-            // not at work? doesn't get deleted here
-            if (!Worker.Location.Equals(Building.Location))
-                continue;
-            
-            Building.RemoveWorkerAt(0);
-            WorkerService.ReturnWorker(Worker);
-        }
+        // Workers have been killed previously
         Buildings.Remove(Building);
 
         string Text = Building.BuildingType.ToString()+" has been destroyed by the malaise";
@@ -107,15 +105,18 @@ public class ChunkData : ISaveable
         if (!Game.TryGetService(out Workers WorkerService))
             return;
 
-        WorkerService.TryGetWorkersAt(Location, out List<WorkerData> WorkersOnTile);
-        int WorkerCount = WorkersOnTile.Count;
-        foreach (WorkerData Worker in WorkersOnTile) { 
-            WorkerService.DestroyWorker(Worker);
+        if (!TryGetBuildingAt(Location, out BuildingData Building))
+            return;
+
+        int TempWorkerCount = Building.WorkerCount;
+        for (int i = 0; i < TempWorkerCount; i++)
+        {
+            WorkerService.ReleaseAndKillWorkerFrom(Building);
         }
 
-        if (WorkerCount > 0)
+        if (TempWorkerCount > 0)
         {
-            string Text = WorkerCount + " worker " + (WorkerCount == 1 ? "has " : "have ") + "been killed by malaise";
+            string Text = TempWorkerCount + " worker " + (TempWorkerCount == 1 ? "has " : "have ") + "been killed by malaise";
             MessageSystem.CreateMessage(Message.Type.Warning, Text);
         }
 

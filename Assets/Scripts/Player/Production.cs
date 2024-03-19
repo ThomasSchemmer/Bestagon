@@ -69,6 +69,16 @@ public class Production : ISaveable
         return Production;
     }
 
+    public static Production operator *(int A, Production B)
+    {
+        Production Production = new Production();
+        foreach (Type Type in Enum.GetValues(typeof(Type)))
+        {
+            Production[Type] = A * B[Type];
+        }
+        return Production;
+    }
+
     public static bool operator <=(Production A, Production B) {
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {

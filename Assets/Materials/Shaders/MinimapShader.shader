@@ -63,7 +63,7 @@ Shader "Custom/MinimapShader"
                 uint Type = Data.Type & 0x3F;
     
                 // split type into two colums from 1..15->0.5 and 16..32->8.5, offset slightly to avoid read errors
-                float U = (int) (Type / 16) * 16 / 2 + 0.5; // * 8 + 0.5;
+                float U = (int) (Type / 16) * 16 / 2 + 0.5; 
                 float V = Type % 16;
                 float2 MappedUV = float2(U, V) / 16.0;
     
@@ -72,7 +72,7 @@ Shader "Custom/MinimapShader"
                 float4 InvisColor = float4(0, 0, 0, 0);
                 return Scouted == 0 ? InvisColor :
                         Malaised > 0 ? MalaisedColor : Color;
-}
+            }
 
             // https://gist.github.com/unitycoder/2fe0bfd2498041dedd5c326c9d4c727e
             float4 distanceLine(float2 uv, float2 a, float2 b){

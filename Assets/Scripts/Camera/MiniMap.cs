@@ -6,7 +6,7 @@ public class MiniMap : GameService, UIElement
 {
     public void Init() {
 
-        Game.RunAfterServiceInit((MapGenerator Generator, Workers Workers) =>
+        Game.RunAfterServiceInit((MapGenerator Generator, Units UnitService) =>
         {
             MapGenerator = Generator;
             DTOs = Generator.GetDTOs();

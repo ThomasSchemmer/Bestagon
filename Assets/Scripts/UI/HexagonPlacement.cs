@@ -13,7 +13,7 @@ public class HexagonPlacement : GameService
     protected override void StartServiceInternal()
     {
         gameObject.SetActive(true);
-        Game.RunAfterServiceStart((BuildingFactory Factory) =>
+        Game.RunAfterServiceStart((TileFactory Factory) =>
         {
             InitPlaceables();
         });

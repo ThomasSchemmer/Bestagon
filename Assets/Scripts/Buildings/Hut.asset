@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Hut
   m_EditorClassIdentifier: 
-  Workers: []
+  WorkerCount: 0
   BuildingType: 16
   Cost:
     _Production:
@@ -28,7 +28,7 @@ MonoBehaviour:
       - Key: 4
         Value: 0
   Effect:
-    EffectType: 1
+    EffectType: 3
     TileType: 0
     Production:
       _Production:
@@ -69,4 +69,3 @@ MonoBehaviour:
   UpgradeMaxWorker: 2
   UpgradeBuildableOn: 32755
   UpgradeMaxUsages: 3
-  bIncludeWorker: 1

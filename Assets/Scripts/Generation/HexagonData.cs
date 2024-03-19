@@ -17,9 +17,10 @@ public class HexagonData : ISaveable
 
     public Location Location;
     public HexagonType Type;
+    public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
     public bool bIsMalaised;
-    private DiscoveryState Discovery;
+    private DiscoveryState Discovery = DiscoveryState.Visited;
 
     public delegate void OnDiscovery();
     public OnDiscovery _OnDiscovery;
@@ -75,20 +76,21 @@ public class HexagonData : ISaveable
 
     public int GetSize()
     {
-        // Height and malaise each get a byte, type cant be smaller than int
-        return Location.GetStaticSize() + 3 + sizeof(double) * 3 + sizeof(int);
+        // Height, discovery, ruins and malaise each get a byte, type cant be smaller than int
+        return Location.GetStaticSize() + 4 + sizeof(double) * 3 + sizeof(int);
     }
 
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
         HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));
-        
+
         return new()
         {
             Height = Info.Height,
             Humidity = Info.Humidity,
             Temperature = Info.Temperature,
             HexHeight = (HexagonHeight)Info.HexHeightIndex,
+            Decoration = (HexagonDecoration)Info.DecorationIndex,
             Type = TempType,
         };
     }
@@ -100,6 +102,7 @@ public class HexagonData : ISaveable
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)HexHeight);
         Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Discovery);
+        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Decoration);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsMalaised);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Height);
@@ -117,6 +120,7 @@ public class HexagonData : ISaveable
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iHeight);
         Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iDiscovery);
+        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iDecoration);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsMalaised);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHeight);
@@ -126,6 +130,7 @@ public class HexagonData : ISaveable
         Type = (HexagonType)iType;
         HexHeight = (HexagonHeight)iHeight;
         Discovery = (DiscoveryState)iDiscovery;
+        Decoration = (HexagonDecoration)iDecoration;
         Height = (float)dHeight;
         Temperature = (float)dTemperature;
         Humidity = (float)dHumidity;

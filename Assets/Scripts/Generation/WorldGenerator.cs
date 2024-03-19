@@ -26,14 +26,21 @@ public class WorldGenerator : GameService
         public float Humidity;
         public uint TypeIndex;
         public uint HexHeightIndex;
+        public uint DecorationIndex;
 
-        public HexagonInfo(float a, float b, float c, uint d, uint e)
+        public HexagonInfo(float a, float b, float c, uint d, uint e, uint f)
         {
             Height = a;
             Temperature = b;
             Humidity = c;
             TypeIndex = d;
             HexHeightIndex = e;
+            DecorationIndex = f;
+        }
+
+        public static int GetSize()
+        {
+            return sizeof(float) * 3 + sizeof(uint) * 3;
         }
     }
 
@@ -54,7 +61,7 @@ public class WorldGenerator : GameService
         // set to water, cant use array.copy as it apparently doesnt clone
         for (int i = 0; i < LandData.Length; i++)
         {
-            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
+            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0, 0));
             EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
             LandData[i] = EmptyTile;
         }    
@@ -105,6 +112,8 @@ public class WorldGenerator : GameService
             HeightOverrideBuffer.Release();
         if (HeightBuffer != null)
             HeightBuffer.Release();
+        if (DecorationsBuffer != null)
+            DecorationsBuffer.Release();
         if (HistogramInputBuffer != null)
             HistogramInputBuffer.Release();
         if (HistogramResultBuffer != null)
@@ -131,10 +140,11 @@ public class WorldGenerator : GameService
         TypeKernel = MapShader.FindKernel("TypeCalculation");
         HistogramNormalizationKernel = MapShader.FindKernel("HistogramNormalization");
 
-        HexagonInfoBuffer = new ComputeBuffer(ImageWidth * ImageWidth, sizeof(float) * 3 + sizeof(uint) * 2);
+        HexagonInfoBuffer = new ComputeBuffer(ImageWidth * ImageWidth, HexagonInfo.GetSize());
         ClimateBuffer = new ComputeBuffer(BiomeMap.ClimateMap.Count, sizeof(float) * 4 + sizeof(uint));
         HeightOverrideBuffer = new ComputeBuffer(BiomeMap.HeightOverrideMap.Count, sizeof(float) * 2 + sizeof(uint));
         HeightBuffer = new ComputeBuffer(BiomeMap.HeightMap.Count, sizeof(float) * 2 + sizeof(int));
+        DecorationsBuffer = new ComputeBuffer(BiomeMap.DecorationsMap.Count, sizeof(float) * 2 + sizeof(int));
         HistogramInputBuffer = new ComputeBuffer(HistogramResolution * 3 + 3, sizeof(uint));
         HistogramResultBuffer = new ComputeBuffer(HistogramResolution * 3, sizeof(uint));
     }
@@ -165,6 +175,7 @@ public class WorldGenerator : GameService
     {
         MapShader.SetInt("ClimateCount", BiomeMap.ClimateMap.Count);
         MapShader.SetInt("HeightCount", BiomeMap.HeightMap.Count);
+        MapShader.SetInt("DecorationsCount", BiomeMap.DecorationsMap.Count);
         MapShader.SetInt("HeightOverrideCount", BiomeMap.HeightOverrideMap.Count);
         SetBuffersForKernel(TypeKernel);
     }
@@ -186,6 +197,7 @@ public class WorldGenerator : GameService
         MapShader.SetBuffer(Kernel, "ClimateMap", ClimateBuffer);
         MapShader.SetBuffer(Kernel, "HeightOverrideMap", HeightOverrideBuffer);
         MapShader.SetBuffer(Kernel, "HeightMap", HeightBuffer);
+        MapShader.SetBuffer(Kernel, "DecorationsMap", DecorationsBuffer);
         MapShader.SetBuffer(Kernel, "HexagonInfos", HexagonInfoBuffer);
         MapShader.SetBuffer(Kernel, "HistogramInput", HistogramInputBuffer);
         MapShader.SetBuffer(Kernel, "HistogramResult", HistogramResultBuffer);
@@ -216,6 +228,7 @@ public class WorldGenerator : GameService
         List<BiomeStruct> Climates = new();
         List<RangeStruct> HeightOverrides = new();
         List<RangeStruct> Heights = new();
+        List<RangeStruct> Decorations = new();
         foreach (Biome Biome in BiomeMap.ClimateMap)
         {
             Climates.Add(new BiomeStruct()
@@ -246,11 +259,20 @@ public class WorldGenerator : GameService
                 Index = (uint)Tuple.Value
             });
         }
+        foreach (var Tuple in BiomeMap.DecorationsMap)
+        {
+            Decorations.Add(new()
+            {
+                Range = new Vector2(Tuple.Key.Min, Tuple.Key.Max),
+                Index = (uint)Tuple.Value   
+            });
+        }
 
         ClimateBuffer.SetData(Climates);
         HeightOverrideBuffer.SetData(HeightOverrides);
         HeightBuffer.SetData(Heights);
         HexagonInfoBuffer.SetData(Map);
+        DecorationsBuffer.SetData(Decorations);
 
         // write a uint max for each CdfMin
         int Max = -1;
@@ -319,6 +341,7 @@ public class WorldGenerator : GameService
     private ComputeBuffer ClimateBuffer;
     private ComputeBuffer HeightOverrideBuffer;
     private ComputeBuffer HeightBuffer;
+    private ComputeBuffer DecorationsBuffer;
     private ComputeBuffer HistogramInputBuffer;
     private ComputeBuffer HistogramResultBuffer;
 
@@ -327,100 +350,4 @@ public class WorldGenerator : GameService
     private static int GroupCount = ImageWidth / 16;
     private static int HistogramResolution = 256;
 
-
-    public void TestJumpFlood()
-    {
-        Release();
-
-        CreateTempRT();
-        Color[] Input = new Color[ImageWidth * ImageWidth];
-        Color[] Output = new Color[ImageWidth * ImageWidth];
-        for (int i = 0; i < Input.Length; i++)
-        {
-            Vector2Int Pos = new(i % ImageWidth, i / ImageWidth);
-            Vector2 UV = new Vector2(Pos.x, Pos.y) / ImageWidth;
-            float DistSqr = Mathf.Pow(0.5f - UV.x, 2) + Mathf.Pow(0.5f - UV.y, 2);
-            Input[i] = DistSqr < 0.01f ? new Color(UV.x, UV.y, 1, 1) : new Color(0, 0, 0, 1);
-        }
-
-        float AbsMaxDistance = 0;
-        float AbsMinDistance = 928375925f;
-
-        Vector2Int[] FloodFillDirs =
-        {
-            new Vector2Int(-1, +1), new Vector2Int(+0, +1), new Vector2Int(+1, +1),
-            new Vector2Int(-1, +0), new Vector2Int(+0, +0), new Vector2Int(+1, +0),
-            new Vector2Int(-1, -1), new Vector2Int(+0, -1), new Vector2Int(+1, -1),
-        };
-        int StepSize = ImageWidth;
-
-        int MaxStep = (int)Mathf.Log(ImageWidth, 2);
-        for (int Step = 0; Step < MaxStep; Step++)
-        {
-            StepSize /= 2;
-            Color[] TempInput = Step % 2 == 0 ? Input : Output;
-            Color[] TempOutput = Step % 2 == 0 ? Output : Input;
-            for (int Pixel = 0; Pixel < Input.Length; Pixel++)
-            {
-                float MinDis = Mathf.Pow(ImageWidth + 1, 2);
-                Vector2Int ClosestWater = new Vector2Int(0, 0);
-                bool bFoundWater = false;
-                // check all the neighbours if they have water, then get the distance to the closest water position
-                // -> this is the new water location we save
-                for (int i = 0; i < FloodFillDirs.Length; i++)
-                {
-                    Vector2Int ID = new(Pixel % ImageWidth, Pixel / ImageWidth);
-                    Vector2Int TargetID = ID + FloodFillDirs[i] * StepSize;
-                    if (TargetID.x < 0 || TargetID.x >= ImageWidth || TargetID.y < 0 || TargetID.y >= ImageWidth)
-                        continue;
-
-                    int TargetPos = TargetID.y * ImageWidth + TargetID.x;
-                    Color TargetValue = TempInput[TargetPos];
-
-                    if (TargetValue.b <= 0)
-                        continue;
-
-                    Vector2Int WaterID = new Vector2Int((int)(TargetValue.r * ImageWidth), (int)(TargetValue.g * ImageWidth));
-
-                    float Distance = Vector2.Distance(WaterID, ID);
-                    if (Distance >= MinDis)
-                        continue;
-
-                    bFoundWater = true;
-                    ClosestWater = WaterID;
-                    MinDis = Distance;
-                }
-
-                Vector2 ClosestPos = StepSize > 1 ? ClosestWater : Vector2.zero;
-                float FinalDistance = bFoundWater ? MinDis : 0;
-
-                TempOutput[Pixel] = new Color(ClosestPos.x / ImageWidth, ClosestPos.y / ImageWidth, FinalDistance / ImageWidth, 1);
-
-
-                if (TempOutput[Pixel].b > AbsMaxDistance)
-                    AbsMaxDistance = TempOutput[Pixel].b;
-
-
-                if (TempOutput[Pixel].b < AbsMinDistance)
-                    AbsMinDistance = TempOutput[Pixel].b;
-            }
-        }
-
-        Color[] FinalOutput = (MaxStep - 1) % 2 == 0 ? Output : Input;
-
-        for (int i = 0; i < FinalOutput.Length; i++)
-        {
-            FinalOutput[i] = new Color(0, 0, 1 - FinalOutput[i].b * 5, 1);
-        }
-
-        Texture2D InputTex = new Texture2D(InputRT.width, InputRT.height, TextureFormat.RGBA32, false);
-        InputTex.SetPixels(Input);
-        InputTex.Apply();
-        Graphics.CopyTexture(InputTex, InputRT);
-
-        Texture2D OutputTex = new Texture2D(OutputRT.width, OutputRT.height, TextureFormat.RGBA32, false);
-        OutputTex.SetPixels(Output);
-        OutputTex.Apply();
-        Graphics.CopyTexture(OutputTex, OutputRT);
-    }
 }

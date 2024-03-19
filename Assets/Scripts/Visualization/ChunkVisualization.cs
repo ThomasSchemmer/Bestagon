@@ -35,8 +35,7 @@ public class ChunkVisualization : MonoBehaviour
         }
 
         MalaiseVisualization.Initialize(Data.Malaise, MalaiseMat);
-        CreateBuildings();
-        CreateWorkers();
+        RefreshTokens();
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             yield break;
@@ -63,17 +62,6 @@ public class ChunkVisualization : MonoBehaviour
         UnitVisualizations = new();
     }
 
-    private void CreateWorkers() {
-        if (!Game.TryGetService(out Workers WorkerService))
-            return;
-
-        foreach (WorkerData WorkerData in WorkerService.GetWorkersInChunk(Data.Location)) {
-            UnitVisualization WorkerVis = UnitVisualization.CreateFromData(WorkerData);
-            WorkerVis.transform.parent = transform;
-            UnitVisualizations.Add(WorkerVis);
-        }
-    }
-
     private void CreateBuildings() {
         foreach (BuildingData BuildingData in Data.Buildings) {
             BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
@@ -86,6 +74,22 @@ public class ChunkVisualization : MonoBehaviour
         BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
         Vis.transform.parent = transform;
         BuildingVisualizations.Add(Vis);
+    }
+
+    private void CreateUnits()
+    {
+        if (!Game.TryGetService(out Units UnitService))
+            return;
+
+        if (!UnitService.TryGetUnitsAt(Data.Location, out List<UnitData> Units, true))
+            return;
+
+        foreach (UnitData Unit in Units)
+        {
+            UnitVisualization UnitVis = UnitVisualization.CreateFromData(Unit);
+            UnitVis.transform.parent = transform;
+            UnitVisualizations.Add(UnitVis);
+        }
     }
 
     public void Reset() {
@@ -116,7 +120,7 @@ public class ChunkVisualization : MonoBehaviour
     public void RefreshTokens() {
         Reset();
         CreateBuildings();
-        CreateWorkers();
+        CreateUnits();
     }
 
     public void FinishVisualization()

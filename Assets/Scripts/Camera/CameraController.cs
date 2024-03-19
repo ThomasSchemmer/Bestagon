@@ -7,6 +7,7 @@ public class CameraController : GameService
     protected override void StartServiceInternal()
     {
         Cam = GetComponent<Camera>();
+        TargetPosition = this.transform.position;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
         Game.RunAfterServiceInit((MapGenerator MapGen) =>
@@ -123,5 +124,5 @@ public class CameraController : GameService
     public float MaximumZoom = 60;
     public float ZoomSteps = 5;
 
-    public static Vector3 TargetPosition = new Vector3(0, 25, 0);
+    public static Vector3 TargetPosition;
 }

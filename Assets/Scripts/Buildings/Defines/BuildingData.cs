@@ -27,7 +27,7 @@ public class BuildingData : ScriptableObject, ISaveable
     }
 
     public Location Location;
-    public List<WorkerData> Workers = new();
+    public int WorkerCount = 0;
     public Type BuildingType = Type.DEFAULT;
     public Production Cost = new Production();
     public OnTurnBuildingEffect Effect = null;
@@ -40,15 +40,9 @@ public class BuildingData : ScriptableObject, ISaveable
     public HexagonConfig.HexagonType UpgradeBuildableOn = 0;
     public int UpgradeMaxUsages = 1;
 
-
-    /** 
-     * set this if you want to ignore workers while saving,
-     * eg when transfering cards to the cardselection screen */
-    [HideInInspector] public bool bIncludeWorker = true;
-
     public BuildingData() {
         Location = Location.Zero;
-        Workers = new();
+        WorkerCount = 0;
         Cost = new();
         Effect = new();
     }
@@ -86,58 +80,48 @@ public class BuildingData : ScriptableObject, ISaveable
         if (!BuildableOn.HasFlag(Hex.Data.Type))
             return false;
 
-        return !Game.GetService<MapGenerator>().IsBuildingAt(Hex.Location) && !Hex.Data.bIsMalaised;
+        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+            return false;
+
+        if (!Game.TryGetServices(out Stockpile Stockpile, out MapGenerator MapGenerator))
+            return false;
+
+        if (!Stockpile.CanAfford(GetCosts()))
+            return false;
+
+        if (MapGenerator.IsBuildingAt(Hex.Location))
+            return false;
+
+        if (Hex.Data.bIsMalaised)
+            return false;
+
+        return true;
     }
 
     public int GetWorkerMultiplier() {
-        int Count = 0;
-        foreach (WorkerData Worker in Workers) {
-            if (Worker == null || !Worker.Location.Equals(Location))
-                continue;
-
-            Count++;
-        }
-
-        return Count;
+        return WorkerCount;
     }
 
-    public WorkerData GetWorkerAt(int i) {
-        if (i >= Workers.Count)
-            return null;
-
-        return Workers[i];
-    }
-
-    public WorkerData GetRandomWorker() {
-        return GetWorkerAt(UnityEngine.Random.Range(0, Workers.Count));
-    }
-
-    public WorkerData RemoveWorkerAt(int i) {
-        WorkerData RemovedWorker = GetWorkerAt(i);
-        if (RemovedWorker != null) {
-            RemovedWorker.RemoveFromBuilding();
-        }
-        return RemovedWorker;
-    }
-
-    public WorkerData RemoveRandomWorker() {
-        WorkerData RemovedWorker = GetRandomWorker();
-        if (RemovedWorker != null) {
-            RemovedWorker.RemoveFromBuilding();
-        }
-        return RemovedWorker;
-    }
-
-    public void RemoveWorker(WorkerData Worker) {
-        if (Worker == null)
+    public void RemoveWorker()
+    {
+        if (!Game.TryGetService(out Workers Workers))
             return;
 
-        Workers.Remove(Worker);
+        WorkerCount--;
+        Workers.ReleaseWorkerFrom(this);
     }
 
-    public void AddWorker(WorkerData Worker) {
-        Workers.Add(Worker);
-        Worker.AssignedBuilding = this;
+    public void AddWorker() {
+        if (WorkerCount >= MaxWorker)
+            return;
+
+        if (!Game.TryGetService(out Workers Workers))
+            return;
+
+        if (!Workers.RequestWorkerFor(this))
+            return;
+
+        WorkerCount++;
     }
 
     public override bool Equals(object Other) {
@@ -173,10 +157,7 @@ public class BuildingData : ScriptableObject, ISaveable
 
     public int GetSize()
     {
-
-        int WorkerSize = (Workers.Count > 0 && bIncludeWorker) ? Workers.Count * Workers[0].GetSize() : 0;
-        WorkerSize *= Workers.Count;
-        return WorkerSize + GetStaticSize();
+        return GetStaticSize();
     }
 
     public static int GetStaticSize()
@@ -195,14 +176,7 @@ public class BuildingData : ScriptableObject, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, bIncludeWorker ? Workers.Count : 0);
-        if (bIncludeWorker)
-        {
-            foreach (WorkerData Worker in Workers)
-            {
-                Pos = SaveGameManager.AddInt(Bytes, Pos, Worker.ID);
-            }
-        }
+        Pos = SaveGameManager.AddInt(Bytes, Pos, WorkerCount);
         Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentUsages);
         Pos = SaveGameManager.AddInt(Bytes, Pos, MaxUsages);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxWorker);
@@ -223,17 +197,7 @@ public class BuildingData : ScriptableObject, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerCount);
-
-        if (Game.TryGetService(out Workers WorkerService))
-        {
-            for (int i = 0; i < WorkerCount; i++)
-            {
-                Pos = SaveGameManager.GetInt(Bytes, Pos, out int WorkerID);
-                Workers.Add(WorkerService.GetWorkerByID(WorkerID));
-            }
-        }
-
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out WorkerCount);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentUsages);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxUsages);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxWorker);

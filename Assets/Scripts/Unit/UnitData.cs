@@ -45,7 +45,12 @@ public abstract class UnitData : ISaveable
         }
     }
 
-    public abstract Production GetFoodCosts();
+    public void Refresh()
+    {
+        RemainingMovement = MovementPerTurn;
+    }
+
+    public abstract Production GetCosts();
 
     public abstract string GetPrefabName();
 

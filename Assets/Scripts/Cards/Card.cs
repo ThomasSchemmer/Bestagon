@@ -16,7 +16,7 @@ public class Card : Draggable, Selectable
         GameObject GO = Instantiate(CardPrefab, Parent);
         Card Card = GO.AddComponent<Card>();
 
-        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+        if (!Game.TryGetService(out TileFactory BuildingFactory))
             return null;
 
         BuildingData BuildingData = BuildingFactory.CreateFromType(Type);

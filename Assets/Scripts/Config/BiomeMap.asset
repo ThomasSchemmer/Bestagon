@@ -148,3 +148,9 @@ MonoBehaviour:
         Min: 0.85
         Max: 1
       Value: 4
+  DecorationsMap:
+    Tuples:
+    - Key:
+        Min: 0
+        Max: 0.01
+      Value: 1

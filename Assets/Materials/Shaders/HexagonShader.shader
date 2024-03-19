@@ -26,8 +26,15 @@ Shader"Custom/HexagonShader"
         _Malaised("Malaised", Float) = 0
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
         _Desaturation("Desaturation", Float) = 0
-        // unused debug value
-        _Value("Value", Float) = 0
+
+//painterly
+        _Scale ("Scale", Float) = 1
+        _NoiseScale ("NoiseScale", Range(1, 3)) = 2
+        _NoiseMix("NoiseVoronoiMix", Range(0, 0.3)) = 0.1
+        _BrushVoronoiOffset("BrushVoronoiOffset", Range(0, 0.3)) = 0.1
+        _BrushVoronoiMix("BrushVoronoiMix", Range(0, 0.3)) = 0.1
+        _Offset("CenterOffset", Vector) = (0,0,0)
+        _BrushNormalTex("BrushNormal", 2D) = "white" {}
             
     }
 
@@ -46,6 +53,16 @@ Shader"Custom/HexagonShader"
         float4 _WorldSize;
 
         float _Desaturation;
+
+        //painterly
+        float _Scale;
+        float _NoiseScale;
+        float _NoiseMix;
+        float _BrushVoronoiOffset;
+        float _BrushVoronoiMix;
+        float3 _Offset;
+        float4 _BrushNormalTex_ST;
+        float4 _BrushNormalTex_TexelSize;
     CBUFFER_END
     ENDHLSL
 
@@ -74,8 +91,11 @@ Shader"Custom/HexagonShader"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"  
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // shadows
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // for ambient light
 
             #include "Assets/Materials/Shaders/Util/Util.cginc" //for snoise
+            #include "Assets/Materials/Shaders/Util/BlendModes.cginc" 
+            #include "Assets/Materials/Shaders/Util/Painterly.cginc" 
 
             struct appdata
             {
@@ -99,6 +119,8 @@ Shader"Custom/HexagonShader"
                 float3 vertexWS : NORMAL;
                 float2 uv : TEXCOORD0;
                 float4 diff : COLOR0; //diffuse lighting for shadows
+                float3 normal : TEXCOORD1;
+                float3 centerWorld : TEXCOORD2;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -106,6 +128,7 @@ Shader"Custom/HexagonShader"
             SAMPLER(_TypeTex);
             // noise texture for easier lookup / shifting water
             SAMPLER(_NoiseTex);
+            SAMPLER(_BrushNormalTex);
 
             // each hexagon mesh sets these values for itself, todo: should be bitmask
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -123,7 +146,11 @@ Shader"Custom/HexagonShader"
             }
 
             inline bool IsBorder(float2 uv) {
-                return uv.x < 1.01 / 16.0;
+                return uv.x < (1.01 / 16.0);
+            }
+
+            inline bool IsDecoration(float2 uv){
+                return uv.y > (14.0 / 16.0);
             }
 
             float4 NormalLighting(float3 normal){
@@ -149,28 +176,29 @@ Shader"Custom/HexagonShader"
                 float3 normal = IsWater() ? triangleNormal : NormalInputs.normalWS;
                 float4 lighting = NormalLighting(normal);
                 o.diff = IsWater() ? 1 : lighting;
-                bool shouldChangeUV = IsWater() && !IsBorder(IN.uv);
+                bool bIsAllowed = !IsBorder(IN.uv) && !IsDecoration(IN.uv);
+                bool shouldChangeUV = IsWater() && bIsAllowed;
                 o.uv = IN.uv + float2(shouldChangeUV ? lighting.x : 0, 0);
                 // if we change the color too much, we suddenly declare this pixel as border!
-                o.uv.x = !IsBorder(IN.uv) ? max(o.uv.x, 1.1 / 16.0) : o.uv.x;
+                o.uv.x = bIsAllowed ? max(o.uv.x, 1.1 / 16.0) : o.uv.x;
                 return o;
             }
 
-            float3 HandleWaterDisplacement(appdata v){
-                if (!IsWater() || IsBorder(v.uv))
-                    return v.vertex.xyz;
+            float3 HandleWaterDisplacement(float3 vertex, float2 uv){
+                if (!IsWater() || IsBorder(uv) || IsDecoration(uv))
+                    return vertex;
                     
                 // displace ocean decoration vertices by their world location and time to create waves
                 // only do this for the lighting calculation - don't actually displace the vertex!
                 float TimeScale = 0.01;
                 float WaveWidth = 20;
                 float WaveHeight = 15;
-                VertexPositionInputs VertexInput = GetVertexPositionInputs(v.vertex.xyz);
+                VertexPositionInputs VertexInput = GetVertexPositionInputs(vertex);
                 float3 worldPos = VertexInput.positionWS;
                 float4 worldFraction = float4(worldPos.xz / _WorldSize.xy, 0, 0);
                 float4 noiseUV = float4(frac(worldFraction.xy * WaveWidth + _Time.y * TimeScale), 0, 0);
                 float4 noise = tex2Dlod(_NoiseTex, noiseUV);
-                return v.vertex.xyz + float3(0, noise.g * WaveHeight, 0);
+                return vertex + float3(0, noise.g * WaveHeight, 0);
             }
 
             v2g vert (appdata v)
@@ -179,6 +207,8 @@ Shader"Custom/HexagonShader"
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
+    
+                VertexPositionInputs VertexInputs = GetVertexPositionInputs(v.vertex.xyz);
                 
                 // pass through in object space, since we have to use geometry shader to update the normal anyway
                 o.vertex = v.vertex;
@@ -192,17 +222,25 @@ Shader"Custom/HexagonShader"
             void geom(triangle v2g IN[3], inout TriangleStream<g2f> triStream){
                 g2f o;
                 
+                float3 centerWorld = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
+                centerWorld = GetVertexPositionInputs(centerWorld).positionWS;
+    
                 // since geometry shader has access to each triangle
                 // we can calculate the ocean lighting here
-                float3 AB = normalize(HandleWaterDisplacement(IN[1]) - HandleWaterDisplacement(IN[0]));
-                float3 AC = normalize(HandleWaterDisplacement(IN[2]) - HandleWaterDisplacement(IN[0]));
+                float3 AB = normalize(HandleWaterDisplacement(IN[1].vertex.xyz, IN[1].uv) - HandleWaterDisplacement(IN[0].vertex.xyz, IN[0].uv));
+                float3 AC = normalize(HandleWaterDisplacement(IN[2].vertex.xyz, IN[2].uv) - HandleWaterDisplacement(IN[0].vertex.xyz, IN[0].uv));
                 float3 triangleNormal = cross(AB, AC);
+     
 
                 [unroll]
-                for (int i = 0; i < 3; i++){
+                for (int i = 0; i < 3; i++)
+                {
+                    VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN[i].normal);
                     VertexPositionInputs VertexInputs = GetVertexPositionInputs(IN[i].vertex.xyz);
                     o.vertex = VertexInputs.positionCS;
                     o.vertexWS = VertexInputs.positionWS;
+                    o.normal = NormalInputs.normalWS;
+                    o.centerWorld = centerWorld;
                     UNITY_TRANSFER_INSTANCE_ID(IN[i], o);
                     o = HandleLighting(IN[i], o, triangleNormal);
         
@@ -213,30 +251,99 @@ Shader"Custom/HexagonShader"
                 triStream.RestartStrip();
             }
 
-            half4 frag(g2f i) : SV_Target
+            float4 painterly(g2f i)
+            { 
+                // compare to center of object to have better range 
+                // also offset by world coordinates to avoid mirror'ing - but beware, y and z axis have bad influence!
+                float3 pos = i.normal;
+                float3 noise = ssnoise(pos, _NoiseScale, 0, 3, 2);
+                float3 posNoise = pos * (1 - _NoiseMix) + noise * _NoiseMix;
+                float3 vor = voronoi3(_Scale * posNoise) / _Scale;
+    
+                // bring from ~-1..0 (depends on object size) to 0..1 range for color mapping 
+                vor = vor + 1;
+                pos = pos + 1;
+                float2 UV = GetUVForVoronoi(vor, pos);
+    
+                // uv has a range of ~-0.2..0.2 (depending on voronoi scale), bring to 0..1
+                UV = (UV / (1 / _Scale * 2) + 0.5);
+                float4 texData = tex2D(_BrushNormalTex, UV);
+                float3 normal = texData.xyz;
+                float3 alpha = texData.a;
+    
+                // feed the brush into the original pos to offset the voronoi by strokes
+                float3 pos2 = alpha == 0 ? posNoise : blendLinearLight(posNoise, normal, _BrushVoronoiOffset);
+                float3 vor2 = voronoi3(_Scale * pos2) / _Scale;
+    
+                // now use this new voronoi and add normal brushstrokes per se 
+                float3 endNormal = alpha == 0 ? vor2 : vor2 * (1 - _BrushVoronoiMix) + normal * _BrushVoronoiMix;
+                // bring back to 0..1
+                endNormal = endNormal * 0.5 + 0.5;
+    
+                half painterlyNL = max(0, dot(endNormal, _MainLightPosition.xyz));
+                return painterlyNL * _MainLightColor;
+            }
+
+            float4 getRegularColor(g2f i){
+                // as we have a split uv map we need to wrap around
+                int xType = _Type / 16.0;
+                int yType = _Type % 16;
+                float StandardColor = (i.uv.x * 16.0) + xType * 16 / 2;
+                float u = StandardColor;
+                float v = yType;
+                float2 uv = float2(u, v) / 16.0;
+                float4 color = tex2D(_TypeTex, uv);
+                return color;
+            }
+
+            int getHighlight(){
+                return  _Malaised > 0 ? 4 :
+                        _Selected > 0 ? 1 :
+                        _Hovered > 0 ? 2 :
+                        _Adjacent > 0 ? 3 : 0;
+            }
+
+            float4 getHighlightColor(g2f i){
+                int highlight = getHighlight();
+                float HighlightColor = highlight - 1;
+                float2 uv = float2(HighlightColor, 0) / 16.0;
+                float4 color = tex2D(_TypeTex, uv);
+                return color;
+            }
+
+            float4 getDecorationColor(g2f i){
+                // since marking as decoration alreay relies on using the last slot for colors, we can
+                // just return the uv's
+                float4 color = tex2D(_TypeTex, i.uv);
+                return color;
+            }
+
+            float4 getColorByType(g2f i)
             {
                 // each uv stores information about hex type (uv.y) and model vertex type (uv.x) 
                 // the color of each vertex is dependent on its own type (border, decoration, highlight,..)
                 // as well as the type of hex itself (eg desert vs ocean)
-                bool isBorder = IsBorder(i.uv);
-                int highlight = _Malaised > 0 ? 4 : 
-                                _Selected > 0 ? 1 :
-                                _Hovered > 0 ? 2 :
-                                _Adjacent > 0 ? 3 : 0;
-                bool isHighlighted = isBorder && highlight > 0;
-    
-                // as we have a split uv map we need to wrap around
-                int xType = _Type / 16.0;
-                int yType = _Type % 16;
-                float StandardColor = (i.uv.x * 16.0) + xType * 16/2;
-                float HighlightColor = highlight - 1;
-                float u = isHighlighted ? HighlightColor : StandardColor;
-                float v = isHighlighted ? 0 : yType;
-                float2 uv = float2(u, v) / 16.0;
-                float4 color = tex2D(_TypeTex, uv);
-    
+                bool bIsHighlightable = IsBorder(i.uv) || IsDecoration(i.uv);
+                bool isHighlighted = bIsHighlightable && getHighlight() > 0;
+
+                float4 regularColor = getRegularColor(i);
+                float4 decorationColor = getDecorationColor(i);
+                float4 highlightColor = getHighlightColor(i);
+
+                return isHighlighted ? highlightColor : 
+                       IsDecoration(i.uv) ? decorationColor : 
+                       regularColor;
+            }
+
+            half4 frag(g2f i) : SV_Target
+            {
+                float4 color = getColorByType(i);
+                float4 painterlyEffect = painterly(i);
+        
                 // light influence
-                color *= i.diff;
+                float3 ambient = SampleSH(i.normal);
+                color.xyz *= i.diff.xyz + ambient * 0.3;
+                
     
                 float Desaturated = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
                 color.rgb = float3(
@@ -246,23 +353,19 @@ Shader"Custom/HexagonShader"
                 );
                 color.a = 1;
     
-//#ifdef _MAIN_LIGHT_SHADOWS
                 VertexPositionInputs vertexInput = (VertexPositionInputs)0;
                 vertexInput.positionWS = i.vertexWS;
  
                 float4 shadowCoord = GetShadowCoord(vertexInput);
                 half shadowAttenutation = MainLightRealtimeShadow(shadowCoord);
-                color = lerp(float4(0,0,0,1), color, shadowAttenutation);
-//#endif
+                color = lerp(float4(0.01, 0.01, 0.03, 1), color, shadowAttenutation);
     
                 return color;
             }
             ENDHLSL
         }
 
-        
-
         // shadow casting support
-UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
+        UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
     }
 }

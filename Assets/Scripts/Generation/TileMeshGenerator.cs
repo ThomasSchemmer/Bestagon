@@ -19,11 +19,21 @@ public class TileMeshGenerator : MonoBehaviour
         UVs = new();
         if (!TryCreateBaseData(Data))
             return false;
-        if (!TryAddDecoration(Data))
+        if (!TryAddTile(Data))
             return false;
 
         Mesh = CreateAndFillMesh();
         return true;
+    }
+
+    public static Vector3[] CreatePolygonRing(Vector3 Center)
+    {
+        Vector3[] Polygon = new Vector3[7];
+        for (int i = 0; i < 7; i++)
+        {
+            Polygon[i] = Center + HexagonConfig.GetVertex(i % 6);
+        }
+        return Polygon;
     }
 
     private static Mesh CreateAndFillMesh() {
@@ -165,33 +175,53 @@ public class TileMeshGenerator : MonoBehaviour
         return true;
     }
 
-    private static bool TryAddDecoration(HexagonData Data) {
-        if (!Game.TryGetService(out BuildingFactory BuildingFactory))
+    private static bool TryAddTile(HexagonData Data) {
+        if (!Game.TryGetService(out TileFactory BuildingFactory))
             return false;
 
+        Mesh TileMesh = null;
         Mesh DecorationMesh = null;
         switch (Data.GetDiscoveryState()) {
             case HexagonData.DiscoveryState.Unknown: break;
-            case HexagonData.DiscoveryState.Scouted: DecorationMesh = BuildingFactory.UnknownMesh; break;
-            case HexagonData.DiscoveryState.Visited: DecorationMesh = BuildingFactory.GetMeshFromType(Data.Type); break;
+            case HexagonData.DiscoveryState.Scouted: TileMesh = BuildingFactory.UnknownMesh; break;
+            case HexagonData.DiscoveryState.Visited: 
+                TileMesh = BuildingFactory.GetMeshFromType(Data.Type);
+                DecorationMesh = BuildingFactory.GetMeshForDecoration(Data.Decoration);
+                break;
         }
-        if (!DecorationMesh)
+        if (!TileMesh)
             return false;
 
+        if (Data.Decoration != HexagonConfig.HexagonDecoration.None && DecorationMesh == null)
+            return false;
+
+        AddMesh(Data, TileMesh);
+        if (DecorationMesh != null)
+        {
+            AddMesh(Data, DecorationMesh);
+        }
+        
+
+        return true;
+    }
+
+    private static void AddMesh(HexagonData Data, Mesh Mesh)
+    {
         int BaseVertexCount = Vertices.Count;
         Vector3 HeightOffset = new Vector3(0, Data.WorldHeight, 0) * HexagonConfig.TileBorderHeightMultiplier;
 
-        foreach (Vector3 Vertex in DecorationMesh.vertices) {
+        foreach (Vector3 Vertex in Mesh.vertices)
+        {
             Vertices.Add(Vertex + HeightOffset);
         }
-        foreach (int Triangle in DecorationMesh.triangles) {
+        foreach (int Triangle in Mesh.triangles)
+        {
             Triangles.Add(Triangle + BaseVertexCount);
         }
-        foreach (Vector2 UV in  DecorationMesh.uv) {
+        foreach (Vector2 UV in Mesh.uv)
+        {
             UVs.Add(UV);
         }
-
-        return true;
     }
 
 }

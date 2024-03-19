@@ -15,6 +15,11 @@ public class Turn : GameService
         CardHand = Game.GetService<CardHand>();
         CardDeck = Game.GetService<CardDeck>();
         DiscardDeck = Game.GetService<DiscardDeck>();
+        Stockpile = Game.GetService<Stockpile>();
+        MiniMap = Game.GetService<MiniMap>();
+        Units = Game.GetService<Units>();
+        CloudRenderer = Game.GetService<CloudRenderer>();
+
         gameObject.SetActive(true);
         TurnUI.SetActive(true);
         IsInit = true;
@@ -32,20 +37,16 @@ public class Turn : GameService
 
         MessageSystem.DeleteAllMessages();
         Stockpile.ProduceResources();
+        Stockpile.ProduceWorkers();
         TurnNr++;
+        Units.RefreshUnits();
         MoveCard();
         SpreadMalaise();
         UpdateMalaiseVisualization();
 
-        if (!Game.TryGetService(out Workers WorkerService))
-            return;
-        WorkerService.HandleEndOfTurn();
-
         UpdateSelection();
-        if (!Game.TryGetService(out MiniMap Map))
-            return;
 
-        Map.FillBuffer();
+        MiniMap.FillBuffer();
     }
 
     private void SpreadMalaise() {
@@ -73,6 +74,8 @@ public class Turn : GameService
 
             Data.Chunk.Visualization.MalaiseVisualization.GenerateMesh();
         }
+
+        CloudRenderer.PassMaterialBuffer();
     }
 
     private void MoveCard() {
@@ -130,6 +133,10 @@ public class Turn : GameService
     private CardHand CardHand;
     private CardDeck CardDeck;
     private DiscardDeck DiscardDeck;
+    private Stockpile Stockpile;
+    private MiniMap MiniMap;
+    private Units Units;
+    private CloudRenderer CloudRenderer;
 
     public int TurnNr = 1;
     public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();

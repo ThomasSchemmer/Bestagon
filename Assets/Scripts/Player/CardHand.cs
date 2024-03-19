@@ -19,8 +19,8 @@ public class CardHand : CardCollection
 
         Cards = new List<Card> {
             Card.CreateCard(BuildingData.Type.Woodcutter, 0, transform),
-            //Card.CreateCard(BuildingData.Type.Mine, 1, transform),
-            //Card.CreateCard(BuildingData.Type.Farm, 2, transform),
+            Card.CreateCard(BuildingData.Type.Hut, 1, transform),
+            Card.CreateCard(BuildingData.Type.Farm, 2, transform),
             //Card.CreateCard(BuildingData.Type.Farm, 3, transform),
             //Card.CreateCard(BuildingData.Type.Woodcutter, 4, transform)
         };

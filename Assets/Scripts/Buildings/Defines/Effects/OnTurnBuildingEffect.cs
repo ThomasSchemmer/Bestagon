@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Collections;
 using UnityEditor.Build.Content;
 using UnityEngine;
@@ -14,7 +15,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         YieldPerWorker,
         YieldPerAreaAndWorker,
         YieldWorkerPerWorker,
-        IncreaseYield
+        IncreaseYield,
     }
 
     public Type EffectType = Type.YieldPerWorker;
