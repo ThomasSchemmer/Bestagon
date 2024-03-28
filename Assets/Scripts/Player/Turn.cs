@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Turn;
 
 public class Turn : GameService
 {
@@ -22,7 +23,6 @@ public class Turn : GameService
 
         gameObject.SetActive(true);
         TurnUI.SetActive(true);
-        IsInit = true;
         _OnInit?.Invoke();
     }
 
@@ -47,6 +47,7 @@ public class Turn : GameService
         UpdateSelection();
 
         MiniMap.FillBuffer();
+        _OnTurnEnd?.Invoke();
     }
 
     private void SpreadMalaise() {
@@ -141,4 +142,7 @@ public class Turn : GameService
     public int TurnNr = 1;
     public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();
     public GameObject TurnUI;
+
+    public delegate void OnTurnEnd();
+    public OnTurnEnd _OnTurnEnd;
 }

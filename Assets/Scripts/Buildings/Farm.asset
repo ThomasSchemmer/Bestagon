@@ -12,61 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Farm
   m_EditorClassIdentifier: 
-  Workers: []
-  BuildingType: 2
+  BuildingType: 16
   Cost:
     _Production:
       Tuples:
       - Key: 0
-        Value: 2
+        Value: 3
       - Key: 1
-        Value: 0
-      - Key: 2
-        Value: 0
-      - Key: 3
-        Value: 0
-      - Key: 4
-        Value: 0
+        Value: 1
   Effect:
     EffectType: 1
-    TileType: 5121
+    TileType: 1025
     Production:
       _Production:
         Tuples:
-        - Key: 0
-          Value: 0
-        - Key: 1
-          Value: 0
-        - Key: 2
-          Value: 0
-        - Key: 3
-          Value: 3
-        - Key: 4
-          Value: 0
-    Range: 1
-    ProductionIncrease: 1
+        - Key: 19
+          Value: 1
+        - Key: 23
+          Value: 1
+    Consumption:
+      _Production:
+        Tuples: []
+    Range: 0
     IsProductionBlockedByBuilding: 0
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples:
-        - Key: 0
-          Value: 0
-        - Key: 1
-          Value: 0
-        - Key: 2
-          Value: 0
-        - Key: 3
-          Value: 0
-        - Key: 4
-          Value: 0
-    UpgradeRange: 1
-    UpgradeProductionIncrease: 1.2
+        Tuples: []
+    UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5121
+  BuildableOn: 1025
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 3
-  UpgradeBuildableOn: 24451
-  UpgradeMaxUsages: 4
-  bIncludeWorker: 1
+  UpgradeMaxWorker: 2
+  UpgradeBuildableOn: 0
+  UpgradeMaxUsages: 3

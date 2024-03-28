@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
+  m_Name: Smithy
+  m_EditorClassIdentifier: 
+  BuildingType: 0
+  Cost:
+    _Production:
+      Tuples: []
+  Effect:
+    EffectType: 1
+    TileType: 0
+    Production:
+      _Production:
+        Tuples: []
+    Consumption:
+      _Production:
+        Tuples: []
+    Range: 0
+    IsProductionBlockedByBuilding: 0
+    UpgradeTileType: 0
+    UpgradeProduction:
+      _Production:
+        Tuples: []
+    UpgradeRange: 0
+  MaxWorker: 1
+  BuildableOn: 0
+  CurrentUsages: 1
+  MaxUsages: 1
+  UpgradeMaxWorker: 1
+  UpgradeBuildableOn: 0
+  UpgradeMaxUsages: 1

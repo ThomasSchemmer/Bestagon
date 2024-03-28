@@ -50,20 +50,20 @@ public class SelectedHexScreen : MonoBehaviour
     }
 
 
-    public void AddWorker() {
+    public void AddWorker(int i) {
         if (!MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
 
-        Building.AddWorker();
+        Building.RequestAddWorkerAt(i);
         ShowWorker(true);
     }
 
-    public void RemoveWorker()
+    public void RemoveWorker(int i)
     {
         if (!MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
 
-        Building.RemoveWorker();
+        Building.RequestRemoveWorkerAt(i);
         ShowWorker(true);
     }
 
@@ -135,7 +135,7 @@ public class SelectedHexScreen : MonoBehaviour
         }
 
         for (int i = 0; i < BuildingData.MaxWorker; i++) {
-            bool bShouldShowEmployee = i < BuildingData.WorkerCount;
+            bool bShouldShowEmployee = BuildingData.AssignedWorkers[i] != null;
             GameObject Prefab = bShouldShowEmployee ? WorkerPrefab : NoWorkerPrefab;
             GameObject NewUI = Instantiate(Prefab);
             NewUI.transform.SetParent(WorkerContainerUI.transform, false);
@@ -145,9 +145,9 @@ public class SelectedHexScreen : MonoBehaviour
             if (Button) {
                 int ti = i;
                 if (!bShouldShowEmployee) {
-                    Button.onClick.AddListener(() => { AddWorker(); });
+                    Button.onClick.AddListener(() => { AddWorker(ti); });
                 } else {
-                    Button.onClick.AddListener(() => { RemoveWorker(); });
+                    Button.onClick.AddListener(() => { RemoveWorker(ti); });
                 }
             }
         }

@@ -10,6 +10,7 @@ public abstract class CardCollection : GameService, ISaveable
     public virtual void AddCard(Card Card) {
         Cards.Add(Card);
         Card.transform.SetParent(transform, false);
+        Card.SetCanBeHovered(false);
     }
 
     public virtual Card RemoveCard() {
@@ -33,6 +34,19 @@ public abstract class CardCollection : GameService, ISaveable
         }
     }
 
+    public void MoveAllCardsConditionallyTo(CardCollection OtherCollection, Func<Card, bool> Check)
+    {
+        for (int i = Cards.Count - 1; i >= 0; i--)
+        {
+            Card Card = Cards[i];
+            if (Check(Card))
+            {
+                RemoveCard(Card);
+                OtherCollection.AddCard(Card);
+            }
+        }
+    }
+
     public virtual void RemoveCard(Card Card) {
         Cards.Remove(Card);
         if (Text) {
@@ -45,7 +59,7 @@ public abstract class CardCollection : GameService, ISaveable
             return null;
 
         int TypeCount = BuildingFactory.GetUnlockedBuildings().Count;
-        BuildingData.Type Type = (BuildingData.Type)(1 << UnityEngine.Random.Range(1, TypeCount));
+        BuildingConfig.Type Type = (BuildingConfig.Type)(1 << UnityEngine.Random.Range(1, TypeCount));
         return Card.CreateCard(Type, i, transform);
     }
 
@@ -98,8 +112,7 @@ public abstract class CardCollection : GameService, ISaveable
             CardDTO DTO = new();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
             Card Card = Card.CreateCardFromDTO(DTO, i, transform);
-            Card.SetIndex(i);
-            Cards.Add(Card);
+            AddCard(Card);
         }
     }
 
@@ -108,6 +121,14 @@ public abstract class CardCollection : GameService, ISaveable
         foreach (Card Card in Cards)
         {
             Card.RefreshUsage();
+        }
+    }
+
+    public void RefreshAllUsedUps()
+    {
+        foreach (Card Card in Cards)
+        {
+            Card.RefreshUsedUp();
         }
     }
 

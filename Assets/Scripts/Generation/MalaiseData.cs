@@ -28,7 +28,7 @@ public class MalaiseData : ISaveable
         if (!MapGenerator)
             return;
 
-        List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(Data.Location);
+        List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(Data.Location, false);
         for (int i = 0; i < 3; i++) {
             int Index = Random.Range(0, Neighbours.Count);
             HexagonData Neighbour = Neighbours[Index];

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="Herbs.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showguides="true"
+     inkscape:zoom="8.9824658"
+     inkscape:cx="26.217745"
+     inkscape:cy="29.446257"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1.0583333"
+       spacingy="1.0583333"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g6"
+       transform="matrix(2.3512465,0.46300074,-0.46300074,2.3512465,1.8850089,-21.093637)"
+       style="stroke-width:0.05520435;stroke-dasharray:none;fill:#084739">
+      <path
+         style="fill:#084739;stroke:#000000;stroke-width:0.05520435;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+         d="m 5.2218408,8.5367914 c 2.3825578,2.1134866 1.1912791,4.2269726 0,5.2837166"
+         id="path5" />
+      <path
+         style="fill:#084739;stroke:#000000;stroke-width:0.05520435;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+         d="m 5.2215415,8.5367914 c -2.3825578,2.1134866 -1.1912791,4.2269736 0,5.2837166"
+         id="path6" />
+    </g>
+    <path
+       style="fill:#194f35;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="m 1.5079558,3.7776616 c 7.5502219,1.115796 7.9315428,6.9171844 6.927388,10.5988144"
+       id="path2-5" />
+    <path
+       style="fill:#194f35;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 1.5241071,3.7776619 C -0.4842041,11.140918 4.6763842,13.818579 8.4514946,14.376476"
+       id="path2-5-6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 1.507956,3.7776613 C 5.4796056,6.5671552 8.7496435,13.649343 9.0079895,14.339821"
+       id="path8" />
+    <path
+       style="fill:#39681d;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 15.056422,4.0893145 C 17.252852,11.39866 12.162613,14.207748 8.4030444,14.862251"
+       id="path3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 10.209599,1.3960414 C 8.2349965,4.9411453 8.2310965,12.27864 8.6195425,13.987547"
+       id="path20" />
+    <path
+       style="fill:#39681d;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 15.106065,4.0893146 C 7.5869328,5.3983178 7.3544722,11.207578 8.4526892,14.862251"
+       id="path4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.13229167;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
+       d="M 15.056422,4.0893145 C 11.229554,7.6078397 9.1037825,12.535572 8.4526892,14.862251"
+       id="path19" />
+  </g>
+</svg>

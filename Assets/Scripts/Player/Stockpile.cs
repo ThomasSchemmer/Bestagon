@@ -1,35 +1,15 @@
-﻿using Codice.Client.BaseCommands;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Unity.Collections;
 
-public class Stockpile : GameService
+public class Stockpile : GameService, ISaveable
 {
-
-    public void Update() {
-        ShowResources();
-    }
-
-    private void ShowResources() {
-        string ResourcesString = Resources.GetDescription() + "\t\t";
-        Turn Turn = Game.GetService<Turn>();
-        string TurnString = "Turn: " + (Turn ? Turn.TurnNr : -1) + "\t\t";
-
-        string WorkersString = "";
-        if (Game.TryGetService(out Workers WorkerService))
-        {
-            WorkersString = "Working: " + WorkerService.GetEmployedWorkerCount() + "\tIdle: " + WorkerService.GetUnemployedWorkerCount();
-        }
-        string FinalString = ResourcesString + TurnString + WorkersString;
-        ResourceText.SetText(FinalString);
-    }
 
     public bool Pay(Production Costs) {
         if (!CanAfford(Costs))
             return false;
 
         Resources -= Costs;
-        ShowResources();
+        _OnResourcesChanged?.Invoke();
         return true;
     }
 
@@ -43,18 +23,18 @@ public class Stockpile : GameService
 
         foreach (BuildingData Building in Buildings)
         {
-            if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.YieldWorkerPerWorker)
+            if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.ProduceUnit)
                 continue;
 
-            if (Building.WorkerCount != 2)
+            if (Building.GetWorkingWorkerCount() != 2)
                 continue;
 
-            Building.RemoveWorker();
-            Building.RemoveWorker();
+            Building.RequestRemoveWorkerAt(0);
+            Building.RequestRemoveWorkerAt(1);
             WorkerService.CreateNewWorker();
         }
     }
-
+    
     public void ProduceResources() {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
@@ -63,27 +43,34 @@ public class Stockpile : GameService
             return;
 
         Resources += MapGenerator.GetProductionPerTurn();
-        Resources -= WorkerService.GetWorkerCosts();
-        Resources -= UnitService.GetUnitCosts();
         HandleStarvation(WorkerService, UnitService);
 
-        ShowResources();
+        _OnResourcesChanged?.Invoke();
+    }
+
+    public int GetResourceGroupCount(int GroupIndex) 
+    {
+        int Count = 0;
+        int Min = Production.Indices[GroupIndex];
+        int Max = Production.Indices[GroupIndex + 1];
+        for (int Index = Min; Index < Max; Index++)
+        {
+            Production.Type ResourceType = (Production.Type)Index;
+            Count += Resources[ResourceType];
+        }
+        return Count;
+    }
+
+    public int GetResourceCount(int ResourceTypeIndex)
+    {
+        Production.Type ResourceType = (Production.Type)ResourceTypeIndex;
+        return Resources[ResourceType];
     }
 
     private void HandleStarvation(Workers WorkerService, Units UnitService)
     {
-        if (Resources[Production.Type.Food] >= 0)
-            return;
-
-        int WorkersKilled = WorkerService.HandleStarvation(Resources[Production.Type.Food]);
-        Resources[Production.Type.Food] += WorkersKilled * Workers.CostsPerWorker[Production.Type.Food]; 
-        
-        if (Resources[Production.Type.Food] >= 0)
-            return;
-
-        int UnitsKilled = UnitService.HandleStarvation(Resources[Production.Type.Food]);
-
-        Resources[Production.Type.Food] = 0;
+        StarvableUnit.HandleStarvationFor(WorkerService.ActiveWorkers, Resources, "Workers");
+        StarvableUnit.HandleStarvationFor(UnitService.ActiveUnits, Resources, "Units");
     }
 
     public bool CanAfford(Production Costs) {
@@ -92,22 +79,49 @@ public class Stockpile : GameService
 
     protected override void StartServiceInternal()
     {
-        Tuple<Production.Type, int>[] Tuples = {
-            new(Production.Type.Wood, 4),
-            new(Production.Type.Stone, 2),
-            new(Production.Type.Metal, 0),
-            new(Production.Type.Food, 5)
-        };
-        Resources = new Production(Tuples);
+        Resources = new(new[]
+        {
+            Production.Type.Wood,
+            Production.Type.Clay,
+            Production.Type.Mushroom,
+        }, new[]
+        {
+            5,
+            2,
+            5
+        });
         _OnInit?.Invoke();
     }
 
-    protected override void StopServiceInternal()
+    protected override void StopServiceInternal() {}
+
+    public int GetSize()
     {
-        throw new System.NotImplementedException();
+        return Resources.GetSize() + sizeof(int); 
     }
 
-    public TextMeshProUGUI ResourceText;
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Resources);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradePoints);
+
+        return Bytes.ToArray();
+    }
+
+    public void SetData(NativeArray<byte> Bytes)
+    {
+        int Pos = 0;
+        Resources = new Production();
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Resources);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradePoints);
+    }
 
     public Production Resources;
+    public int UpgradePoints = 0;
+
+    public delegate void OnResourcesChanged();
+    public OnResourcesChanged _OnResourcesChanged;
 }

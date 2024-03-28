@@ -6,55 +6,82 @@ using UnityEngine.Assertions;
 
 public class Workers : GameService
 {
-
-    public bool RequestWorkerFor(BuildingData Building) {
+    // todo: save
+    public void RequestAddWorkerFor(BuildingData Building, int i) {
         if (!HasUnemployedWorkers())
-            return false;
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "No idle worker exist for this building");
+            return;
+        }
 
-        AmountOfEmployedWorkers++;
-        if (BuildingsWithWorkers.Contains(Building))
-            return true;
-
-        BuildingsWithWorkers.Add(Building);
-
-        return true;
+        WorkerData WorkerUnit = GetUnemployedWorker();
+        AssignWorkerTo(WorkerUnit, Building, i);
     }
 
-    public void ReleaseWorkerFrom(BuildingData Building) {
-        if (!BuildingsWithWorkers.Contains(Building))
+    public void RequestRemoveWorkerFor(BuildingData Building, WorkerData Worker, int i)
+    {
+        Worker.RemoveFromBuilding();
+        Building.RemoveWorker(i);
+    }
+
+    public void AssignWorkerTo(WorkerData Worker, BuildingData Building, int i)
+    {
+        Worker.AssignToBuilding(Building, i);
+        Building.PutWorkerAt(Worker, i);
+    }
+
+    public void KillWorker(WorkerData WorkerUnit)
+    {
+        if (WorkerUnit == null)
             return;
 
-        AmountOfEmployedWorkers--;
-
-        if (Building.WorkerCount == 0)
+        if (WorkerUnit.IsEmployed())
         {
-            BuildingsWithWorkers.Remove(Building);
+            RequestRemoveWorkerFor(WorkerUnit.GetAssignedBuilding(), WorkerUnit, WorkerUnit.GetAssignedBuildingSlot());
         }
+        ActiveWorkers.Remove(WorkerUnit);
+        CheckForGameOver();
     }
 
-    public void ReleaseAndKillWorkerFrom(BuildingData Building)
+    private void CheckForGameOver()
     {
-        ReleaseWorkerFrom(Building);
-        KillWorker();
+        if (ActiveWorkers.Count != 0)
+            return;
+
+        if (!Game.TryGetService(out Units Units))
+            return;
+
+        if (Units.ActiveUnits.Count != 0)
+            return;
+
+        Game.Instance.GameOver("Your tribe has died out!");
     }
 
-    private void KillWorker()
+    private WorkerData GetUnemployedWorker()
     {
-        AmountOfWorkers--;
-    }
-
-    private void KillWorkerFromRandomBuilding()
-    {
-        int RandomIndex = UnityEngine.Random.Range(0, BuildingsWithWorkers.Count);
-        ReleaseAndKillWorkerFrom(BuildingsWithWorkers[RandomIndex]);
+        foreach (WorkerData WorkerUnit in ActiveWorkers)
+        {
+            if (!WorkerUnit.IsEmployed())
+                return WorkerUnit;
+        }
+        return null;
     }
 
     public int GetEmployedWorkerCount() {
-        return AmountOfEmployedWorkers;
+        int EmployedCount = 0;
+        foreach (WorkerData WorkerUnit in ActiveWorkers)
+        {
+            if (!WorkerUnit.IsEmployed())
+                continue;
+
+            EmployedCount++;
+        }
+
+        return EmployedCount;
     }
 
     public int GetUnemployedWorkerCount() {
-        return AmountOfWorkers - AmountOfEmployedWorkers;
+        return GetTotalWorkerCount() - GetEmployedWorkerCount();
     }
 
     public bool HasUnemployedWorkers()
@@ -63,53 +90,21 @@ public class Workers : GameService
     }
 
     public int GetTotalWorkerCount() {
-        return AmountOfWorkers;
+        return ActiveWorkers.Count;
     }
 
     public void CreateNewWorker()
     {
-        AmountOfWorkers++;
+        ActiveWorkers.Add(new WorkerData());
     }
-
-    public Production GetWorkerCosts()
+    
+    protected override void StartServiceInternal()
     {
-        Production Cost = CostsPerWorker * GetTotalWorkerCount();
-
-        return Cost;
+        ActiveWorkers.Add(new WorkerData());
+        ActiveWorkers.Add(new WorkerData());
     }
-
-    public int HandleStarvation(int Food)
-    {
-        if (Food >= 0)
-            return 0;
-
-        // try to starve unassigned ones first, as this causes less hassle to the player
-        int AmountToStarve = Mathf.Min(Mathf.Abs(Food), GetTotalWorkerCount());
-        int AmountOfUnassignedToStarve = Mathf.Min(GetUnemployedWorkerCount(), AmountToStarve);
-        int AmountOfAssignedToStarve = Mathf.Min(GetEmployedWorkerCount(), AmountToStarve - AmountOfUnassignedToStarve);
-
-        // unassigned, so we don't need to update the building
-        for (int i = 0; i < AmountOfUnassignedToStarve; i++)
-        {
-            KillWorker();
-        }
-
-        for (int i = 0; i < AmountOfAssignedToStarve; i++)
-        {
-            KillWorkerFromRandomBuilding();
-        }
-
-        MessageSystem.CreateMessage(Message.Type.Warning, AmountToStarve + " workers died of starvation!");
-        return AmountToStarve;
-    }
-
-    protected override void StartServiceInternal() {}
 
     protected override void StopServiceInternal() {}
 
-    public int AmountOfWorkers = 2;
-    public int AmountOfEmployedWorkers = 0;
-    public List<BuildingData> BuildingsWithWorkers = new();
-
-    public static Production CostsPerWorker = new Production(Production.Type.Food, 1);
+    public List<WorkerData> ActiveWorkers = new();
 }

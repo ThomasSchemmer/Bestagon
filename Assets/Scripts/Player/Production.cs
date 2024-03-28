@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 [Serializable]
 /**
@@ -10,26 +11,49 @@ using UnityEngine;
 public class Production : ISaveable
 {
     [Serializable]
-    public enum Type
+    public enum Type : uint
     {
-        Wood,
-        Stone,
-        Metal,
-        Food,
-        Science
+        Wood = 0,
+        Clay = 1,
+        Stone = 2,
+        Planks = 3,
+        Tools = 4,
+        Marble = 5,
+        HeavyPlanks = 6,
+        Mushroom = 7,
+        Herbs = 8,
+        Meat = 9,
+        Jerky = 10,
+        MeatPie = 11,
+        WaterSkins = 12,
+        Cloaks = 13,
+        Coffee = 14,
+        Medicine = 15,
+        Scrolls = 16,
+        Flour = 17,
+        Fabric = 18,
+        PlantFiber = 19,
+        Hides = 20,
+        IronBars = 21,
+        Iron = 22,
+        Grain = 23,
+        HardWood = 24
     }
+
+    public static int BuildingMaterialsIndex = 0;
+    public static int FoodIndex = 7;
+    public static int LuxuryGoodsIndex = 12;
+    public static int TradeGoodsIndex = 17;
+    public static int MaxIndex = 25;
+    public static int[] Indices = {BuildingMaterialsIndex, FoodIndex, LuxuryGoodsIndex, TradeGoodsIndex, MaxIndex};
 
     public Production()
     {
-        _Production = new SerializedDictionary<Type, int> ();
-        foreach (Type Type in Enum.GetValues(typeof(Type)))
-        {
-            this[Type] = 0;
-        }
+        _Production = new SerializedDictionary<Type, int>();
     }
 
     public Production(Type Type, int Amount) : this() {
-        this[Type] = Amount;
+        _Production.Add(Type, Amount);
     }
 
     public Production(Type[] Types, int[] Amounts) : this()
@@ -39,7 +63,7 @@ public class Production : ISaveable
 
         for (int i = 0; i < Types.Length; i++)
         {
-            this[Types[i]] = Amounts[i];
+            _Production.Add(Types[i], Amounts[i]);
         }
     }
 
@@ -47,7 +71,7 @@ public class Production : ISaveable
     {
         foreach (Tuple<Type, int> Tuple in Tuples)
         {
-            this[Tuple.Key] = Tuple.Value;
+            _Production.Add(Tuple.Key, Tuple.Value);
         }
     }
 
@@ -55,7 +79,7 @@ public class Production : ISaveable
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {
-            Production[Type] = A[Type] + B[Type];
+            Production._Production.Add(Type, A[Type] + B[Type]);
         }
         return Production;
     }
@@ -64,7 +88,7 @@ public class Production : ISaveable
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {
-            Production[Type] = A[Type] - B[Type];
+            Production._Production.Add(Type, A[Type] - B[Type]);
         }
         return Production;
     }
@@ -74,7 +98,7 @@ public class Production : ISaveable
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {
-            Production[Type] = A * B[Type];
+            Production._Production.Add(Type, A * B[Type]);
         }
         return Production;
     }
@@ -100,21 +124,20 @@ public class Production : ISaveable
 
     public static Production operator* (Production A, int B)
     {
-        Production Production = new Production();
-        foreach (Type Type in Enum.GetValues(typeof(Type)))
-        {
-            Production[Type] = A[Type] * B;
-        }
-        return Production;
+        return B * A;
     }
 
-    public string GetDescription() {
-        String String = "";
-        foreach (Type Type in Enum.GetValues(typeof(Type)))
+    public List<Tuple<Type, int>> GetTuples() {
+
+        List<Tuple<Type, int>> Tuples = new();
+        foreach (var Tuple in _Production)
         {
-            String += Type.ToString() + ": " + this[Type] + "\t";
+            if (Tuple.Value == 0)
+                continue;
+
+            Tuples.Add(new(Tuple.Key, Tuple.Value));
         }
-        return String;
+        return Tuples;
     }
 
     public string GetDescription(Type Type) {
@@ -136,6 +159,19 @@ public class Production : ISaveable
 
     public string GetShortDescription(Type Type) {
         return GetDescription(Type)[..1];
+    }
+
+    public static int GetHungerFromFood(Type FoodType)
+    {
+        switch (FoodType)
+        {
+            case Type.Mushroom: return 1;
+            case Type.Herbs: return 1;
+            case Type.Meat: return 2;
+            case Type.Jerky: return 3;
+            case Type.MeatPie: return 5;
+            default: return 0;
+        }
     }
 
     public int GetSize()

@@ -10,6 +10,7 @@ public abstract class GameService : MonoBehaviour
     public void StartService()
     {
         IsRunning = true;
+        _OnInit += BaseInit;
         StartServiceInternal();
         _OnStartup?.Invoke();
     }
@@ -19,6 +20,11 @@ public abstract class GameService : MonoBehaviour
         IsRunning = false;
         StopServiceInternal();
         _OnShutdown?.Invoke();
+    }
+
+    private void BaseInit()
+    {
+        IsInit = true;
     }
 
     protected abstract void StartServiceInternal();

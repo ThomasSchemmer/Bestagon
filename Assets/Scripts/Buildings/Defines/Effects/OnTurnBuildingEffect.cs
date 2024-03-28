@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Unity.Collections;
 using UnityEditor.Build.Content;
 using UnityEngine;
+using UnityEngine.XR;
 
 [Serializable]
 public class OnTurnBuildingEffect : BuildingEffect, ISaveable
@@ -12,47 +13,42 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     public enum Type
     {
         None,
-        YieldPerWorker,
-        YieldPerAreaAndWorker,
-        YieldWorkerPerWorker,
-        IncreaseYield,
+        Produce,
+        ConsumeProduce,
+        ProduceUnit,
     }
 
-    public Type EffectType = Type.YieldPerWorker;
+    public Type EffectType = Type.Produce;
     public HexagonConfig.HexagonType TileType = 0;
     public Production Production = new Production();
-    public int Range = 1;
-    public float ProductionIncrease = 1.2f;
+    public Production Consumption = new Production();
+    public int Range = 0;
     public bool IsProductionBlockedByBuilding = false;
 
     public HexagonConfig.HexagonType UpgradeTileType = 0;
     public Production UpgradeProduction = new Production();
-    public int UpgradeRange = 1;
-    public float UpgradeProductionIncrease = 1.2f;
+    public int UpgradeRange = 0;
 
 
     public Production GetProduction(int Worker, Location Location)
     {
         switch(EffectType)
         {
-            case Type.YieldPerWorker:
-                return GetProductionPerWorker(Worker);
-            case Type.YieldPerAreaAndWorker:
-                return GetProductionPerAreaAndWorker(Worker, Location);
-
+            case Type.Produce:
+                return GetProductionAt(Worker, Location);
+            case Type.ConsumeProduce:
+                return GetConsumeProductionAt(Worker, Location);
+            // ProduceUnit is handled on its own
             default: return new();
         }
     }
 
-    private Production GetProductionPerWorker(int Worker) { 
-        return Production * Worker;
-    }
-
-    private Production GetProductionPerAreaAndWorker(int Worker, Location Location) {
+    private Production GetProductionAt(int Worker, Location Location) {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return new();
 
-        List<HexagonData> NeighbourData = MapGenerator.GetNeighboursData(Location, Range);
+        bool bShouldAddOrigin = Range == 0;
+        List<HexagonData> NeighbourData = MapGenerator.GetNeighboursData(Location, bShouldAddOrigin, Range);
         Production Production = new();
 
         if (!TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus))
@@ -71,10 +67,22 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         return Production * Worker;
     }
 
+    private Production GetConsumeProductionAt(int Worker, Location Location)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return new();
+
+        if (!Stockpile.CanAfford(Consumption))
+            return new();
+
+        Stockpile.Pay(Consumption);
+        return Production * Worker;
+    }
+
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
     {
         Bonus = new Dictionary<HexagonConfig.HexagonType, Production>();
-        if (EffectType != Type.YieldPerAreaAndWorker)
+        if (EffectType != Type.Produce)
             return false;
 
         foreach (var RawEnum in Enum.GetValues(typeof(HexagonConfig.HexagonType))) {
@@ -85,34 +93,31 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         return true;
     }
 
-    private Production GetProductionPerWorkerPerWorker() { return new(); }
-
-    private Production GetProductionIncreaseYield()
-    {
-        return new Production();
-    }
-
     public string GetDescription()
     {
         switch (EffectType)
         {
-            case Type.YieldPerWorker: return "Produces " + Production.GetShortDescription() + " per Worker and turns";
-            case Type.YieldPerAreaAndWorker: return GetDescriptionYieldAreaWorker();
-            case Type.YieldWorkerPerWorker: return "Creates X worker if Y worker occupy for a turn";
-            case Type.IncreaseYield: return GetDescriptionIncreaseYield();
+            case Type.Produce: return GetDescriptionProduce();
+            case Type.ProduceUnit: return GetDescriptionProduceUnit();
+            case Type.ConsumeProduce: return GetDescriptionConsumeProduce();
 
             default: return "No effect";
         }
     }
 
-    private string GetDescriptionYieldAreaWorker()
+    private string GetDescriptionProduce()
     {
         return "Produces " + Production.GetShortDescription() + " per Worker for each surrounding " + HexagonConfig.GetShortTypeDescription(TileType);
     }
 
-    private string GetDescriptionIncreaseYield()
+    private string GetDescriptionConsumeProduce()
     {
-        return "Increases production of neighbouring X by Y";
+        return "Produces X at the cost of Y";
+    }
+
+    private string GetDescriptionProduceUnit()
+    {
+        return "Creates X worker if Y worker occupy for a turn";
     }
 
     public int GetSize()
@@ -122,7 +127,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     public static int GetStaticSize()
     {
-        return 2 + sizeof(int) * 4 + sizeof(double) * 2 + Production.GetStaticSize() * 2;
+        return 2 + sizeof(int) * 4 + Production.GetStaticSize() * 3;
     }
 
     public byte[] GetData()
@@ -133,13 +138,12 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)TileType);
         Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, ProductionIncrease);
 
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeTileType);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, UpgradeProduction);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeRange);
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, UpgradeProductionIncrease);
 
         return Bytes.ToArray();
     }
@@ -151,18 +155,15 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iTileType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out IsProductionBlockedByBuilding);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dProductionIncrease);
 
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeTileType);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, UpgradeProduction);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeRange);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dUpgradeProductionIncrease);
 
         EffectType = (Type)iEffectType;
         TileType = (HexagonConfig.HexagonType)iTileType;
-        ProductionIncrease = (float)dProductionIncrease;
         UpgradeTileType = (HexagonConfig.HexagonType)iUpgradeTileType;
-        UpgradeProductionIncrease = (float)dUpgradeProductionIncrease;
     }
 }

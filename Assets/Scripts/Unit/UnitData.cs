@@ -4,10 +4,9 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-public abstract class UnitData : ISaveable
+public abstract class UnitData : StarvableUnit, ISaveable
 {
-
-
+    
     public int GetMovementCostTo(Location ToLocation)
     {
         List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation);
@@ -47,17 +46,18 @@ public abstract class UnitData : ISaveable
 
     public void Refresh()
     {
+        if (IsStarving())
+            return;
+
         RemainingMovement = MovementPerTurn;
     }
-
-    public abstract Production GetCosts();
 
     public abstract string GetPrefabName();
 
     public virtual int GetSize()
     {
-        // 4 bytes, one each for MovementPerTurn, RemainingMovement, Visiting, ScoutingRange
-        return sizeof(char) + 4 * sizeof(byte) + Location.GetStaticSize();
+        // 4 bytes, one each for MovementPerTurn, RemainingMovement, Visiting, ScoutingRange, FoodCount
+        return sizeof(char) + 5 * sizeof(byte) + Location.GetStaticSize();
     }
 
     public virtual byte[] GetData()
@@ -68,6 +68,7 @@ public abstract class UnitData : ISaveable
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)RemainingMovement);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)VisitingRange);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ScoutingRange);
+        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)FoodCount);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
 
         return Bytes.ToArray();
@@ -80,12 +81,14 @@ public abstract class UnitData : ISaveable
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bRemainingMovement);
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bVisitingRange);
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bScoutingRage);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bFoodCount);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
 
         MovementPerTurn = bMovementPerTurn;
         RemainingMovement = bRemainingMovement;
         VisitingRange = bVisitingRange;
         ScoutingRange = bScoutingRage;
+        FoodCount = bFoodCount;
     }
 
     public int MovementPerTurn = 1;

@@ -25,9 +25,14 @@ public class GameOverScreen : MonoBehaviour
 
         CardDeck.RefreshAllUsages();
         CardStash.RefreshAllUsages();
+        CardStash.MoveAllCardsConditionallyTo(CardDeck, (Card) =>
+        {
+            return Card.WasUsedUpThisTurn();
+        });
+        CardDeck.RefreshAllUsedUps();
 
-        SaveGameManager.Save();
-        Game.LoadGame(null, "CardSelection", false);
+        string SaveGame = SaveGameManager.Save();
+        Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
     }
 
     public void Show()

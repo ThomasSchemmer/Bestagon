@@ -14,8 +14,12 @@ public interface ISaveable
         MapGenerator = 0,
         CardHand = 1,
         CardDeck = 2,
-        CardStash = 3
+        CardStash = 3,
+        Unlockables = 4,
+        Stockpile = 5
     }
+
+    public static int MaxTypeIndex = 5;
 
     public abstract int GetSize();
 

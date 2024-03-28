@@ -12,7 +12,7 @@ public class CameraController : GameService
         Game.Instance._OnResume += OnResume;
         Game.RunAfterServiceInit((MapGenerator MapGen) =>
         {
-            IsInit = true;
+            _OnInit?.Invoke();
         });
     }
 

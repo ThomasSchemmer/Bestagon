@@ -11,11 +11,6 @@ public class ScoutData : UnitData
         ID = CURRENT_WORKER_ID++;
     }
 
-    public override Production GetCosts()
-    {
-        return COSTS_PER_SCOUT;
-    }
-
     public override string GetPrefabName()
     {
         return "Scout";
@@ -81,5 +76,4 @@ public class ScoutData : UnitData
 
     public static int MAX_NAME_LENGTH = 10;
     public static int CURRENT_WORKER_ID = 0;
-    public static Production COSTS_PER_SCOUT = new Production(Production.Type.Food, 1);
 }

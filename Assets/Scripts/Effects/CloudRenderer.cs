@@ -13,7 +13,7 @@ public class CloudRenderer : GameService
 
     public void OnDestroy()
     {
-        MalaiseBuffer.Release();
+        MalaiseBuffer?.Release();
     }
 
     private Vector3 Div (Vector3 A, Vector3 B)
@@ -77,7 +77,6 @@ public class CloudRenderer : GameService
             Material.SetBuffer("MalaiseBuffer", MalaiseBuffer);
             PassMaterialBuffer();
 
-            IsInit = true;
             _OnInit?.Invoke();
         });
     }

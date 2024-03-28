@@ -10,63 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
-  m_Name: WoodCutter
+  m_Name: Woodcutter
   m_EditorClassIdentifier: 
-  Workers: []
-  BuildingType: 1
+  BuildingType: 4194304
   Cost:
     _Production:
       Tuples:
-      - Key: 0
-        Value: 2
       - Key: 1
-        Value: 0
-      - Key: 2
-        Value: 0
-      - Key: 3
-        Value: 0
-      - Key: 4
-        Value: 0
+        Value: 1
+      - Key: 0
+        Value: 1
   Effect:
-    EffectType: 2
+    EffectType: 1
     TileType: 4098
     Production:
       _Production:
         Tuples:
         - Key: 0
           Value: 1
-        - Key: 1
-          Value: 0
-        - Key: 2
-          Value: 0
-        - Key: 3
-          Value: 0
-        - Key: 4
-          Value: 0
+    Consumption:
+      _Production:
+        Tuples: []
     Range: 1
-    ProductionIncrease: 1.2
-    IsProductionBlockedByBuilding: 0
+    IsProductionBlockedByBuilding: 1
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples:
-        - Key: 0
-          Value: 0
-        - Key: 1
-          Value: 0
-        - Key: 2
-          Value: 0
-        - Key: 3
-          Value: 0
-        - Key: 4
-          Value: 0
-    UpgradeRange: 1
-    UpgradeProductionIncrease: 1.2
+        Tuples: []
+    UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5123
-  CurrentUsages: 1
-  MaxUsages: 1
-  UpgradeMaxWorker: 3
-  UpgradeBuildableOn: 32643
-  UpgradeMaxUsages: 3
-  bIncludeWorker: 1
+  BuildableOn: 1027
+  CurrentUsages: 2
+  MaxUsages: 2
+  UpgradeMaxWorker: 2
+  UpgradeBuildableOn: 0
+  UpgradeMaxUsages: 2

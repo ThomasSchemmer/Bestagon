@@ -46,5 +46,11 @@ public class CardContainerUI : CardCollection, IDragTarget
         CanvasGroup.alpha = bIsActiveCards ? 1 : 0.8f;
     }
 
+    public override void AddCard(Card Card)
+    {
+        base.AddCard(Card);
+        Card.SetCanBeHovered(true);
+    }
+
     private static float ScrollSpeed = 60f;
 }

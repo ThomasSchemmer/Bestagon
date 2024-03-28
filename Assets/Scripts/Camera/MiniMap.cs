@@ -14,7 +14,6 @@ public class MiniMap : GameService, UIElement
             HexagonBuffer.SetData(DTOs);
             MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
             MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
-            IsInit = true;
             _OnInit?.Invoke();
             FillBuffer();
         });

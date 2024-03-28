@@ -13,4 +13,9 @@ public interface Selectable {
     void Interact();
 
     bool IsEqual(Selectable other);
+
+    bool CanBeInteracted()
+    {
+        return true;
+    }
 }

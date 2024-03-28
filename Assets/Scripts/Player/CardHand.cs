@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Codice.Client.BaseCommands;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -8,23 +9,23 @@ public class CardHand : CardCollection
 
     protected override void StartServiceInternal()
     {
-        base.StartServiceInternal();
+        Game.RunAfterServiceInit((SaveGameManager Manager, Unlockables Unlockables) => {
 
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
+            base.StartServiceInternal();
 
-        // will be loaded
-        if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
-            return;
+            // cards will be loaded instead of newly generated
+            if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
+                return;
 
-        Cards = new List<Card> {
-            Card.CreateCard(BuildingData.Type.Woodcutter, 0, transform),
-            Card.CreateCard(BuildingData.Type.Hut, 1, transform),
-            Card.CreateCard(BuildingData.Type.Farm, 2, transform),
-            //Card.CreateCard(BuildingData.Type.Farm, 3, transform),
-            //Card.CreateCard(BuildingData.Type.Woodcutter, 4, transform)
-        };
-        Sort(false);
+            Cards = new List<Card>();
+            AddCard(Card.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform));
+            AddCard(Card.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform));
+
+            BuildingConfig.Type RandomType = Unlockables.GetRandomUnlockedType();
+            AddCard(Card.CreateCard(RandomType, 0, transform));
+
+            Sort(false);
+        });
     }
         
     public void Sort(bool IsACardHovered) {
@@ -65,6 +66,7 @@ public class CardHand : CardCollection
 
     public override void AddCard(Card Card) {
         base.AddCard(Card);
+        Card.SetCanBeHovered(true);
         Card.gameObject.SetActive(true);
         Card.gameObject.layer = LayerMask.NameToLayer("Card");
         int i = 0;

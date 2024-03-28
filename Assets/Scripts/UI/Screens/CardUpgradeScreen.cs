@@ -8,6 +8,7 @@ public class CardUpgradeScreen : GameService
 {
     public RectTransform UpgradeButton;
     public GameObject TargetCardScreen, UpgradeArrow, ConfirmButton;
+    public CardSelectionScreen CardSelectionScreen;
     public Canvas Canvas;
     public List<GameObject> ToHide = new();
     public List<GameObject> ToDim = new();
@@ -64,6 +65,8 @@ public class CardUpgradeScreen : GameService
     }
 
     public void ShowButtonAtCard(Card Card, bool bIsVisible) {
+        bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.UpgradePoints > 0;
+
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
         TargetPosition.x += 100 / 2f;
@@ -71,7 +74,7 @@ public class CardUpgradeScreen : GameService
         Vector3 OffsetWorld = TargetPosition - UpgradeButton.position;
         Vector3 OffsetLocal = UpgradeButton.InverseTransformVector(OffsetWorld);
         UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
-        UpgradeButton.gameObject.SetActive(bIsVisible);
+        UpgradeButton.gameObject.SetActive(bIsVisible && bHaveEnoughUpgrades);
 
         LastCard = Card;
     }
@@ -120,6 +123,9 @@ public class CardUpgradeScreen : GameService
 
     private void SelectUpgrade(UpgradeableAttributes SelectedUpgrade)
     {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
         UpgradedBuildingData = Instantiate(LastCard.GetBuildingData());
         UpgradedBuildingData.Upgrade(SelectedUpgrade);
         TargetCardScreen.SetActive(true);
@@ -133,6 +139,7 @@ public class CardUpgradeScreen : GameService
         CopyCard = Instantiate(LastCard);
         CopyCard.SetBuildingData(UpgradedBuildingData);
         LoadTextForCard(CopyCard, true);
+        Stockpile.UpgradePoints -= 1;
     }
 
     public void ConfirmUpgrade()
@@ -141,6 +148,7 @@ public class CardUpgradeScreen : GameService
         LastCard.SetBuildingData(UpgradedBuildingData);
         LastCard.GenerateCard();
         Hide();
+        CardSelectionScreen.UpdateText();
     }
 
     protected override void StartServiceInternal() {}

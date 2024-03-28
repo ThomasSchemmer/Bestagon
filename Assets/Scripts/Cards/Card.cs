@@ -10,23 +10,29 @@ using System.Security.Cryptography;
 
 public class Card : Draggable, Selectable
 {        
-    public static Card CreateCard(BuildingData.Type Type, int Index, Transform Parent)
+    public static Card CreateCard(BuildingConfig.Type Type, int Index, Transform Parent)
     {
-        GameObject CardPrefab = Resources.Load("Models/Card") as GameObject;
+        GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Parent);
+        GO.name = "Card " + Type;
         Card Card = GO.AddComponent<Card>();
 
         if (!Game.TryGetService(out TileFactory BuildingFactory))
             return null;
 
         BuildingData BuildingData = BuildingFactory.CreateFromType(Type);
+        if (BuildingData == null)
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "No valid building data was found for type " + Type);
+            return null;
+        }
         Card.Init(BuildingData, Index);
         return Card;
     }
 
     public static Card CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent)
     {
-        GameObject CardPrefab = Resources.Load("Models/Card") as GameObject;
+        GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Parent);
         Card Card = GO.AddComponent<Card>();
 
@@ -42,6 +48,7 @@ public class Card : Draggable, Selectable
         gameObject.layer = LayerMask.NameToLayer("Card");
         GenerateCard();
         Init();
+        this.BuildingData.Init();
     }
 
     public void GenerateCard() {
@@ -52,11 +59,21 @@ public class Card : Draggable, Selectable
     private void GenerateText() {
         LinkTexts();
         NameText.SetText(GetName());
-        SymbolText.SetText(GetSymbol());
-        CostText.SetText(GetCostText());
-        EffectText.SetText(GetDescription());
-        UsagesText.SetText(GetUsages());
-        MaxWorkerText.SetText(GetMaxWorkers());
+        //SymbolText.SetText(GetSymbol());
+        //EffectText.SetText(GetDescription());
+
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return;
+
+        GameObject Icons = IconFactory.GetVisualsForProduction(BuildingData.Cost);
+        Icons.transform.SetParent(CostTransform, false);
+
+        GameObject MaxWorker = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, BuildingData.MaxWorker);
+        MaxWorker.transform.SetParent(MaxWorkerTransform, false);
+
+        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, BuildingData.CurrentUsages);
+        Usages.transform.SetParent(UsagesTransform, false);
+
     }
 
     public string GetUsages()
@@ -87,11 +104,11 @@ public class Card : Draggable, Selectable
     private void LinkTexts() {
         CardBase = GetComponent<Image>();
         NameText = transform.Find("Name").GetComponent<TextMeshProUGUI>();
-        SymbolText = transform.Find("Symbol").GetComponent<TextMeshProUGUI>();
-        CostText = transform.Find("Costs/Costs").GetComponent<TextMeshProUGUI>();
-        EffectText = transform.Find("Effects/Effect").GetComponent<TextMeshProUGUI>();
-        UsagesText = transform.Find("Usages").GetComponent<TextMeshProUGUI>();
-        MaxWorkerText = transform.Find("MaxWorker").GetComponent<TextMeshProUGUI>();
+        SymbolTransform = transform.Find("Symbol").GetComponent<RectTransform>();
+        CostTransform = transform.Find("Costs").GetComponent<RectTransform>();
+        MaxWorkerTransform = transform.Find("MaxWorker").GetComponent<RectTransform>();
+        UsagesTransform = transform.Find("Usages").GetComponent<RectTransform>();
+        EffectTransform = transform.Find("Effects").GetComponent<RectTransform>();
     }
 
     public string GetCostText() {
@@ -177,6 +194,19 @@ public class Card : Draggable, Selectable
         return BuildingData;
     }
 
+    public void SetCanBeHovered(bool bNewState)
+    {
+        bCanBeHovered = bNewState;
+    }
+
+    public bool CanBeInteracted()
+    {
+        if (Game.Instance.bIsPaused)
+            return false;
+
+        return bCanBeHovered;
+    }
+
     public void Use()
     {
         if (!Game.TryGetServices(out CardHand CardHand, out CardStash CardStash, out CardDeck CardDeck))
@@ -187,6 +217,7 @@ public class Card : Draggable, Selectable
         if (bIsUsedUp)
         {
             MessageSystem.CreateMessage(Message.Type.Warning, "A card has been lost due to durability");
+            bWasUsedUp = true;
         }
         CardCollection Target = bIsUsedUp ? CardStash : CardDeck;
 
@@ -196,6 +227,16 @@ public class Card : Draggable, Selectable
     public void RefreshUsage()
     {
         BuildingData.CurrentUsages = BuildingData.MaxUsages;
+    }
+
+    public bool WasUsedUpThisTurn()
+    {
+        return bWasUsedUp;
+    }
+
+    public void RefreshUsedUp()
+    {
+        bWasUsedUp = false;
     }
 
     public void SetBuildingData(BuildingData BuildingData)
@@ -227,7 +268,10 @@ public class Card : Draggable, Selectable
     protected GUID ID;
     protected int Index;
     protected bool isHovered, isSelected;
-    protected TextMeshProUGUI NameText, SymbolText, CostText, EffectText, UsagesText, MaxWorkerText;
+    protected bool bCanBeHovered = false;
+    protected bool bWasUsedUp = false;
+    protected TextMeshProUGUI NameText;
+    protected RectTransform CostTransform, MaxWorkerTransform, SymbolTransform, EffectTransform, UsagesTransform;
     protected Image CardBase;
     protected BuildingData BuildingData;
     protected CardHand CardHand;

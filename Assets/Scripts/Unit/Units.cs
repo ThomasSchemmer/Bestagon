@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static GameService;
 
 public class Units : GameService
 {
+    // todo: save
     public List<UnitData> ActiveUnits = new();
 
     public bool TryGetUnitsAt(Location Location, out List<UnitData> Units, bool bIsChunkLocation = false)
@@ -32,41 +31,30 @@ public class Units : GameService
         }
     }
 
-    public Production GetUnitCosts()
-    {
-        Production Costs = new();
-        foreach (UnitData ActiveUnit in ActiveUnits)
-        {
-            Costs += ActiveUnit.GetCosts();
-        }
-        return Costs;
-    }
-
     public void KillUnit(UnitData Unit)
     {
         ActiveUnits.Remove(Unit);
-        if (Unit.Visualization == null)
-            return;
 
-        Destroy(Unit.Visualization);
-    }
-
-    public int HandleStarvation(int Food)
-    {
-        if (Food >= 0)
-            return 0;
-
-        int AmountToStarve = Mathf.Min(Mathf.Abs(Food), ActiveUnits.Count);
-
-        for (int i = 0; i < AmountToStarve; i++)
-        {
-            KillUnit(ActiveUnits[0]);
+        if (Unit.Visualization != null){
+            Destroy(Unit.Visualization);
         }
 
-        MessageSystem.CreateMessage(Message.Type.Warning, AmountToStarve + " units died of starvation!");
-        return AmountToStarve;
+        CheckForGameOver();
     }
 
+    private void CheckForGameOver()
+    {
+        if (ActiveUnits.Count != 0)
+            return;
+
+        if (!Game.TryGetService(out Workers Workers))
+            return;
+
+        if (Workers.ActiveWorkers.Count != 0)
+            return;
+
+        Game.Instance.GameOver("Your tribe has died out!");
+    }
 
     protected override void StartServiceInternal()
     {

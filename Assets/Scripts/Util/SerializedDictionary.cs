@@ -25,16 +25,19 @@ public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISer
         Clear();
         for (int i = 0; i < Tuples.Count; i++)
         {
-            if (ContainsKey(Tuples[i].Key))
+            TKey Key = Tuples[i].Key;
+            if (!ContainsKey(Key))
             {
-                this[Tuples[i].Key] = Tuples[i].Value;
-            }
-            else
-            {
-                Add(Tuples[i].Key, Tuples[i].Value);
+                Add(Key, Tuples[i].Value);
             }
         }
     }
+
+
+    /** Unity duplicates the last entry on creating a new one, so on immediately serializing 
+     * it tries to save the key twice - leading to only the last one being saved / displayed
+     * Override this per (boilerplate) subclass to yield the next valid key 
+     */
 
     public void OnBeforeSerialize()
     {
@@ -57,3 +60,4 @@ public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISer
         }
     }
 }
+

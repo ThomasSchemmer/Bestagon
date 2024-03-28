@@ -109,7 +109,7 @@ public class Selector<T> where T : Selectable
             return true;
         }
 
-        T Target = Hit.GetComponent<T>();
+        T Target = TryGetTargetFrom(Hit);
 
         if (Target == null) {
             Deselect(bIsLeftClick);
@@ -141,6 +141,9 @@ public class Selector<T> where T : Selectable
     }
 
     public void Select(T Target) {
+        if (!Target.CanBeInteracted())
+            return;
+
         Selected = Target;
         Target.SetSelected(true);
         if (OnItemSelected != null) {
@@ -149,6 +152,9 @@ public class Selector<T> where T : Selectable
     }
 
     public void Hover(T Target) {
+        if (!Target.CanBeInteracted())
+            return;
+
         Hovered = Target;
         Target.SetHovered(true);
         if (OnItemHovered != null) {
@@ -176,6 +182,22 @@ public class Selector<T> where T : Selectable
         }
     }
 
+    private T TryGetTargetFrom(GameObject Hit)
+    {
+        T HitTarget = Hit.GetComponent<T>();
+        if (HitTarget != null)
+            return HitTarget;
+
+        Transform HitTransform = Hit.transform;
+        while (HitTransform.parent != null && HitTarget == null)
+        {
+            HitTransform = HitTransform.parent;
+            HitTarget = HitTransform.GetComponent<T>();
+        }
+
+        return HitTarget;
+    }
+
     private bool RayCast(out GameObject Hit) {
         if (RayCastUI(out Hit)) {
             return true;
@@ -185,6 +207,11 @@ public class Selector<T> where T : Selectable
     }
 
     private bool RayCastWorld(out GameObject Hit) {
+        Hit = null;
+        Rect ScreenRect = new Rect(0, 0, Screen.width, Screen.height);
+        if (!ScreenRect.Contains(Input.mousePosition))
+            return false;
+
         Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.forward * 10;
 
         // since we are using a orthogonal, angled camera we need to actually use its forward vector and cant use "Down"

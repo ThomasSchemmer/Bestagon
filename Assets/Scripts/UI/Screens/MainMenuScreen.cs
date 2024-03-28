@@ -11,7 +11,7 @@ public class MainMenuScreen : MonoBehaviour
 
     public void OnSelectNew()
     {
-        Game.LoadGame(null, "Main", true);
+        Game.LoadGame(null, Game.MainSceneName, true);
     }
 
     public void OnSelectExit()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using static ISaveable;
 
 public class SaveGameManager : GameService
@@ -26,10 +27,22 @@ public class SaveGameManager : GameService
 
     private void HandleDelayedLoading()
     {
+        HandleSwitchToMenu();
         if (FileToLoad == null)
             return;
 
         TryLoad();
+    }
+
+    private void HandleSwitchToMenu()
+    {
+        if (FileToLoad != null || bShouldCreateNewFile)
+            return;
+
+        if (SceneManager.GetActiveScene().name.Equals(Game.MenuSceneName))
+            return;
+
+        Game.LoadGame(null, Game.MenuSceneName, false);
     }
 
     private void FillSaveables()
@@ -87,7 +100,6 @@ public class SaveGameManager : GameService
 
     public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
     {
-        // still can be null, eg if we transition to CardSelection and only use a temp file
         FileToLoad = FileName;
         SaveGameManager.bShouldCreateNewFile = bShouldCreateNewFile;
     }
@@ -108,7 +120,7 @@ public class SaveGameManager : GameService
         return Names;
     }
 
-    private string GetMostRecentSave()
+    public string GetMostRecentSave()
     {
         string[] Saves = GetSavegameNames();
         DateTime MaxTime = DateTime.MinValue;

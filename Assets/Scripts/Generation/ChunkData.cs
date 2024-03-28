@@ -81,7 +81,7 @@ public class ChunkData : ISaveable
         return false;
     }
 
-    public void DestroyBuildingAt(Location Location) {
+    private void DestroyBuildingAt(Location Location) {
         if (!Game.TryGetService(out Workers WorkerService))
             return;
 
@@ -100,7 +100,7 @@ public class ChunkData : ISaveable
         Visualization.RefreshTokens();
     }
 
-    public void DestroyTokensAt(Location Location)
+    private void DestroyWorkersAt(Location Location)
     {
         if (!Game.TryGetService(out Workers WorkerService))
             return;
@@ -108,10 +108,10 @@ public class ChunkData : ISaveable
         if (!TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
-        int TempWorkerCount = Building.WorkerCount;
+        int TempWorkerCount = Building.GetAssignedWorkerCount();
         for (int i = 0; i < TempWorkerCount; i++)
         {
-            WorkerService.ReleaseAndKillWorkerFrom(Building);
+            WorkerService.KillWorker(Building.AssignedWorkers[i]);
         }
 
         if (TempWorkerCount > 0)
@@ -119,7 +119,30 @@ public class ChunkData : ISaveable
             string Text = TempWorkerCount + " worker " + (TempWorkerCount == 1 ? "has " : "have ") + "been killed by malaise";
             MessageSystem.CreateMessage(Message.Type.Warning, Text);
         }
+    }
 
+    private void DestroyUnitsAt(Location Location)
+    {
+        if (!Game.TryGetService(out Units UnitService))
+            return;
+
+        if (!UnitService.TryGetUnitsAt(Location, out List<UnitData> Units))
+            return;
+
+        int UnitCount = Units.Count;
+        foreach (UnitData Unit in Units)
+        {
+            UnitService.KillUnit(Unit);
+        }
+
+        string Text = UnitCount + (UnitCount == 1 ? " unit " : "units ") + (UnitCount == 1 ? "has " : "have ") + "been killed by malaise";
+        MessageSystem.CreateMessage(Message.Type.Warning, Text);
+    }
+
+    public void DestroyTokensAt(Location Location)
+    {
+        DestroyWorkersAt(Location);
+        DestroyUnitsAt(Location);
         DestroyBuildingAt(Location);
     }
 

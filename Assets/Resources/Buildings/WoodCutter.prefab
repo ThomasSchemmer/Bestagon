@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5373580172019279267}
   - component: {fileID: 7887559948976673129}
   m_Layer: 0
-  m_Name: WoodCutter
+  m_Name: Woodcutter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

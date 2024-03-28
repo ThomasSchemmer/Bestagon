@@ -34,35 +34,16 @@ public class BuildingEffectDrawer : PropertyDrawer
     {
         switch (EffectType)
         {
-            case OnTurnBuildingEffect.Type.YieldPerWorker:
-                PrintYieldPerWorker(Position, Property, Label); break;
-            case OnTurnBuildingEffect.Type.YieldPerAreaAndWorker:
-                PrintYieldPerAreaAndWorker(Position, Property, Label); break;
-            case OnTurnBuildingEffect.Type.YieldWorkerPerWorker:
-                PrintYieldWorkerPerWorker(Position, Property, Label); break;
-            case OnTurnBuildingEffect.Type.IncreaseYield:
-                PrintIncreaseYield(Position, Property, Label); break;
+            case OnTurnBuildingEffect.Type.Produce:
+                PrintYieldProduce(Position, Property, Label); break;
+            case OnTurnBuildingEffect.Type.ConsumeProduce:
+                PrintYieldConsumeProduce(Position, Property, Label); break;
+            case OnTurnBuildingEffect.Type.ProduceUnit:
+                PrintYieldProduceUnit(Position, Property, Label); break;
         }
     }
 
-    private void PrintYieldPerWorker(Rect Position, SerializedProperty Property, GUIContent Label)
-    {
-        SerializedProperty TileTypeProperty = Property.FindPropertyRelative("TileType");
-        SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
-       
-        EditorGUILayout.BeginVertical("window");
-        string[] Hexagons = Enum.GetNames(typeof(HexagonConfig.HexagonType));
-        TileTypeProperty.intValue = EditorGUILayout.MaskField(
-            "Tile",
-            TileTypeProperty.intValue,
-            Hexagons
-        );
-        EditorGUILayout.PropertyField(ProductionProperty);
-        GUILayout.FlexibleSpace();
-        EditorGUILayout.EndVertical();
-    }
-
-    private void PrintYieldPerAreaAndWorker(Rect Position, SerializedProperty Property, GUIContent Label)
+    private void PrintYieldProduce(Rect Position, SerializedProperty Property, GUIContent Label)
     {
         SerializedProperty TileTypeProperty = Property.FindPropertyRelative("TileType");
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
@@ -83,26 +64,25 @@ public class BuildingEffectDrawer : PropertyDrawer
         EditorGUILayout.EndVertical();
     }
 
-    private void PrintYieldWorkerPerWorker(Rect Position, SerializedProperty Property, GUIContent Label)
+    private void PrintYieldProduceUnit(Rect Position, SerializedProperty Property, GUIContent Label)
     {
-        // Nothing is needed
+        SerializedProperty ConsumptionProperty = Property.FindPropertyRelative("Consumption");
+        EditorGUILayout.BeginVertical("window");
+
+        EditorGUILayout.PropertyField(ConsumptionProperty);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndVertical();
     }
 
-    private void PrintIncreaseYield(Rect Position, SerializedProperty Property, GUIContent Label)
+    private void PrintYieldConsumeProduce(Rect Position, SerializedProperty Property, GUIContent Label)
     {
-        SerializedProperty RangeProperty = Property.FindPropertyRelative("Range");
-        SerializedProperty BuildingTypeProperty = Property.FindPropertyRelative("BuildingType");
-        SerializedProperty ProductionIncreaseProperty = Property.FindPropertyRelative("ProductionIncrease");
+        SerializedProperty ConsumptionProperty = Property.FindPropertyRelative("Consumption");
+        SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
 
         EditorGUILayout.BeginVertical("window");
-        string[] Buildings = Enum.GetNames(typeof(BuildingData.Type));
-        BuildingTypeProperty.intValue = EditorGUILayout.MaskField(
-            "Building",
-            BuildingTypeProperty.intValue,
-            Buildings
-        );
-        EditorGUILayout.PropertyField(RangeProperty);
-        EditorGUILayout.PropertyField(ProductionIncreaseProperty);
+
+        EditorGUILayout.PropertyField(ConsumptionProperty);
+        EditorGUILayout.PropertyField(ProductionProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
     }

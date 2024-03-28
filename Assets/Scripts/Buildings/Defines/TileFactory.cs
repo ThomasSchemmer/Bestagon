@@ -9,7 +9,7 @@ using UnityEngine;
  */ 
 public class TileFactory : GameService
 {
-    public SerializedDictionary<BuildingData.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
+    public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
     public Mesh UnknownMesh;
@@ -24,7 +24,6 @@ public class TileFactory : GameService
     protected override void StartServiceInternal()
     {
         Refresh();
-        IsInit = true;
         _OnInit?.Invoke();
     }
 
@@ -105,7 +104,7 @@ public class TileFactory : GameService
         }
     }
 
-    public BuildingData CreateFromType(BuildingData.Type Type)
+    public BuildingData CreateFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;
@@ -113,12 +112,13 @@ public class TileFactory : GameService
         var Entry = AvailableBuildings[Type];
         BuildingData Building = Entry.Key;
         BuildingData Copy = Instantiate(Building);
+        Copy.Init();
         return Copy;
     }
 
-    public List<BuildingData.Type> GetUnlockedBuildings()
+    public List<BuildingConfig.Type> GetUnlockedBuildings()
     {
-        List<BuildingData.Type> Result = new();
+        List<BuildingConfig.Type> Result = new();
 
         foreach (var Tuple in AvailableBuildings)
         {
@@ -127,7 +127,7 @@ public class TileFactory : GameService
         return Result;
     }
 
-    public Mesh GetMeshFromType(BuildingData.Type Type)
+    public Mesh GetMeshFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;

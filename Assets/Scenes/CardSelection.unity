@@ -486,7 +486,7 @@ RectTransform:
   - {fileID: 769979715}
   - {fileID: 553314661}
   - {fileID: 60412257}
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -511,6 +511,7 @@ MonoBehaviour:
   TargetCardScreen: {fileID: 696115998}
   UpgradeArrow: {fileID: 769979714}
   ConfirmButton: {fileID: 60412256}
+  CardSelectionScreen: {fileID: 544533891}
   Canvas: {fileID: 0}
   ToHide:
   - {fileID: 391612861}
@@ -1413,7 +1414,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1568323567}
   m_HandleRect: {fileID: 1568323566}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1670,11 +1671,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 822403916}
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50.000122, y: -49.54483}
+  m_AnchoredPosition: {x: 960.0001, y: -539.5448}
   m_SizeDelta: {x: 35, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &391612863
@@ -1807,7 +1808,7 @@ RectTransform:
   - {fileID: 2007428861}
   - {fileID: 300117902}
   - {fileID: 220504072}
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2024,7 +2025,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1050591517}
   m_HandleRect: {fileID: 1050591516}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2080,6 +2081,7 @@ GameObject:
   - component: {fileID: 544533889}
   - component: {fileID: 544533888}
   - component: {fileID: 544533887}
+  - component: {fileID: 544533891}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -2162,7 +2164,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2120498017}
+  - {fileID: 500796215}
+  - {fileID: 1503517409}
+  - {fileID: 815291110}
+  - {fileID: 1395935126}
+  - {fileID: 100542419}
+  - {fileID: 391612862}
+  - {fileID: 698823417}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2170,6 +2178,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &544533891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544533886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 300e8c198ebd32a4ab741e4776b77340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UpgradeText: {fileID: 698823418}
 --- !u!1 &553314660
 GameObject:
   m_ObjectHideFlags: 0
@@ -2563,7 +2584,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2999,7 +3020,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 236990920}
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3050,7 +3071,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2120498016}
+      - m_Target: {fileID: 544533891}
         m_TargetAssemblyTypeName: CardSelectionScreen, ScriptsAssemblyDef
         m_MethodName: OnConfirm
         m_Mode: 1
@@ -3636,6 +3657,9 @@ MonoBehaviour:
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 100542420}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1137995693}
 --- !u!4 &1030420838
 Transform:
   m_ObjectHideFlags: 0
@@ -3675,6 +3699,10 @@ MonoBehaviour:
       Value: {fileID: 2100521094}
     - Key: 3
       Value: {fileID: 1706127493}
+    - Key: 4
+      Value: {fileID: 0}
+    - Key: 5
+      Value: {fileID: 1137995693}
 --- !u!1 &1050591515
 GameObject:
   m_ObjectHideFlags: 0
@@ -3750,6 +3778,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1050591515}
   m_CullTransparentMesh: 1
+--- !u!1 &1137995692
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1137995694}
+  - component: {fileID: 1137995693}
+  m_Layer: 0
+  m_Name: Stockpile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1137995693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137995692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2c00b5647c885942b2aa16ddfc9d66e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  Resources:
+    _Production:
+      Tuples: []
+  UpgradePoints: 0
+--- !u!4 &1137995694
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137995692}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1745459820}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1253771531
 GameObject:
   m_ObjectHideFlags: 0
@@ -3967,7 +4045,7 @@ Transform:
   m_LocalScale: {x: 1.6396242, y: 1.6396242, z: 1.6396242}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1476697596
 GameObject:
@@ -4143,7 +4221,7 @@ RectTransform:
   - {fileID: 1813704122}
   - {fileID: 519240202}
   - {fileID: 780193763}
-  m_Father: {fileID: 2120498017}
+  m_Father: {fileID: 544533890}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -4779,7 +4857,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1137995694}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1748468259
@@ -6266,61 +6345,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2102270898}
   m_CullTransparentMesh: 1
---- !u!1 &2120498015
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2120498017}
-  - component: {fileID: 2120498016}
-  m_Layer: 5
-  m_Name: CardSelectionScreen
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2120498016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2120498015}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 300e8c198ebd32a4ab741e4776b77340, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!224 &2120498017
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2120498015}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 500796215}
-  - {fileID: 1503517409}
-  - {fileID: 815291110}
-  - {fileID: 1395935126}
-  - {fileID: 100542419}
-  - {fileID: 391612862}
-  - {fileID: 698823417}
-  m_Father: {fileID: 544533890}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2122010668
 GameObject:
   m_ObjectHideFlags: 0

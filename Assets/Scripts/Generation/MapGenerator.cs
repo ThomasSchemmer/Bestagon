@@ -213,12 +213,12 @@ public class MapGenerator : GameService, ISaveable
         return Set;
     }
 
-    public List<HexagonVisualization> GetNeighbours(HexagonVisualization Hex) {
+    public List<HexagonVisualization> GetNeighbours(HexagonVisualization Hex, bool bShouldAddOrigin, int Range = 1) {
         List<HexagonVisualization> Neighbours = new List<HexagonVisualization>();
-        List<Location> NeighbourTileLocations = GetNeighbourTileLocations(Hex.Location);
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Hex.Location, bShouldAddOrigin, Range);
 
-        foreach (Location NeighbourTile in NeighbourTileLocations) {
-            if (!TryGetHexagon(NeighbourTile, out HexagonVisualization Neighbour))
+        foreach (Location NeighbourLocation in NeighbourTileLocations) {
+            if (!TryGetHexagon(NeighbourLocation, out HexagonVisualization Neighbour))
                 continue;
 
             Neighbours.Add(Neighbour);
@@ -228,20 +228,9 @@ public class MapGenerator : GameService, ISaveable
 
     }
 
-    public List<HexagonConfig.HexagonType> GetNeighbourTypes(Location Location) {
-        List<HexagonConfig.HexagonType> Types = new List<HexagonConfig.HexagonType>();
-        List<HexagonData> NeighbourDatas = GetNeighboursData(Location);
-
-        foreach (HexagonData NeighbourData in NeighbourDatas) {
-            Types.Add(NeighbourData.Type);
-        }
-
-        return Types;
-    }
-
-    public List<HexagonData> GetNeighboursData(Location Location, int Range = 1) {
+    public List<HexagonData> GetNeighboursData(Location Location, bool bShouldAddOrigin, int Range = 1) {
         List<HexagonData> NeighbourDatas = new List<HexagonData>();
-        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Location, Range);
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Location, bShouldAddOrigin, Range);
 
         foreach (Location NeighbourTile in NeighbourTileLocations) {
             if (!TryGetHexagonData(NeighbourTile, out HexagonData Data))
@@ -283,10 +272,14 @@ public class MapGenerator : GameService, ISaveable
      * Returns the locations of all neighbouring tiles in a radius around the target. 
      * Since this returns a HashSet its possible to easily check for duplicates
      */
-    public static HashSet<Location> GetNeighbourTileLocationsInRange(Location Origin, int Range = 1) {
+    public static HashSet<Location> GetNeighbourTileLocationsInRange(Location Origin, bool bShouldAddOrigin, int Range = 1) {
         HashSet<Location> NeighbourLocations = new();
         HashSet<Location> Origins = new();
         Origins.Add(Origin);
+        if (bShouldAddOrigin)
+        {
+            NeighbourLocations.Add(Origin);
+        }
 
         for (int i = 0; i < Range; i++)
         {
@@ -465,7 +458,6 @@ public class MapGenerator : GameService, ISaveable
         Interlocked.Increment(ref FinishedVisualizationCount);
         if (FinishedVisualizationCount >= ChunkVis.Length)
         {
-            IsInit = true;
             _OnInit?.Invoke();
         }
     }

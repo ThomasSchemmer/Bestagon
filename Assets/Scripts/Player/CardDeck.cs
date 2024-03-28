@@ -12,10 +12,15 @@ public class CardDeck : CardCollection
         if (!Game.TryGetService(out SaveGameManager Manager))
             return;
 
-        // will be loaded
+        // will be loaded instead of generated
         if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
             return;
 
+        GenerateNewCards();
+    }
+
+    private void GenerateNewCards()
+    {
         Cards = new List<Card>();
 
         for (int i = 0; i < 0; i++)
@@ -26,6 +31,11 @@ public class CardDeck : CardCollection
             Card.gameObject.SetActive(false);
             Cards.Add(Card);
         }
+        UpdateText();
+    }
+
+    private void UpdateText()
+    {
         Text.text = "" + Cards.Count;
     }
 
@@ -40,8 +50,7 @@ public class CardDeck : CardCollection
         {
             Fill(2);
         }
-
-        Text.text = "" + Cards.Count;
+        UpdateText();
     }
 
     private void Fill(int MaxAmount)
@@ -56,5 +65,12 @@ public class CardDeck : CardCollection
             Card Card = RemoveCard();
             Hand.AddCard(Card);
         }
+    }
+
+    public override void AddCard(Card Card)
+    {
+        base.AddCard(Card);
+        Card.gameObject.SetActive(false);
+        UpdateText();
     }
 }

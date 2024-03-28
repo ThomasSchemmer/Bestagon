@@ -36,6 +36,10 @@ public class HexagonConfig {
     /** world space offset in y direction per hex*/
     public static float offsetY = 3.0f / 2.0f * TileSize.z;
 
+    public static int MaxTypeIndex = 15;
+    public static int MaxDecorationIndex = 1;
+    public static int MaxHeightIndex = 4;
+
     public enum HexagonHeight : uint
     {
         /** Must not have values > 8 to still allow being combined into a byte with Type */

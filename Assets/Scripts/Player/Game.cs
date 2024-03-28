@@ -23,6 +23,9 @@ public class Game : MonoBehaviour
     public OnResume _OnResume;
 
     public static Game Instance;
+    public static string MenuSceneName = "Menu";
+    public static string MainSceneName = "Main";
+    public static string CardSelectionSceneName = "CardSelection";
 
     public enum GameState
     {

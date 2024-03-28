@@ -5,6 +5,7 @@ using System;
 using UnityEngine.UI;
 using Unity.Mathematics;
 using System.Threading;
+using static MapGenerator;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -25,13 +26,13 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Chunk = ChunkData;
         Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
 
-        MapGenerator = Game.GetService<MapGenerator>();
+        Generator = Game.GetService<MapGenerator>();
         UpdateMesh();
         Data._OnDiscovery = UpdateMesh;
         ChunkData.Visualization?.FinishVisualization();
     }
 
-    void UpdateMesh()
+    public void UpdateMesh()
     {
         MeshFilter Filter = GetComponent<MeshFilter>();
         Destroy(Filter.mesh);
@@ -157,22 +158,23 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Selector.DeselectHexagon();
 
         // update both chunks where the worker was and is going to
-        if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
+        if (!Generator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
             return;
 
         Chunk.Visualization.RefreshTokens();
 
         Unit.MoveTo(this.Location, Costs);
 
-        if (!MapGenerator.TryGetChunkData(Unit.Location, out Chunk))
+        if (!Generator.TryGetChunkData(Unit.Location, out Chunk))
             return;
 
         Chunk.Visualization.RefreshTokens();
 
-        if (!MapGenerator.TryGetHexagon(Unit.Location, out HexagonVisualization NewHex))
+        if (!Generator.TryGetHexagon(Unit.Location, out HexagonVisualization NewHex))
             return;
 
         Selector.SelectHexagon(NewHex);
+        _OnMovementTo?.Invoke(NewHex.Location);
     }
 
     private void InteractBuildBuilding(Card Card)
@@ -180,13 +182,13 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
             return;
 
-        if (MapGenerator.IsBuildingAt(Location)) {
+        if (Generator.IsBuildingAt(Location)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
             return;
         }
 
         BuildingData Building = Card.GetBuildingData();
-        if (!Building.CanBeBuildOn(this)) {
+        if (!Building.CanBeBuildOn(this, false)) {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
             return;
         }
@@ -205,7 +207,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void BuildBuildingFromCard(BuildingData Building) {
         Building.Location = Location.Copy();
-        MapGenerator.AddBuilding(Building);
+        Generator.AddBuilding(Building);
     }
 
     public bool IsEqual(Selectable other) {
@@ -239,7 +241,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         bool bIsVisible = Building != null ? Building.CanBeBuildOn(this) : false;
 
         // check for each neighbour if it should be highlighted
-        List<HexagonVisualization> Neighbours = MapGenerator.GetNeighbours(this);
+        int Range = Building != null ? Building.Effect.Range : 2;
+        List<HexagonVisualization> Neighbours = Generator.GetNeighbours(this, true, Range);
         Dictionary<HexagonConfig.HexagonType, Production> Boni = new();
         if (Building != null) {
             Building.TryGetAdjacencyBonus(out Boni);
@@ -251,7 +254,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
                 if (Boni.TryGetValue(Neighbour.Data.Type, out _)) {
                     bIsAdjacent = true;
                 }
-                if (MapGenerator.IsBuildingAt(Neighbour.Location) && Building.IsNeighbourBuildingBlocking()) {
+                if (Generator.IsBuildingAt(Neighbour.Location) && Building.IsNeighbourBuildingBlocking()) {
                     bIsAdjacent = false;
                 }
             }
@@ -274,7 +277,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range);
 
         foreach (Location ReachableLocation in ReachableLocations) {
-            if (!MapGenerator.TryGetHexagon(ReachableLocation, out HexagonVisualization ReachableHex))
+            if (!Generator.TryGetHexagon(ReachableLocation, out HexagonVisualization ReachableHex))
                 continue;
 
             ReachableHex.isReachable = bIsVisible;
@@ -287,8 +290,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        HashSet<Location> DirectNeighbours = MapGenerator.GetNeighbourTileLocationsInRange(this.Location, VisitingRange);
-        HashSet<Location> OtherNeighbours = MapGenerator.GetNeighbourTileLocationsInRange(this.Location, ScoutingRange);
+        HashSet<Location> DirectNeighbours = GetNeighbourTileLocationsInRange(this.Location, true, VisitingRange);
+        HashSet<Location> OtherNeighbours = GetNeighbourTileLocationsInRange(this.Location, false, ScoutingRange);
         OtherNeighbours.ExceptWith(DirectNeighbours);
 
         foreach (Location Location in DirectNeighbours)
@@ -324,6 +327,9 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Renderer.SetPropertyBlock(Block);
     }
 
+    public delegate void OnMovementTo(Location Location);
+    public static event OnMovementTo _OnMovementTo;
+
     public Location Location;
     public ChunkData Chunk;
     public HexagonData Data;
@@ -334,6 +340,6 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     protected int[] Triangles;
 
     private MeshRenderer Renderer;
-    private MapGenerator MapGenerator;
+    private MapGenerator Generator;
     private Material Mat;
 }

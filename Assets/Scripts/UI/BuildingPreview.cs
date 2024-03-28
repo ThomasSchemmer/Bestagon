@@ -46,7 +46,7 @@ public class BuildingPreview : MonoBehaviour
         Renderer.SetPropertyBlock(Block);
     }
 
-    private BuildingData.Type CurrentType = BuildingData.Type.DEFAULT;
+    private BuildingConfig.Type CurrentType = BuildingConfig.Type.DEFAULT;
     private MeshFilter MeshFilter;
     private MeshRenderer Renderer;
 
