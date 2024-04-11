@@ -47,6 +47,11 @@ public abstract class ScreenFeature<T> : MonoBehaviour
         return HeightTransform.sizeDelta.y;
     }
 
+    public void SetConditionalPadding(float Padding)
+    {
+        Target.SetConditionalPadding(Padding);
+    }
+
     protected RectTransform GetTransformByType()
     {
         return Type == ScreenFeatureType.Container ? TargetTransform : TargetText.rectTransform;

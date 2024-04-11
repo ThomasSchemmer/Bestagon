@@ -1,20 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 public class Units : GameService
 {
     // todo: save
     public List<UnitData> ActiveUnits = new();
 
-    public bool TryGetUnitsAt(Location Location, out List<UnitData> Units, bool bIsChunkLocation = false)
+    public bool TryGetUnitAt(Location Location, out UnitData Unit)
     {
-        Units = new List<UnitData>();
+        Unit = null;
         foreach (UnitData ActiveUnit in ActiveUnits)
         {
-            if (!bIsChunkLocation && !ActiveUnit.Location.Equals(Location))
+            if (!ActiveUnit.Location.Equals(Location))
                 continue;
 
-            if (bIsChunkLocation && !ActiveUnit.Location.ChunkLocation.Equals(Location.ChunkLocation))
+            Unit = ActiveUnit;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<UnitData> Units)
+    {
+        Units = new();
+        foreach (UnitData ActiveUnit in ActiveUnits)
+        {
+            if (!ActiveUnit.Location.ChunkLocation.Equals(ChunkLocation.ChunkLocation))
                 continue;
 
             Units.Add(ActiveUnit);

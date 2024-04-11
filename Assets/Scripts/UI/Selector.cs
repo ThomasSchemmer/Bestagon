@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -99,7 +100,7 @@ public class Selector<T> where T : Selectable
         bool bIsRightClick = Input.GetMouseButtonDown(1) && !bIsLeftClick;
         bool bIsEscapeClick = Input.GetKeyDown(KeyCode.Escape);
 
-        if (bIsEscapeClick || !RayCast(out GameObject Hit)) { 
+        if (bIsEscapeClick || !RayCast(out GameObject Hit)) {
             Deselect(bIsLeftClick);
             return false;
         }

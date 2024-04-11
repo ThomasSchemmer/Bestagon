@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.XR;
+using static UnityEngine.UI.CanvasScaler;
 
 /**
  * Visualization for a specific chunk
@@ -81,7 +82,7 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsAt(Data.Location, out List<UnitData> Units, true))
+        if (!UnitService.TryGetUnitsInChunk(Data.Location, out List<UnitData> Units))
             return;
 
         foreach (UnitData Unit in Units)

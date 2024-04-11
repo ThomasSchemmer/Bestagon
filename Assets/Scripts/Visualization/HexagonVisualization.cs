@@ -137,16 +137,19 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsAt(SelectedHex.Location, out List<UnitData> UnitsOnTile))
+        if (!UnitService.TryGetUnitAt(SelectedHex.Location, out UnitData UnitOnTile))
             return;
 
-        UnitData Unit = UnitsOnTile[0];
+        // can't move if there already is a unit!
+        if (UnitService.TryGetUnitAt(this.Location, out UnitData UnitAtTarget))
+            return;
+
         List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
         int PathCosts = Pathfinding.GetCostsForPath(Path);
-        if (Path.Count == 0 || PathCosts > Unit.RemainingMovement)
+        if (Path.Count == 0 || PathCosts > UnitOnTile.RemainingMovement)
             return;
 
-        InteractMoveUnit(Unit, PathCosts);
+        InteractMoveUnit(UnitOnTile, PathCosts);
     }
 
     private void InteractMoveUnit(UnitData Unit, int Costs)
@@ -268,8 +271,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        UnitService.TryGetUnitsAt(Location, out List<UnitData> UnitsOnTile);
-        UnitData Unit = UnitsOnTile.Count > 0 ? UnitsOnTile[0] : null;
+        // always query, just reset if null
+        UnitService.TryGetUnitAt(Location, out UnitData Unit);
         bool bIsVisible = Unit != null && bShow;
         int Range = Unit != null ? Unit.RemainingMovement : 0;
 

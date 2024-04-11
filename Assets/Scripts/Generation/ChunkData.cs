@@ -126,16 +126,12 @@ public class ChunkData : ISaveable
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsAt(Location, out List<UnitData> Units))
+        if (!UnitService.TryGetUnitAt(Location, out UnitData Unit))
             return;
 
-        int UnitCount = Units.Count;
-        foreach (UnitData Unit in Units)
-        {
-            UnitService.KillUnit(Unit);
-        }
+        UnitService.KillUnit(Unit);
 
-        string Text = UnitCount + (UnitCount == 1 ? " unit " : "units ") + (UnitCount == 1 ? "has " : "have ") + "been killed by malaise";
+        string Text = "One unit has been killed by malaise";
         MessageSystem.CreateMessage(Message.Type.Warning, Text);
     }
 

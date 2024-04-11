@@ -3,17 +3,48 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ScreenFeatureGroup<T> : MonoBehaviour
+public abstract class ScreenFeatureGroup : MonoBehaviour {
+    public delegate void OnLayoutChanged();
+    public OnLayoutChanged _OnLayoutChanged;
+
+    protected float ConditionalPadding = 0;
+
+    public float GetConditionalPadding()
+    {
+        return ConditionalPadding;
+    }
+
+    public void SetConditionalPadding(float Padding)
+    {
+        ConditionalPadding = Padding;
+        _OnLayoutChanged?.Invoke();
+    }
+
+}
+
+
+/** Group of ScreenFeatures to automatically fill in a UI element
+ * Since most UI element's depend on other UI elements for position, it has to support callbacks
+ */
+public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
 {
     public List<ScreenFeature<T>> ScreenFeatures;
     public float OffsetBetweenElements = 10;
     public RectTransform PreviousTransform;
-    public float PreviousOffset;
+    public float Margin;
+    public float Padding;
 
     private RectTransform RectTransform;
+    private ScreenFeatureGroup PreviousGroup;
 
     public void Init()
     {
+        PreviousGroup = PreviousTransform?.GetComponent<ScreenFeatureGroup>();
+        if (PreviousGroup != null)
+        {
+            PreviousGroup._OnLayoutChanged += UpdateLayout;
+        }
+
         RectTransform = GetComponent<RectTransform>();
         foreach (ScreenFeature<T> Feature in ScreenFeatures)
         {
@@ -21,15 +52,21 @@ public abstract class ScreenFeatureGroup<T> : MonoBehaviour
         }
     }
 
-    public void ShowFeatures()
+    public void UpdateLayout()
     {
-        gameObject.SetActive(true);
         float OverallHeight = GetOverallHeight();
         RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, OverallHeight);
         RectTransform.anchoredPosition = new Vector2(
             RectTransform.anchoredPosition.x,
-            PreviousTransform.anchoredPosition.y + PreviousTransform.sizeDelta.y / 2 + OverallHeight / 2 - PreviousOffset
+            PreviousTransform.anchoredPosition.y + PreviousTransform.sizeDelta.y / 2 + OverallHeight / 2 - Margin
         );
+        _OnLayoutChanged?.Invoke();
+    }
+
+    public void ShowFeatures()
+    {
+        gameObject.SetActive(true);
+        UpdateLayout();
 
         float YOffset = 0;
         float PrevHeight = 0;
@@ -55,7 +92,8 @@ public abstract class ScreenFeatureGroup<T> : MonoBehaviour
 
             Height += Feature.GetHeight();
         }
-        Height += OffsetBetweenElements * (ScreenFeatures.Count - 1) + PreviousOffset;
+        float PreviousPadding = PreviousGroup != null ? PreviousGroup.GetConditionalPadding() : 0;
+        Height += OffsetBetweenElements * (ScreenFeatures.Count - 1) + Padding + PreviousPadding;
         return Height;
     }
 
