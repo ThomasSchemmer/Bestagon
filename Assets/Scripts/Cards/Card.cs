@@ -1,45 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEditor.Profiling.Memory.Experimental;
-using System.Security.Cryptography;
+using TMPro;
 
 public class Card : Draggable, Selectable
 {        
-    public static Card CreateCard(BuildingConfig.Type Type, int Index, Transform Parent)
-    {
-        GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
-        GameObject GO = Instantiate(CardPrefab, Parent);
-        GO.name = "Card " + Type;
-        Card Card = GO.AddComponent<Card>();
-
-        if (!Game.TryGetService(out TileFactory BuildingFactory))
-            return null;
-
-        BuildingData BuildingData = BuildingFactory.CreateFromType(Type);
-        if (BuildingData == null)
-        {
-            MessageSystem.CreateMessage(Message.Type.Error, "No valid building data was found for type " + Type);
-            return null;
-        }
-        Card.Init(BuildingData, Index);
-        return Card;
-    }
-
-    public static Card CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent)
-    {
-        GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
-        GameObject GO = Instantiate(CardPrefab, Parent);
-        Card Card = GO.AddComponent<Card>();
-
-        Card.Init(DTO.BuildingData, Index);
-        return Card;
-    }
-
     public void Init(BuildingData BuildingData, int Index) {
         this.BuildingData = BuildingData;
         CardHand = Game.GetService<CardHand>();
@@ -52,15 +19,16 @@ public class Card : Draggable, Selectable
     }
 
     public void GenerateCard() {
-        GenerateText();
+        GenerateVisuals();
         SetColor();
     }
 
-    private void GenerateText() {
+    private void GenerateVisuals() {
         LinkTexts();
+        DeleteVisuals();
+
         NameText.SetText(GetName());
         //SymbolText.SetText(GetSymbol());
-        //EffectText.SetText(GetDescription());
 
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
@@ -74,11 +42,25 @@ public class Card : Draggable, Selectable
         GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, BuildingData.CurrentUsages);
         Usages.transform.SetParent(UsagesTransform, false);
 
+        GameObject EffectObject = BuildingData.Effect.GetEffectVisuals();
+        EffectObject.transform.SetParent(EffectTransform, false);
+
     }
 
-    public string GetUsages()
+    private void DeleteVisuals()
     {
-        return BuildingData.CurrentUsages + "/" + BuildingData.MaxUsages;
+        DeleteVisuals(CostTransform);
+        DeleteVisuals(MaxWorkerTransform);
+        DeleteVisuals(UsagesTransform);
+        DeleteVisuals(EffectTransform);
+    }
+
+    private void DeleteVisuals(Transform Parent)
+    {
+        foreach (Transform Child in Parent)
+        {
+            Destroy(Child.gameObject);
+        }
     }
 
     public string GetName()
@@ -91,15 +73,6 @@ public class Card : Draggable, Selectable
         return GetName()[..1];
     }
 
-    public string GetDescription()
-    {
-        return BuildingData.Effect.GetDescription();
-    }
-
-    public string GetMaxWorkers()
-    {
-        return BuildingData.MaxWorker + "";
-    }
 
     private void LinkTexts() {
         CardBase = GetComponent<Image>();
@@ -163,6 +136,21 @@ public class Card : Draggable, Selectable
         Color Color = isSelected ? SelectColor :
                         isHovered ? HoverColor : NormalColor;
         CardBase.color = Color;
+    }
+
+    public Transform GetMaxWorkerTransform()
+    {
+        return transform.GetChild(3);
+    }
+
+    public Transform GetUsagesTransform()
+    {
+        return transform.GetChild(4);
+    }
+
+    public Transform GetProductionTransform()
+    {
+        return transform.GetChild(6).GetChild(0).GetChild(1);
     }
 
     public bool IsEqual(Selectable other) {
@@ -244,9 +232,8 @@ public class Card : Draggable, Selectable
         this.BuildingData = BuildingData;
     }
 
-    public void GetDTOData(out GUID OutID, out BuildingData OutBuildingData)
+    public void GetDTOData(out BuildingData OutBuildingData)
     {
-        OutID = ID;
         OutBuildingData = BuildingData;
     }
 
@@ -263,6 +250,15 @@ public class Card : Draggable, Selectable
     {
         OldCollection = transform.parent.GetComponent<CardCollection>();
         base.OnBeginDrag(eventData);
+    }
+
+    public override bool CanBeDragged()
+    {
+        Transform Parent = transform.parent.parent;
+        CardUpgradeScreen UpgradeScreen = Parent != null ? Parent.GetComponent<CardUpgradeScreen>() : null;
+        bool bIsInCardSelection = Game.IsIn(Game.GameState.CardSelection);
+        bool bIsCardUpgrade = UpgradeScreen != null;
+        return bIsInCardSelection && !bIsCardUpgrade;
     }
 
     protected GUID ID;

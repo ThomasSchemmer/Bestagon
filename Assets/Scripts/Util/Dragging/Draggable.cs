@@ -17,12 +17,17 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         if (!bIsBeingDragged)
             return;
 
-        RectTransform.anchoredPosition += eventData.delta;
+        RectTransform.anchoredPosition += eventData.delta * Canvas.scaleFactor * 0.6f;
+    }
+
+    public virtual bool CanBeDragged()
+    {
+        return false;
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
-        bIsBeingDragged = Game.IsIn(Game.GameState.CardSelection);
+        bIsBeingDragged = CanBeDragged();
         if (!bIsBeingDragged)
             return;
 

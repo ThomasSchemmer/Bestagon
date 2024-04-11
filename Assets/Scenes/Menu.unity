@@ -1096,6 +1096,7 @@ MonoBehaviour:
   IsInit: 0
   Saveables:
     Tuples: []
+  bLoadLastFile: 0
 --- !u!1 &1147567738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1229,58 +1230,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1147567738}
   m_CullTransparentMesh: 1
---- !u!1 &1269416773
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1269416775}
-  - component: {fileID: 1269416774}
-  m_Layer: 0
-  m_Name: VoronoiTest
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1269416774
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1269416773}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5e3cc3f63ec621478432edc9d39bc13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  VoronoiCompute: {fileID: 7200000, guid: 0202cb7fc6397104aae804179a28fb59, type: 3}
-  TargetTexture: {fileID: 8400000, guid: 0d0c5670cf7178848a00807616a5b4be, type: 2}
-  Zoom: 5
-  Slice: 0
-  Iterations: 2
-  Factor: 0.8
-  CellCount: 100
-  Selection: 0
---- !u!4 &1269416775
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1269416773}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1287991458
 GameObject:
   m_ObjectHideFlags: 0
@@ -2415,4 +2364,3 @@ SceneRoots:
   - {fileID: 1816498257}
   - {fileID: 1287991461}
   - {fileID: 1068810069}
-  - {fileID: 1269416775}

@@ -17,14 +17,17 @@ public class CardHand : CardCollection
             if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
                 return;
 
-            Cards = new List<Card>();
-            AddCard(Card.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform));
-            AddCard(Card.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform));
+            Game.RunAfterServiceInit((CardFactory CardFactory) =>
+            {
+                Cards = new List<Card>();
+                CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
 
-            BuildingConfig.Type RandomType = Unlockables.GetRandomUnlockedType();
-            AddCard(Card.CreateCard(RandomType, 0, transform));
-
-            Sort(false);
+                BuildingConfig.Type RandomType = Unlockables.GetRandomUnlockedType();
+                CardFactory.CreateCard(RandomType, 0, transform, AddCard);
+            });
+            
         });
     }
         

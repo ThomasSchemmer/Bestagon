@@ -61,6 +61,11 @@ public class IngameMenu : MonoBehaviour
         Game.ExitGame();
     }
 
+    public void OnClickGiveUp()
+    {
+        Game.Instance.GameOver("You have given up!");
+    }
+
     private bool IsShown = false;
 
     public delegate void OnOpenBegin();

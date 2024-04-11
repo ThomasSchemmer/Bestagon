@@ -54,15 +54,6 @@ public abstract class CardCollection : GameService, ISaveable
         }
     }
 
-    protected Card CreateRandomCard(int i) {
-        if (!Game.TryGetService(out TileFactory BuildingFactory))
-            return null;
-
-        int TypeCount = BuildingFactory.GetUnlockedBuildings().Count;
-        BuildingConfig.Type Type = (BuildingConfig.Type)(1 << UnityEngine.Random.Range(1, TypeCount));
-        return Card.CreateCard(Type, i, transform);
-    }
-
     protected override void StartServiceInternal()
     {
         gameObject.SetActive(true);
@@ -99,6 +90,9 @@ public abstract class CardCollection : GameService, ISaveable
 
     public void SetData(NativeArray<byte> Bytes)
     {
+        if (!Game.TryGetService(out CardFactory CardFactory))
+            return;
+
         for (int i = 0; i < Cards.Count; i++)
         {
             Destroy(Cards[i].gameObject);
@@ -111,8 +105,7 @@ public abstract class CardCollection : GameService, ISaveable
         {
             CardDTO DTO = new();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
-            Card Card = Card.CreateCardFromDTO(DTO, i, transform);
-            AddCard(Card);
+            CardFactory.CreateCardFromDTO(DTO, i, transform, AddCard);
         }
     }
 

@@ -116,17 +116,6 @@ public class TileFactory : GameService
         return Copy;
     }
 
-    public List<BuildingConfig.Type> GetUnlockedBuildings()
-    {
-        List<BuildingConfig.Type> Result = new();
-
-        foreach (var Tuple in AvailableBuildings)
-        {
-            Result.Add(Tuple.Key);
-        }
-        return Result;
-    }
-
     public Mesh GetMeshFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))

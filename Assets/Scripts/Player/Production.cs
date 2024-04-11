@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 [Serializable]
@@ -75,6 +76,11 @@ public class Production : ISaveable
         }
     }
 
+    public bool Contains(Type Type)
+    {
+        return _Production.ContainsKey(Type);
+    }
+
     public static Production operator +(Production A, Production B) {
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
@@ -125,6 +131,32 @@ public class Production : ISaveable
     public static Production operator* (Production A, int B)
     {
         return B * A;
+    }
+
+    public static bool operator <(Production A, Production B)
+    {
+        foreach (var Tuple in A.GetTuples())
+        {
+            if (!B.Contains(Tuple.Key))
+                return false;
+
+            if (A[Tuple.Key] >= B[Tuple.Key])
+                return false;
+        }
+        return true;
+    }
+
+    public static bool operator >(Production A, Production B)
+    {
+        foreach (var Tuple in A.GetTuples())
+        {
+            if (!B.Contains(Tuple.Key))
+                return false;
+
+            if (A[Tuple.Key] <= B[Tuple.Key])
+                return false;
+        }
+        return true;
     }
 
     public List<Tuple<Type, int>> GetTuples() {

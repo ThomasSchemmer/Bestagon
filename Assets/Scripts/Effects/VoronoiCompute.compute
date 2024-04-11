@@ -1,18 +1,18 @@
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
 #pragma kernel Main
+#pragma kernel Debug
 
-struct CloudPoint{
-    int Data;
-};
-
-RWStructuredBuffer<CloudPoint> Result;
+RWTexture3D<float4> Result;
+Texture2D<float4> DebugTexture;
 float CellCount;
 float Zoom;
 float Iterations;
 float Factor;
+float _ResolutionXZ;
+float _ResolutionY;
 
-[numthreads(8,8,1)]
+[numthreads(16,16,1)]
 void Main (uint3 id : SV_DispatchThreadID)
 {
 
@@ -20,13 +20,33 @@ void Main (uint3 id : SV_DispatchThreadID)
     float DistSqrG = svoronoi3Tiled(id / ((Zoom - 0) * 10), CellCount, Iterations + 0, Factor);
     float DistSqrB = svoronoi3Tiled(id / ((Zoom - 1) * 10), CellCount, Iterations + 1, Factor);
     float DistSqrA = svoronoi3Tiled(id / ((Zoom - 2) * 10), CellCount, Iterations + 2, Factor);
-    int R = (int)(sqrt(DistSqrR) * 255) & 0xFF;
-    int G = (int)((1 - sqrt(DistSqrG)) * 255) & 0xFF;
-    int B = (int)((1 - sqrt(DistSqrB)) * 255) & 0xFF;
-    int A = (int)((1 - sqrt(DistSqrA)) * 255) & 0xFF;
+    float R = 1 - sqrt(DistSqrR);
+    float G = 1 - sqrt(DistSqrG);
+    float B = 1 - sqrt(DistSqrB);
+    float A = 1 - sqrt(DistSqrA);
+    //int R = (int)(sqrt(DistSqrR) * 255) & 0xFF;
+    //int G = (int)((1 - sqrt(DistSqrG)) * 255) & 0xFF;
+    //int B = (int)((1 - sqrt(DistSqrB)) * 255) & 0xFF;
+    //int A = (int)((1 - sqrt(DistSqrA)) * 255) & 0xFF;
 
-    int Data = R << 24 | G << 16 | B << 8 | A;
+    //int Data = R << 24 | G << 16 | B << 8 | A;
 
-    int Pos = id.z * 256 * 256 + id.y * 256 + id.x;
-    Result[Pos].Data = Data;
+    int Pos = id.z * _ResolutionXZ * _ResolutionXZ + id.y * _ResolutionXZ + id.x;
+    Result[id] = float4(R, G, B, A);
 }
+
+[numthreads(16,16,1)]
+void Debug (uint3 id : SV_DispatchThreadID)
+{
+    float4 Color = DebugTexture[id.xy];
+    //int R = (int)(Color.r * 255) & 0xFF;
+    //int G = (int)(Color.g * 255) & 0xFF;
+    //int B = (int)(Color.b * 255) & 0xFF;
+    //int A = (int)(Color.a * 255) & 0xFF;
+    
+    //int Data = R << 24 | G << 16 | B << 8 | A;
+
+    int Pos = id.z * _ResolutionXZ * _ResolutionXZ + id.y * _ResolutionXZ + id.x;
+    Result[float3(id.xy, 0)] = Color;
+}
+

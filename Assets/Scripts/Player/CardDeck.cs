@@ -16,22 +16,14 @@ public class CardDeck : CardCollection
         if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
             return;
 
-        GenerateNewCards();
     }
 
-    private void GenerateNewCards()
+    public void AddGeneratedCard(Card Card)
     {
-        Cards = new List<Card>();
-
-        for (int i = 0; i < 0; i++)
-        {
-            Card Card = CreateRandomCard(i);
-            Card.transform.localPosition = new Vector3(0, Mathf.Min(i, 5) * 15, 0);
-            Card.gameObject.layer = 0;
-            Card.gameObject.SetActive(false);
-            Cards.Add(Card);
-        }
-        UpdateText();
+        Card.transform.localPosition = new Vector3(0, Card.GetIndex() * 15, 0);
+        Card.gameObject.layer = 0;
+        Card.gameObject.SetActive(false);
+        Cards.Add(Card);
     }
 
     private void UpdateText()

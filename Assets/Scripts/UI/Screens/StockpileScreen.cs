@@ -28,7 +28,11 @@ public class StockpileScreen : MonoBehaviour
             StockpileGroupScreen Screen = GroupObject.GetComponent<StockpileGroupScreen>();
             Screen.Initialize(i, ItemPrefab, Stockpile, IconFactory);
             Screen.transform.SetParent(transform, false);
-            Screen.transform.position = new Vector3(150 * i, 0, 0) + Screen.transform.position;
+            Screen.transform.position = new Vector3(
+                (StockpileGroupScreen.WIDTH + StockpileGroupScreen.OFFSET) * i,
+                0,
+                0)
+                + Screen.transform.position;
             GroupScreens[i] = Screen;
         }
     }

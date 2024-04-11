@@ -87,13 +87,18 @@ public class CollectRuinsScreen : MonoBehaviour
 
     private void GenerateAndShowCard()
     {
-        if (!Game.TryGetService(out Unlockables Unlockables))
+        if (!Game.TryGetServices(out Unlockables Unlockables, out CardFactory CardFactory))
             return;
 
         if (!Unlockables.TryUnlockNewBuildingType(out BuildingToUnlock, true))
             return;
 
-        GeneratedCard = Card.CreateCard(BuildingToUnlock, 0, CardContainer.transform);
+        CardFactory.CreateCard(BuildingToUnlock, 0, CardContainer.transform, SetGeneratedCard);
+    }
+
+    private void SetGeneratedCard(Card Card)
+    {
+        GeneratedCard = Card;
     }
 
     public void Hide()

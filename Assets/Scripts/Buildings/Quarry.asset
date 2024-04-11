@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Quarry
   m_EditorClassIdentifier: 
-  BuildingType: 0
+  BuildingType: 8192
   Cost:
     _Production:
       Tuples: []

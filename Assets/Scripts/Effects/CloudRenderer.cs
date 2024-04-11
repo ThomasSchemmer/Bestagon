@@ -1,24 +1,45 @@
+using System.Collections;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 
+/** 
+ * Helper class to pass all necessary values to the actual two shaders doing the cloud computation:
+ * - VoronoiCompute: calculates 4 different noises (1 simplex, 3 voronoi) and compresses them into a single int
+ * - CloudShader: Takes the noise data and screen space position to render clouds as a post-processing effect
+ */
 public class CloudRenderer : GameService
 {
     public Material Material;
+    public RenderTexture TargetTexture;
+    public Texture2D DebugTexture;
 
-    public GameObject Rectangle;
+    public ComputeShader VoronoiCompute;
+    [Range(0.25f, 5)]
+    public float Zoom = 4;
+    [Range(0, 31)]
+    public int Slice = 0;
+    [Range(1, 4)]
+    public int Iterations = 2;
+    [Range(0, 5)]
+    public float Factor = 1.5f;
+    [Range(1, 100)]
+    public int CellCount = 25;
+
+    public int ResolutionXZ = 128;
+    public int ResolutionY = 8;
 
     private Camera MainCam;
     private ComputeBuffer MalaiseBuffer;
     private MapGenerator MapGen;
 
+    //private ComputeBuffer CloudNoiseBuffer;
+    private int Kernel, DebugKernel;
+
     public void OnDestroy()
     {
         MalaiseBuffer?.Release();
-    }
-
-    private Vector3 Div (Vector3 A, Vector3 B)
-    {
-        return new Vector3(A.x / B.x, A.y / B.y, A.z / B.z);
+        //CloudNoiseBuffer?.Dispose();
     }
 
     public void Update()
@@ -45,18 +66,51 @@ public class CloudRenderer : GameService
     {
         uint[] MalaiseDTOs = MapGen.GetMalaiseDTOs();
         MalaiseBuffer.SetData(MalaiseDTOs);
+    }
 
-        Vector2Int GlobalTileLocation = new(0, 1);
-        int HexIndex = GlobalTileLocation.y * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk + GlobalTileLocation.x;
-        // 50
-        int IntIndex = (int)(HexIndex / 32.0f); // 1
-        int IntRemainder = (HexIndex - IntIndex * 32); // 18
-        int ByteIndex = (int)(IntRemainder / 8.0f); // 2
-        int BitIndex = IntRemainder - ByteIndex * 8; // 2
+    private void Initialize()
+    {
+        InitializeComputeShader();
+        InitializeVertexShader();
+        _OnInit?.Invoke();
+    }
 
-        uint IntValue = MalaiseDTOs[IntIndex]; // 3758211264
-        uint ByteValue = ((IntValue >> ((3 - ByteIndex) * 8)) & 0xFF); // 192
-        uint BitValue = (ByteValue >> (7 - ByteIndex)) & 0x1;
+    private void InitializeComputeShader()
+    {
+        //CloudNoiseBuffer = new(ResolutionXZ * ResolutionXZ * ResolutionY, sizeof(int));
+
+        Kernel = VoronoiCompute.FindKernel("Main");
+        DebugKernel = VoronoiCompute.FindKernel("Debug");
+        VoronoiCompute.SetTexture(Kernel, "Result", TargetTexture);
+        VoronoiCompute.SetTexture(DebugKernel, "Result", TargetTexture);
+        VoronoiCompute.SetTexture(DebugKernel, "DebugTexture", DebugTexture);
+
+        VoronoiCompute.SetFloat("Zoom", Zoom);
+        VoronoiCompute.SetFloat("CellCount", CellCount);
+        VoronoiCompute.SetFloat("Iterations", Iterations);
+        VoronoiCompute.SetFloat("Factor", Factor);
+        VoronoiCompute.SetFloat("_ResolutionXZ", ResolutionXZ);
+        VoronoiCompute.SetFloat("_ResolutionY", ResolutionY);
+
+        VoronoiCompute.Dispatch(Kernel, ResolutionXZ / 16, ResolutionXZ / 16, ResolutionY);
+    }
+
+    private void InitializeVertexShader()
+    {
+        int MalaiseIntCount = MapGen.GetMalaiseDTOByteCount();
+        MalaiseBuffer = new ComputeBuffer(MalaiseIntCount, sizeof(int));
+
+        Location MaxLocation = HexagonConfig.GetMaxLocation();
+        Vector2Int MaxTileLocation = MaxLocation.GlobalTileLocation;
+        Material.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
+        Material.SetVector("_TileSize", HexagonConfig.TileSize);
+        Material.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
+        Material.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
+        Material.SetBuffer("MalaiseBuffer", MalaiseBuffer);
+        Material.SetTexture("_NoiseTex", TargetTexture);
+        Material.SetFloat("_ResolutionXZ", ResolutionXZ);
+        Material.SetFloat("_ResolutionY", ResolutionY);
+        PassMaterialBuffer();
     }
 
     protected override void StartServiceInternal()
@@ -66,18 +120,7 @@ public class CloudRenderer : GameService
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {
             MapGen = MapGenerator;
-            int MalaiseIntCount = MapGenerator.GetMalaiseDTOByteCount();
-            MalaiseBuffer = new ComputeBuffer(MalaiseIntCount, 4);
-
-            Vector2Int MaxLocation = HexagonConfig.GetMaxLocation().GlobalTileLocation;
-            Material.SetVector("_WorldSize", new Vector4(MaxLocation.x, MaxLocation.y, 0, 0));
-            Material.SetVector("_TileSize", HexagonConfig.TileSize);
-            Material.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
-            Material.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
-            Material.SetBuffer("MalaiseBuffer", MalaiseBuffer);
-            PassMaterialBuffer();
-
-            _OnInit?.Invoke();
+            Initialize();
         });
     }
 

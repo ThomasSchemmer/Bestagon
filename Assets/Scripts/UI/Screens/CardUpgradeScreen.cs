@@ -7,13 +7,13 @@ using UnityEngine.UI;
 public class CardUpgradeScreen : GameService
 {
     public RectTransform UpgradeButton;
-    public GameObject TargetCardScreen, UpgradeArrow, ConfirmButton;
+    public GameObject RegularCardContainer, UpgradedCardContainer, UpgradeArrow, ConfirmButton;
     public CardSelectionScreen CardSelectionScreen;
-    public Canvas Canvas;
+    public GameObject UpgradeButtonPrefab;
     public List<GameObject> ToHide = new();
     public List<GameObject> ToDim = new();
 
-    private Card LastCard = null, CopyCard = null;
+    private Card LastCard = null, CopyCard = null, UpgradedCard = null;
     private BuildingData UpgradedBuildingData;
 
     public enum UpgradeableAttributes
@@ -43,7 +43,7 @@ public class CardUpgradeScreen : GameService
         {
             GO.GetComponent<CanvasGroup>().alpha = 0.8f;
         }
-        TargetCardScreen.SetActive(false);
+        UpgradedCardContainer.SetActive(false);
         UpgradeArrow.SetActive(false);
         LoadCard();
     }
@@ -59,9 +59,17 @@ public class CardUpgradeScreen : GameService
         {
             GO.GetComponent<CanvasGroup>().alpha = 1;
         }
-        TargetCardScreen.SetActive(false);
+        UpgradedCardContainer.SetActive(false);
         UpgradeArrow.SetActive(false);
         ConfirmButton.SetActive(false);
+        if (CopyCard)
+        {
+            Destroy(CopyCard.gameObject);
+        }
+        if (UpgradedCard)
+        {
+            Destroy(UpgradedCard.gameObject);
+        }
     }
 
     public void ShowButtonAtCard(Card Card, bool bIsVisible) {
@@ -69,8 +77,8 @@ public class CardUpgradeScreen : GameService
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
-        TargetPosition.x += 100 / 2f;
-        TargetPosition.y += 175 / 2f;
+        TargetPosition.x += 200 / 2f - 15;
+        TargetPosition.y += 320 / 2f - 15;
         Vector3 OffsetWorld = TargetPosition - UpgradeButton.position;
         Vector3 OffsetLocal = UpgradeButton.InverseTransformVector(OffsetWorld);
         UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
@@ -86,68 +94,71 @@ public class CardUpgradeScreen : GameService
 
     public void LoadCard()
     {
-        LoadTextForCard(LastCard, false);
+        CopyCard = Instantiate(LastCard);
+        GameObject Clone = CopyCard.gameObject;
+        MoveToContainer(Clone, false);
+        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
+        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
+        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
     }
 
-    private void LoadTextForCard(Card Card, bool bIsForUpgraded)
+    private void MoveToContainer(GameObject NewCard, bool bIsForUpgraded)
     {
-        Transform CardTransform = transform.GetChild(bIsForUpgraded ? 4 : 3);
-        TextMeshProUGUI NameText = CardTransform.GetChild(1).GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI SymbolText = CardTransform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        Transform TargetTransform = bIsForUpgraded ? UpgradedCardContainer.transform : RegularCardContainer.transform;
+        NewCard.transform.SetParent(TargetTransform, false);
+        RectTransform CloneTransform = NewCard.GetComponent<RectTransform>();
+        CloneTransform.anchorMin = Vector2.one * 0.5f;
+        CloneTransform.anchorMax = Vector2.one * 0.5f;
+    }
 
-        Transform UsagesTransform = bIsForUpgraded ? CardTransform.GetChild(3) : CardTransform.GetChild(3).GetChild(0);
-        Transform MaxWorkerTransform = bIsForUpgraded ? CardTransform.GetChild(4) : CardTransform.GetChild(4).GetChild(0);
+    private void ConvertToButton(GameObject Clone, BuildingData BuildingData, Transform UsagesTransform, UpgradeableAttributes Type)
+    {
+        if (!BuildingData.IsUpgradePossible(Type))
+            return;
 
-        TextMeshProUGUI UsagesText = UsagesTransform.GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI MaxWorkerText = MaxWorkerTransform.GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI CostsText = CardTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI EffectText = CardTransform.GetChild(6).GetChild(0).GetComponent<TextMeshProUGUI>();
+        RectTransform OldUsagesVisuals = UsagesTransform.GetChild(0).GetComponent<RectTransform>();
 
-        if (!bIsForUpgraded)
-        {
-            Button UsagesButton = CardTransform.GetChild(3)?.GetComponent<Button>();
-            Button MaxWorkerButton = CardTransform.GetChild(4)?.GetComponent<Button>();
-            UsagesButton.onClick.RemoveAllListeners();
-            MaxWorkerButton.onClick.RemoveAllListeners();
-            UsagesButton.onClick.AddListener(delegate { SelectUpgrade(UpgradeableAttributes.MaxUsages); });
-            MaxWorkerButton.onClick.AddListener(delegate { SelectUpgrade(UpgradeableAttributes.MaxWorker); });
-        }
+        Button UsagesButton = Instantiate(UpgradeButtonPrefab).GetComponent<Button>();
+        RectTransform NewUsagesVisuals = UsagesButton.GetComponent<RectTransform>();
+        NewUsagesVisuals.anchorMin = OldUsagesVisuals.anchorMin;
+        NewUsagesVisuals.anchorMax = OldUsagesVisuals.anchorMax;
+        NewUsagesVisuals.sizeDelta = OldUsagesVisuals.sizeDelta;
+        NewUsagesVisuals.SetParent(UsagesTransform, false);
+        NewUsagesVisuals.anchoredPosition = OldUsagesVisuals.anchoredPosition;
+        OldUsagesVisuals.SetParent(NewUsagesVisuals, true);
 
-        NameText.SetText(Card.GetName());
-        SymbolText.SetText(Card.GetSymbol());
-        UsagesText.SetText(Card.GetUsages());
-        MaxWorkerText.SetText(Card.GetMaxWorkers());
-        CostsText.SetText(Card.GetCostText());
-        EffectText.SetText(Card.GetDescription());
+        UsagesButton.onClick.RemoveAllListeners();
+        UsagesButton.onClick.AddListener(delegate { SelectUpgrade(Type); });
     }
 
     private void SelectUpgrade(UpgradeableAttributes SelectedUpgrade)
     {
-        if (!Game.TryGetService(out Stockpile Stockpile))
-            return;
-
         UpgradedBuildingData = Instantiate(LastCard.GetBuildingData());
         UpgradedBuildingData.Upgrade(SelectedUpgrade);
-        TargetCardScreen.SetActive(true);
+        UpgradedCardContainer.SetActive(true);
         UpgradeArrow.SetActive(true);
         ConfirmButton.SetActive(true);
 
-        if (CopyCard != null)
+        if (UpgradedCard != null)
         {
-            Destroy(CopyCard.gameObject);
+            Destroy(UpgradedCard.gameObject);
         }
-        CopyCard = Instantiate(LastCard);
-        CopyCard.SetBuildingData(UpgradedBuildingData);
-        LoadTextForCard(CopyCard, true);
-        Stockpile.UpgradePoints -= 1;
+        UpgradedCard = Instantiate(LastCard);
+        UpgradedCard.SetBuildingData(UpgradedBuildingData);
+        UpgradedCard.GenerateCard();
+        MoveToContainer(UpgradedCard.gameObject, true);
     }
 
     public void ConfirmUpgrade()
     {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
         Destroy(CopyCard.gameObject);
         LastCard.SetBuildingData(UpgradedBuildingData);
         LastCard.GenerateCard();
         Hide();
+        Stockpile.UpgradePoints -= 1;
         CardSelectionScreen.UpdateText();
     }
 

@@ -47,6 +47,7 @@ public class BuildingEffectDrawer : PropertyDrawer
     {
         SerializedProperty TileTypeProperty = Property.FindPropertyRelative("TileType");
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
+        SerializedProperty UpgradeProductionProperty = Property.FindPropertyRelative("UpgradeProduction");
         SerializedProperty RangeProperty = Property.FindPropertyRelative("Range");
         SerializedProperty BlockedByBuildingProperty = Property.FindPropertyRelative("IsProductionBlockedByBuilding");
 
@@ -60,6 +61,7 @@ public class BuildingEffectDrawer : PropertyDrawer
         EditorGUILayout.PropertyField(ProductionProperty);
         EditorGUILayout.PropertyField(RangeProperty);
         EditorGUILayout.PropertyField(BlockedByBuildingProperty);
+        EditorGUILayout.PropertyField(UpgradeProductionProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
     }

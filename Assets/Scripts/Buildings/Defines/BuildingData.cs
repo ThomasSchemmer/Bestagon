@@ -155,6 +155,9 @@ public class BuildingData : ScriptableObject, ISaveable
 
     public void Upgrade(UpgradeableAttributes SelectedAttribute)
     {
+        if (!IsUpgradePossible(SelectedAttribute))
+            return;
+
         switch (SelectedAttribute)
         {
             case UpgradeableAttributes.MaxUsages:
@@ -164,7 +167,37 @@ public class BuildingData : ScriptableObject, ISaveable
             case UpgradeableAttributes.MaxWorker:
                 MaxWorker = Mathf.Clamp(MaxWorker + 1, 0, UpgradeMaxWorker); 
                 return;
+            case UpgradeableAttributes.Production:
+                UpgradeProduction();
+                return;
         }
+    }
+
+    private void UpgradeProduction()
+    {
+        Production Difference = Effect.UpgradeProduction - Effect.Production;
+        foreach (var Tuple in Difference.GetTuples())
+        {
+            if (Tuple.Value == 0)
+                continue;
+
+            Effect.Production[Tuple.Key]++;
+            return;
+        }
+    }
+
+    public bool IsUpgradePossible(UpgradeableAttributes SelectedAttribute)
+    {
+        switch (SelectedAttribute)
+        {
+            case UpgradeableAttributes.MaxUsages:
+                return MaxUsages < UpgradeMaxUsages;
+            case UpgradeableAttributes.MaxWorker:
+                return MaxWorker < UpgradeMaxWorker;
+            case UpgradeableAttributes.Production:
+                return Effect.Production < Effect.UpgradeProduction;
+        }
+        return false;
     }
 
     public int GetSize()

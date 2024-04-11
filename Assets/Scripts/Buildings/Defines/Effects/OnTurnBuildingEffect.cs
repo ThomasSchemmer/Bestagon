@@ -105,9 +105,24 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         }
     }
 
+    public GameObject GetEffectVisuals()
+    {
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return null;
+
+        switch (EffectType)
+        {
+            case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this);
+            case Type.ProduceUnit: return null;
+            case Type.ConsumeProduce: return null;
+
+            default: return null;
+        }
+    }
+
     private string GetDescriptionProduce()
     {
-        return "Produces " + Production.GetShortDescription() + " per Worker for each surrounding " + HexagonConfig.GetShortTypeDescription(TileType);
+        return this.Range == 0 ? "if built on " : "per adjacent";
     }
 
     private string GetDescriptionConsumeProduce()

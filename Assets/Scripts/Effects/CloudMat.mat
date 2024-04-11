@@ -27,12 +27,23 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NoiseTex:
+        m_Texture: {fileID: 8400000, guid: 1c4394a7faec93248b39a1532b4e7e3b, type: 2}
+        m_Scale: {x: 15, y: 15}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _CloudCutoff: 0.525
+    - _CloudDensityMultiplier: 5.8
+    - _CloudHeightMax: 15
+    - _CloudHeightMin: 10
     - _IsMalaised: 0
+    - _Multi: 26
+    - _ShowIndex: 5
+    - _StepAmount: 1
     m_Colors:
     - _CameraDir: {r: 0, g: 0, b: 0, a: 0}
     - _CameraExtent: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraPos: {r: 56.82424, g: 35, b: 66.104195, a: 0}
+    - _CameraPos: {r: 157.3311, g: 35, b: 84.92007, a: 0}
     - _UV: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

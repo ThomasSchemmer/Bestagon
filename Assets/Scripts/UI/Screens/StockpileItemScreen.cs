@@ -11,7 +11,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     private int ProductionIndex = -1;
 
     private SVGImage IndicatorRenderer;
-    private UnitScreen ProductionUnitScreen;
+    private NumberedIconScreen ProductionUnitScreen;
     private int[] PastCounts = new int[3];
     private Stockpile Stockpile;
     private IconFactory IconFactory;
@@ -23,9 +23,9 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         ParentScreen = Screen;
         ProductionIndex = Index;
         IndicatorRenderer = transform.GetChild(0).GetComponent<SVGImage>();
-        ProductionUnitScreen = transform.GetChild(1).GetComponent<UnitScreen>();
+        ProductionUnitScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
-        Sprite Sprite = Type == null ? null : IconFactory.GetIconForType((Production.Type)Type);
+        Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
         ProductionUnitScreen.Initialize(Sprite, true);
 
         int Count = GetCount();
@@ -37,9 +37,9 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     public void UpdateVisuals()
     {
         int CountDifference = PastCounts[2] - PastCounts[0];
-        IconFactory.MiscellaneousType Trend = CountDifference > 0 ? IconFactory.MiscellaneousType.TrendUp :
-                CountDifference == 0 ? IconFactory.MiscellaneousType.TrendStable : IconFactory.MiscellaneousType.TrendDown;
+        IconFactory.MiscellaneousType Trend = CountDifference > 0 ? IconFactory.MiscellaneousType.TrendUp : IconFactory.MiscellaneousType.TrendDown;
         IndicatorRenderer.sprite = IconFactory.GetIconForMisc(Trend);
+        IndicatorRenderer.enabled = CountDifference != 0;
 
         ProductionUnitScreen.UpdateVisuals(GetCount());
     }

@@ -280,6 +280,14 @@ public class HexagonConfig {
         return 1 << (Number);
     }
 
+    public static int GetSetBitsAmount(int Category)
+    {
+        Category = Category - ((Category >> 1) & 0x55555555);
+        Category = (Category & 0x33333333) + ((Category >> 2) & 0x33333333);
+        int BitAmount = ((Category + (Category >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+        return BitAmount;
+    }
+
     public static string GetShortTypeDescription(HexagonType Type)
     {
         string Result = "";

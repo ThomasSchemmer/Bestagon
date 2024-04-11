@@ -36,7 +36,9 @@ MonoBehaviour:
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 0
+          Value: 2
     UpgradeRange: 0
   MaxWorker: 1
   BuildableOn: 1027

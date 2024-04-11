@@ -1,7 +1,24 @@
-Shader"Custom/CloudShader"
+/** 
+ * Shader to display volumetric clouds for malaised hexes
+ * Works in multiple steps:
+ * - take screenspace rectangle pixel to uv position 
+ * - Raycast into the world to find overlap with cloud layer (box)
+ * - Check if the position in that box is for a hexagon (map world space to hex space)
+ * - Check if hexagon is malaised (MalaiseBuffer, bitbanged)
+ * - Raymarch through the box for a malaised hexes
+ * - check cloud density (aka layered noise) for each ray step
+ */
+Shader "Custom/CloudShader"
 {
     Properties
     {
+        _NoiseTex ("NoiseTex", 3D) = "white" {}
+        _StepAmount ("StepAmount", Range(1, 5)) = 1
+        _CloudHeightMin("CloudHeightMin", Float) = 10
+        _CloudHeightMax("CloudHeightMax", Float) = 15
+        _CloudCutoff ("CloudCutoff", Range(0, 1)) = 0.5
+        _CloudDensityMultiplier("CloudDensityMultiplier", Range(1, 100)) = 50
+        _ShowIndex("ShowIndex", Float) = 0
     }
 
 
@@ -9,13 +26,24 @@ Shader"Custom/CloudShader"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
     CBUFFER_START(UnityPerMaterial)
-
-uniform float4 _CameraPos, _CameraForward, _CameraUp, _CameraRight, _CameraExtent;
-uniform int _bIsEnabled;
-uniform float4 _WorldSize;
-uniform float _ChunkSize;
-uniform float4 _TileSize;
-uniform float _NumberOfChunks;
+    
+    float4 _NoiseTex_ST;
+    float4 _NoiseTex_TexelSize;
+    uniform float4 _CameraPos, _CameraForward, _CameraUp, _CameraRight, _CameraExtent;
+    uniform int _bIsEnabled;
+    // x and y contain max global tile location 
+    uniform float4 _WorldSize;
+    uniform float _ChunkSize;
+    uniform float4 _TileSize;
+    uniform float _NumberOfChunks;
+    uniform float _ResolutionXZ;
+    uniform float _ResolutionY;
+    float _StepAmount;
+    float _CloudCutoff;
+    float _CloudHeightMin;
+    float _CloudHeightMax;
+    float _CloudDensityMultiplier;
+    float _ShowIndex;
 
     CBUFFER_END
     ENDHLSL
@@ -37,6 +65,7 @@ uniform float _NumberOfChunks;
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Assets/Materials/Shaders/Util/Util.cginc"
+            #include "Assets/Materials/Shaders/Util/CloudNoise.cginc"
 
             #pragma vertex vert
             #pragma fragment frag
@@ -49,6 +78,8 @@ uniform float _NumberOfChunks;
 
             /** See CloudRenderer data: each line of hex's is packed into these uints */
             StructuredBuffer<uint> MalaiseBuffer;
+            /** Contains 3D noise textures for actual cloud density computation, compressed into int's */
+            //StructuredBuffer<int> CloudNoiseBuffer;
 
             struct Attributes {
                 uint vertexID : SV_VertexID;
@@ -58,6 +89,8 @@ uniform float _NumberOfChunks;
 				float4 positionCS 	: SV_POSITION;
 				float2 uv		: TEXCOORD0;
 			};
+            
+            SAMPLER(_NoiseTex);
             
             float3 GetPointOnPlane(float3 PlaneOrigin, float3 PlaneNormal, float3 Origin, float3 Direction)
             {
@@ -98,17 +131,18 @@ uniform float _NumberOfChunks;
                 return int4(ChunkX, ChunkY, HexX, HexY);
             }
 
+            /** Checks the corresponding bit position in the buffer */
             uint IsHexAtLocationMalaised(int2 GlobalTileLocation){
                 int HexIndex = GlobalTileLocation.y * _ChunkSize * _NumberOfChunks + GlobalTileLocation.x;
-                // 50
-                int IntIndex = HexIndex / 32.0; // 1
-                int IntRemainder = (HexIndex - IntIndex * 32); // 18
                 
-                int ByteIndex = IntRemainder / 8.0; // 2
-                int BitIndex = IntRemainder - ByteIndex * 8; // 2
+                int IntIndex = HexIndex / 32.0; 
+                int IntRemainder = (HexIndex - IntIndex * 32); 
+               
+                int ByteIndex = IntRemainder / 8.0; 
+                int BitIndex = IntRemainder - ByteIndex * 8; 
 
-                uint IntValue = MalaiseBuffer[IntIndex]; // 3758211264
-                uint ByteValue = ((IntValue >> ((3 - ByteIndex) * 8)) & 0xFF); // 192
+                uint IntValue = MalaiseBuffer[IntIndex]; 
+                uint ByteValue = ((IntValue >> ((3 - ByteIndex) * 8)) & 0xFF); 
                 uint BitValue = (ByteValue >> (7 - BitIndex)) & 0x1;
                 
                 return BitValue;
@@ -128,11 +162,23 @@ uniform float _NumberOfChunks;
                 return A.x == B.x && A.y == B.y && A.z == B.z && A.w == B.w;
             }
 
-            // sebastian lague
+            float3 GetCloudsMin(){
+                return float3(-_TileSize.x, _CloudHeightMin, -_TileSize.z);
+            }
+
+            float3 GetCloudsMax(){
+                return float3(_WorldSize.x * _TileSize.x * 2 + _TileSize.x, _CloudHeightMax, _WorldSize.y * _TileSize.z * 2 + _TileSize.z);
+            }
+
+            float GetCloudHeight(){
+                return _CloudHeightMax - _CloudHeightMin;
+            }
+
             float2 RayBoxDist(float3 RayOrigin, float3 RayDir){
+                // adapted from sebastian lague
                 // slightly extend the box since the hexagons are center positioned
-                float3 BoundsMin = float3(-_TileSize.x, 10, -_TileSize.z);
-                float3 BoundsMax = float3(_WorldSize.x * _TileSize.x * 2 + _TileSize.x, 15, _WorldSize.y * _TileSize.z * 2 + _TileSize.z);
+                float3 BoundsMin = GetCloudsMin();
+                float3 BoundsMax = GetCloudsMax();
 
                 float3 T0 = (BoundsMin - RayOrigin) / RayDir;
                 float3 T1 = (BoundsMax - RayOrigin) / RayDir;
@@ -147,6 +193,7 @@ uniform float _NumberOfChunks;
                 return float2 (DistToBox, DistInsideBox);
             }
 
+            /** create a fullscreen rect out of thin air */
             Varyings vert(Attributes i) {
 				Varyings OUT;
                 
@@ -157,42 +204,78 @@ uniform float _NumberOfChunks;
 				return OUT;
 			}
 
-            half4 frag(Varyings i) : SV_Target
-            { 
-                return 0;
-                float d = SampleSceneDepth(i.uv);
+            float GetDensityAtWorld(float3 WorldLocation) {
+                // prolly remove ifs
+                float2 GlobalTileLocation = WorldSpaceToTileSpace(WorldLocation);
+                int4 Location = TileSpaceToHexSpace(GlobalTileLocation);
 
-                float2 UV = (i.uv - 0.5) * 2;
+                int _IsValidLocation = IsValidLocation(Location);
+                if (_IsValidLocation == 0)
+                    return 0;
+
+                int _IsHexMalaised = IsHexAtLocationMalaised(GlobalTileLocation);
+                //if (_IsHexMalaised == 0)
+                //    return 0;
+
+                float3 NoisePerc = WorldPosToNoisePerc(WorldLocation, GetCloudsMin(), GetCloudsMax());
+                //int3 NoisePos = NoisePercToNoisePos(NoisePerc, _ResolutionXZ, _ResolutionY);
+                //int NoiseIndex = NoisePosToNoiseIndex(NoisePos, _ResolutionXZ, _ResolutionY);
+                //float Density = GetUnpackedDensity(CloudNoiseBuffer[NoiseIndex]);
+                
+                NoisePerc.xz = TRANSFORM_TEX(NoisePerc.xz, _NoiseTex);
+                // unity expects the z coordinate in a 3D tex to be the "depth", but we have y 
+                float4 Noise = tex3Dlod(_NoiseTex, float4(NoisePerc.xzy, 1));
+                
+                if (_ShowIndex == 1)
+                    return Noise.r;
+                if (_ShowIndex == 2)
+                    return Noise.g;
+                if (_ShowIndex == 3)
+                    return Noise.b;
+                if (_ShowIndex == 4)
+                    return Noise.a;
+
+
+                float Density = GetDensityFromColor(Noise);
+
+                Density = max(0, Density - _CloudCutoff) * _CloudDensityMultiplier;
+                return Density;
+            }
+
+            half4 frag(Varyings input) : SV_Target
+            { 
+                float d = SampleSceneDepth(input.uv);
+
+                float2 UV = (input.uv - 0.5) * 2;
                 float3 PositionWorld = _CameraPos.xyz + UV.x * _CameraRight.xyz + UV.y * _CameraUp.xyz + 100 * -_CameraForward;
                 float2 Box = RayBoxDist(PositionWorld, _CameraForward);
-                return Box.y;
+
                 if (Box.y == 0)
                     return 0;
 
+                float3 BoxStartWorld = PositionWorld + _CameraForward * Box.x;
+                float3 BoxEndWorld = PositionWorld + _CameraForward * (Box.x + Box.y);
+                float3 BoxDir = normalize(BoxEndWorld - BoxStartWorld);
+                float BoxDistance = distance(BoxStartWorld, BoxEndWorld);
+                float StepLength = BoxDistance / _StepAmount;
 
-                return 1;
-
-                /*
-                float3 IntersectionA = GetPointOnPlane(float3(0, 15, 0), float3(0, 1, 0), PositionWorld, _CameraForward.xyz);
-                float3 IntersectionB = GetPointOnPlane(float3(0, 20, 0), float3(0, 1, 0), PositionWorld, _CameraForward.xyz);
-                float2 GlobalTileLocationA = WorldSpaceToTileSpace(IntersectionA);
-                float2 GlobalTileLocationB = WorldSpaceToTileSpace(IntersectionB);
-                int4 LocationA = TileSpaceToHexSpace(GlobalTileLocationA);
-                int4 LocationB = TileSpaceToHexSpace(GlobalTileLocationB);
+                float Sum = 0;
+                for (int i = 0; i < _StepAmount; i++){
+                    float3 Pos = BoxStartWorld + i * StepLength * BoxDir;
+                    Sum += GetDensityAtWorld(Pos) / _StepAmount;
+                }
                 
-                int _IsValidLocationA = IsValidLocation(GlobalTileLocationA);
-                int _IsValidLocationB = IsValidLocation(GlobalTileLocationB);
+                float Transmittance = exp(-Sum);
 
-                if (Equals(LocationA, LocationB) && _IsValidLocationB)
-                    return float4(hash3(LocationB.zwx), 1);
+                if (_ShowIndex == 0){
+                    float4 OriginalColor = SAMPLE_TEXTURE2D_X(_CameraColorTexture, sampler_CameraColorTexture, input.uv);
+                    return Transmittance * OriginalColor + (1 - Transmittance) * float4(0, 0, 0, 1);
+                }
+                return Sum;
 
-                if (_IsValidLocationB == 1)
-                    return float4(hash3(LocationB.zwx), 1);
 
-                if (_IsValidLocationA == 1)
-                    return float4(hash3(LocationA.zwx), 1);
-                
-                float4 color = SAMPLE_TEXTURE2D_X(_CameraColorTexture, sampler_CameraColorTexture, i.texcoord);
+                /*                
+                tex2D(_TypeTex, uv);
                 return color;
                 */
             }

@@ -9,7 +9,15 @@ float2 hash22(float2 p){
 }
             
 float map (float value, float from1, float to1, float from2, float to2) {
-    return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    return (value - from1) / round(to1 - from1) * (to2 - from2) + from2;
+}
+
+float3 map (float3 value, float3 from1, float3 to1, float3 from2, float3 to2){
+    return float3(
+        map(value.x, from1.x, to1.x, from2.x, to2.x),
+        map(value.y, from1.y, to1.y, from2.y, to2.y),
+        map(value.z, from1.z, to1.z, from2.z, to2.z)
+    );
 }
 
 int round(float a){

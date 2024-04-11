@@ -62,22 +62,14 @@ public class Unlockables : GameService, ISaveable
         return GetRandomTypeFromMask(UnlockedTypes);
     }
 
-    private bool IsCategoryFullyUnlocked(int CategoryIndex)
+    private bool IsCategoryFullyUnlocked(int Category)
     {
-        return GetSetBitsAmount(CategoryIndex) == 0;
-    }
-
-    private int GetSetBitsAmount(int Category)
-    {
-        Category = Category - ((Category >> 1) & 0x55555555);
-        Category = (Category & 0x33333333) + ((Category >> 2) & 0x33333333);
-        int BitAmount = ((Category + (Category >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
-        return BitAmount;
+        return HexagonConfig.GetSetBitsAmount(Category) == 0;
     }
 
     private BuildingConfig.Type GetRandomTypeFromMask(int Mask)
     {
-        int BitMaxAmount = GetSetBitsAmount(Mask);
+        int BitMaxAmount = HexagonConfig.GetSetBitsAmount(Mask);
         int RandomIndex = UnityEngine.Random.Range(0, BitMaxAmount);
         int SelectedBit = -1;
 

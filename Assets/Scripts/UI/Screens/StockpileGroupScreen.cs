@@ -15,6 +15,9 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     private static StockpileGroupScreen SelectedInstance;
 
+    public static int WIDTH = 76;
+    public static int OFFSET = 14;
+
     public void Initialize(int Index, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory)
     {
         HighlightImage = transform.GetChild(0).GetComponent<Image>();
@@ -39,7 +42,7 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         for (int Index = MinIndex; Index < MaxIndex; Index++)
         {
             int IndexInGroup = Index - MinIndex;
-            int x = (IndexInGroup % 2) == 0 ? -75 : 50;
+            int x = (IndexInGroup % 2) == 0 ? -42 : 42;
             int y = 65 - 40 * (IndexInGroup / 2);
             GameObject NewItem = Instantiate(ItemPrefab);
             NewItem.transform.SetParent(Container);

@@ -96,8 +96,8 @@ public abstract class UnitData : StarvableUnit, ISaveable
     public Location Location;
 
     // should always be greater than the MovementPerTurn!
-    public int VisitingRange = 2;
-    public int ScoutingRange = 3;
+    public int VisitingRange = 3;
+    public int ScoutingRange = 4;
 
     // don't save, its only temporarily constructed anyway
     public UnitVisualization Visualization;

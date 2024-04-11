@@ -11,9 +11,10 @@ public class SaveGameManager : GameService
 {
     public SerializedDictionary<SaveGameType, MonoBehaviour> Saveables;
 
+    public bool bLoadLastFile = false;
     // static so that it can be shared between scenes and a delayed load can be executed
     private static string FileToLoad = null;
-    private static bool bShouldCreateNewFile = false;
+    private static bool ShouldCreateNewFile = false;
 
     protected override void StartServiceInternal()
     {
@@ -27,6 +28,10 @@ public class SaveGameManager : GameService
 
     private void HandleDelayedLoading()
     {
+        if (bLoadLastFile && FileToLoad == null)
+        {
+            FileToLoad = GetMostRecentSave();
+        }
         HandleSwitchToMenu();
         if (FileToLoad == null)
             return;
@@ -36,7 +41,7 @@ public class SaveGameManager : GameService
 
     private void HandleSwitchToMenu()
     {
-        if (FileToLoad != null || bShouldCreateNewFile)
+        if (FileToLoad != null || ShouldCreateNewFile)
             return;
 
         if (SceneManager.GetActiveScene().name.Equals(Game.MenuSceneName))
@@ -69,7 +74,7 @@ public class SaveGameManager : GameService
 
     public void OnLoad()
     {
-        bShouldCreateNewFile = false;
+        ShouldCreateNewFile = false;
         TryLoad();
     }
 
@@ -101,7 +106,7 @@ public class SaveGameManager : GameService
     public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
     {
         FileToLoad = FileName;
-        SaveGameManager.bShouldCreateNewFile = bShouldCreateNewFile;
+        SaveGameManager.ShouldCreateNewFile = bShouldCreateNewFile;
     }
 
     public bool HasDataFor(SaveGameType TargetType)
@@ -141,7 +146,7 @@ public class SaveGameManager : GameService
     /** Loads the save or returns true if the targeted saveable is in the savegame (but doesn#t actually load it then) */
     public bool TryLoad(SaveGameType TargetType = SaveGameType.None)
     {
-        if (bShouldCreateNewFile)
+        if (ShouldCreateNewFile)
             return false;
 
         string SaveGame = FileToLoad != null ? FileToLoad : GetMostRecentSave();

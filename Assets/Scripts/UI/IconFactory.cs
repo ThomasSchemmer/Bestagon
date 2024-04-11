@@ -1,17 +1,18 @@
 using System;
 using System.Security.AccessControl;
+using TMPro;
 using UnityEngine;
 
 public class IconFactory : GameService
 {
     public SerializedDictionary<Production.Type, Sprite> AvailableResources = new();
+    public SerializedDictionary<HexagonConfig.HexagonType, Sprite> AvailableTiles = new();
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
-    private GameObject ProductionGroupPrefab, ProductionUnitPrefab;
+    private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProductionEffectPrefab;
 
     public enum MiscellaneousType
     {
-        TrendStable,
         TrendUp,
         TrendDown,
         Worker,
@@ -21,6 +22,7 @@ public class IconFactory : GameService
     public void Refresh()
     {
         LoadResources();
+        LoadTiles();
         LoadMiscellaneous();
         LoadPrefabs();
     }
@@ -28,7 +30,9 @@ public class IconFactory : GameService
     private void LoadPrefabs()
     {
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;
-        ProductionUnitPrefab = Resources.Load("UI/ProductionUnit") as GameObject;
+        NumberedIconPrefab = Resources.Load("UI/NumberedIcon") as GameObject;
+        SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
+        ProductionEffectPrefab = Resources.Load("UI/ProductionEffect") as GameObject;
     }
 
     private void LoadResources()
@@ -46,6 +50,24 @@ public class IconFactory : GameService
                 continue;
 
             AvailableResources.Add((Production.Type)ResourceType, Sprite);
+        }
+    }
+
+    private void LoadTiles()
+    {
+        AvailableTiles.Clear();
+        var TileTypes = Enum.GetValues(typeof(HexagonConfig.HexagonType));
+        foreach (var TileType in TileTypes)
+        {
+            GameObject MeshObject = Resources.Load("Icons/Tiles/" + TileType) as GameObject;
+            if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
+                continue;
+
+            Sprite Sprite = MeshObject.GetComponent<SpriteRenderer>().sprite;
+            if (!Sprite)
+                continue;
+
+            AvailableTiles.Add((HexagonConfig.HexagonType)TileType, Sprite);
         }
     }
 
@@ -67,7 +89,7 @@ public class IconFactory : GameService
         }
     }
 
-    public Sprite GetIconForType(Production.Type Type)
+    public Sprite GetIconForProduction(Production.Type Type)
     {
         if (!AvailableResources.ContainsKey(Type))
             return null;
@@ -75,37 +97,85 @@ public class IconFactory : GameService
         return AvailableResources[Type];
     }
 
+    public Sprite GetIconForTile(HexagonConfig.HexagonType Type)
+    {
+        if (!AvailableTiles.ContainsKey(Type))
+            return null;
+
+        return AvailableTiles[Type];
+    }
+
     public GameObject GetVisualsForProduction(Production Production)
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
-        int Width = 46;
+        int Width = 62;
         int XOffset = Width / 2;
         GroupTransform.sizeDelta = new(Width * Tuples.Count, 30);
         for (int i = 0; i < Tuples.Count; i++)
         {
             Tuple<Production.Type, int> Tuple = Tuples[i];
-            GameObject ProductionUnit = Instantiate(ProductionUnitPrefab);
+            GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
             RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
             UnitTransform.SetParent(GroupTransform, false);
             UnitTransform.localPosition = new(XOffset + i * Width, 0, 0);
-            UnitScreen UnitScreen = ProductionUnit.GetComponent<UnitScreen>();
-            UnitScreen.Initialize(GetIconForType(Tuple.Key), false);
+            NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
+            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), false);
             UnitScreen.UpdateVisuals(Tuple.Value);
         }
         return ProductionGroup;
     }
 
+    public GameObject GetVisualsForProduceEffect(OnTurnBuildingEffect Effect)
+    {
+        GameObject ProductionEffect = Instantiate(ProductionEffectPrefab);
+        Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
+        TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        AdjacentText.text = Effect.GetDescription();
+        Transform TypeContainer = ProductionEffect.transform.GetChild(3);
+        GameObject ProductionGO = GetVisualsForProduction(Effect.Production);
+        ProductionGO.transform.SetParent(ProductionContainer, false);
+        GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType);
+        HexTypesGO.transform.SetParent(TypeContainer, false);
+        return ProductionEffect;
+    }
+
     public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, int Amount = 0)
     {
-        GameObject MiscUnit = Instantiate(ProductionUnitPrefab);
+        GameObject MiscUnit = Instantiate(NumberedIconPrefab);
         RectTransform RectTransform = MiscUnit.GetComponent<RectTransform>();
         RectTransform.localPosition = Vector3.zero;
-        UnitScreen MiscScreen = MiscUnit.GetComponent<UnitScreen>();
+        NumberedIconScreen MiscScreen = MiscUnit.GetComponent<NumberedIconScreen>();
         MiscScreen.Initialize(GetIconForMisc(Type), false);
         MiscScreen.UpdateVisuals(Amount);
         return MiscUnit;
+    }
+
+    public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types)
+    {
+        GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
+        RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
+        int Width = 30;
+        int XOffset = Width / 2;
+        int Count = HexagonConfig.GetSetBitsAmount((int)Types);
+        GroupTransform.sizeDelta = new(Width * Count, 30);
+        int Index = 0;
+        for (int i = 0; i < 32; i++)
+        {
+            if ((((int)Types >> i) & 0x1) == 0)
+                continue;
+
+            HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)(((int)Types) & (1 << i));
+            GameObject SimpleIcon = Instantiate(SimpleIconPrefab);
+            RectTransform IconTransform = SimpleIcon.GetComponent<RectTransform>();
+            IconTransform.SetParent(GroupTransform, false);
+            IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
+            SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
+            IconScreen.Initialize(GetIconForTile(Type), false);
+            Index++;
+        }
+        return ProductionGroup;
     }
 
     public Sprite GetIconForMisc(MiscellaneousType Type)

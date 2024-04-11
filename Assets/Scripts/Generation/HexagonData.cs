@@ -20,7 +20,7 @@ public class HexagonData : ISaveable
     public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
     public bool bIsMalaised;
-    private DiscoveryState Discovery = DiscoveryState.Visited;
+    private DiscoveryState Discovery;
 
     public delegate void OnDiscovery();
     public OnDiscovery _OnDiscovery;
