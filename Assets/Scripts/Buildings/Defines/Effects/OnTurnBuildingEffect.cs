@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Unity.Collections;
-using UnityEditor.Build.Content;
 using UnityEngine;
-using UnityEngine.XR;
 
 [Serializable]
 public class OnTurnBuildingEffect : BuildingEffect, ISaveable
@@ -19,6 +15,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     }
 
     public Type EffectType = Type.Produce;
+    public UnitData.UnitType UnitType = UnitData.UnitType.Worker;
     public HexagonConfig.HexagonType TileType = 0;
     public Production Production = new Production();
     public Production Consumption = new Production();
@@ -113,7 +110,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         switch (EffectType)
         {
             case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this);
-            case Type.ProduceUnit: return null;
+            case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this);
             case Type.ConsumeProduce: return null;
 
             default: return null;
@@ -122,7 +119,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     private string GetDescriptionProduce()
     {
-        return this.Range == 0 ? "if built on " : "per adjacent";
+        return Range == 0 ? "if built on " : "per adjacent";
     }
 
     private string GetDescriptionConsumeProduce()
@@ -132,7 +129,12 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     private string GetDescriptionProduceUnit()
     {
-        return "Creates X worker if Y worker occupy for a turn";
+        return "Produces with two workers";
+    }
+
+    public string GetDescriptionProduceUnitConsumption()
+    {
+        return "and consumes";
     }
 
     public int GetSize()

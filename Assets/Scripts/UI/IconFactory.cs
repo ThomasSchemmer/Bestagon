@@ -9,13 +9,15 @@ public class IconFactory : GameService
     public SerializedDictionary<HexagonConfig.HexagonType, Sprite> AvailableTiles = new();
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
-    private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProductionEffectPrefab;
+    private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
+    private GameObject ProduceUnitEffectPrefab;
 
     public enum MiscellaneousType
     {
         TrendUp,
         TrendDown,
         Worker,
+        Scout,
         Usages
     }
 
@@ -32,7 +34,8 @@ public class IconFactory : GameService
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;
         NumberedIconPrefab = Resources.Load("UI/NumberedIcon") as GameObject;
         SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
-        ProductionEffectPrefab = Resources.Load("UI/ProductionEffect") as GameObject;
+        ProduceEffectPrefab = Resources.Load("UI/ProduceEffect") as GameObject;
+        ProduceUnitEffectPrefab = Resources.Load("UI/ProduceUnitEffect") as GameObject;
     }
 
     private void LoadResources()
@@ -129,7 +132,7 @@ public class IconFactory : GameService
 
     public GameObject GetVisualsForProduceEffect(OnTurnBuildingEffect Effect)
     {
-        GameObject ProductionEffect = Instantiate(ProductionEffectPrefab);
+        GameObject ProductionEffect = Instantiate(ProduceEffectPrefab);
         Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Effect.GetDescription();
@@ -139,6 +142,30 @@ public class IconFactory : GameService
         GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType);
         HexTypesGO.transform.SetParent(TypeContainer, false);
         return ProductionEffect;
+    }
+
+    public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect)
+    {
+        GameObject ProduceUnitEffect = Instantiate(ProduceUnitEffectPrefab);
+        TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        ProducesText.text = Effect.GetDescription();
+        Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
+        MiscellaneousType UnitType = Effect.UnitType == UnitData.UnitType.Worker ? MiscellaneousType.Worker : MiscellaneousType.Scout;
+        GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, 1);
+        UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
+        UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
+
+        TextMeshProUGUI ConsumesText = ProduceUnitEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        ConsumesText.text = Effect.GetDescriptionProduceUnitConsumption();
+        Transform ConsumesContainer = ProduceUnitEffect.transform.GetChild(3);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption);
+        ConsumptionGO.transform.SetParent(ConsumesContainer, false);
+
+        bool bConsumes = !Effect.Consumption.Equals(Production.Empty);
+        ConsumesText.gameObject.SetActive(bConsumes);
+        ConsumesContainer.gameObject.SetActive(bConsumes);
+
+        return ProduceUnitEffect;
     }
 
     public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, int Amount = 0)

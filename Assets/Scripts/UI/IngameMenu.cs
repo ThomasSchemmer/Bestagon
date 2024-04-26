@@ -63,6 +63,7 @@ public class IngameMenu : MonoBehaviour
 
     public void OnClickGiveUp()
     {
+        Hide();
         Game.Instance.GameOver("You have given up!");
     }
 

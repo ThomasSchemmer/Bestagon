@@ -134,14 +134,17 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     }
 
     private void InteractMoveUnit(HexagonVisualization SelectedHex) {
-        if (!Game.TryGetService(out Units UnitService))
+        if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
             return;
 
-        if (!UnitService.TryGetUnitAt(SelectedHex.Location, out UnitData UnitOnTile))
+        if (!UnitService.TryGetUnitAt(SelectedHex.Location, out TokenizedUnitData UnitOnTile))
             return;
 
         // can't move if there already is a unit!
-        if (UnitService.TryGetUnitAt(this.Location, out UnitData UnitAtTarget))
+        if (UnitService.TryGetUnitAt(this.Location, out TokenizedUnitData UnitAtTarget))
+            return;
+
+        if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()))
             return;
 
         List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
@@ -152,21 +155,24 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         InteractMoveUnit(UnitOnTile, PathCosts);
     }
 
-    private void InteractMoveUnit(UnitData Unit, int Costs)
+    private void InteractMoveUnit(TokenizedUnitData Unit, int Costs)
     {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
             return;
 
         // trigger movement range update
         Selector.DeselectHexagon();
 
+        if (!Stockpile.Pay(Unit.GetMovementRequirements()))
+            return;
+
         // update both chunks where the worker was and is going to
         if (!Generator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
             return;
 
-        Chunk.Visualization.RefreshTokens();
-
         Unit.MoveTo(this.Location, Costs);
+
+        Chunk.Visualization.RefreshTokens();
 
         if (!Generator.TryGetChunkData(Unit.Location, out Chunk))
             return;
@@ -218,7 +224,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return false;
 
         HexagonVisualization OtherHex = other as HexagonVisualization;
-        return Location.HexLocation.x == OtherHex.Location.HexLocation.x && Location.HexLocation.y == OtherHex.Location.HexLocation.y;
+        return Location.GlobalTileLocation.x == OtherHex.Location.GlobalTileLocation.x && Location.GlobalTileLocation.y == OtherHex.Location.GlobalTileLocation.y;
     }
 
     public ChunkData GetChunk() { return Chunk; }
@@ -268,12 +274,15 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     public void ShowReachableLocations(bool bShow)
     {
-        if (!Game.TryGetService(out Units UnitService))
+        if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
             return;
 
         // always query, just reset if null
-        UnitService.TryGetUnitAt(Location, out UnitData Unit);
-        bool bIsVisible = Unit != null && bShow;
+        UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit);
+
+        bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements());
+
+        bool bIsVisible = Unit != null && bShow && bCanPay;
         int Range = Unit != null ? Unit.RemainingMovement : 0;
 
         // check for each reachable tile if it should be highlighted

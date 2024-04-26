@@ -72,7 +72,7 @@ Shader "Custom/CloudShader"
             #pragma target 5.0
             
             #pragma enable_d3d11_debug_symbols //renderdoc
-
+            
             TEXTURE2D_X(_CameraColorTexture);
             SAMPLER(sampler_CameraColorTexture);
 
@@ -193,23 +193,12 @@ Shader "Custom/CloudShader"
                 return float2 (DistToBox, DistInsideBox);
             }
 
-            /** create a fullscreen rect out of thin air */
-            Varyings vert(Attributes i) {
-				Varyings OUT;
-                
-                float4 pos = GetFullScreenTriangleVertexPosition(i.vertexID);
-                float2 uv  = GetFullScreenTriangleTexCoord(i.vertexID);
-				OUT.positionCS = pos;
-				OUT.uv = uv;
-				return OUT;
-			}
-
-            float GetDensityAtWorld(float3 WorldLocation) {
+            float GetDensityForWorld(float3 WorldLocation) {
                 // prolly remove ifs
-                float2 GlobalTileLocation = WorldSpaceToTileSpace(WorldLocation);
-                int4 Location = TileSpaceToHexSpace(GlobalTileLocation);
+                int2 GlobalTileLocation = WorldSpaceToTileSpace(WorldLocation);
+                //int4 Location = TileSpaceToHexSpace(GlobalTileLocation);
 
-                int _IsValidLocation = IsValidLocation(Location);
+                int _IsValidLocation = IsValidLocation(GlobalTileLocation);
                 if (_IsValidLocation == 0)
                     return 0;
 
@@ -221,7 +210,7 @@ Shader "Custom/CloudShader"
                 //int3 NoisePos = NoisePercToNoisePos(NoisePerc, _ResolutionXZ, _ResolutionY);
                 //int NoiseIndex = NoisePosToNoiseIndex(NoisePos, _ResolutionXZ, _ResolutionY);
                 //float Density = GetUnpackedDensity(CloudNoiseBuffer[NoiseIndex]);
-                
+
                 NoisePerc.xz = TRANSFORM_TEX(NoisePerc.xz, _NoiseTex);
                 // unity expects the z coordinate in a 3D tex to be the "depth", but we have y 
                 float4 Noise = tex3Dlod(_NoiseTex, float4(NoisePerc.xzy, 1));
@@ -235,26 +224,35 @@ Shader "Custom/CloudShader"
                 if (_ShowIndex == 4)
                     return Noise.a;
 
-
                 float Density = GetDensityFromColor(Noise);
 
                 Density = max(0, Density - _CloudCutoff) * _CloudDensityMultiplier;
                 return Density;
             }
 
+            /** create a fullscreen rect out of thin air */
+            Varyings vert(Attributes i) {
+				Varyings OUT;
+                
+                float4 pos = GetFullScreenTriangleVertexPosition(i.vertexID);
+                float2 uv  = GetFullScreenTriangleTexCoord(i.vertexID);
+				OUT.positionCS = pos;
+				OUT.uv = uv;
+				return OUT;
+			}
+
             half4 frag(Varyings input) : SV_Target
             { 
                 float d = SampleSceneDepth(input.uv);
-
                 float2 UV = (input.uv - 0.5) * 2;
-                float3 PositionWorld = _CameraPos.xyz + UV.x * _CameraRight.xyz + UV.y * _CameraUp.xyz + 100 * -_CameraForward;
-                float2 Box = RayBoxDist(PositionWorld, _CameraForward);
+                float3 PositionWorld = _CameraPos.xyz + UV.x * _CameraRight.xyz + UV.y * _CameraUp.xyz + 100 * -_CameraForward.xyz;
+                float2 Box = RayBoxDist(PositionWorld, _CameraForward.xyz);
 
                 if (Box.y == 0)
                     return 0;
 
-                float3 BoxStartWorld = PositionWorld + _CameraForward * Box.x;
-                float3 BoxEndWorld = PositionWorld + _CameraForward * (Box.x + Box.y);
+                float3 BoxStartWorld = PositionWorld + _CameraForward.xyz * Box.x;
+                float3 BoxEndWorld = PositionWorld + _CameraForward.xyz * (Box.x + Box.y);
                 float3 BoxDir = normalize(BoxEndWorld - BoxStartWorld);
                 float BoxDistance = distance(BoxStartWorld, BoxEndWorld);
                 float StepLength = BoxDistance / _StepAmount;
@@ -262,7 +260,8 @@ Shader "Custom/CloudShader"
                 float Sum = 0;
                 for (int i = 0; i < _StepAmount; i++){
                     float3 Pos = BoxStartWorld + i * StepLength * BoxDir;
-                    Sum += GetDensityAtWorld(Pos) / _StepAmount;
+                    float Density = GetDensityForWorld(Pos);
+                    Sum += Density / _StepAmount;
                 }
                 
                 float Transmittance = exp(-Sum);

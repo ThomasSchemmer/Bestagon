@@ -207,6 +207,15 @@ public class SaveGameManager : GameService
         return Size;
     }
 
+    /** Convenience function to create a new NativeArray and fill it with the base data */
+    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveable Saveable, int BaseSize, byte[] BaseData)
+    {
+        NativeArray<byte> Bytes = new(Saveable.GetSize(), Allocator.Temp);
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, BaseSize);
+        Slice.CopyFrom(BaseData);
+        return Bytes;
+    }
+
     public static int AddInt(NativeArray<byte> Bytes, int Start, int Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, sizeof(int));

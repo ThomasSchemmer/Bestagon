@@ -70,7 +70,7 @@ public class MalaiseData : ISaveable
     public List<HexagonData> GetMalaisedHexes() {
         List<HexagonData> MalaisedHexes = new();
         foreach (HexagonData Data in Chunk.HexDatas) {
-            if (Data.bIsMalaised && Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted) {
+            if (Data.bIsMalaised) { // && Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted
                 MalaisedHexes.Add(Data);
             }
         }

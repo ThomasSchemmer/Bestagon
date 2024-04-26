@@ -1,16 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.UI.CanvasScaler;
 
+/** 
+ * Service to manage active units in the game, currently used for only tokenized units (Scouts).
+ * Since the unit data is independent of any chunk, while UnitVisualization is directly bound and managed by 
+ * a chunk, there is no direct link from the UnitData to its visualization
+ */
 public class Units : GameService
 {
     // todo: save
-    public List<UnitData> ActiveUnits = new();
+    public List<TokenizedUnitData> ActiveUnits = new();
 
-    public bool TryGetUnitAt(Location Location, out UnitData Unit)
+    public bool TryGetUnitAt(Location Location, out TokenizedUnitData Unit)
     {
         Unit = null;
-        foreach (UnitData ActiveUnit in ActiveUnits)
+        foreach (TokenizedUnitData ActiveUnit in ActiveUnits)
         {
             if (!ActiveUnit.Location.Equals(Location))
                 continue;
@@ -22,10 +26,10 @@ public class Units : GameService
         return false;
     }
 
-    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<UnitData> Units)
+    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<TokenizedUnitData> Units)
     {
         Units = new();
-        foreach (UnitData ActiveUnit in ActiveUnits)
+        foreach (TokenizedUnitData ActiveUnit in ActiveUnits)
         {
             if (!ActiveUnit.Location.ChunkLocation.Equals(ChunkLocation.ChunkLocation))
                 continue;
@@ -44,7 +48,7 @@ public class Units : GameService
         }
     }
 
-    public void KillUnit(UnitData Unit)
+    public void KillUnit(TokenizedUnitData Unit)
     {
         ActiveUnits.Remove(Unit);
 
@@ -95,6 +99,6 @@ public class Units : GameService
     protected override void StopServiceInternal() { }
 
     public static List<Location> ScoutStartLocations = new() {
-        new Location(new Vector2Int(0, 0), new Vector2Int(0, 3)),
+        new Location(new Vector2Int(0, 0), new Vector2Int(4, 4)),
     };
 }

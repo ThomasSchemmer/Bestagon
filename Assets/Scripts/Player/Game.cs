@@ -12,6 +12,7 @@ public class Game : MonoBehaviour
     public int ChunkCount;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
+    private Dictionary<Type, GameServiceWrapper> InternalServices = new();
 
     public delegate void OnStateChange(GameState NewState);
     public delegate void OnModeChange(GameMode NewMode);
@@ -73,12 +74,8 @@ public class Game : MonoBehaviour
         }
         HexagonConfig.mapMaxChunk = ChunkCount;
 
+        ConvertToDictionary();
         InitMode();
-
-        if (IngameMenu.Instance)
-        {
-            IngameMenu.Instance.Show();
-        }
     }
 
     public void GameOver(string Message = null)
@@ -87,9 +84,18 @@ public class Game : MonoBehaviour
         GameOverScreen.GameOver(Message);
     }
 
-    private void InitMode()
+    private void ConvertToDictionary()
     {
         foreach (GameServiceWrapper Wrapper in Services)
+        {
+            Type Type = Wrapper.TargetScript.GetType();
+            InternalServices.Add(Type, Wrapper);
+        }
+    }
+
+    private void InitMode()
+    {
+        foreach (GameServiceWrapper Wrapper in InternalServices.Values)
         {
             if (ShouldStartService(Wrapper))
             {
@@ -112,12 +118,10 @@ public class Game : MonoBehaviour
         if (!Instance)
             return null;
 
-        foreach (GameServiceWrapper Wrapper in Instance.Services)
-        {
-            if (Wrapper.TargetScript is T)
-                return Wrapper.TargetScript as T;
-        }
-        return null;
+        if (!Instance.InternalServices.ContainsKey(typeof(T)))
+            return null;
+
+        return Instance.InternalServices[typeof(T)].TargetScript as T;
     }
 
     public static bool TryGetService<T>(out T Service, bool ForceLoad = false) where T: GameService
@@ -184,7 +188,7 @@ public class Game : MonoBehaviour
         Instance.Delegates.Add(Delegate);
     }
 
-    public static void RunAfterServiceInit<X, Y>(Action<X, Y> Callback) where X : GameService where Y : GameService
+    public static void RunAfterServicesInit<X, Y>(Action<X, Y> Callback) where X : GameService where Y : GameService
     {
         X ServiceX = GetService<X>();
         Y ServiceY = GetService<Y>();
@@ -222,14 +226,11 @@ public class Game : MonoBehaviour
 
     public static void ExitGame()
     {
-        if (Application.isEditor)
-        {
+#if UNITY_EDITOR
             EditorApplication.isPlaying = false;
-        }
-        else
-        {
+#else
             Application.Quit();
-        }
+#endif
     }
 
     // todo: make states actually meaningful

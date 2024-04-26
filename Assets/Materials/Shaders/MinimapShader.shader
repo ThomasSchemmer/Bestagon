@@ -63,7 +63,7 @@ Shader "Custom/MinimapShader"
                 uint Type = Data.Type & 0x3F;
     
                 // split type into two colums from 1..15->0.5 and 16..32->8.5, offset slightly to avoid read errors
-                float U = (int) (Type / 16) * 16 / 2 + 0.5; 
+                float U = (int) (Type / 16.0) * 16 / 2.0 + 0.5; 
                 float V = Type % 16;
                 float2 MappedUV = float2(U, V) / 16.0;
     

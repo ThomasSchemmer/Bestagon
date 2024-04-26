@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 8874119855772039424}
   - component: {fileID: 6081003012119917220}
   m_Layer: 0
-  m_Name: Adjacent
+  m_Name: Consumes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -201,7 +201,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: per adjacent
+  m_text: and consumes
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -280,7 +280,7 @@ GameObject:
   m_Component:
   - component: {fileID: 458925034913998007}
   m_Layer: 0
-  m_Name: ProductionContainer
+  m_Name: TypeContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -315,7 +315,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4603926373222797796}
   m_Layer: 0
-  m_Name: TypeContainer
+  m_Name: ProductionContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -350,7 +350,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3199885451640189572}
   m_Layer: 0
-  m_Name: ProductionEffect
+  m_Name: ProduceEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

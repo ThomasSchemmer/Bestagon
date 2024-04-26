@@ -9,6 +9,8 @@ public class CardDeck : CardCollection
     {
         base.StartServiceInternal();
 
+        UpdateText();
+
         if (!Game.TryGetService(out SaveGameManager Manager))
             return;
 
@@ -16,14 +18,7 @@ public class CardDeck : CardCollection
         if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
             return;
 
-    }
-
-    public void AddGeneratedCard(Card Card)
-    {
-        Card.transform.localPosition = new Vector3(0, Card.GetIndex() * 15, 0);
-        Card.gameObject.layer = 0;
-        Card.gameObject.SetActive(false);
-        Cards.Add(Card);
+        _OnInit?.Invoke();
     }
 
     private void UpdateText()
@@ -38,26 +33,10 @@ public class CardDeck : CardCollection
             Card.gameObject.SetActive(false);
         }
 
-        if (Game.IsIn(Game.GameState.Game) || Game.IsIn(Game.GameState.GameMenu))
-        {
-            Fill(2);
-        }
         UpdateText();
+        _OnInit?.Invoke();
     }
 
-    private void Fill(int MaxAmount)
-    {
-        if (!Game.TryGetService(out CardHand Hand))
-            return;
-
-        MaxAmount = Mathf.Min(MaxAmount, Cards.Count);
-
-        for (int i = Hand.Cards.Count; i < MaxAmount; i++)
-        {
-            Card Card = RemoveCard();
-            Hand.AddCard(Card);
-        }
-    }
 
     public override void AddCard(Card Card)
     {

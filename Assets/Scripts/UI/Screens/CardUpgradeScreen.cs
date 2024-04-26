@@ -61,7 +61,7 @@ public class CardUpgradeScreen : GameService
         }
         UpgradedCardContainer.SetActive(false);
         UpgradeArrow.SetActive(false);
-        ConfirmButton.SetActive(false);
+        EnableConfirmButton(false);
         if (CopyCard)
         {
             Destroy(CopyCard.gameObject);
@@ -100,6 +100,7 @@ public class CardUpgradeScreen : GameService
         ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
         ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
         ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
+        EnableConfirmButton(false);
     }
 
     private void MoveToContainer(GameObject NewCard, bool bIsForUpgraded)
@@ -107,6 +108,7 @@ public class CardUpgradeScreen : GameService
         Transform TargetTransform = bIsForUpgraded ? UpgradedCardContainer.transform : RegularCardContainer.transform;
         NewCard.transform.SetParent(TargetTransform, false);
         RectTransform CloneTransform = NewCard.GetComponent<RectTransform>();
+        CloneTransform.anchoredPosition = Vector2.zero;
         CloneTransform.anchorMin = Vector2.one * 0.5f;
         CloneTransform.anchorMax = Vector2.one * 0.5f;
     }
@@ -131,6 +133,10 @@ public class CardUpgradeScreen : GameService
         UsagesButton.onClick.AddListener(delegate { SelectUpgrade(Type); });
     }
 
+    private void EnableConfirmButton(bool bIsEnabled) { 
+        ConfirmButton.GetComponent<Button>().interactable = bIsEnabled;
+    }
+
     private void SelectUpgrade(UpgradeableAttributes SelectedUpgrade)
     {
         UpgradedBuildingData = Instantiate(LastCard.GetBuildingData());
@@ -138,6 +144,7 @@ public class CardUpgradeScreen : GameService
         UpgradedCardContainer.SetActive(true);
         UpgradeArrow.SetActive(true);
         ConfirmButton.SetActive(true);
+        EnableConfirmButton(true);
 
         if (UpgradedCard != null)
         {

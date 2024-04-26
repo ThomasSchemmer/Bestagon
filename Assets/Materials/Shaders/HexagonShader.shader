@@ -68,17 +68,20 @@ Shader"Custom/HexagonShader"
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline"}
+        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry+0"}
         LOD 100
 
         Pass 
         {
             Tags {"LightMode" = "UniversalForward"}
             HLSLPROGRAM
+
+            #pragma require geometry
+            
             #pragma vertex vert
             #pragma geometry geom
             #pragma fragment frag
-
+            
             #pragma multi_compile_instancing
             #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
@@ -87,7 +90,6 @@ Shader"Custom/HexagonShader"
  
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
-            #pragma target 2.0
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"  
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // shadows
@@ -222,7 +224,7 @@ Shader"Custom/HexagonShader"
             void geom(triangle v2g IN[3], inout TriangleStream<g2f> triStream){
                 g2f o;
                 
-                float3 centerWorld = (IN[0].vertex + IN[1].vertex + IN[2].vertex) / 3.0;
+                float3 centerWorld = (IN[0].vertex + IN[1].vertex + IN[2].vertex).xyz / 3.0;
                 centerWorld = GetVertexPositionInputs(centerWorld).positionWS;
     
                 // since geometry shader has access to each triangle
@@ -288,7 +290,7 @@ Shader"Custom/HexagonShader"
                 // as we have a split uv map we need to wrap around
                 int xType = _Type / 16.0;
                 int yType = _Type % 16;
-                float StandardColor = (i.uv.x * 16.0) + xType * 16 / 2;
+                float StandardColor = (i.uv.x * 16.0) + xType * 16 / 2.0;
                 float u = StandardColor;
                 float v = yType;
                 float2 uv = float2(u, v) / 16.0;

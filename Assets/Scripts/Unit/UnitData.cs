@@ -1,104 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
-using UnityEngine;
-using UnityEngine.Assertions;
 
-public abstract class UnitData : StarvableUnit, ISaveable
+/** 
+ * Base class for any unit. Is extended (with middle classes) for worker and scouts 
+ * Any unit class only contains data.
+ */
+public abstract class UnitData : ISaveable
 {
-    
-    public int GetMovementCostTo(Location ToLocation)
+    public enum UnitType
     {
-        List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation);
-        return Pathfinding.GetCostsForPath(Path);
+        Worker,
+        Scout
     }
 
-    public void MoveTo(Location Location, int Costs)
-    {
-        this.Location = Location;
-        this.RemainingMovement -= Costs;
+    public UnitType Type;
 
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return;
+    public virtual void Refresh() {}
 
-        if (!MapGenerator.TryGetHexagon(Location, out HexagonVisualization NewHex))
-            return;
+    public abstract int GetSize();
 
-        NewHex.UpdateDiscoveryState(VisitingRange, ScoutingRange);
-    }
+    public abstract byte[] GetData();
 
-
-    public void MoveAlong(List<Location> Path)
-    {
-        Assert.AreNotEqual(Path.Count, 0);
-        Assert.AreEqual(Path[0], Location);
-        for (int i = 1; i < Path.Count; i++)
-        {
-            Location CurrentLocation = this.Location;
-            Location NextLocation = Path[i];
-            int MoveCosts = HexagonConfig.GetCostsFromTo(CurrentLocation, NextLocation);
-            if (RemainingMovement < MoveCosts)
-                break;
-
-            MoveTo(NextLocation, MoveCosts);
-        }
-    }
-
-    public void Refresh()
-    {
-        if (IsStarving())
-            return;
-
-        RemainingMovement = MovementPerTurn;
-    }
-
-    public abstract string GetPrefabName();
-
-    public virtual int GetSize()
-    {
-        // 4 bytes, one each for MovementPerTurn, RemainingMovement, Visiting, ScoutingRange, FoodCount
-        return sizeof(char) + 5 * sizeof(byte) + Location.GetStaticSize();
-    }
-
-    public virtual byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)RemainingMovement);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)VisitingRange);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ScoutingRange);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)FoodCount);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-
-        return Bytes.ToArray();
-    }
-
-    public virtual void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bMovementPerTurn);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bRemainingMovement);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bVisitingRange);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bScoutingRage);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bFoodCount);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-
-        MovementPerTurn = bMovementPerTurn;
-        RemainingMovement = bRemainingMovement;
-        VisitingRange = bVisitingRange;
-        ScoutingRange = bScoutingRage;
-        FoodCount = bFoodCount;
-    }
-
-    public int MovementPerTurn = 1;
-    public int RemainingMovement = 0;
-    public Location Location;
-
-    // should always be greater than the MovementPerTurn!
-    public int VisitingRange = 3;
-    public int ScoutingRange = 4;
-
-    // don't save, its only temporarily constructed anyway
-    public UnitVisualization Visualization;
+    public abstract void SetData(NativeArray<byte> Bytes);
 }

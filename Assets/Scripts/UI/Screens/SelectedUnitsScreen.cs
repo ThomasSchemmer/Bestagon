@@ -25,7 +25,7 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
         if (!Game.TryGetService(out Units Units))
             return;
 
-        if (!Units.TryGetUnitAt(Hex.Location, out UnitData Unit))
+        if (!Units.TryGetUnitAt(Hex.Location, out TokenizedUnitData Unit))
             return;
 
         SelectedUnit = Unit;

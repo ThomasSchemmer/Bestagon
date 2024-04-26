@@ -5,6 +5,7 @@ public class BuildingConfig
     [Flags]
     public enum Type : uint
     {
+        // maximum supports 31 different buildings!
         DEFAULT = 0,
         Bakery = 1 << 0,
         Barracks = 1 << 1,
@@ -29,16 +30,17 @@ public class BuildingConfig
         Weaver = 1 << 20,
         Well = 1 << 21,
         Woodcutter = 1 << 22,
+        Hut = 1 << 23,
     }
 
 
     public static int CategoryAmount = 4;
     public static int MaxIndex = 22;
-    public static Type CategoryMeadow = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Farm | Type.HerbalistsHut;
-    public static Type CategoryDesert = Type.Quarry | Type.Sawmill | Type.Barracks | Type.HuntersHut | Type.Well;
-    public static Type CategorySwamp = Type.Mine | Type.Forge | Type.Smithy | Type.Harbour | Type.SmokeHut | Type.Mill | Type.Weaver | Type.MedicineHut;
-    public static Type CategoryIce = Type.Stonemason | Type.Bakery | Type.Tailor | Type.Brewer | Type.Scribe;
+    public static Type CategoryMeadow = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.HuntersHut | Type.Hut | Type.Well;
+    public static Type CategoryDesert = Type.Quarry | Type.Sawmill | Type.Barracks | Type.HuntersHut | Type.Farm | Type.HerbalistsHut | Type.MedicineHut;
+    public static Type CategorySwamp = Type.Mine | Type.Forge | Type.Smithy | Type.Harbour | Type.SmokeHut | Type.Mill | Type.Farm | Type.Weaver | Type.Tailor;
+    public static Type CategoryIce = Type.Stonemason | Type.Bakery | Type.Brewer | Type.Scribe;
     public static Type[] Categories = new Type[4] { CategoryMeadow, CategoryDesert, CategorySwamp, CategoryIce};
 
-    public static Type UnlockOnStart = Type.Claypit | Type.Woodcutter | Type.ForagersHut;
+    public static Type UnlockOnStart = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut;
 }

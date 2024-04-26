@@ -60,66 +60,101 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.16f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
+    <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
-    <Compile Include="Assets\Scripts\Util\Fotograph.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\MalaiseVisualization.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
+    <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\TileInfoScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Generation\MalaiseData.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveable.cs" />
+    <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
-    <Compile Include="Assets\Scripts\UI\MainMenu.cs" />
+    <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
-    <Compile Include="Assets\Scripts\UI\GameOverScreen.cs" />
+    <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
+    <Compile Include="Assets\Scripts\Unit\ScoutData.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Buildings\Defines\TileFactory.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\SelectedUnitsScreen.cs" />
+    <Compile Include="Assets\Scripts\Util\Dragging\DraggableManager.cs" />
     <Compile Include="Assets\Scripts\Util\Tuple.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\BuildingPreview.cs" />
-    <Compile Include="Assets\Scripts\UI\SelectWorkerScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\OnTurnBuildingEffect.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceDelegate.cs" />
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
-    <Compile Include="Assets\Scripts\Buildings\Defines\BuildingFactoryEditor.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
     <Compile Include="Assets\Scripts\Config\Location.cs" />
-    <Compile Include="Assets\Scripts\Unit\WorkerVisualization.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\Tip.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
+    <Compile Include="Assets\Scripts\Effects\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\RuinsScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\BuildingTypeScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
     <Compile Include="Assets\Scripts\Cards\CardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
+    <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
-    <Compile Include="Assets\Scripts\Buildings\Defines\BuildingFactory.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CardSelectionScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitNameScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\CorruptionScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\IngameMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Selectable.cs" />
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Unit\Workers.cs" />
     <Compile Include="Assets\Scripts\Unit\WorkerData.cs" />
+    <Compile Include="Assets\Scripts\Player\Unlockables.cs" />
     <Compile Include="Assets\Scripts\Player\CardHand.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />
+    <Compile Include="Assets\Scripts\Unit\UnitData.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CollectRuinsScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeatureGroup.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
     <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />
     <Compile Include="Assets\Scripts\Generation\MapGenerator.cs" />
-    <Compile Include="Assets\Scripts\Effects\Painterly.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\LoadMenuScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />
-    <Compile Include="Assets\Scripts\UI\SelectedHex.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\WorkerScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Config\HexagonConfig.cs" />
+    <Compile Include="Assets\Scripts\Visualization\UnitVisualization.cs" />
     <Compile Include="Assets\Scripts\Generation\Map.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
   </ItemGroup>
@@ -129,6 +164,7 @@
     <None Include="Assets\Materials\Shaders\BuildingShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Materials\Shaders\TectonicPlateCompute.compute" />
+    <None Include="Assets\Scripts\Effects\VoronoiCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
@@ -140,22 +176,25 @@
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF.shader" />
+    <None Include="Assets\Scripts\Effects\CloudShader.shader" />
+    <None Include="Assets\Scripts\Effects\TestShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\Materials\Shaders\Util\BlendModes.cginc" />
     <None Include="Assets\Materials\Shaders\PreviewShader.shader" />
     <None Include="Assets\Materials\Shaders\MinimapShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Materials\Shaders\WorldGenerationCompute.compute" />
     <None Include="Assets\Materials\Shaders\HexagonShader.shader" />
+    <None Include="Assets\Materials\Shaders\Util\CloudNoise.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
-    <None Include="Assets\Scripts\Effects\PainterlyShader.shader" />
-    <None Include="Assets\Scripts\Effects\PainterlyCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Materials\Shaders\Util\Painterly.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Sprite.shader" />
   </ItemGroup>
   <ItemGroup>
@@ -1003,12 +1042,16 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.AI.Navigation">
-      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.dll</HintPath>
+    <Reference Include="Unity.VectorGraphics">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Burst.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.AI.Navigation">
+      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.2D.Common.Path.Editor">
@@ -1033,6 +1076,10 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Config.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Config.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VectorGraphics.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor">
@@ -1135,6 +1182,10 @@
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.InternalAPIEditorBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.003.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.005">
       <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.005.dll</HintPath>
       <Private>False</Private>
@@ -1153,6 +1204,10 @@
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InternalAPIEngineBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEngineBridge.003.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.001">

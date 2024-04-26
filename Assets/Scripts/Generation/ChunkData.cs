@@ -126,7 +126,7 @@ public class ChunkData : ISaveable
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitAt(Location, out UnitData Unit))
+        if (!UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit))
             return;
 
         UnitService.KillUnit(Unit);

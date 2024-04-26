@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
-public class StarvableUnit
+/** A unit that can be starved. If hungry will not work */
+public abstract class StarvableUnitData : UnitData
 {
     public void HandleStarvation()
     {
@@ -29,10 +31,10 @@ public class StarvableUnit
         }
     }
 
-    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name) where T : StarvableUnit
+    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name) where T : StarvableUnitData
     {
         int StarvingCount = 0;
-        foreach (StarvableUnit Unit in Units)
+        foreach (StarvableUnitData Unit in Units)
         {
             Unit.HandleStarvation();
             if (!Unit.IsStarving())
@@ -46,6 +48,26 @@ public class StarvableUnit
             return;
 
         MessageSystem.CreateMessage(Message.Type.Warning, StarvingCount + " "+ Name+" are starving - they will not work!");
+    }
+
+    public override int GetSize()
+    {
+        return sizeof(int);
+    }
+
+    public override byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        Pos = SaveGameManager.AddInt(Bytes, Pos, FoodCount);
+
+        return Bytes.ToArray();
+    }
+
+    public override void SetData(NativeArray<byte> Bytes)
+    {
+        int Pos = 0;
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out FoodCount);
     }
 
     public int FoodCount = 1;

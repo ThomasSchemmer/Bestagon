@@ -81,6 +81,11 @@ public class Production : ISaveable
         return _Production.ContainsKey(Type);
     }
 
+    public bool IsEmpty()
+    {
+        return _Production.Count == 0;
+    }
+
     public static Production operator +(Production A, Production B) {
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
@@ -193,6 +198,32 @@ public class Production : ISaveable
         return GetDescription(Type)[..1];
     }
 
+    public override bool Equals(object obj)
+    {
+        if (obj is not Production)
+            return false;
+
+        Production Other = obj as Production;
+        if (_Production.Tuples.Count != Other._Production.Tuples.Count)
+            return false;
+
+        foreach (var Tuple in _Production.Tuples)
+        {
+            if (!Other.Contains(Tuple.Key))
+                return false;
+
+            if (Other[Tuple.Key] != Tuple.Value)
+                return false;
+        }
+
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        return _Production.GetHashCode();
+    }
+
     public static int GetHungerFromFood(Type FoodType)
     {
         switch (FoodType)
@@ -203,6 +234,13 @@ public class Production : ISaveable
             case Type.Jerky: return 3;
             case Type.MeatPie: return 5;
             default: return 0;
+        }
+    }
+
+    public static Production Empty
+    {
+        get{
+            return new Production();
         }
     }
 

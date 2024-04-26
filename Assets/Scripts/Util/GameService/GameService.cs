@@ -7,10 +7,15 @@ using UnityEngine;
  */
 public abstract class GameService : MonoBehaviour
 {
+    public GameService()
+    {
+        // has to be in the constructor to force the self initialisation to be the first thing executed on callback
+        _OnInit += BaseInit;
+    }
+
     public void StartService()
     {
         IsRunning = true;
-        _OnInit += BaseInit;
         StartServiceInternal();
         _OnStartup?.Invoke();
     }

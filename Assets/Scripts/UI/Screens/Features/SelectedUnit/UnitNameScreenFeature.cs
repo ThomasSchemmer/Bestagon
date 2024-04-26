@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SelectedUnitScreenFeature : ScreenFeature<UnitData>
+public class UnitNameScreenFeature : ScreenFeature<UnitData>
 {
     public override bool ShouldBeDisplayed()
     {
@@ -25,5 +25,10 @@ public class SelectedUnitScreenFeature : ScreenFeature<UnitData>
     {
         base.Hide();
         TargetText.text = string.Empty;
+    }
+
+    public override void Init(ScreenFeatureGroup<UnitData> Target)
+    {
+        base.Init(Target);
     }
 }

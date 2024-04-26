@@ -97,10 +97,10 @@ public class CardFactory : GameService
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((IconFactory IconFactory, TileFactory TileFactory) =>
+        Game.RunAfterServicesInit((IconFactory IconFactory, TileFactory TileFactory) =>
         {
-            _OnInit?.Invoke();
             CreateDelayedCards();
+            _OnInit?.Invoke();
         });
     }
 

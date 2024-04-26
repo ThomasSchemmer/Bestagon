@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class WorkerData : StarvableUnit, ISaveable
+public class WorkerData : StarvableUnitData, ISaveable
 {
     private BuildingData AssignedBuilding = null;
     private int AssignedBuildingSlot = -1;
@@ -35,16 +35,17 @@ public class WorkerData : StarvableUnit, ISaveable
         return AssignedBuildingSlot;
     }
 
-    public virtual int GetSize()
+    public override int GetSize()
     {
-        // foodcount and employed
-        return sizeof(byte) * 3 + Location.GetStaticSize();
+        // foodcount, employed, assigned building slot
+        return base.GetSize() + sizeof(byte) * 3 + Location.GetStaticSize();
     }
 
-    public virtual byte[] GetData()
+    public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+
+        int Pos = base.GetSize();
         bool bIsEmployed = AssignedBuilding != null;
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)FoodCount);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
@@ -54,12 +55,13 @@ public class WorkerData : StarvableUnit, ISaveable
         return Bytes.ToArray();
     }
 
-    public virtual void SetData(NativeArray<byte> Bytes)
+    public override void SetData(NativeArray<byte> Bytes)
     {
+        base.SetData(Bytes);
         if (!Game.TryGetServices(out MapGenerator MapGen, out Workers Workers))
             return;
 
-        int Pos = 0;
+        int Pos = base.GetSize();
         Location Location = Location.Zero;
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bFoodCount);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bool bIsEmployed);

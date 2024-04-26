@@ -10,7 +10,7 @@ public class Card : Draggable, Selectable
     public void Init(BuildingData BuildingData, int Index) {
         this.BuildingData = BuildingData;
         CardHand = Game.GetService<CardHand>();
-        ID = GUID.Generate();
+        ID = System.Guid.NewGuid();
         this.Index = Index;
         gameObject.layer = LayerMask.NameToLayer("Card");
         GenerateCard();
@@ -261,7 +261,7 @@ public class Card : Draggable, Selectable
         return bIsInCardSelection && !bIsCardUpgrade;
     }
 
-    protected GUID ID;
+    protected System.Guid ID;
     protected int Index;
     protected bool isHovered, isSelected;
     protected bool bCanBeHovered = false;

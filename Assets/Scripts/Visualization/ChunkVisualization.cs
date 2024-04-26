@@ -82,10 +82,10 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsInChunk(Data.Location, out List<UnitData> Units))
+        if (!UnitService.TryGetUnitsInChunk(Data.Location, out List<TokenizedUnitData> Units))
             return;
 
-        foreach (UnitData Unit in Units)
+        foreach (TokenizedUnitData Unit in Units)
         {
             UnitVisualization UnitVis = UnitVisualization.CreateFromData(Unit);
             UnitVis.transform.parent = transform;

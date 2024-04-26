@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Assertions;
 
 public class Workers : GameService
 {
@@ -22,12 +18,14 @@ public class Workers : GameService
     {
         Worker.RemoveFromBuilding();
         Building.RemoveWorker(i);
+        _OnWorkersChanged?.Invoke();
     }
 
     public void AssignWorkerTo(WorkerData Worker, BuildingData Building, int i)
     {
         Worker.AssignToBuilding(Building, i);
         Building.PutWorkerAt(Worker, i);
+        _OnWorkersChanged?.Invoke();
     }
 
     public void KillWorker(WorkerData WorkerUnit)
@@ -40,6 +38,7 @@ public class Workers : GameService
             RequestRemoveWorkerFor(WorkerUnit.GetAssignedBuilding(), WorkerUnit, WorkerUnit.GetAssignedBuildingSlot());
         }
         ActiveWorkers.Remove(WorkerUnit);
+        _OnWorkersChanged?.Invoke();
         CheckForGameOver();
     }
 
@@ -102,9 +101,13 @@ public class Workers : GameService
     {
         ActiveWorkers.Add(new WorkerData());
         ActiveWorkers.Add(new WorkerData());
+        _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() {}
 
     public List<WorkerData> ActiveWorkers = new();
+
+    public delegate void OnWorkersChanged();
+    public OnWorkersChanged _OnWorkersChanged;
 }

@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Util\Saving\Editor\ISaveableDrawer.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Editor\BuildingEffectDrawer.cs" />
     <Compile Include="Assets\Scripts\Player\Editor\ProductionDrawer.cs" />
+    <Compile Include="Assets\Scripts\Buildings\Defines\Editor\BuildingFactoryEditor.cs" />
     <Compile Include="Assets\Scripts\Generation\Editor\WorldGenerationInspector.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\Editor\GameServiceDrawer.cs" />
   </ItemGroup>
@@ -952,12 +953,16 @@
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Core.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.AI.Navigation">
-      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.dll</HintPath>
+    <Reference Include="Unity.VectorGraphics">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Burst.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.AI.Navigation">
+      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.2D.Common.Path.Editor">
@@ -982,6 +987,10 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Config.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.RenderPipelines.Universal.Config.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VectorGraphics.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VectorGraphics.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Core.Editor">
@@ -1084,6 +1093,10 @@
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.InternalAPIEditorBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.003.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.005">
       <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEditorBridge.005.dll</HintPath>
       <Private>False</Private>
@@ -1102,6 +1115,10 @@
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.InternalAPIEngineBridge.003">
+      <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEngineBridge.003.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.InternalAPIEditorBridge.001">

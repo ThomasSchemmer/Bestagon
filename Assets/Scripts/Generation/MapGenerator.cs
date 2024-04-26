@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Unity.Collections;
 using UnityEngine;
@@ -40,7 +36,7 @@ public class MapGenerator : GameService, ISaveable
         MinBottomLeft = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        Game.RunAfterServiceInit((Map Map, TileFactory Factory) =>
+        Game.RunAfterServicesInit((Map Map, TileFactory Factory) =>
         {
             if (!Game.TryGetService(out SaveGameManager Manager))
                 return;

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.UIElements;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 /**
  * Helper class to wrap all templated selectors into one easily accesible UI element / gameservice

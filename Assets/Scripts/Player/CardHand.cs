@@ -1,15 +1,13 @@
-﻿using Codice.Client.BaseCommands;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class CardHand : CardCollection
 {
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((SaveGameManager Manager, Unlockables Unlockables) => {
+        Game.RunAfterServicesInit((SaveGameManager Manager, Unlockables Unlockables) => {
 
             base.StartServiceInternal();
 
@@ -23,9 +21,9 @@ public class CardHand : CardCollection
                 CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
                 CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
                 CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
 
-                BuildingConfig.Type RandomType = Unlockables.GetRandomUnlockedType();
-                CardFactory.CreateCard(RandomType, 0, transform, AddCard);
+                _OnInit?.Invoke();
             });
             
         });
@@ -82,8 +80,30 @@ public class CardHand : CardCollection
 
     public override void Load()
     {
-        
         Sort(false);
+        HandleDelayedFilling();
+        
+
+        _OnInit?.Invoke();
+    }
+
+    private void HandleDelayedFilling()
+    {
+        if (!Game.IsIn(Game.GameState.Game) && !Game.IsIn(Game.GameState.GameMenu))
+            return;
+
+        Game.RunAfterServicesInit((CardDeck Deck, CardFactory CardFactory) =>
+        {
+            int TargetAmount = 2;
+            int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
+            Amount = Mathf.Min(Amount, Deck.Cards.Count);
+
+            for (int i = 0; i < Amount; i++)
+            {
+                Card Card = Deck.RemoveCard();
+                AddCard(Card);
+            }
+        });
     }
 
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);

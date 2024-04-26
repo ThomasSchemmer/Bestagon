@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
-public class ScoutData : UnitData
+public class ScoutData : TokenizedUnitData
 {
     public ScoutData() {
         RemainingMovement = MovementPerTurn;
@@ -18,18 +18,15 @@ public class ScoutData : UnitData
 
     public override int GetSize()
     {
-        // 2 bytes, one each for SocialRange, HermitRange
-        return base.GetSize() + MAX_NAME_LENGTH * sizeof(char) + sizeof(byte);
+        // 1 byte for ActiveRange
+        return base.GetSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(byte);
     }
 
     public override byte[] GetData()
     {
-        int BaseSize = base.GetSize();
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, BaseSize);
-        Slice.CopyFrom(base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
 
-        int Pos = BaseSize;
+        int Pos = base.GetSize();
         Pos = SaveGameManager.AddString(Bytes, Pos, Name);
         Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ActiveRange);
@@ -66,13 +63,30 @@ public class ScoutData : UnitData
         Name = NewName;
     }
 
+    public override Production GetMovementRequirements()
+    {
+        Production Requirements = Production.Empty;
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return Requirements;
+
+        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData HexData))
+            return Requirements;
+
+        switch (HexData.Type)
+        {
+            case HexagonConfig.HexagonType.Desert:
+            case HexagonConfig.HexagonType.Savanna:
+                Requirements += new Production(Production.Type.WaterSkins, 1);
+                break;
+        }
+
+        return Requirements;
+    }
+
     public string Name;
     public int ID = 0;
 
     public int ActiveRange = 3;
-
-    //save as bool and location!
-    public BuildingData AssignedBuilding;
 
     public static int MAX_NAME_LENGTH = 10;
     public static int CURRENT_WORKER_ID = 0;

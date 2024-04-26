@@ -19,6 +19,12 @@ public class DiscardDeck : CardCollection {
         Text.text = "" + Cards.Count;
     }
 
+    public override void Load()
+    {
+        base.Load();
+
+    }
+
     public static Vector3 RootPosition = new Vector3(-20, -200, 0);
     public static Vector3 Offset = new Vector3(0, -15, 0);
 

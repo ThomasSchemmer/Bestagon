@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.U2D.Aseprite;
-using UnityEngine;
-
 /** 
  * Container for the actual map data. 
  * Should not be accessed directly, but queried via MapGenerator to also update the visualization
@@ -45,7 +40,7 @@ public class Map : GameService
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((WorldGenerator WorldGenerator, SaveGameManager Manager) =>
+        Game.RunAfterServicesInit((WorldGenerator WorldGenerator, SaveGameManager Manager) =>
         {
             // the savegame will fil the map data on its own, no need to generate new 
             // we still need to query the manager object to ensure its already loaded at that point!

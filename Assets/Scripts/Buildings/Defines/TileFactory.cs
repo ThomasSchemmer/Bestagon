@@ -13,6 +13,7 @@ public class TileFactory : GameService
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
     public Mesh UnknownMesh;
+    public GameObject BuildingPrefab;
 
     public void Refresh()
     {
@@ -32,17 +33,14 @@ public class TileFactory : GameService
     private void LoadBuildings()
     {
         AvailableBuildings.Clear();
-        string[] guids = AssetDatabase.FindAssets("t:buildingData", new[] { "Assets/Scripts/Buildings" });
-        foreach (string guid in guids)
+        string[] Types = Enum.GetNames(typeof(BuildingConfig.Type));
+        foreach (string Type in Types)
         {
-            string Path = AssetDatabase.GUIDToAssetPath(guid);
-            string NameWithEnding = Path.Substring(Path.LastIndexOf('/') + 1);
-            string Name = NameWithEnding[..NameWithEnding.LastIndexOf(".")];
-            BuildingData Building = (BuildingData)AssetDatabase.LoadAssetAtPath(Path, typeof(BuildingData));
-            if (!Building)
+            BuildingData BuildingData = Resources.Load("Buildings/Definitions/" + Type) as BuildingData;
+            if (!BuildingData)
                 continue;
 
-            GameObject MeshObject = Resources.Load("Buildings/"+Name) as GameObject;
+            GameObject MeshObject = Resources.Load("Buildings/Prefabs/"+BuildingData.BuildingType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<MeshFilter>()) 
                 continue;
 
@@ -50,8 +48,8 @@ public class TileFactory : GameService
             if (!Mesh)
                 continue;
 
-            Tuple<BuildingData, Mesh> Tuple = new(Building, Mesh);
-            AvailableBuildings.Add(Building.BuildingType, Tuple);
+            Tuple<BuildingData, Mesh> Tuple = new(BuildingData, Mesh);
+            AvailableBuildings.Add(BuildingData.BuildingType, Tuple);
         }
     }
 
@@ -116,12 +114,15 @@ public class TileFactory : GameService
         return Copy;
     }
 
-    public Mesh GetMeshFromType(BuildingConfig.Type Type)
+    public GameObject GetBuildingFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;
 
-        return AvailableBuildings[Type].Value;
+        Mesh BuildingMesh = AvailableBuildings[Type].Value;
+        GameObject BuildingGO = Instantiate(BuildingPrefab);
+        BuildingGO.GetComponent<MeshFilter>().mesh = BuildingMesh;
+        return BuildingGO;
     }
 
     public Mesh GetMeshFromType(HexagonConfig.HexagonType Type)
