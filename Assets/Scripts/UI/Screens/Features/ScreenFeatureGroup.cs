@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.UI;
 
 public abstract class ScreenFeatureGroup : MonoBehaviour {
     public delegate void OnLayoutChanged();
     public OnLayoutChanged _OnLayoutChanged;
+
+    public RectTransform PreviousTransform;
+    public float Margin;
+    public float Padding;
 
     protected float ConditionalPadding = 0;
 
@@ -28,9 +33,6 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
 {
     public List<ScreenFeature<T>> ScreenFeatures;
     public float OffsetBetweenElements = 10;
-    public RectTransform PreviousTransform;
-    public float Margin;
-    public float Padding;
 
     private RectTransform RectTransform;
     private ScreenFeatureGroup PreviousGroup;
@@ -48,17 +50,71 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
         {
             Feature.Init(this);
         }
+
+        // otherwise the chain will trigger it anyway
+        if (PreviousTransform == null)
+        {
+            UpdateLayout();
+        }
     }
 
     public void UpdateLayout()
     {
         float OverallHeight = GetOverallHeight();
         RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, OverallHeight);
+
+        RectTransform TempPrev = GetPreviousTransform();
         RectTransform.anchoredPosition = new Vector2(
             RectTransform.anchoredPosition.x,
-            PreviousTransform.anchoredPosition.y + PreviousTransform.sizeDelta.y / 2 + OverallHeight / 2 - Margin
+            TempPrev.anchoredPosition.y + TempPrev.sizeDelta.y / 2 + OverallHeight / 2 - GetMargin()
         );
         _OnLayoutChanged?.Invoke();
+    }
+
+    private float GetMargin()
+    {
+        return GetOffset(true);
+    }
+
+    private float GetPadding()
+    {
+        return GetOffset(false);
+    }
+
+    private float GetOffset(bool bIsMargin)
+    {
+
+        float CurrentValue = bIsMargin ? Margin : Padding;
+        RectTransform PrevTransform = PreviousTransform;
+        ScreenFeatureGroup PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
+
+        while (PrevGroup != null)
+        {
+            if (PrevGroup.gameObject.activeSelf)
+                return CurrentValue;
+
+            CurrentValue = bIsMargin? PrevGroup.Margin : PrevGroup.Padding;
+            PrevTransform = PrevGroup.PreviousTransform;
+            PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
+        }
+
+        return CurrentValue;
+    }
+
+    private RectTransform GetPreviousTransform()
+    {
+        RectTransform PrevTransform = PreviousTransform;
+        ScreenFeatureGroup PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
+        while (PrevGroup != null)
+        {
+            if (PrevGroup.gameObject.activeSelf)
+                return PrevTransform;
+
+            PrevTransform = PrevGroup.PreviousTransform;
+            PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
+        }
+
+        return PrevTransform;
     }
 
     public void ShowFeatures()
@@ -91,7 +147,7 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
             Height += Feature.GetHeight();
         }
         float PreviousPadding = PreviousGroup != null ? PreviousGroup.GetConditionalPadding() : 0;
-        Height += OffsetBetweenElements * (ScreenFeatures.Count - 1) + Padding + PreviousPadding;
+        Height += OffsetBetweenElements * (ScreenFeatures.Count - 1) + GetPadding() + PreviousPadding;
         return Height;
     }
 

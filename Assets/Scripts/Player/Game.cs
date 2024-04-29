@@ -78,6 +78,16 @@ public class Game : MonoBehaviour
         InitMode();
     }
 
+    public void Update()
+    {
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            EditorApplication.isPaused = !EditorApplication.isPaused;
+        }
+#endif
+    }
+
     public void GameOver(string Message = null)
     {
         OnOpenMenu();

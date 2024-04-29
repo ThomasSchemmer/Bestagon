@@ -51,6 +51,11 @@ public class BuildingData : ScriptableObject, ISaveable
         return Effect.GetProduction(GetWorkerMultiplier(), Location);
     }
 
+    public Production GetProductionPreview(Location Location)
+    {
+        return Effect.GetProduction(GetAssignedWorkerCount(), Location);
+    }
+
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
     {
         return Effect.TryGetAdjacencyBonus(out Bonus);

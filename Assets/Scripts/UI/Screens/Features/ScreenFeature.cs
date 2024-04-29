@@ -14,16 +14,21 @@ public abstract class ScreenFeature<T> : MonoBehaviour
     protected TextMeshProUGUI TargetText;
     protected RectTransform TargetTransform;
     protected ScreenFeatureGroup<T> Target;
+    protected bool bIsInit = false;
 
     public virtual void Init(ScreenFeatureGroup<T> Target)
     {
         this.Target = Target;
         TargetTransform = Type == ScreenFeatureType.Container ? GetComponent<RectTransform>() : null;
         TargetText = Type == ScreenFeatureType.Text ? GetComponent<TextMeshProUGUI>() : null;
+        bIsInit = true;
     }
 
     public virtual void ShowAt(float YOffset)
     {
+        if (!bIsInit)
+            return;
+
         TargetTransform?.gameObject.SetActive(true);
         TargetText?.gameObject.SetActive(true);
         RectTransform RectTransform = GetTransformByType();
@@ -34,6 +39,9 @@ public abstract class ScreenFeature<T> : MonoBehaviour
 
     public virtual void Hide()
     {
+        if (!bIsInit)
+            return;
+
         TargetTransform?.gameObject.SetActive(false);
         TargetText?.gameObject.SetActive(false);
     }

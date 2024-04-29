@@ -231,7 +231,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void UpdateBuildingPreview()
     {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetServices(out Selector Selector, out BuildingPreview BuildingPreview))
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();

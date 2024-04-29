@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\TileInfoScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\BuildingPreviewScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\MalaiseData.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveable.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
@@ -106,8 +107,10 @@
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\BuildingPreview\LabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Effects\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
