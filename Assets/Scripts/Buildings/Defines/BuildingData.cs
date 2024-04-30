@@ -223,7 +223,8 @@ public class BuildingData : ScriptableObject, ISaveable
         int Pos = 0;
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, HexagonConfig.MaskToInt((int)BuildingType, 32));
+        byte TypeAsByte = (byte)HexagonConfig.MaskToInt((int)BuildingType, 32);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, TypeAsByte);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
@@ -243,7 +244,7 @@ public class BuildingData : ScriptableObject, ISaveable
 
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iBuildingType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
@@ -253,7 +254,7 @@ public class BuildingData : ScriptableObject, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
 
-        BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(iBuildingType);
+        BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
     }

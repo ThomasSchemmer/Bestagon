@@ -91,8 +91,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Card Card = Selector.GetSelectedCard();
-        if (Card) {
-            InteractBuildBuilding(Card);
+        if (Card && Card is BuildingCard) {
+            InteractBuildBuilding(Card as BuildingCard);
             return;
         } 
 
@@ -186,7 +186,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         _OnMovementTo?.Invoke(NewHex.Location);
     }
 
-    private void InteractBuildBuilding(Card Card)
+    private void InteractBuildBuilding(BuildingCard Card)
     {
         if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
             return;
@@ -235,18 +235,19 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();
-        if (!SelectedCard || !isHovered) {
+        if (!SelectedCard || !isHovered || SelectedCard is not BuildingCard) {
             BuildingPreview.Hide();
             ShowAdjacencyBonus(null);
             return;
         }
 
-        BuildingPreview.Show(SelectedCard, this);
+        BuildingPreview.Show(SelectedCard as BuildingCard, this);
         ShowAdjacencyBonus(SelectedCard);
     }
 
     private void ShowAdjacencyBonus(Card SelectedCard) {
-        BuildingData Building = SelectedCard ? SelectedCard.GetBuildingData() : null;
+        BuildingCard SelectedBuildingCard = SelectedCard as BuildingCard;
+        BuildingData Building = SelectedBuildingCard ? SelectedBuildingCard.GetBuildingData() : null;
         bool bIsVisible = Building != null ? Building.CanBeBuildOn(this) : false;
 
         // check for each neighbour if it should be highlighted

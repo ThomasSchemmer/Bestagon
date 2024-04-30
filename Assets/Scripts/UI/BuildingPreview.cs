@@ -14,7 +14,7 @@ public class BuildingPreview : GameService
         _OnPreviewHidden?.Invoke();
     }
 
-    public void Show(Card Card, HexagonVisualization Hex) {
+    public void Show(BuildingCard Card, HexagonVisualization Hex) {
         if (!IsInit)
             return;
 

@@ -43,7 +43,7 @@ public class WorkerData : StarvableUnitData, ISaveable
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         bool bIsEmployed = AssignedBuilding != null;

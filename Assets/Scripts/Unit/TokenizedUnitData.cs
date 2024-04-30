@@ -71,7 +71,7 @@ public abstract class TokenizedUnitData : StarvableUnitData
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);

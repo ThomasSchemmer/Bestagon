@@ -69,20 +69,27 @@ public class CardFactory : GameService
 
     private void CreateDelayedCard(DelayedCardInfo Info)
     {
-        BuildingData BuildingData = GetBuildingDataFromInfo(Info);
         GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Info.Parent);
-        GO.name = "Card " + BuildingData.BuildingType;
-        Card Card = GO.AddComponent<Card>();
-
-        Card.Init(BuildingData, Info.Index);
+        Card Card = InitDelayedBuildingCard(GO, Info);
         Info.Callback.Invoke(Card);
+    }
+
+    private Card InitDelayedBuildingCard(GameObject CardObject, DelayedCardInfo Info)
+    {
+        BuildingData BuildingData = GetBuildingDataFromInfo(Info);
+
+        CardObject.name = "Card " + BuildingData.BuildingType;
+        BuildingCard Card = CardObject.AddComponent<BuildingCard>();
+        Card.Init(BuildingData, Info.Index);
+
+        return Card;
     }
 
     private BuildingData GetBuildingDataFromInfo(DelayedCardInfo Info)
     {
-        if (Info.DTO != null)
-            return Info.DTO.BuildingData;
+        if (Info.DTO != null && Info.DTO is BuildingCardDTO)
+            return (Info.DTO as BuildingCardDTO).BuildingData;
 
         if (!Game.TryGetService(out TileFactory TileFactory))
             return null;

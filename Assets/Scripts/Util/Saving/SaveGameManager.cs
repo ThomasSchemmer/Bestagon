@@ -90,7 +90,7 @@ public class SaveGameManager : GameService
             if (Saveable == null)
                 continue;
 
-            i = AddEnumAsInt(Bytes, i, (int)Tuple.Key);
+            i = AddEnumAsByte(Bytes, i, (byte)Tuple.Key);
             i = AddInt(Bytes, i, Saveable.GetSize());
             i = AddSaveable(Bytes, i, Saveable);
         }
@@ -156,7 +156,7 @@ public class SaveGameManager : GameService
         // no increase after loop, its done by reading the data
         for (int i = 0; i < Bytes.Length;)
         {
-            i = GetEnumAsInt(Bytes, i, out int Value);
+            i = GetEnumAsByte(Bytes, i, out byte Value);
             i = GetInt(Bytes, i, out int Size);
             SaveGameType Type = (SaveGameType)Value;
             if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
@@ -208,10 +208,10 @@ public class SaveGameManager : GameService
     }
 
     /** Convenience function to create a new NativeArray and fill it with the base data */
-    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveable Saveable, int BaseSize, byte[] BaseData)
+    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveable Saveable, int Size, byte[] BaseData)
     {
         NativeArray<byte> Bytes = new(Saveable.GetSize(), Allocator.Temp);
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, BaseSize);
+        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, Size);
         Slice.CopyFrom(BaseData);
         return Bytes;
     }
@@ -237,10 +237,10 @@ public class SaveGameManager : GameService
         return Start + sizeof(double);
     }
 
-    public static int AddEnumAsInt(NativeArray<byte> Bytes, int Start, int Value)
+    public static int AddEnumAsByte(NativeArray<byte> Bytes, int Start, byte Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, 1);
-        Slice[0] = (byte)Value;
+        Slice[0] = Value;
         return Start + 1;
     }
 
@@ -297,10 +297,10 @@ public class SaveGameManager : GameService
         return Start + sizeof(double);
     }
 
-    public static int GetEnumAsInt(NativeArray<byte> Bytes, int Start, out int Value)
+    public static int GetEnumAsByte(NativeArray<byte> Bytes, int Start, out byte Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, 1);
-        Value = (int)Slice[0];
+        Value = Slice[0];
         return Start + 1;
     }
 

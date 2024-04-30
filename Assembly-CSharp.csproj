@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
+    <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\MalaiseVisualization.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\BuildingPreview.cs" />
+    <Compile Include="Assets\Scripts\Player\Spawn.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\OnTurnBuildingEffect.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceDelegate.cs" />
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
@@ -120,7 +122,6 @@
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\RuinsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\BuildingTypeScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
-    <Compile Include="Assets\Scripts\Cards\CardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeature.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
+    <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
     <Compile Include="Assets\Scripts\UI\IngameMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Selectable.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Assets\Scripts\Player\Unlockables.cs" />
     <Compile Include="Assets\Scripts\Player\CardHand.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />
+    <Compile Include="Assets\Scripts\Cards\DTOs\CardDTO.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitData.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectRuinsScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeatureGroup.cs" />

@@ -13,7 +13,8 @@ public class CardUpgradeScreen : GameService
     public List<GameObject> ToHide = new();
     public List<GameObject> ToDim = new();
 
-    private Card LastCard = null, CopyCard = null, UpgradedCard = null;
+    //for now only BuildingCards can be upgraded
+    private BuildingCard LastCard = null, CopyCard = null, UpgradedCard = null;
     private BuildingData UpgradedBuildingData;
 
     public enum UpgradeableAttributes
@@ -73,6 +74,8 @@ public class CardUpgradeScreen : GameService
     }
 
     public void ShowButtonAtCard(Card Card, bool bIsVisible) {
+
+        bIsVisible = Card is BuildingCard ? bIsVisible : false;
         bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.UpgradePoints > 0;
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
@@ -84,7 +87,7 @@ public class CardUpgradeScreen : GameService
         UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
         UpgradeButton.gameObject.SetActive(bIsVisible && bHaveEnoughUpgrades);
 
-        LastCard = Card;
+        LastCard = Card as BuildingCard;
     }
 
     public void HideUpgradeButton()

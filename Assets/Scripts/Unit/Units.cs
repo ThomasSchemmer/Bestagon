@@ -99,6 +99,5 @@ public class Units : GameService
     protected override void StopServiceInternal() { }
 
     public static List<Location> ScoutStartLocations = new() {
-        new Location(new Vector2Int(0, 0), new Vector2Int(4, 4)),
     };
 }

@@ -5,17 +5,15 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class Card : Draggable, Selectable
+public abstract class Card : Draggable, Selectable
 {        
-    public void Init(BuildingData BuildingData, int Index) {
-        this.BuildingData = BuildingData;
+    public virtual void Init(int Index) {
         CardHand = Game.GetService<CardHand>();
         ID = System.Guid.NewGuid();
         this.Index = Index;
         gameObject.layer = LayerMask.NameToLayer("Card");
         GenerateCard();
         Init();
-        this.BuildingData.Init();
     }
 
     public void GenerateCard() {
@@ -23,39 +21,21 @@ public class Card : Draggable, Selectable
         SetColor();
     }
 
-    private void GenerateVisuals() {
+    protected virtual void GenerateVisuals() {
         LinkTexts();
         DeleteVisuals();
 
         NameText.SetText(GetName());
         //SymbolText.SetText(GetSymbol());
-
-        if (!Game.TryGetService(out IconFactory IconFactory))
-            return;
-
-        GameObject Icons = IconFactory.GetVisualsForProduction(BuildingData.Cost);
-        Icons.transform.SetParent(CostTransform, false);
-
-        GameObject MaxWorker = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, BuildingData.MaxWorker);
-        MaxWorker.transform.SetParent(MaxWorkerTransform, false);
-
-        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, BuildingData.CurrentUsages);
-        Usages.transform.SetParent(UsagesTransform, false);
-
-        GameObject EffectObject = BuildingData.Effect.GetEffectVisuals();
-        EffectObject.transform.SetParent(EffectTransform, false);
-
     }
 
-    private void DeleteVisuals()
+    protected virtual void DeleteVisuals()
     {
         DeleteVisuals(CostTransform);
-        DeleteVisuals(MaxWorkerTransform);
         DeleteVisuals(UsagesTransform);
-        DeleteVisuals(EffectTransform);
     }
 
-    private void DeleteVisuals(Transform Parent)
+    protected void DeleteVisuals(Transform Parent)
     {
         foreach (Transform Child in Parent)
         {
@@ -63,10 +43,7 @@ public class Card : Draggable, Selectable
         }
     }
 
-    public string GetName()
-    {
-        return BuildingData.BuildingType.ToString();
-    }
+    public abstract string GetName();
 
     public string GetSymbol()
     {
@@ -74,18 +51,12 @@ public class Card : Draggable, Selectable
     }
 
 
-    private void LinkTexts() {
+    protected virtual void LinkTexts() {
         CardBase = GetComponent<Image>();
         NameText = transform.Find("Name").GetComponent<TextMeshProUGUI>();
         SymbolTransform = transform.Find("Symbol").GetComponent<RectTransform>();
         CostTransform = transform.Find("Costs").GetComponent<RectTransform>();
-        MaxWorkerTransform = transform.Find("MaxWorker").GetComponent<RectTransform>();
         UsagesTransform = transform.Find("Usages").GetComponent<RectTransform>();
-        EffectTransform = transform.Find("Effects").GetComponent<RectTransform>();
-    }
-
-    public string GetCostText() {
-        return GetBuildingData().GetCosts().GetShortDescription();
     }
 
     public void SetSelected(bool Selected) {
@@ -177,11 +148,6 @@ public class Card : Draggable, Selectable
         Index = i;
     }
 
-    public BuildingData GetBuildingData()
-    {
-        return BuildingData;
-    }
-
     public void SetCanBeHovered(bool bNewState)
     {
         bCanBeHovered = bNewState;
@@ -197,25 +163,14 @@ public class Card : Draggable, Selectable
 
     public void Use()
     {
-        if (!Game.TryGetServices(out CardHand CardHand, out CardStash CardStash, out CardDeck CardDeck))
-            return;
-
-        BuildingData.CurrentUsages--;
-        bool bIsUsedUp = BuildingData.CurrentUsages <= 0;
-        if (bIsUsedUp)
-        {
-            MessageSystem.CreateMessage(Message.Type.Warning, "A card has been lost due to durability");
-            bWasUsedUp = true;
-        }
-        CardCollection Target = bIsUsedUp ? CardStash : CardDeck;
+        UseInternal();
+        CardCollection Target = GetUseTarget();
 
         CardHand.DiscardCard(this, Target);
     }
 
-    public void RefreshUsage()
-    {
-        BuildingData.CurrentUsages = BuildingData.MaxUsages;
-    }
+    protected abstract void UseInternal();
+    protected abstract CardCollection GetUseTarget();
 
     public bool WasUsedUpThisTurn()
     {
@@ -225,16 +180,6 @@ public class Card : Draggable, Selectable
     public void RefreshUsedUp()
     {
         bWasUsedUp = false;
-    }
-
-    public void SetBuildingData(BuildingData BuildingData)
-    {
-        this.BuildingData = BuildingData;
-    }
-
-    public void GetDTOData(out BuildingData OutBuildingData)
-    {
-        OutBuildingData = BuildingData;
     }
 
     public override void SetDragParent(RectTransform NewParent)
@@ -267,9 +212,8 @@ public class Card : Draggable, Selectable
     protected bool bCanBeHovered = false;
     protected bool bWasUsedUp = false;
     protected TextMeshProUGUI NameText;
-    protected RectTransform CostTransform, MaxWorkerTransform, SymbolTransform, EffectTransform, UsagesTransform;
+    protected RectTransform CostTransform, SymbolTransform, UsagesTransform;
     protected Image CardBase;
-    protected BuildingData BuildingData;
     protected CardHand CardHand;
 
     protected CardCollection OldCollection;

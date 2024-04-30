@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
-using UnityEditor;
-using UnityEngine;
 
 public abstract class CardCollection : GameService, ISaveable
 {
@@ -67,8 +64,27 @@ public abstract class CardCollection : GameService, ISaveable
     {
         //byte count and amount of cards
         int Size = sizeof(int) * 2;
-        Size += Cards.Count * CardDTO.GetStaticSize();
+        Size += GetCardsSize();
         return Size;
+    }
+
+    private int GetCardsSize()
+    {
+        int Size = 0;
+        foreach (Card Card in Cards)
+        {
+            Size += GetCardSize(Card);
+        }
+
+        return Size;
+    }
+
+    private int GetCardSize(Card Card)
+    {
+        if (Card is BuildingCard)
+            return BuildingCardDTO.GetStaticSize();
+
+        return CardDTO.GetStaticSize();
     }
 
     public byte[] GetData()
@@ -81,7 +97,7 @@ public abstract class CardCollection : GameService, ISaveable
 
         foreach (Card Card in Cards)
         {
-            CardDTO DTO = new(Card);
+            CardDTO DTO = CardDTO.CreateFromCard(Card);
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
         }
 
@@ -103,7 +119,7 @@ public abstract class CardCollection : GameService, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int Count);
         for (int i = 0; i < Count; i++)
         {
-            CardDTO DTO = new();
+            CardDTO DTO = CardDTO.CreateForSaveable(Bytes, Pos);
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
             CardFactory.CreateCardFromDTO(DTO, i, transform, AddCard);
         }
@@ -113,7 +129,10 @@ public abstract class CardCollection : GameService, ISaveable
     {
         foreach (Card Card in Cards)
         {
-            Card.RefreshUsage();
+            if (Card is not BuildingCard)
+                continue;
+
+            (Card as BuildingCard).RefreshUsage();
         }
     }
 

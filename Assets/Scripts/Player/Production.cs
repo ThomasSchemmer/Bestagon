@@ -261,7 +261,7 @@ public class Production : ISaveable
         int Pos = 0;
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {
-            Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Type);
+            Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
             Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)this[Type]);
         }
 
@@ -272,7 +272,7 @@ public class Production : ISaveable
         int Pos = 0;
         for (int i = 0; i < Enum.GetValues(typeof(Type)).Length; i++)
         {
-            Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iType);
+            Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iType);
             Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bValue);
             Type Type = (Type)iType;
             this[Type] = (int)bValue;

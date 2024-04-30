@@ -151,7 +151,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)EffectType);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EffectType);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)TileType);
         Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
@@ -168,7 +168,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     public void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iEffectType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEffectType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iTileType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out IsProductionBlockedByBuilding);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
@@ -179,7 +179,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, UpgradeProduction);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeRange);
 
-        EffectType = (Type)iEffectType;
+        EffectType = (Type)bEffectType;
         TileType = (HexagonConfig.HexagonType)iTileType;
         UpgradeTileType = (HexagonConfig.HexagonType)iUpgradeTileType;
     }

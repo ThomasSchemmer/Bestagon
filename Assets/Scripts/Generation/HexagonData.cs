@@ -100,9 +100,9 @@ public class HexagonData : ISaveable
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)HexHeight);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Discovery);
-        Pos = SaveGameManager.AddEnumAsInt(Bytes, Pos, (int)Decoration);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)HexHeight);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Discovery);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Decoration);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsMalaised);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Height);
@@ -118,9 +118,9 @@ public class HexagonData : ISaveable
 
         int Pos = 0;
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iHeight);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iDiscovery);
-        Pos = SaveGameManager.GetEnumAsInt(Bytes, Pos, out int iDecoration);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iHeight);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDiscovery);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDecoration);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsMalaised);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHeight);

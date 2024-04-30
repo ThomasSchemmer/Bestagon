@@ -113,6 +113,13 @@ public class CameraController : GameService
         transform.position = Vector3.Lerp(transform.position, TargetPosition, PanningSpeed * Time.deltaTime);
     }
 
+    public void TeleportTo(Vector3 TargetLocation)
+    {
+        TargetLocation.y = TargetPosition.y;
+        TargetPosition = TargetLocation;
+        transform.position = TargetLocation;
+    }
+
     private Camera Cam;
 
     private bool IsPaused = false;
