@@ -38,8 +38,13 @@ public class WorkerData : StarvableUnitData, ISaveable
 
     public override int GetSize()
     {
+        return GetStaticSize();
+    }
+
+    public static new int GetStaticSize()
+    {
         // foodcount, employed, assigned building slot
-        return base.GetSize() + sizeof(byte) * 3 + Location.GetStaticSize();
+        return StarvableUnitData.GetStaticSize() + sizeof(byte) * 3 + Location.GetStaticSize();
     }
 
     public override byte[] GetData()

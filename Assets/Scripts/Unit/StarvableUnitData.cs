@@ -57,13 +57,15 @@ public abstract class StarvableUnitData : UnitData
 
     public static int GetStaticSize()
     {
-        return sizeof(int);
+        // type and foodcount
+        return sizeof(byte) + sizeof(int);
     }
 
     public override byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
         Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentFoodCount);
 
         return Bytes.ToArray();

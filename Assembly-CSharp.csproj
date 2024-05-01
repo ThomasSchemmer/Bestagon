@@ -65,10 +65,11 @@
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
+    <Compile Include="Assets\Scripts\Cards\UnitCard.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
-    <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
+    <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\MalaiseVisualization.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
@@ -85,7 +86,6 @@
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
     <Compile Include="Assets\Scripts\Unit\ScoutData.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
-    <Compile Include="Assets\Scripts\Buildings\Defines\TileFactory.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SelectedUnitsScreen.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\DraggableManager.cs" />
     <Compile Include="Assets\Scripts\Util\Tuple.cs" />
@@ -98,6 +98,7 @@
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\OnTurnBuildingEffect.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceDelegate.cs" />
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
+    <Compile Include="Assets\Scripts\Cards\DTOs\UnitCardDTO.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
@@ -134,8 +135,8 @@
     <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
     <Compile Include="Assets\Scripts\UI\IngameMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Selectable.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="Assets\Scripts\Visualization\UnitVisualization.cs" />
     <Compile Include="Assets\Scripts\Generation\Map.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
+    <Compile Include="Assets\Scripts\Buildings\Defines\MeshFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Materials\Shaders\BackgroundShader.shader" />

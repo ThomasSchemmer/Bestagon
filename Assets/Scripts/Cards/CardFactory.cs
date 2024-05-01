@@ -51,6 +51,12 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
+    public void CreateCard(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
+    {
+        DelayedCardInfo Info = new(Type, Index, Parent, Callback);
+        CreateCard(Info);
+    }
+
     public void CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent, Action<Card> Callback)
     {
         DelayedCardInfo Info = new(DTO, Index, Parent, Callback);
@@ -80,8 +86,19 @@ public class CardFactory : GameService
     {
         GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Info.Parent);
-        Card Card = InitDelayedBuildingCard(GO, Info);
+        Card Card = InitDelayedCardByType(GO, Info);
         Info.Callback.Invoke(Card);
+    }
+
+    private Card InitDelayedCardByType(GameObject CardObject, DelayedCardInfo Info)
+    {
+        if (Info.DTO is BuildingCardDTO)
+            return InitDelayedBuildingCard(CardObject, Info);
+
+        if (Info.DTO is UnitCardDTO)
+            return InitDelayedUnitCard(CardObject, Info);
+
+        return null;
     }
 
     private Card InitDelayedBuildingCard(GameObject CardObject, DelayedCardInfo Info)
@@ -91,6 +108,17 @@ public class CardFactory : GameService
         CardObject.name = "Card " + BuildingData.BuildingType;
         BuildingCard Card = CardObject.AddComponent<BuildingCard>();
         Card.Init(BuildingData, Info.Index);
+
+        return Card;
+    }
+
+    private Card InitDelayedUnitCard(GameObject CardObject, DelayedCardInfo Info)
+    {
+        UnitData UnitData = (Info.DTO as UnitCardDTO).UnitData;
+
+        CardObject.name = "Card " + UnitData.Type;
+        UnitCard Card = CardObject.AddComponent<UnitCard>();
+        Card.Init(UnitData, Info.Index);
 
         return Card;
     }

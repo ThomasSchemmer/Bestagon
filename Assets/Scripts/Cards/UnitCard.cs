@@ -3,9 +3,16 @@ public class UnitCard : Card
 {
     public TokenizedUnitData UnitData;
 
+    public void Init(UnitData UnitData, int Index)
+    {
+        this.UnitData = (TokenizedUnitData)UnitData;
+        base.Init(Index);
+        
+    }
+
     public override string GetName()
     {
-        return "UnitCard";
+        return UnitData.Type.ToString();
     }
 
     protected override CardCollection GetUseTarget()

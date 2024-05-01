@@ -19,7 +19,12 @@ public class ScoutData : TokenizedUnitData
 
     public override int GetSize()
     {
-        return base.GetSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
+        return GetStaticSize();
+    }
+
+    public static new int GetStaticSize()
+    {
+        return TokenizedUnitData.GetStaticSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
     }
 
     public override byte[] GetData()

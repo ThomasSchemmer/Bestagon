@@ -81,8 +81,13 @@ public abstract class CardCollection : GameService, ISaveable
 
     private int GetCardSize(Card Card)
     {
+        // all building data has the same size
         if (Card is BuildingCard)
             return BuildingCardDTO.GetStaticSize();
+
+        // but unit data size is dependent on its type!
+        if (Card is UnitCard)
+            return UnitCardDTO.GetStaticSize(((UnitCard)Card).UnitData.Type);
 
         return CardDTO.GetStaticSize();
     }

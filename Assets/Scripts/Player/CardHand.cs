@@ -18,10 +18,11 @@ public class CardHand : CardCollection
             Game.RunAfterServiceInit((CardFactory CardFactory) =>
             {
                 Cards = new List<Card>();
-                CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
-                CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
-                CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
-                CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
+                //CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
+                //CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
+                //CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
+                //CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
+                CardFactory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard); 
 
                 _OnInit?.Invoke();
             });

@@ -18,10 +18,16 @@ public class SaveGameManager : GameService
 
     protected override void StartServiceInternal()
     {
-        FillSaveables();
-        HandleDelayedLoading();
+        Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
+        {
+            Game.RunAfterServiceInit((CardFactory CardFactory) =>
+            {
+                FillSaveables();
+                HandleDelayedLoading();
 
-        _OnInit?.Invoke();
+                _OnInit?.Invoke();
+            });
+        });
     }
 
     protected override void StopServiceInternal(){ }

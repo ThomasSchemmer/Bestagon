@@ -22,4 +22,5 @@ public abstract class UnitData : ScriptableObject, ISaveable
     public abstract byte[] GetData();
 
     public abstract void SetData(NativeArray<byte> Bytes);
+
 }
