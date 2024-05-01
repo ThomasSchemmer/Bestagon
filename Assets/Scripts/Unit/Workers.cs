@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Workers : GameService
 {
@@ -94,14 +95,21 @@ public class Workers : GameService
 
     public void CreateNewWorker()
     {
-        ActiveWorkers.Add(new WorkerData());
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return;
+
+        WorkerData Worker = (WorkerData)MeshFactory.CreateDataFromType(UnitData.UnitType.Worker);
+        ActiveWorkers.Add(Worker);
     }
     
     protected override void StartServiceInternal()
     {
-        ActiveWorkers.Add(new WorkerData());
-        ActiveWorkers.Add(new WorkerData());
-        _OnInit?.Invoke();
+        Game.RunAfterServiceInit((MeshFactory Factory) =>
+        {
+            CreateNewWorker();
+            CreateNewWorker();
+            _OnInit?.Invoke();
+        });
     }
 
     protected override void StopServiceInternal() {}

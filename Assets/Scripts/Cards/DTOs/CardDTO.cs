@@ -8,7 +8,8 @@ public abstract class CardDTO : ISaveable
 {      
     public enum Type
     {
-        Building
+        Building,
+        Unit
     }
 
     public virtual byte[] GetData()

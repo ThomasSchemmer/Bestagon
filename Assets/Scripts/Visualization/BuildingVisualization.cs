@@ -6,7 +6,7 @@ using UnityEngine;
 public class BuildingVisualization : MonoBehaviour
 {
     public static BuildingVisualization CreateFromData(BuildingData InData) {
-        if (!Game.TryGetService(out TileFactory TileFactory))
+        if (!Game.TryGetService(out MeshFactory TileFactory))
             return null;
 
         GameObject BuildingObject = TileFactory.GetBuildingFromType(InData.BuildingType);

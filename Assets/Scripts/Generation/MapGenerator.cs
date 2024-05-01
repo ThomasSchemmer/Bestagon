@@ -36,7 +36,7 @@ public class MapGenerator : GameService, ISaveable
         MinBottomLeft = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
-        Game.RunAfterServicesInit((Map Map, TileFactory Factory) =>
+        Game.RunAfterServicesInit((Map Map, MeshFactory Factory) =>
         {
             if (!Game.TryGetService(out SaveGameManager Manager))
                 return;

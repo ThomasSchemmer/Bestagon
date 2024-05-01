@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "Scout", menuName = "ScriptableObjects/Scout", order = 4)]
 [Serializable]
 public class ScoutData : TokenizedUnitData
 {
@@ -18,8 +19,7 @@ public class ScoutData : TokenizedUnitData
 
     public override int GetSize()
     {
-        // 1 byte for ActiveRange
-        return base.GetSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(byte);
+        return base.GetSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
     }
 
     public override byte[] GetData()
@@ -29,7 +29,6 @@ public class ScoutData : TokenizedUnitData
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddString(Bytes, Pos, Name);
         Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ActiveRange);
 
         return Bytes.ToArray();
     }
@@ -40,9 +39,6 @@ public class ScoutData : TokenizedUnitData
         int Pos = base.GetSize();
         Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out Name);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bActiveRange);
-
-        ActiveRange = bActiveRange;
     }
 
     public string GetName()
@@ -83,10 +79,10 @@ public class ScoutData : TokenizedUnitData
         return Requirements;
     }
 
+    [HideInInspector]
     public string Name;
+    [HideInInspector]
     public int ID = 0;
-
-    public int ActiveRange = 3;
 
     public static int MAX_NAME_LENGTH = 10;
     public static int CURRENT_WORKER_ID = 0;

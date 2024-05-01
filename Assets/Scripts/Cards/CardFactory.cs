@@ -7,10 +7,6 @@ public class CardFactory : GameService
 {
     private class DelayedCardInfo
     {
-        /** on newly creating a card (and not loading it from a savegame) the type is set
-         * otherwise the CardDTO. The buildingdata cant be created otherwise
-         */
-        public BuildingConfig.Type? Type;
         public CardDTO DTO;
         public int Index;
         public Transform Parent;
@@ -18,7 +14,6 @@ public class CardFactory : GameService
 
         public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<Card> Callback)
         {
-            this.Type = null;
             this.DTO = DTO;
             this.Index = Index;
             this.Parent = Parent;
@@ -27,7 +22,21 @@ public class CardFactory : GameService
 
         public DelayedCardInfo(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card> Callback)
         {
-            this.Type = Type;
+            if (!Game.TryGetService(out MeshFactory TileFactory))
+                return;
+
+            this.DTO = BuildingCardDTO.CreateFromBuildingData(TileFactory.CreateDataFromType(Type));
+            this.Index = Index;
+            this.Parent = Parent;
+            this.Callback = Callback;
+        }
+
+        public DelayedCardInfo(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
+        {
+            if (!Game.TryGetService(out MeshFactory TileFactory))
+                return;
+
+            this.DTO = UnitCardDTO.CreateFromUnitData(TileFactory.CreateDataFromType(Type));
             this.Index = Index;
             this.Parent = Parent;
             this.Callback = Callback;
@@ -91,20 +100,12 @@ public class CardFactory : GameService
         if (Info.DTO != null && Info.DTO is BuildingCardDTO)
             return (Info.DTO as BuildingCardDTO).BuildingData;
 
-        if (!Game.TryGetService(out TileFactory TileFactory))
-            return null;
-
-        BuildingData BuildingData = TileFactory.CreateFromType((BuildingConfig.Type)Info.Type);
-        if (BuildingData == null)
-        {
-            MessageSystem.CreateMessage(Message.Type.Error, "No valid building data was found for type " + Info.Type);
-        }
-        return BuildingData;
+        return null;
     }
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServicesInit((IconFactory IconFactory, TileFactory TileFactory) =>
+        Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory TileFactory) =>
         {
             CreateDelayedCards();
             _OnInit?.Invoke();

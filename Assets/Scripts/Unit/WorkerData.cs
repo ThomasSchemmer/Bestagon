@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "Worker", menuName = "ScriptableObjects/Worker", order = 5)]
 public class WorkerData : StarvableUnitData, ISaveable
 {
     private BuildingData AssignedBuilding = null;
@@ -47,7 +48,7 @@ public class WorkerData : StarvableUnitData, ISaveable
 
         int Pos = base.GetSize();
         bool bIsEmployed = AssignedBuilding != null;
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)FoodCount);
+        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)CurrentFoodCount);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)AssignedBuildingSlot);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.Location : Location.Zero);
@@ -68,7 +69,7 @@ public class WorkerData : StarvableUnitData, ISaveable
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bAssignedBuildingSlot);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
 
-        FoodCount = bFoodCount;
+        CurrentFoodCount = bFoodCount;
         if (!bIsEmployed)
             return;
 

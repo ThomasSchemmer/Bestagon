@@ -19,6 +19,7 @@ public class BuildingCardDTO : CardDTO
     }
 
     public BuildingCardDTO() {
+        // create an empty one, will be overwritten anyway
         BuildingData = ScriptableObject.CreateInstance<BuildingData>();
     }
 
@@ -64,7 +65,6 @@ public class BuildingCardDTO : CardDTO
     public static BuildingCardDTO CreateFromBuildingData()
     {
         BuildingCardDTO DTO = new();
-        DTO.BuildingData = ScriptableObject.CreateInstance<BuildingData>();;
         return DTO;
     }
 }

@@ -2547,7 +2547,7 @@ GameObject:
   - component: {fileID: 542260988}
   - component: {fileID: 542260989}
   m_Layer: 0
-  m_Name: TileFactory
+  m_Name: MeshFactory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2577,18 +2577,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 542260987}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2232006d732543849a1ad04339d981ce, type: 3}
+  m_Script: {fileID: 11500000, guid: bd67d6517d5f11146b0d01dab6223a3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
   AvailableBuildings:
     Tuples:
+    - Key: 2
+    - Key: 4
     - Key: 8
     - Key: 16
     - Key: 32
-    - Key: 0
+    - Key: 64
+    - Key: 128
+    - Key: 256
+    - Key: 512
+    - Key: 2048
+    - Key: 4096
     - Key: 4194304
+    - Key: 8388608
   AvailableTiles:
     Tuples:
     - Key: 1
@@ -2643,9 +2651,15 @@ MonoBehaviour:
     - Key: 1
       Value: {fileID: 2113629819765333494, guid: ff425a0abb9c45c49b0fc212be137b0e,
         type: 3}
+  AvailableUnits:
+    Tuples:
+    - Key: 0
+    - Key: 1
   UnknownMesh: {fileID: -6277642020468327343, guid: bb12aeb2f6efb52439cb0f96d4d33756,
     type: 3}
   BuildingPrefab: {fileID: 8536222950531395772, guid: 405f104a36d957c41939318d17a5611e,
+    type: 3}
+  UnitPrefab: {fileID: 2794737047199554117, guid: bb999a4db94e27940abcbea9b143d0ed,
     type: 3}
 --- !u!1 &558157969
 GameObject:
@@ -6012,6 +6026,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  ActiveWorkers: []
 --- !u!1 &1570374131
 GameObject:
   m_ObjectHideFlags: 0
@@ -8995,6 +9010,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  ActiveUnits: []
 --- !u!1 &2126776549
 GameObject:
   m_ObjectHideFlags: 0

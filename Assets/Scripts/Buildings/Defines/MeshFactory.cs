@@ -3,23 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnitData;
 
 /**
  * Helper class to generate/find the scriptable objects for building/tile types
  */ 
-public class TileFactory : GameService
+public class MeshFactory : GameService
 {
     public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
+    public SerializedDictionary<UnitType, Tuple<UnitData, Mesh>> AvailableUnits = new();
     public Mesh UnknownMesh;
-    public GameObject BuildingPrefab;
+    public GameObject BuildingPrefab, UnitPrefab;
+
 
     public void Refresh()
     {
         LoadBuildings();
         LoadTiles();
         LoadDecorations();
+        LoadUnits();
     }
 
     protected override void StartServiceInternal()
@@ -102,7 +106,35 @@ public class TileFactory : GameService
         }
     }
 
-    public BuildingData CreateFromType(BuildingConfig.Type Type)
+    private void LoadUnits()
+    {
+        AvailableUnits.Clear();
+        var UnitTypes = Enum.GetValues(typeof(UnitType));
+        foreach (var Type in UnitTypes)
+        {
+            UnitType UnitType = (UnitType)Type;
+
+            UnitData UnitData = Resources.Load("Units/Definitions/" + UnitType) as UnitData;
+            if (!UnitData)
+                continue;
+
+            GameObject MeshObject = Resources.Load("Units/Prefabs/" + UnitType) as GameObject;
+            Mesh Mesh = null;
+            if (UnitType != UnitType.Worker)
+            {
+                if (!MeshObject || !MeshObject.GetComponent<MeshFilter>())
+                    continue;
+
+                Mesh = MeshObject.GetComponent<MeshFilter>().sharedMesh;
+                if (!Mesh)
+                    continue;
+            }
+
+            AvailableUnits.Add(UnitType, new(UnitData, Mesh));
+        }
+    }
+
+    public BuildingData CreateDataFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;
@@ -112,6 +144,28 @@ public class TileFactory : GameService
         BuildingData Copy = Instantiate(Building);
         Copy.Init();
         return Copy;
+    }
+
+    public UnitData CreateDataFromType(UnitType Type)
+    {
+        if (!AvailableUnits.ContainsKey(Type))
+            return null;
+
+        var Entry = AvailableUnits[Type];
+        UnitData Unit = Entry.Key;
+        UnitData Copy = Instantiate(Unit);
+        return Copy;
+    }
+
+    public GameObject GetUnitFromType(UnitType Type)
+    {
+        if (!AvailableUnits.ContainsKey(Type))
+            return null;
+
+        Mesh UnitMesh = AvailableUnits[Type].Value;
+        GameObject UnitGO = Instantiate(UnitPrefab);
+        UnitGO.GetComponent<MeshFilter>().mesh = UnitMesh;
+        return UnitGO;
     }
 
     public GameObject GetBuildingFromType(BuildingConfig.Type Type)

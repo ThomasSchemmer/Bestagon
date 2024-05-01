@@ -176,7 +176,7 @@ public class TileMeshGenerator : MonoBehaviour
     }
 
     private static bool TryAddTile(HexagonData Data) {
-        if (!Game.TryGetService(out TileFactory BuildingFactory))
+        if (!Game.TryGetService(out MeshFactory BuildingFactory))
             return false;
 
         Mesh TileMesh = null;

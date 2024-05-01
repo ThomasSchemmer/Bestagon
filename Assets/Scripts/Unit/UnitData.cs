@@ -1,10 +1,11 @@
 using Unity.Collections;
+using UnityEngine;
 
 /** 
  * Base class for any unit. Is extended (with middle classes) for worker and scouts 
  * Any unit class only contains data.
  */
-public abstract class UnitData : ISaveable
+public abstract class UnitData : ScriptableObject, ISaveable
 {
     public enum UnitType
     {

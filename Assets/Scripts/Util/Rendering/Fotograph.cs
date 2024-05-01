@@ -10,7 +10,7 @@ public class Fotograph : GameService
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceStart((TileFactory Factory) => {
+        Game.RunAfterServiceStart((MeshFactory Factory) => {
             StartCoroutine(TakePictures());
         });
     }

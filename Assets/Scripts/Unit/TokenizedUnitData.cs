@@ -65,8 +65,13 @@ public abstract class TokenizedUnitData : StarvableUnitData
 
     public override int GetSize()
     {
+        return GetStaticSize();
+    }
+
+    public static new int GetStaticSize()
+    {
         // 4 bytes, one each for MovementPerTurn, RemainingMovement, VisitingRange, ScoutingRange,
-        return base.GetSize() + 4 * sizeof(byte) + Location.GetStaticSize();
+        return StarvableUnitData.GetStaticSize() + 4 * sizeof(byte) + Location.GetStaticSize();
     }
 
     public override byte[] GetData()
@@ -100,7 +105,9 @@ public abstract class TokenizedUnitData : StarvableUnitData
     }
     
     public int MovementPerTurn = 1;
+    [HideInInspector]
     public int RemainingMovement = 0;
+    [HideInInspector]
     public Location Location;
 
     // should always be greater than the MovementPerTurn!
@@ -108,5 +115,6 @@ public abstract class TokenizedUnitData : StarvableUnitData
     public int ScoutingRange = 4;
 
     // don't save, its only temporarily constructed anyway
+    [HideInInspector]
     public UnitVisualization Visualization;
 }

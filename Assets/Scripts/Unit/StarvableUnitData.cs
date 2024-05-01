@@ -8,12 +8,12 @@ public abstract class StarvableUnitData : UnitData
 {
     public void HandleStarvation()
     {
-        FoodCount = Mathf.Max(FoodCount - 1, 0);
+        CurrentFoodCount = Mathf.Max(CurrentFoodCount - 1, 0);
     }
 
     public bool IsStarving()
     {
-        return FoodCount == 0;
+        return CurrentFoodCount == 0;
     }
 
     public void HandleFeeding(Production Food)
@@ -27,7 +27,7 @@ public abstract class StarvableUnitData : UnitData
                 continue;
 
             Food[FoodType] -= 1;
-            FoodCount += Production.GetHungerFromFood(FoodType);
+            CurrentFoodCount += Production.GetHungerFromFood(FoodType);
         }
     }
 
@@ -52,6 +52,11 @@ public abstract class StarvableUnitData : UnitData
 
     public override int GetSize()
     {
+        return GetStaticSize();
+    }
+
+    public static int GetStaticSize()
+    {
         return sizeof(int);
     }
 
@@ -59,7 +64,7 @@ public abstract class StarvableUnitData : UnitData
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, FoodCount);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentFoodCount);
 
         return Bytes.ToArray();
     }
@@ -67,8 +72,9 @@ public abstract class StarvableUnitData : UnitData
     public override void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out FoodCount);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentFoodCount);
     }
 
-    public int FoodCount = 1;
+    [HideInInspector]
+    public int CurrentFoodCount = 1;
 }
