@@ -73,6 +73,44 @@ public class BuildingCard : Card
         return Target;
     }
 
+    public override bool IsInteractableWith(HexagonVisualization Hex)
+    {
+        return true;
+    }
+
+    public override void InteractWith(HexagonVisualization Hex)
+    {
+        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
+            return;
+
+        if (!Game.TryGetService(out MapGenerator Generator)) 
+            return;
+
+        if (Generator.IsBuildingAt(Hex.Location))
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
+            return;
+        }
+
+        if (!BuildingData.CanBeBuildOn(Hex, false))
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
+            return;
+        }
+
+        if (!Stockpile.Pay(BuildingData.GetCosts()))
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
+            return;
+        }
+
+        BuildingData.BuildAt(Hex.Location);
+        Selector.ForceDeselect();
+        Selector.SelectHexagon(Hex);
+
+        Use();
+    }
+
     public void RefreshUsage()
     {
         BuildingData.CurrentUsages = BuildingData.MaxUsages;
@@ -91,6 +129,11 @@ public class BuildingCard : Card
     public BuildingData GetDTOData()
     {
         return BuildingData;
+    }
+
+    public override bool IsPreviewable()
+    {
+        return BuildingData.BuildingType != BuildingConfig.Type.DEFAULT;
     }
 
     protected BuildingData BuildingData;

@@ -117,12 +117,13 @@ Shader"Custom/HexagonShader"
 
             struct g2f
             {
-                float4 vertex : SV_POSITION;
+                float4 vertexCS : SV_POSITION;
                 float3 vertexWS : NORMAL;
                 float2 uv : TEXCOORD0;
                 float4 diff : COLOR0; //diffuse lighting for shadows
                 float3 normal : TEXCOORD1;
                 float3 centerWorld : TEXCOORD2;
+                float3 vertexOS : TEXCOORD3;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -139,6 +140,8 @@ Shader"Custom/HexagonShader"
                 UNITY_DEFINE_INSTANCED_PROP(float, _Hovered)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Adjacent)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Malaised)
+                UNITY_DEFINE_INSTANCED_PROP(float, _PreMalaised)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Discovery)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Value)
             UNITY_INSTANCING_BUFFER_END(Props)
 
@@ -148,7 +151,7 @@ Shader"Custom/HexagonShader"
             }
 
             inline bool IsBorder(float2 uv) {
-                return uv.x < (1.01 / 16.0);
+                return uv.x < (1.01 / 16.0) && uv.y < (1.01 / 16.0);
             }
 
             inline bool IsDecoration(float2 uv){
@@ -239,7 +242,8 @@ Shader"Custom/HexagonShader"
                 {
                     VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN[i].normal);
                     VertexPositionInputs VertexInputs = GetVertexPositionInputs(IN[i].vertex.xyz);
-                    o.vertex = VertexInputs.positionCS;
+                    o.vertexOS = IN[i].vertex.xyz;
+                    o.vertexCS = VertexInputs.positionCS;
                     o.vertexWS = VertexInputs.positionWS;
                     o.normal = NormalInputs.normalWS;
                     o.centerWorld = centerWorld;
@@ -298,15 +302,26 @@ Shader"Custom/HexagonShader"
                 return color;
             }
 
-            int getHighlight(){
+            int getHighlight(g2f i){
+            
+                bool bIsHighlightable = IsBorder(i.uv) || IsDecoration(i.uv);
+                if (!bIsHighlightable)
+                    return 0;
+                
+                // use OS vertex angle for dashed outline
+                if (_PreMalaised > 0){
+                    float angle = degrees(acos(dot(normalize(i.vertexOS.xz), float2(1, 0))));
+                    int stepped = ((int)(angle / 15) % 2) == 0 ? 1 : 0;
+                    return stepped * 4;
+                }
+
                 return  _Malaised > 0 ? 4 :
                         _Selected > 0 ? 1 :
                         _Hovered > 0 ? 2 :
                         _Adjacent > 0 ? 3 : 0;
             }
 
-            float4 getHighlightColor(g2f i){
-                int highlight = getHighlight();
+            float4 getHighlightColor(int highlight){
                 float HighlightColor = highlight - 1;
                 float2 uv = float2(HighlightColor, 0) / 16.0;
                 float4 color = tex2D(_TypeTex, uv);
@@ -325,12 +340,12 @@ Shader"Custom/HexagonShader"
                 // each uv stores information about hex type (uv.y) and model vertex type (uv.x) 
                 // the color of each vertex is dependent on its own type (border, decoration, highlight,..)
                 // as well as the type of hex itself (eg desert vs ocean)
-                bool bIsHighlightable = IsBorder(i.uv) || IsDecoration(i.uv);
-                bool isHighlighted = bIsHighlightable && getHighlight() > 0;
+                int highlight = getHighlight(i);
+                bool isHighlighted = highlight > 0;
 
                 float4 regularColor = getRegularColor(i);
                 float4 decorationColor = getDecorationColor(i);
-                float4 highlightColor = getHighlightColor(i);
+                float4 highlightColor = getHighlightColor(highlight);
 
                 return isHighlighted ? highlightColor : 
                        IsDecoration(i.uv) ? decorationColor : 
@@ -340,6 +355,7 @@ Shader"Custom/HexagonShader"
             half4 frag(g2f i) : SV_Target
             {
                 float4 color = getColorByType(i);
+
                 float4 painterlyEffect = painterly(i);
         
                 // light influence

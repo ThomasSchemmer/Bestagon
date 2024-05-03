@@ -15,11 +15,18 @@ public class HexagonData : ISaveable
         Visited = 2     // been very close -> visible
     }
 
+    public enum MalaiseState
+    {
+        None,
+        PreMalaise,
+        Malaised
+    }
+
     public Location Location;
     public HexagonType Type;
     public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
-    public bool bIsMalaised;
+    public MalaiseState MalaisedState = MalaiseState.None;
     private DiscoveryState Discovery;
 
     public delegate void OnDiscovery();
@@ -52,7 +59,7 @@ public class HexagonData : ISaveable
     public HexagonDTO GetDTO() {
 
         uint uType = (uint)MaskToInt((int)Type, 16) + 1;
-        uint Malaise = (uint)(bIsMalaised ? 1 : 0) << 7;
+        uint Malaise = (uint)(MalaisedState == MalaiseState.Malaised ? 1 : 0) << 7;
         uint uDiscovery = (uint)(Discovery > DiscoveryState.Unknown ? 1 : 0) << 6;
 
         return new HexagonDTO() {
@@ -80,6 +87,16 @@ public class HexagonData : ISaveable
         return Location.GetStaticSize() + 4 + sizeof(double) * 3 + sizeof(int);
     }
 
+    public bool IsMalaised()
+    {
+        return MalaisedState == MalaiseState.Malaised;
+    }
+
+    public bool IsPreMalaised()
+    {
+        return MalaisedState == MalaiseState.PreMalaise;
+    }
+
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
         HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));
@@ -104,7 +121,7 @@ public class HexagonData : ISaveable
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Discovery);
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Decoration);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsMalaised);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, IsMalaised());
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Height);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Temperature);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Humidity);
@@ -122,7 +139,7 @@ public class HexagonData : ISaveable
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDiscovery);
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDecoration);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsMalaised);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bool bIsMalaised);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHeight);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dTemperature);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHumidity);
@@ -131,6 +148,7 @@ public class HexagonData : ISaveable
         HexHeight = (HexagonHeight)iHeight;
         Discovery = (DiscoveryState)iDiscovery;
         Decoration = (HexagonDecoration)iDecoration;
+        MalaisedState = bIsMalaised ? MalaiseState.Malaised : MalaiseState.None;
         Height = (float)dHeight;
         Temperature = (float)dTemperature;
         Humidity = (float)dHumidity;

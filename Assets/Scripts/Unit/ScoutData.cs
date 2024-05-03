@@ -84,6 +84,27 @@ public class ScoutData : TokenizedUnitData
         return Requirements;
     }
 
+    public override Vector3 GetOffset()
+    {
+        return new Vector3(0, 0.6f, 0);
+    }
+
+    public override Quaternion GetRotation()
+    {
+        return new();
+    }
+
+    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    {
+        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+            return false;
+
+        if (Hex.Data.HexHeight < HexagonConfig.HexagonHeight.Flat || Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Hill)
+            return false;
+
+        return true;
+    }
+
     [HideInInspector]
     public string Name;
     [HideInInspector]

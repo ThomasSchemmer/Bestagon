@@ -45,6 +45,12 @@ public abstract class Card : Draggable, Selectable
 
     public abstract string GetName();
 
+    public abstract bool IsPreviewable();
+
+    public abstract bool IsInteractableWith(HexagonVisualization Hex);
+
+    public abstract void InteractWith(HexagonVisualization Hex);
+
     public string GetSymbol()
     {
         return GetName()[..1];

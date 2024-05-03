@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProductionPreviewScreenFeature : ScreenFeature<BuildingPreview>
+public class ProductionPreviewScreenFeature : ScreenFeature<MeshPreview>
 {
     public override bool ShouldBeDisplayed()
     {
-        BuildingPreview Preview = Target.GetFeatureObject();
+        MeshPreview Preview = Target.GetFeatureObject();
         return Preview.CurrentBuilding != null && Game.TryGetService(out IconFactory IconFactory);
     }
 
@@ -18,7 +18,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingPreview>
         base.ShowAt(YOffset);
         Game.TryGetService(out IconFactory IconFactory);
 
-        BuildingPreview Preview = Target.GetFeatureObject();
+        MeshPreview Preview = Target.GetFeatureObject();
         Production Production = Preview.CurrentBuilding.GetProductionPreview(Preview.CurrentLocation);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production);
         Visuals.transform.SetParent(TargetTransform, false);

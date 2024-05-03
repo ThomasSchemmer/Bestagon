@@ -9,7 +9,7 @@ using UnityEngine.Assertions;
  * Still only contains data and is not directly linked to the token itself ("MonoBehaviour"), see 
  * @UnitVisualization for that. During lifetime will be managed by @Units and only exists there
  */
-public abstract class TokenizedUnitData : StarvableUnitData
+public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 {
     public abstract string GetPrefabName();
 
@@ -21,6 +21,7 @@ public abstract class TokenizedUnitData : StarvableUnitData
 
     public void MoveTo(Location Location, int Costs)
     {
+        Location OldLocation = this.Location;
         this.Location = Location;
         this.RemainingMovement -= Costs;
 
@@ -31,6 +32,16 @@ public abstract class TokenizedUnitData : StarvableUnitData
             return;
 
         NewHex.UpdateDiscoveryState(VisitingRange, ScoutingRange);
+
+        if (MapGenerator.TryGetChunkData(OldLocation, out ChunkData OldChunk) && OldChunk.Visualization)
+        {
+            OldChunk.Visualization.RefreshTokens();
+        }
+
+        if (MapGenerator.TryGetChunkData(Location, out ChunkData Chunk) && Chunk.Visualization)
+        {
+            Chunk.Visualization.RefreshTokens();
+        }
     }
 
     public virtual Production GetMovementRequirements()
@@ -62,6 +73,12 @@ public abstract class TokenizedUnitData : StarvableUnitData
             MoveTo(NextLocation, MoveCosts);
         }
     }
+
+    public abstract Vector3 GetOffset();
+
+    public abstract Quaternion GetRotation();
+
+    public abstract bool CanBeInteractedOn(HexagonVisualization Hex);
 
     public override int GetSize()
     {

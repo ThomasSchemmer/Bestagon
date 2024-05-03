@@ -84,6 +84,10 @@ public class Turn : GameService
             FillCardDeck();
         }
 
+        // already at maximum amount, so just wait 
+        if (CardHand.Cards.Count >= CardHand.AMOUNT_HANDCARDS_MAX)
+            return;
+
         Card RemovedCard = CardDeck.RemoveCard();
         if (CardHand.Cards.Count == 0 && RemovedCard == null)
         {

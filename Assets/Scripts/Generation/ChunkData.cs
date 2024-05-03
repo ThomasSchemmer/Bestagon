@@ -60,6 +60,11 @@ public class ChunkData : ISaveable
         return Location.GetHashCode();
     }
 
+    public HexagonData GetHexAt(Vector2Int HexLocation)
+    {
+        return HexDatas[HexLocation.x, HexLocation.y];
+    }
+
     public bool IsBuildingAt(Location Location) {
         foreach (BuildingData Building in Buildings) {
             if (Building.Location.Equals(Location)) 

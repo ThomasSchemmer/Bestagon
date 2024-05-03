@@ -24,7 +24,7 @@ public class UnitCardDTO : CardDTO
         if (UnitCard == null)
             return;
 
-        UnitData = UnitCard.UnitData;
+        UnitData = UnitCard.Unit;
     }
 
     public UnitCardDTO() {}

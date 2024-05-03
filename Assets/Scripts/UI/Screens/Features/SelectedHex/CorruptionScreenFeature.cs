@@ -10,7 +10,7 @@ public class CorruptionScreenFeature : ScreenFeature<HexagonData>
         if (SelectedHex == null)
             return false;
 
-        return SelectedHex.bIsMalaised;
+        return SelectedHex.IsMalaised();
     }
 
     public override void ShowAt(float YOffset)

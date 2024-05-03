@@ -87,7 +87,7 @@ public abstract class CardCollection : GameService, ISaveable
 
         // but unit data size is dependent on its type!
         if (Card is UnitCard)
-            return UnitCardDTO.GetStaticSize(((UnitCard)Card).UnitData.Type);
+            return UnitCardDTO.GetStaticSize(((UnitCard)Card).Unit.Type);
 
         return CardDTO.GetStaticSize();
     }

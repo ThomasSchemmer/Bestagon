@@ -18,7 +18,17 @@ public class CardDeck : CardCollection
         if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
             return;
 
-        _OnInit?.Invoke();
+        Game.RunAfterServiceInit((CardFactory Factory) =>
+        {
+            Cards = new();
+            Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
+            Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
+            Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
+            Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
+            Factory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
+            _OnInit?.Invoke();
+        });
+
     }
 
     private void UpdateText()

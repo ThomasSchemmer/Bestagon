@@ -27,11 +27,14 @@ public class MalaiseVisualization : MonoBehaviour
         if (Data == null)
             return;
 
-        List<HexagonData> MalaisedHexes = Data.GetMalaisedHexes();
+        List<HexagonData> MalaisedHexes = Data.GetMalaisedData();
         if (MalaisedHexes.Count == 0)
             return;
 
         foreach (HexagonData HexagonData in MalaisedHexes) {
+            if (HexagonData.GetDiscoveryState() < HexagonData.DiscoveryState.Scouted)
+                continue;
+
             int Count = Vertices.Count;
             Vertices.AddRange(GetVertices(HexagonData));
             Triangles.AddRange(GetTriangles(Count));
@@ -66,8 +69,8 @@ public class MalaiseVisualization : MonoBehaviour
             int A = i % NeighbourData.Length;
             int B = (i - 1 + NeighbourData.Length) % NeighbourData.Length;
             int MalaisedNeighbourCount = 0;
-            MalaisedNeighbourCount += NeighbourData[A] != null ? (NeighbourData[A].bIsMalaised ? 1 : 0) : 0;
-            MalaisedNeighbourCount += NeighbourData[B] != null ? (NeighbourData[B].bIsMalaised ? 1 : 0) : 0;
+            MalaisedNeighbourCount += NeighbourData[A] != null ? (NeighbourData[A].IsMalaised() ? 1 : 0) : 0;
+            MalaisedNeighbourCount += NeighbourData[B] != null ? (NeighbourData[B].IsMalaised() ? 1 : 0) : 0;
             UVSum[i] = MalaisedNeighbourCount == 2 ? 1 : MalaisedNeighbourCount * 0.25f;
 
             if (MalaisedNeighbourCount != 2) {

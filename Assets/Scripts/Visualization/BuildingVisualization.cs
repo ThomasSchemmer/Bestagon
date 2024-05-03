@@ -1,21 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 public class BuildingVisualization : MonoBehaviour
 {
-    public static BuildingVisualization CreateFromData(BuildingData InData) {
-        if (!Game.TryGetService(out MeshFactory TileFactory))
+    public static BuildingVisualization CreateFromData<T>(T Building) where T : BuildingData
+    {
+        if (!Game.TryGetService(out MeshFactory Factory))
             return null;
 
-        GameObject BuildingObject = TileFactory.GetBuildingFromType(InData.BuildingType);
-        BuildingObject.transform.position = InData.GetOffset() + InData.Location.WorldLocation;
-        BuildingObject.transform.localRotation = InData.GetRotation();
+        GameObject BuildingObject = Factory.GetGameObjectFromType(Building.BuildingType);
+        BuildingObject.transform.position = Building.Location.WorldLocation + Building.GetOffset();
 
-        BuildingVisualization BuildingVis = BuildingObject.AddComponent<BuildingVisualization>();
+        return AddVisualization(BuildingObject, Building);
+    }
+
+    public static BuildingVisualization AddVisualization<T>(GameObject Object, T Building) where T : BuildingData
+    {
+        BuildingVisualization BuildingVis = null;
+        if (Building is BuildingData)
+            BuildingVis = Object.AddComponent<BuildingVisualization>();
+
+        BuildingVis.BuildingData = Building;
 
         return BuildingVis;
     }
+
+    public BuildingData BuildingData;
 
 }

@@ -16,8 +16,8 @@ MonoBehaviour:
   CurrentFoodCount: 1
   MovementPerTurn: 1
   RemainingMovement: 1
-  VisitingRange: 3
-  ScoutingRange: 4
+  VisitingRange: 1
+  ScoutingRange: 2
   Visualization: {fileID: 0}
   Name: 
   ID: 1

@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Threading;
 using UnityEngine;
-using UnityEngine.XR;
-using static UnityEngine.UI.CanvasScaler;
 
 /**
  * Visualization for a specific chunk

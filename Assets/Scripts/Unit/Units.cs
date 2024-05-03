@@ -26,6 +26,11 @@ public class Units : GameService
         return false;
     }
 
+    public bool IsUnitAt(Location Location)
+    {
+        return TryGetUnitAt(Location, out TokenizedUnitData Unit);
+    }
+
     public bool TryGetUnitsInChunk(Location ChunkLocation, out List<TokenizedUnitData> Units)
     {
         Units = new();
@@ -46,6 +51,22 @@ public class Units : GameService
         {
             ActiveUnit.Refresh();
         }
+    }
+
+    public void AddUnit(TokenizedUnitData Unit)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        ActiveUnits.Add(Unit);
+
+        if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
+            return;
+
+        if (!Chunk.Visualization)
+            return;
+
+        Chunk.Visualization.RefreshTokens();
     }
 
     public void KillUnit(TokenizedUnitData Unit)
@@ -77,21 +98,6 @@ public class Units : GameService
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {
-            for (int i = 0; i < ScoutStartLocations.Count; i++)
-            {
-                ScoutData Scout = new ScoutData();
-                Scout.SetName("Scout " + i);
-                Scout.MoveTo(ScoutStartLocations[i], 0);
-                ActiveUnits.Add(Scout);
-
-                if (!MapGenerator.TryGetChunkData(Scout.Location, out ChunkData Chunk))
-                    continue;
-
-                if (!Chunk.Visualization)
-                    continue;
-
-                Chunk.Visualization.RefreshTokens();
-            }
             _OnInit?.Invoke();
         });
     }

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingPreview>
+public class BuildingPreviewScreen : ScreenFeatureGroup<MeshPreview>
 {
-    public BuildingPreview BuildingPreview;
+    public MeshPreview BuildingPreview;
 
     public void Start()
     {
@@ -17,7 +17,7 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingPreview>
         });
     }
 
-    public override BuildingPreview GetFeatureObject()
+    public override MeshPreview GetFeatureObject()
     {
         return BuildingPreview;
     }

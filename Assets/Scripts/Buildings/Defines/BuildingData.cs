@@ -5,7 +5,7 @@ using UnityEngine;
 using static CardUpgradeScreen;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
-public class BuildingData : ScriptableObject, ISaveable
+public class BuildingData : ScriptableObject, ISaveable, IPreviewable
 {
     public Location Location;
     public WorkerData[] AssignedWorkers;
@@ -39,6 +39,11 @@ public class BuildingData : ScriptableObject, ISaveable
 
     public virtual Quaternion GetRotation() {
         return Quaternion.Euler(0, 180, 0);
+    }
+
+    public bool CanBeInteractedOn(HexagonVisualization Hex)
+    {
+        return CanBeBuildOn(Hex);
     }
 
     public Production GetCosts()
@@ -83,10 +88,19 @@ public class BuildingData : ScriptableObject, ISaveable
         if (MapGenerator.IsBuildingAt(Hex.Location))
             return false;
 
-        if (Hex.Data.bIsMalaised)
+        if (Hex.IsMalaised())
             return false;
 
         return true;
+    }
+
+    public void BuildAt(Location Location)
+    {
+        if (!Game.TryGetService(out MapGenerator Generator))
+            return;
+
+        this.Location = Location.Copy();
+        Generator.AddBuilding(this);
     }
 
     public int GetAssignedWorkerCount() {
@@ -258,5 +272,4 @@ public class BuildingData : ScriptableObject, ISaveable
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
     }
-
 }

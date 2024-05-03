@@ -157,26 +157,36 @@ public class MeshFactory : GameService
         return Copy;
     }
 
-    public GameObject GetUnitFromType(UnitType Type)
+    public Mesh GetMeshFromType(UnitType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))
             return null;
 
-        Mesh UnitMesh = AvailableUnits[Type].Value;
-        GameObject UnitGO = Instantiate(UnitPrefab);
-        UnitGO.GetComponent<MeshFilter>().mesh = UnitMesh;
-        return UnitGO;
+        return AvailableUnits[Type].Value;
     }
 
-    public GameObject GetBuildingFromType(BuildingConfig.Type Type)
+    public Mesh GetMeshFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;
 
-        Mesh BuildingMesh = AvailableBuildings[Type].Value;
-        GameObject BuildingGO = Instantiate(BuildingPrefab);
-        BuildingGO.GetComponent<MeshFilter>().mesh = BuildingMesh;
-        return BuildingGO;
+        return AvailableBuildings[Type].Value;
+    }
+
+    public GameObject GetGameObjectFromType(BuildingConfig.Type Type)
+    {
+        GameObject Obj = Instantiate(BuildingPrefab);
+        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
+
+        return Obj;
+    }
+
+    public GameObject GetGameObjectFromType(UnitType Type)
+    {
+        GameObject Obj = Instantiate(UnitPrefab);
+        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
+        
+        return Obj;
     }
 
     public Mesh GetMeshFromType(HexagonConfig.HexagonType Type)
@@ -187,7 +197,7 @@ public class MeshFactory : GameService
         return AvailableTiles[Type];
     }
 
-    public Mesh GetMeshForDecoration(HexagonConfig.HexagonDecoration Decoration) {
+    public Mesh GetMeshFromType(HexagonConfig.HexagonDecoration Decoration) {
         if (!AvailableDecorations.ContainsKey(Decoration))
             return null;
 

@@ -186,7 +186,7 @@ public class TileMeshGenerator : MonoBehaviour
             case HexagonData.DiscoveryState.Scouted: TileMesh = BuildingFactory.UnknownMesh; break;
             case HexagonData.DiscoveryState.Visited: 
                 TileMesh = BuildingFactory.GetMeshFromType(Data.Type);
-                DecorationMesh = BuildingFactory.GetMeshForDecoration(Data.Decoration);
+                DecorationMesh = BuildingFactory.GetMeshFromType(Data.Decoration);
                 break;
         }
         if (!TileMesh)

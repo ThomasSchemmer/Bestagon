@@ -15,15 +15,10 @@ public class CardHand : CardCollection
             if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
                 return;
 
-            Game.RunAfterServiceInit((CardFactory CardFactory) =>
+            Game.RunAfterServicesInit((CardFactory CardFactory, CardDeck Deck) =>
             {
                 Cards = new List<Card>();
-                //CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
-                //CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
-                //CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
-                //CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
-                CardFactory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard); 
-
+                HandleDelayedFilling();
                 _OnInit?.Invoke();
             });
             
@@ -95,7 +90,7 @@ public class CardHand : CardCollection
 
         Game.RunAfterServicesInit((CardDeck Deck, CardFactory CardFactory) =>
         {
-            int TargetAmount = 2;
+            int TargetAmount = AMOUNT_HANDCARDS_START;
             int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
             Amount = Mathf.Min(Amount, Deck.Cards.Count);
 
@@ -109,4 +104,6 @@ public class CardHand : CardCollection
 
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);
     public static Vector3 HoverPosition = new Vector3(0, -350, 0);
+    public static int AMOUNT_HANDCARDS_MAX = 5;
+    public static int AMOUNT_HANDCARDS_START = 3;
 }

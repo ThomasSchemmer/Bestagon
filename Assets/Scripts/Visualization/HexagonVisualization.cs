@@ -68,7 +68,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public void SetSelected(bool Selected, bool bShowReachableLocations) {
         isSelected = Selected;
         VisualizeSelection();
-        UpdateBuildingPreview();
+        UpdateMeshPreview();
         if (bShowReachableLocations) {
             ShowReachableLocations(Selected);
         }
@@ -81,7 +81,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public void SetHovered(bool Hovered) {
         isHovered = Hovered;
         VisualizeSelection();
-        UpdateBuildingPreview();
+        UpdateMeshPreview();
     }
 
     public void ClickOn(Vector2 PixelPos) { }
@@ -91,8 +91,8 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Card Card = Selector.GetSelectedCard();
-        if (Card && Card is BuildingCard) {
-            InteractBuildBuilding(Card as BuildingCard);
+        if (Card && Card.IsInteractableWith(this)) {
+            Card.InteractWith(this);
             return;
         } 
 
@@ -166,57 +166,13 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (!Stockpile.Pay(Unit.GetMovementRequirements()))
             return;
 
-        // update both chunks where the worker was and is going to
-        if (!Generator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
-            return;
-
         Unit.MoveTo(this.Location, Costs);
-
-        Chunk.Visualization.RefreshTokens();
-
-        if (!Generator.TryGetChunkData(Unit.Location, out Chunk))
-            return;
-
-        Chunk.Visualization.RefreshTokens();
 
         if (!Generator.TryGetHexagon(Unit.Location, out HexagonVisualization NewHex))
             return;
 
         Selector.SelectHexagon(NewHex);
         _OnMovementTo?.Invoke(NewHex.Location);
-    }
-
-    private void InteractBuildBuilding(BuildingCard Card)
-    {
-        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
-            return;
-
-        if (Generator.IsBuildingAt(Location)) {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
-            return;
-        }
-
-        BuildingData Building = Card.GetBuildingData();
-        if (!Building.CanBeBuildOn(this, false)) {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
-            return;
-        }
-
-        if (!Stockpile.Pay(Building.GetCosts())) {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
-            return;
-        }
-
-        BuildBuildingFromCard(Building);
-        Selector.ForceDeselect();
-        Selector.SelectHexagon(this);
-
-        Card.Use();
-    }
-
-    private void BuildBuildingFromCard(BuildingData Building) {
-        Building.Location = Location.Copy();
-        Generator.AddBuilding(Building);
     }
 
     public bool IsEqual(Selectable other) {
@@ -227,21 +183,26 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         return Location.GlobalTileLocation.x == OtherHex.Location.GlobalTileLocation.x && Location.GlobalTileLocation.y == OtherHex.Location.GlobalTileLocation.y;
     }
 
+    public bool IsMalaised()
+    {
+        return Data.IsMalaised();
+    }
+
     public ChunkData GetChunk() { return Chunk; }
 
-    private void UpdateBuildingPreview()
+    private void UpdateMeshPreview()
     {
-        if (!Game.TryGetServices(out Selector Selector, out BuildingPreview BuildingPreview))
+        if (!Game.TryGetServices(out Selector Selector, out MeshPreview MeshPreview))
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();
-        if (!SelectedCard || !isHovered || SelectedCard is not BuildingCard) {
-            BuildingPreview.Hide();
+        if (!SelectedCard || !isHovered || !SelectedCard.IsPreviewable()) {
+            MeshPreview.Hide();
             ShowAdjacencyBonus(null);
             return;
         }
 
-        BuildingPreview.Show(SelectedCard as BuildingCard, this);
+        MeshPreview.Show(SelectedCard, this);
         ShowAdjacencyBonus(SelectedCard);
     }
 
@@ -329,8 +290,10 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Block.SetFloat("_Selected", isSelected ? 1 : 0);
         Block.SetFloat("_Hovered", isHovered ? 1 : 0);
         Block.SetFloat("_Adjacent", isAdjacent || isReachable ? 1 : 0);
-        if (Data != null) {
-            Block.SetFloat("_Malaised", Data.bIsMalaised ? 1 : 0);
+        if (Data != null)
+        {
+            Block.SetFloat("_Malaised", Data.IsMalaised() ? 1 : 0);
+            Block.SetFloat("_PreMalaised", Data.IsPreMalaised() ? 1 : 0);
             Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, 16) + 1);
             Block.SetFloat("_Value", Data.DebugValue);
         }
