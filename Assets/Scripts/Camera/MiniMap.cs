@@ -19,6 +19,16 @@ public class MiniMap : GameService, UIElement
         });
     }
 
+    public bool CanBeHovered()
+    {
+        return true;
+    }
+
+    public string GetHoverTooltip()
+    {
+        return "The MiniMap shows an overview over the explored world as well as information about the current viewing position";
+    }
+
     public void FillBuffer() {
         if (!IsInit)
             return;

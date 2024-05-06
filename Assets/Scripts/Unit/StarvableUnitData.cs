@@ -18,8 +18,8 @@ public abstract class StarvableUnitData : UnitData
 
     public void HandleFeeding(Production Food)
     {
-        int MinFoodIndex = Production.FoodIndex;
-        int MaxFoodIndex = Production.LuxuryGoodsIndex - 1;
+        int MinFoodIndex = (int)Production.GoodsType.Food;
+        int MaxFoodIndex = (int)Production.GoodsType.LuxuryItems - 1;
         for (int i = MaxFoodIndex; i >= MinFoodIndex; i--)
         {
             Production.Type FoodType = (Production.Type)i;

@@ -34,7 +34,7 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
     }
 
     public void SetSelected(bool Selected){
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetService(out Selectors Selector))
             return;
         Selector.DeselectHexagon();
 
@@ -50,6 +50,11 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
         Image Image = GetComponent<Image>();
         Image.sprite = Resources.Load<Sprite>("Pictures/" + Type);
         Image.rectTransform.sizeDelta = new Vector2(SIZE, SIZE);
+    }
+
+    public bool CanBeHovered()
+    {
+        return false;
     }
 
     private bool IsSelected = false;

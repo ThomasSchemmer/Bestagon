@@ -23,6 +23,7 @@ public class UnitVisualization : MonoBehaviour
 
         GameObject UnitObject = Factory.GetGameObjectFromType(Unit.Type);
         UnitObject.transform.position = Unit.Location.WorldLocation + Unit.GetOffset();
+        UnitObject.transform.localRotation = Unit.GetRotation();
 
         return AddVisualization(UnitObject, Unit);
     }

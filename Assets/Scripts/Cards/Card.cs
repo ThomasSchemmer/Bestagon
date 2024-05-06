@@ -56,7 +56,6 @@ public abstract class Card : Draggable, Selectable
         return GetName()[..1];
     }
 
-
     protected virtual void LinkTexts() {
         CardBase = GetComponent<Image>();
         NameText = transform.Find("Name").GetComponent<TextMeshProUGUI>();
@@ -210,6 +209,16 @@ public abstract class Card : Draggable, Selectable
         bool bIsInCardSelection = Game.IsIn(Game.GameState.CardSelection);
         bool bIsCardUpgrade = UpgradeScreen != null;
         return bIsInCardSelection && !bIsCardUpgrade;
+    }
+
+    public bool CanBeHovered()
+    {
+        return true;
+    }
+
+    public string GetHoverTooltip()
+    {
+        return "Cards can be played on hexagons to create buildings, units or events";
     }
 
     protected System.Guid ID;

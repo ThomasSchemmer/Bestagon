@@ -6,10 +6,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Scout", menuName = "ScriptableObjects/Scout", order = 4)]
 [Serializable]
 public class ScoutData : TokenizedUnitData
-{
+{   
+    // only gets called once the scriptable object itself has been created!
     public ScoutData() {
         RemainingMovement = MovementPerTurn;
-        ID = CURRENT_WORKER_ID++;
+    }
+
+    public override void Init()
+    {
+        SetName(GetPrefabName() + " " + ID);
+        ID = MAX_SCOUT_ID++;
     }
 
     public override string GetPrefabName()
@@ -86,12 +92,12 @@ public class ScoutData : TokenizedUnitData
 
     public override Vector3 GetOffset()
     {
-        return new Vector3(0, 0.6f, 0);
+        return new Vector3(0, 4.5f, 0);
     }
 
     public override Quaternion GetRotation()
     {
-        return new();
+        return Quaternion.Euler(0, 60, 0);
     }
 
     public override bool CanBeInteractedOn(HexagonVisualization Hex)
@@ -111,5 +117,5 @@ public class ScoutData : TokenizedUnitData
     public int ID = 0;
 
     public static int MAX_NAME_LENGTH = 10;
-    public static int CURRENT_WORKER_ID = 0;
+    public static int MAX_SCOUT_ID = 0;
 }

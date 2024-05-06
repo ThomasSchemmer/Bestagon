@@ -36,7 +36,7 @@ public class UnitCard : Card
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out Selector Selector, out Units Units))
+        if (!Game.TryGetServices(out Selectors Selector, out Units Units))
             return;
 
         if (Units.IsUnitAt(Hex.Location))
@@ -45,6 +45,7 @@ public class UnitCard : Card
             return;
         }
 
+        Unit.Init();
         Units.AddUnit(Unit);
         Unit.MoveTo(Hex.Location, 0);
 

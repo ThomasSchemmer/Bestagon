@@ -118,5 +118,11 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
                         bIsHovered ? HoverColor : StandardColor;
     }
 
+
+    public bool CanBeHovered()
+    {
+        return false;
+    }
+
     public void SetSelected(bool Selected) {}
 }

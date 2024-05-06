@@ -18,4 +18,9 @@ public interface Selectable {
     {
         return true;
     }
+
+    bool CanBeHovered();
+
+    string GetHoverTooltip() { return "";  }
+
 }

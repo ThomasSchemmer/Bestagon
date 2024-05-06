@@ -13,6 +13,8 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 {
     public abstract string GetPrefabName();
 
+    public abstract void Init();
+
     public int GetMovementCostTo(Location ToLocation)
     {
         List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation);

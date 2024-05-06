@@ -1,85 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
-/**
- * Helper class to wrap all templated selectors into one easily accesible UI element / gameservice
- */
-public class Selector : GameService{
-    protected override void StartServiceInternal()
-    {
-        CardSelector = new Selector<Card>();
-        HexagonSelector = new Selector<HexagonVisualization>();
-        UISelector = new Selector<UIElement>(true);
-        CardSelector.Layer = "Card";
-        HexagonSelector.Layer = "Hexagon";
-        UISelector.Layer = "UI";
-        Game.Instance._OnPause += OnPause;
-        Game.Instance._OnResume += OnResume;
-    }
-
-    protected override void StopServiceInternal() {}
-
-    public void Update() {
-        if (!IsEnabled)
-            return;
-
-        if (UISelector.RayCast())
-            return;
-
-        if (CardSelector.RayCast())
-            return;
-
-        HexagonSelector.RayCast();
-    }
-
-    private void OnPause()
-    {
-        IsEnabled = false;
-        ForceDeselect();
-    }
-
-    private void OnResume()
-    {
-        IsEnabled = true;
-    }
-
-    public Card GetSelectedCard() {
-        return CardSelector.Selected;
-    }
-
-    public HexagonVisualization GetSelectedHexagon() {
-        return HexagonSelector.Selected;
-    }
-
-    public UIElement GetSelectedUIElement() 
-    {
-        return UISelector.Selected;
-    }
-
-    public void SelectHexagon(HexagonVisualization Vis) {
-        HexagonSelector.Select(Vis);
-    }
-
-    public void DeselectHexagon() { 
-        HexagonSelector.Deselect(true);
-    }
-
-    public void ForceDeselect() {
-        CardSelector.Deselect(true);
-        CardSelector.Deselect(false);
-        HexagonSelector.Deselect(true);
-        HexagonSelector.Deselect(false);
-        UISelector.Deselect(true);
-        UISelector.Deselect(false);
-    }
-
-    public Selector<Card> CardSelector;
-    public Selector<HexagonVisualization> HexagonSelector;
-    public Selector<UIElement> UISelector;
-
-    private bool IsEnabled = true;
-}
 
 /**
  * Class that automates selecting gameobjects with the mouse easy. Checks by type if a hovered object is selectable
@@ -87,96 +9,123 @@ public class Selector : GameService{
  */
 public class Selector<T> where T : Selectable
 {
-    public Selector(bool bIsUIOnly = false) {
+    public Selector(bool bIsUIOnly = false)
+    {
         this.bIsUIOnly = bIsUIOnly;
     }
 
-    public bool RayCast() {
+    public bool RayCast()
+    {
         bool bIsLeftClick = Input.GetMouseButtonDown(0);
         bool bIsRightClick = Input.GetMouseButtonDown(1) && !bIsLeftClick;
         bool bIsEscapeClick = Input.GetKeyDown(KeyCode.Escape);
 
-        if (bIsEscapeClick || !RayCast(out GameObject Hit)) {
+        if (bIsEscapeClick || !RayCast(out GameObject Hit))
+        {
             Deselect(bIsLeftClick);
             return false;
         }
 
-        if (!Hit) {
+        if (!Hit)
+        {
             // can only be true if Unity UI has been hit (eg a button). Simply swallow the input
             return true;
         }
 
         T Target = TryGetTargetFrom(Hit);
 
-        if (Target == null) {
+        if (Target == null)
+        {
             Deselect(bIsLeftClick);
             return false;
         }
 
-        if (bIsRightClick) {
+        if (bIsRightClick)
+        {
             Target.Interact();
             return true;
         }
 
-        if (bIsLeftClick) {
+        if (bIsLeftClick)
+        {
             // we do intentionally not return, since this event should trigger on every click
             Target.ClickOn(GetPointerData().position);
         }
 
-        if ((bIsLeftClick && Target.IsEqual(Selected)) || (!bIsLeftClick && Target.IsEqual(Hovered))) {
+        if ((bIsLeftClick && Target.IsEqual(Selected)) || (!bIsLeftClick && Target.IsEqual(Hovered)))
+        {
             // we still hit something, even if its still the old selectable
+            LongHover();
             return true;
         }
 
         Deselect(bIsLeftClick);
-        if (bIsLeftClick) {
+        if (bIsLeftClick)
+        {
             Select(Target);
-        } else {
+        }
+        else
+        {
             Hover(Target);
         }
         return true;
     }
 
-    public void Select(T Target) {
+    public void Select(T Target)
+    {
         if (!Target.CanBeInteracted())
             return;
 
         Selected = Target;
         Target.SetSelected(true);
-        if (OnItemSelected != null) {
+        if (OnItemSelected != null)
+        {
             OnItemSelected(Selected);
         }
     }
 
-    public void Hover(T Target) {
+    public void Hover(T Target)
+    {
         if (!Target.CanBeInteracted())
             return;
 
         Hovered = Target;
+        HoverPosition = Input.mousePosition;
         Target.SetHovered(true);
-        if (OnItemHovered != null) {
+        if (OnItemHovered != null)
+        {
             OnItemHovered(Hovered);
         }
     }
 
-    public void Deselect(bool bIsClicked) {
-        if (bIsClicked) {
-            if (Selected != null) {
+    public void Deselect(bool bIsClicked)
+    {
+        if (bIsClicked)
+        {
+            if (Selected != null)
+            {
                 Selected.SetSelected(false);
                 Selected = default(T);
-                if (OnItemDeSelected != null) {
+                if (OnItemDeSelected != null)
+                {
                     OnItemDeSelected();
                 }
             }
-        } else {
-            if (Hovered != null) {
+        }
+        else
+        {
+            if (Hovered != null)
+            {
                 Hovered.SetHovered(false);
                 Hovered = default(T);
-                if (OnItemDeHovered != null) {
+                if (OnItemDeHovered != null)
+                {
                     OnItemDeHovered();
                 }
             }
         }
+
+        StopLongHover();
     }
 
     private T TryGetTargetFrom(GameObject Hit)
@@ -195,15 +144,61 @@ public class Selector<T> where T : Selectable
         return HitTarget;
     }
 
-    private bool RayCast(out GameObject Hit) {
-        if (RayCastUI(out Hit)) {
+    private void LongHover()
+    {
+        if (Hovered == null)
+            return;
+
+        if (!Hovered.CanBeHovered())
+            return;
+
+        if (Vector2.Distance(HoverPosition, Input.mousePosition) > 10)
+        {
+            StopLongHover();
+            return;
+        }
+
+        HoverTimeS += Time.deltaTime;
+        HoverPosition = Input.mousePosition;
+        if (HoverTimeS < LongHoverTimeS)
+            return;
+
+        if (bShowHover)
+            return;
+
+        if (!Game.TryGetService(out Selectors Selectors))
+            return;
+
+        bShowHover = true;
+        Selectors.ShowTooltip(Hovered, true);
+    }
+
+    private void StopLongHover()
+    {
+        HoverTimeS = 0;
+        HoverPosition = Vector2.zero;
+        if (!bShowHover)
+            return;
+
+        bShowHover = false;
+        if (!Game.TryGetService(out Selectors Selectors))
+            return;
+
+        Selectors.ShowTooltip(null, false);
+    }
+
+    private bool RayCast(out GameObject Hit)
+    {
+        if (RayCastUI(out Hit))
+        {
             return true;
         }
-           
+
         return !bIsUIOnly && RayCastWorld(out Hit);
     }
 
-    private bool RayCastWorld(out GameObject Hit) {
+    private bool RayCastWorld(out GameObject Hit)
+    {
         Hit = null;
         Rect ScreenRect = new Rect(0, 0, Screen.width, Screen.height);
         if (!ScreenRect.Contains(Input.mousePosition))
@@ -219,20 +214,24 @@ public class Selector<T> where T : Selectable
         return hasHit;
     }
 
-    private bool RayCastUI(out GameObject Hit) {
+    private bool RayCastUI(out GameObject Hit)
+    {
         Hit = null;
 
         List<RaycastResult> Hits = new List<RaycastResult>();
         EventSystem.current.RaycastAll(GetPointerData(), Hits);
 
-        if (Hits.Count == 0) 
+        if (Hits.Count == 0)
             return false;
 
-        foreach (RaycastResult Result in Hits) {
-            if (!bIsUIOnly && Result.gameObject.layer == LayerMask.NameToLayer("UI")) {
+        foreach (RaycastResult Result in Hits)
+        {
+            if (!bIsUIOnly && Result.gameObject.layer == LayerMask.NameToLayer("UI"))
+            {
                 return true;
             }
-            if (Result.gameObject.layer == LayerMask.NameToLayer(Layer)) {
+            if (Result.gameObject.layer == LayerMask.NameToLayer(Layer))
+            {
                 Hit = Result.gameObject;
                 return true;
             }
@@ -241,8 +240,10 @@ public class Selector<T> where T : Selectable
         return false;
     }
 
-    static PointerEventData GetPointerData() {
-        return new PointerEventData(EventSystem.current) {
+    static PointerEventData GetPointerData()
+    {
+        return new PointerEventData(EventSystem.current)
+        {
             position = Input.mousePosition
         };
     }
@@ -250,8 +251,13 @@ public class Selector<T> where T : Selectable
     public bool bIsUIOnly = false;
     public T Selected;
     public T Hovered;
+    public float LongHoverTimeS = 1f;
 
     public string Layer;
+
+    private float HoverTimeS = 0;
+    private bool bShowHover = false;
+    private Vector2 HoverPosition = Vector2.zero;
 
     public delegate void _ItemInteracted(T Item);
     public delegate void _ItemNotInteracted();

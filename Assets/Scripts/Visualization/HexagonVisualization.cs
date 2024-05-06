@@ -87,7 +87,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public void ClickOn(Vector2 PixelPos) { }
 
     public void Interact() {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetService(out Selectors Selector))
             return;
 
         Card Card = Selector.GetSelectedCard();
@@ -157,7 +157,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void InteractMoveUnit(TokenizedUnitData Unit, int Costs)
     {
-        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
+        if (!Game.TryGetServices(out Selectors Selector, out Stockpile Stockpile))
             return;
 
         // trigger movement range update
@@ -192,7 +192,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void UpdateMeshPreview()
     {
-        if (!Game.TryGetServices(out Selector Selector, out MeshPreview MeshPreview))
+        if (!Game.TryGetServices(out Selectors Selector, out MeshPreview MeshPreview))
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();
@@ -301,6 +301,16 @@ public class HexagonVisualization : MonoBehaviour, Selectable
             return;
 
         Renderer.SetPropertyBlock(Block);
+    }
+
+    public bool CanBeHovered()
+    {
+        return true;
+    }
+
+    public string GetHoverTooltip()
+    {
+        return "This tile represents a part of the world, providing space for units or buildings. Can be used to produce resources";
     }
 
     public delegate void OnMovementTo(Location Location);

@@ -123,7 +123,7 @@ public class Turn : GameService
     }
 
     private void UpdateSelection() {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetService(out Selectors Selector))
             return;
 
         // this triggers all visualizations for the selected hex

@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Editor\BuildingEffectDrawer.cs" />
     <Compile Include="Assets\Scripts\Player\Editor\ProductionDrawer.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Editor\BuildingFactoryEditor.cs" />
+    <Compile Include="Assets\Scripts\UI\Editor\HoverableButtonEditor.cs" />
     <Compile Include="Assets\Scripts\Generation\Editor\WorldGenerationInspector.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\Editor\GameServiceDrawer.cs" />
   </ItemGroup>

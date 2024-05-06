@@ -67,7 +67,7 @@ public class MapGenerator : GameService, ISaveable
 
     public void GenerateMap()
     {
-        if (!Game.TryGetService(out Selector Selector))
+        if (!Game.TryGetService(out Selectors Selector))
             return;
 
         Selector.ForceDeselect();

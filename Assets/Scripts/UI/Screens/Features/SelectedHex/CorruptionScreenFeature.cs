@@ -10,13 +10,19 @@ public class CorruptionScreenFeature : ScreenFeature<HexagonData>
         if (SelectedHex == null)
             return false;
 
-        return SelectedHex.IsMalaised();
+        return SelectedHex.IsMalaised() || SelectedHex.IsPreMalaised();
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        TargetText.text = "Corrupted";
+        HexagonData.MalaiseState State = Target.GetFeatureObject().MalaisedState;
+        switch (State)
+        {
+            case HexagonData.MalaiseState.None: TargetText.text = ""; break;
+            case HexagonData.MalaiseState.PreMalaise: TargetText.text = "Will be corrupted"; break;
+            case HexagonData.MalaiseState.Malaised: TargetText.text = "Corrupted"; break;
+        }
     }
 
     public override void Hide()

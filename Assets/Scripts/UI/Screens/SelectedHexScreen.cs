@@ -6,9 +6,12 @@ using UnityEngine;
 public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
 {
     public void Start() {
-        Selector = GameObject.Find("Selector").GetComponent<Selector>().HexagonSelector;
-        Selector.OnItemSelected += Show;
-        Selector.OnItemDeSelected += Hide;
+        Game.RunAfterServiceInit((Selectors Selectors) =>
+        {
+            Selector = Selectors.HexagonSelector;
+            Selector.OnItemSelected += Show;
+            Selector.OnItemDeSelected += Hide;
+        });
 
         Init();
         Hide();

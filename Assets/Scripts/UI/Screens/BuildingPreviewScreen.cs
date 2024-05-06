@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BuildingPreviewScreen : ScreenFeatureGroup<MeshPreview>
 {
-    public MeshPreview BuildingPreview;
+    public MeshPreview MeshPreview;
 
     public void Start()
     {
@@ -12,13 +12,21 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<MeshPreview>
         HideFeatures();
         Game.RunAfterServiceInit((IconFactory IconFactory) =>
         {
-            BuildingPreview._OnPreviewShown += ShowFeatures;
-            BuildingPreview._OnPreviewHidden += HideFeatures;
+            MeshPreview._OnPreviewShown += Show;
+            MeshPreview._OnPreviewHidden += HideFeatures;
         });
+    }
+
+    private void Show()
+    {
+        if (MeshPreview.CurrentBuilding == null)
+            return;
+
+        ShowFeatures();
     }
 
     public override MeshPreview GetFeatureObject()
     {
-        return BuildingPreview;
+        return MeshPreview;
     }
 }

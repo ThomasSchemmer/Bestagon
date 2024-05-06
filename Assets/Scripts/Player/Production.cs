@@ -41,12 +41,25 @@ public class Production : ISaveable
         HardWood = 24
     }
 
-    public static int BuildingMaterialsIndex = 0;
-    public static int FoodIndex = 7;
-    public static int LuxuryGoodsIndex = 12;
-    public static int TradeGoodsIndex = 17;
-    public static int MaxIndex = 25;
-    public static int[] Indices = {BuildingMaterialsIndex, FoodIndex, LuxuryGoodsIndex, TradeGoodsIndex, MaxIndex};
+    /** Categories for the different production types. 
+     * Value represents the minimum type index in the category 
+     */
+    public enum GoodsType : uint
+    {
+        BuildingMaterials = 0,
+        Food = 7,
+        LuxuryItems = 12, 
+        TradeGoods = 17,
+        MaxIndex = 25
+    }
+
+    public static int[] Indices = { 
+        (int)GoodsType.BuildingMaterials, 
+        (int)GoodsType.Food, 
+        (int)GoodsType.LuxuryItems, 
+        (int)GoodsType.TradeGoods,
+        (int)GoodsType.MaxIndex
+    };
 
     public Production()
     {

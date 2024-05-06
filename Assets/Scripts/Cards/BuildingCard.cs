@@ -80,7 +80,7 @@ public class BuildingCard : Card
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out Selector Selector, out Stockpile Stockpile))
+        if (!Game.TryGetServices(out Selectors Selector, out Stockpile Stockpile))
             return;
 
         if (!Game.TryGetService(out MapGenerator Generator)) 

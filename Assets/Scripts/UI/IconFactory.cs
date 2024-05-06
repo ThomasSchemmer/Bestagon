@@ -29,6 +29,7 @@ public class IconFactory : GameService
         LoadPrefabs();
     }
 
+
     private void LoadPrefabs()
     {
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;

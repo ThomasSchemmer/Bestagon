@@ -96,4 +96,20 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     {
         return ProductionIndex;
     }
+
+    public bool CanBeHovered()
+    {
+        return true;
+    }
+
+    public string GetHoverTooltip()
+    {
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return "";
+
+        if (ParentScreen != null)
+            return ((Production.GoodsType)Production.Indices[ProductionIndex]).ToString();
+
+        return ((Production.Type)ProductionIndex).ToString();
+    }
 }
