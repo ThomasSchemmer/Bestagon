@@ -9,7 +9,8 @@ public abstract class CardDTO : ISaveable
     public enum Type
     {
         Building,
-        Unit
+        Unit,
+        Event
     }
 
     public virtual byte[] GetData()
@@ -51,6 +52,9 @@ public abstract class CardDTO : ISaveable
         if (Card is UnitCard)
             return new UnitCardDTO(Card);
 
+        if (Card is EventCard)
+            return new EventCardDTO(Card);
+
         return null;
     }
 
@@ -60,10 +64,13 @@ public abstract class CardDTO : ISaveable
         Pos += sizeof(int);
         SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
         Type CardType = (Type)bType;
-        if (CardType == Type.Building)
-            return new BuildingCardDTO();
-        if (CardType == Type.Unit)
-            return new UnitCardDTO();
+
+        switch (CardType)
+        {
+            case Type.Building: return new BuildingCardDTO();
+            case Type.Unit: return new UnitCardDTO();
+            case Type.Event: return new EventCardDTO();
+        }
 
         return null;
     }

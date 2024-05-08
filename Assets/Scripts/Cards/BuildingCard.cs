@@ -21,7 +21,6 @@ public class BuildingCard : Card
     {
         base.LinkTexts();
         MaxWorkerTransform = transform.Find("MaxWorker").GetComponent<RectTransform>();
-        EffectTransform = transform.Find("Effects").GetComponent<RectTransform>();
     }
 
     protected override void DeleteVisuals()
@@ -63,7 +62,7 @@ public class BuildingCard : Card
         }
     }
 
-    protected override CardCollection GetUseTarget()
+    protected override CardCollection GetTargetAfterUse()
     {
         if (!Game.TryGetServices(out CardStash CardStash, out CardDeck CardDeck))
             return null;
@@ -137,5 +136,5 @@ public class BuildingCard : Card
     }
 
     protected BuildingData BuildingData;
-    protected RectTransform MaxWorkerTransform, EffectTransform;
+    protected RectTransform MaxWorkerTransform;
 }

@@ -41,6 +41,14 @@ public class CardFactory : GameService
             this.Parent = Parent;
             this.Callback = Callback;
         }
+
+        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
+        {
+            this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
+            this.Index = Index;
+            this.Parent = Parent;
+            this.Callback = Callback;
+        }
     }
 
     private List<DelayedCardInfo> CardsToCreate = new();
@@ -52,6 +60,12 @@ public class CardFactory : GameService
     }
 
     public void CreateCard(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
+    {
+        DelayedCardInfo Info = new(Type, Index, Parent, Callback);
+        CreateCard(Info);
+    }
+
+    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
@@ -84,7 +98,7 @@ public class CardFactory : GameService
 
     private void CreateDelayedCard(DelayedCardInfo Info)
     {
-        GameObject CardPrefab = Resources.Load("UI/Card") as GameObject;
+        GameObject CardPrefab = Resources.Load("UI/Cards/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Info.Parent);
         Card Card = InitDelayedCardByType(GO, Info);
         Info.Callback.Invoke(Card);
@@ -98,7 +112,21 @@ public class CardFactory : GameService
         if (Info.DTO is UnitCardDTO)
             return InitDelayedUnitCard(CardObject, Info);
 
+        if (Info.DTO is EventCardDTO)
+            return InitDelayedEventCard(CardObject, Info);
+
         return null;
+    }
+
+    private Card InitDelayedEventCard(GameObject CardObject, DelayedCardInfo Info)
+    {
+        EventData EventData = (Info.DTO as EventCardDTO).EventData;
+
+        CardObject.name = "Card " + EventData.Type.ToString();
+        EventCard Card = CardObject.AddComponent<EventCard>();
+        Card.Init(EventData, Info.Index);
+
+        return Card;
     }
 
     private Card InitDelayedBuildingCard(GameObject CardObject, DelayedCardInfo Info)

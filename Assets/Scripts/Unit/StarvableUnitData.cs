@@ -74,7 +74,10 @@ public abstract class StarvableUnitData : UnitData
     public override void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentFoodCount);
+
+        Type = (UnitType)bType;
     }
 
     [HideInInspector]

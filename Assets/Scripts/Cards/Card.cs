@@ -62,6 +62,7 @@ public abstract class Card : Draggable, Selectable
         SymbolTransform = transform.Find("Symbol").GetComponent<RectTransform>();
         CostTransform = transform.Find("Costs").GetComponent<RectTransform>();
         UsagesTransform = transform.Find("Usages").GetComponent<RectTransform>();
+        EffectTransform = transform.Find("Effects").GetComponent<RectTransform>();
     }
 
     public void SetSelected(bool Selected) {
@@ -169,13 +170,13 @@ public abstract class Card : Draggable, Selectable
     public void Use()
     {
         UseInternal();
-        CardCollection Target = GetUseTarget();
+        CardCollection Target = GetTargetAfterUse();
 
         CardHand.DiscardCard(this, Target);
     }
 
     protected abstract void UseInternal();
-    protected abstract CardCollection GetUseTarget();
+    protected abstract CardCollection GetTargetAfterUse();
 
     public bool WasUsedUpThisTurn()
     {
@@ -227,7 +228,7 @@ public abstract class Card : Draggable, Selectable
     protected bool bCanBeHovered = false;
     protected bool bWasUsedUp = false;
     protected TextMeshProUGUI NameText;
-    protected RectTransform CostTransform, SymbolTransform, UsagesTransform;
+    protected RectTransform CostTransform, SymbolTransform, UsagesTransform, EffectTransform;
     protected Image CardBase;
     protected CardHand CardHand;
 

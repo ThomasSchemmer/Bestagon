@@ -14,7 +14,7 @@ public class UnitCard : Card
         return Unit.Type.ToString();
     }
 
-    protected override CardCollection GetUseTarget()
+    protected override CardCollection GetTargetAfterUse()
     {
         if (!Game.TryGetService(out DiscardDeck Discard))
             return null;
@@ -37,6 +37,9 @@ public class UnitCard : Card
     public override void InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetServices(out Selectors Selector, out Units Units))
+            return;
+
+        if (!Unit.CanBeInteractedOn(Hex))
             return;
 
         if (Units.IsUnitAt(Hex.Location))

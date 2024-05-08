@@ -16,6 +16,8 @@ public class Selectors : GameService {
         UISelector.Layer = "UI";
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
+
+        _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() {}

@@ -20,9 +20,8 @@ public class Unlockables : GameService, ISaveable
             if (IsCategoryFullyUnlocked(Category))
                 continue;
 
-            //todo: remove after adding all buildings
             Type = GetRandomTypeFromMask(Category);
-            Type = BuildingConfig.Type.HerbalistsHut;
+
             if (!bIsPreview)
             {
                 MarkAsUnlocked(Type, CategoryIndex);

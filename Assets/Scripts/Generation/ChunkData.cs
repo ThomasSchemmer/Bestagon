@@ -29,10 +29,10 @@ public class ChunkData : ISaveable
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
                 HexDatas[x, y].Location = HexLocation;
 
-                //todo remove debug
-                if (HexLocation.GlobalTileLocation.x == 0 && HexLocation.GlobalTileLocation.y == 4)
+                // todo: debug remove
+                if (x == 3 && y == 3)
                 {
-                    HexDatas[x, y].Decoration = HexagonConfig.HexagonDecoration.Ruins;
+                    HexDatas[x, y].Decoration = HexagonConfig.HexagonDecoration.Tribe;
                 }
             }
         }

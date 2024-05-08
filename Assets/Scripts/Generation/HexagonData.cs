@@ -97,6 +97,16 @@ public class HexagonData : ISaveable
         return MalaisedState == MalaiseState.PreMalaise;
     }
 
+    public string GetDecorationText()
+    {
+        switch (Decoration)
+        {
+            case HexagonDecoration.Ruins: return "Contains ancient ruins";
+            case HexagonDecoration.Tribe: return "Contains unknown tribe";
+            default: return "";
+        }
+    }
+
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
         HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));

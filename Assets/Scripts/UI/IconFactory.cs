@@ -35,8 +35,8 @@ public class IconFactory : GameService
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;
         NumberedIconPrefab = Resources.Load("UI/NumberedIcon") as GameObject;
         SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
-        ProduceEffectPrefab = Resources.Load("UI/ProduceEffect") as GameObject;
-        ProduceUnitEffectPrefab = Resources.Load("UI/ProduceUnitEffect") as GameObject;
+        ProduceEffectPrefab = Resources.Load("UI/Cards/ProduceEffect") as GameObject;
+        ProduceUnitEffectPrefab = Resources.Load("UI/Cards/ProduceUnitEffect") as GameObject;
     }
 
     private void LoadResources()
@@ -165,6 +165,20 @@ public class IconFactory : GameService
         bool bConsumes = !Effect.Consumption.Equals(Production.Empty);
         ConsumesText.gameObject.SetActive(bConsumes);
         ConsumesContainer.gameObject.SetActive(bConsumes);
+
+        return ProduceUnitEffect;
+    }
+
+    public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData)
+    {
+        GameObject ProduceUnitEffect = Instantiate(ProduceUnitEffectPrefab);
+        TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        ProducesText.text = EventData.GetDescription();
+        Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
+        MiscellaneousType UnitType = EventData.GrantedType == UnitData.UnitType.Worker ? MiscellaneousType.Worker : MiscellaneousType.Scout;
+        GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, 1);
+        UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
+        UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
     }

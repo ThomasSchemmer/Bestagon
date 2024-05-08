@@ -12,7 +12,7 @@ public class RuinsScreenFeature : ScreenFeature<HexagonData>
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        TargetText.text = "Contains ancient ruins";
+        TargetText.text = Target.GetFeatureObject().GetDecorationText();
     }
 
     public override void Hide()

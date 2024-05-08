@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\Cards\UnitCard.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
+    <Compile Include="Assets\Scripts\Events\EventData.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
+    <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
     <Compile Include="Assets\Scripts\Unit\ScoutData.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
+    <Compile Include="Assets\Scripts\Cards\DTOs\EventCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selectors.cs" />
     <Compile Include="Assets\Scripts\Player\Spawn.cs" />
@@ -133,6 +136,7 @@
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardSelectionScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitNameScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
@@ -154,7 +158,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\CardDTO.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitData.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\CollectRuinsScreen.cs" />
+    <Compile Include="Assets\Scripts\Cards\EventCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeatureGroup.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
     <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />

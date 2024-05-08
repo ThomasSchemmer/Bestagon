@@ -192,7 +192,8 @@ public class TileMeshGenerator : MonoBehaviour
         if (!TileMesh)
             return false;
 
-        if (Data.Decoration != HexagonConfig.HexagonDecoration.None && DecorationMesh == null)
+        bool bIsVisited = Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited;
+        if (bIsVisited && Data.Decoration != HexagonConfig.HexagonDecoration.None && DecorationMesh == null)
             return false;
 
         AddMesh(Data, TileMesh);

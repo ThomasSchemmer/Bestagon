@@ -75,7 +75,8 @@ public class HexagonConfig {
     public enum HexagonDecoration : uint
     {
         None = 0,
-        Ruins = 1
+        Ruins = 1,
+        Tribe = 2
     }
 
     // lookup table whether a specific type can have a higher tile 

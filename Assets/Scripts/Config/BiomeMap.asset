@@ -154,3 +154,7 @@ MonoBehaviour:
         Min: 0
         Max: 0.01
       Value: 1
+    - Key:
+        Min: 0.01
+        Max: 0.02
+      Value: 2
