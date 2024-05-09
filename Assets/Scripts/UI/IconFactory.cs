@@ -10,7 +10,7 @@ public class IconFactory : GameService
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
     private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
-    private GameObject ProduceUnitEffectPrefab;
+    private GameObject ProduceUnitEffectPrefab, GrantUnitEventEffectPrefab, GrantResourceEventEffectPrefab;
 
     public enum MiscellaneousType
     {
@@ -37,6 +37,8 @@ public class IconFactory : GameService
         SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
         ProduceEffectPrefab = Resources.Load("UI/Cards/ProduceEffect") as GameObject;
         ProduceUnitEffectPrefab = Resources.Load("UI/Cards/ProduceUnitEffect") as GameObject;
+        GrantUnitEventEffectPrefab = Resources.Load("UI/Cards/GrantUnitEventEffect") as GameObject;
+        GrantResourceEventEffectPrefab = Resources.Load("UI/Cards/GrantResourceEventEffect") as GameObject;
     }
 
     private void LoadResources()
@@ -171,12 +173,26 @@ public class IconFactory : GameService
 
     public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData)
     {
-        GameObject ProduceUnitEffect = Instantiate(ProduceUnitEffectPrefab);
+        GameObject ProduceUnitEffect = Instantiate(GrantUnitEventEffectPrefab);
         TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
         MiscellaneousType UnitType = EventData.GrantedType == UnitData.UnitType.Worker ? MiscellaneousType.Worker : MiscellaneousType.Scout;
         GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, 1);
+        UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
+        UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
+
+        return ProduceUnitEffect;
+    }
+
+    public GameObject GetVisualsForGrantResourceEffect(GrantResourceEventData EventData)
+    {
+        GameObject ProduceUnitEffect = Instantiate(GrantResourceEventEffectPrefab);
+        TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        ProducesText.text = EventData.GetDescription();
+        Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
+
+        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 

@@ -99,6 +99,11 @@ public class Workers : GameService
             return;
 
         WorkerData Worker = (WorkerData)MeshFactory.CreateDataFromType(UnitData.UnitType.Worker);
+        AddWorker(Worker);
+    }
+
+    public void AddWorker(WorkerData Worker)
+    {
         ActiveWorkers.Add(Worker);
     }
     

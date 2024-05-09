@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProductionPreviewScreenFeature : ScreenFeature<MeshPreview>
+public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
 {
     public override bool ShouldBeDisplayed()
     {
-        MeshPreview Preview = Target.GetFeatureObject();
-        return Preview.CurrentBuilding != null && Game.TryGetService(out IconFactory IconFactory);
+        BuildingData CurrentBuilding = Target.GetFeatureObject();
+        return CurrentBuilding != null && Game.TryGetService(out IconFactory IconFactory);
     }
 
     public override void ShowAt(float YOffset)
@@ -18,8 +18,8 @@ public class ProductionPreviewScreenFeature : ScreenFeature<MeshPreview>
         base.ShowAt(YOffset);
         Game.TryGetService(out IconFactory IconFactory);
 
-        MeshPreview Preview = Target.GetFeatureObject();
-        Production Production = Preview.CurrentBuilding.GetProductionPreview(Preview.CurrentLocation);
+        BuildingData CurrentBuilding = Target.GetFeatureObject();
+        Production Production = CurrentBuilding.GetProductionPreview(CurrentBuilding.Location);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production);
         Visuals.transform.SetParent(TargetTransform, false);
     }

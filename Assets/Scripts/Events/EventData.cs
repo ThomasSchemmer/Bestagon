@@ -7,7 +7,7 @@ using UnityEngine;
 /** 
  * Wrapper for all event related info. Also used to create a random event 
  */
-public abstract class EventData : ScriptableObject, ISaveable
+public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 {
     public enum EventType
     {
@@ -28,7 +28,7 @@ public abstract class EventData : ScriptableObject, ISaveable
     public static EventType GetRandomType()
     {
         // todo: debug remove after all types are implemented
-        return EventType.GrantUnit;
+        return EventType.GrantResource;
         return (EventType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(EventType)).Length));
     }
 
@@ -37,6 +37,7 @@ public abstract class EventData : ScriptableObject, ISaveable
         switch (Type)
         {
             case EventType.GrantUnit: return CreateInstance<GrantUnitEventData>();
+            case EventType.GrantResource: return CreateInstance<GrantResourceEventData>();
             default: return null;
         }
     }
@@ -49,6 +50,12 @@ public abstract class EventData : ScriptableObject, ISaveable
     public abstract string GetDescription();
 
     public abstract GameObject GetEventVisuals();
+
+    public abstract bool IsInteractableWith(HexagonVisualization Hex);
+
+    public abstract void InteractWith(HexagonVisualization Hex);
+
+    public abstract bool IsPreviewable();
 
 
     public static int GetStaticSize()
@@ -72,4 +79,8 @@ public abstract class EventData : ScriptableObject, ISaveable
 
         Type = (EventType)bType;
     }
+
+    public abstract Vector3 GetOffset();
+    public abstract Quaternion GetRotation();
+    public abstract bool CanBeInteractedOn(HexagonVisualization Hex);
 }

@@ -192,7 +192,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     private void UpdateMeshPreview()
     {
-        if (!Game.TryGetServices(out Selectors Selector, out MeshPreview MeshPreview))
+        if (!Game.TryGetServices(out Selectors Selector, out PreviewSystem MeshPreview))
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();

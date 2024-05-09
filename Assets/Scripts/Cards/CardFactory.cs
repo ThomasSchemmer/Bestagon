@@ -31,20 +31,19 @@ public class CardFactory : GameService
             this.Callback = Callback;
         }
 
-        public DelayedCardInfo(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
+        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
         {
-            if (!Game.TryGetService(out MeshFactory TileFactory))
-                return;
-
-            this.DTO = UnitCardDTO.CreateFromUnitData(TileFactory.CreateDataFromType(Type));
+            this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
             this.Index = Index;
             this.Parent = Parent;
             this.Callback = Callback;
         }
 
-        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
+        public DelayedCardInfo(UnitData.UnitType UnitType, int Index, Transform Parent, Action<Card> Callback)
         {
-            this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
+            GrantUnitEventData EventData = ScriptableObject.CreateInstance<GrantUnitEventData>();
+            EventData.GrantedType = UnitType;
+            this.DTO = EventCardDTO.CreateFromEventData(EventData);
             this.Index = Index;
             this.Parent = Parent;
             this.Callback = Callback;
@@ -59,13 +58,13 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
-    public void CreateCard(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
+    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
     }
 
-    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
+    public void CreateCard(UnitData.UnitType Type, int Index, Transform Parent, Action<Card> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
@@ -109,9 +108,6 @@ public class CardFactory : GameService
         if (Info.DTO is BuildingCardDTO)
             return InitDelayedBuildingCard(CardObject, Info);
 
-        if (Info.DTO is UnitCardDTO)
-            return InitDelayedUnitCard(CardObject, Info);
-
         if (Info.DTO is EventCardDTO)
             return InitDelayedEventCard(CardObject, Info);
 
@@ -136,17 +132,6 @@ public class CardFactory : GameService
         CardObject.name = "Card " + BuildingData.BuildingType;
         BuildingCard Card = CardObject.AddComponent<BuildingCard>();
         Card.Init(BuildingData, Info.Index);
-
-        return Card;
-    }
-
-    private Card InitDelayedUnitCard(GameObject CardObject, DelayedCardInfo Info)
-    {
-        UnitData UnitData = (Info.DTO as UnitCardDTO).UnitData;
-
-        CardObject.name = "Card " + UnitData.Type;
-        UnitCard Card = CardObject.AddComponent<UnitCard>();
-        Card.Init(UnitData, Info.Index);
 
         return Card;
     }

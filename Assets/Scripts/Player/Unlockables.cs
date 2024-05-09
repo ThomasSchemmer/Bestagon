@@ -46,6 +46,16 @@ public class Unlockables : GameService, ISaveable
         LockedTypesPerCategory[CategoryIndex] = (BuildingConfig.Type)((int)LockedTypesPerCategory[CategoryIndex] & (~(int)Type));
     }
 
+    private bool IsIndexInCategory(int Category, int Index)
+    {
+        return ((Category >> Index) & 0x1) == 1;
+    }
+
+    private bool IsIndexLockedInCategoryIndex(int CategoryIndex, int Index)
+    { 
+        return (((int)LockedTypesPerCategory[CategoryIndex] >> Index) & 0x1) == 1;
+    }
+
     public BuildingConfig.Type GetRandomUnlockedType()
     {
         // this implies that a category can only be unlocked if all previous things have been unlocked!
@@ -59,6 +69,45 @@ public class Unlockables : GameService, ISaveable
         int UnlockedTypes = ~(int)LockedTypesPerCategory[RandomCategory] & (int)BuildingConfig.Categories[RandomCategory];
 
         return GetRandomTypeFromMask(UnlockedTypes);
+    }
+
+    public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
+    {
+        RandomType = default;
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return false;
+
+        Production UnlockedCost = new();
+        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
+        {
+            for (int j = 0; j < BuildingConfig.MaxIndex; j++) {
+                int Category = (int)BuildingConfig.Categories[i];
+                BuildingConfig.Type Type = (BuildingConfig.Type)(1 << j);
+                if (!IsIndexInCategory(Category, j))
+                    continue;
+
+                if (IsIndexLockedInCategoryIndex(i, j))
+                    continue;
+
+                UnlockedCost += MeshFactory.CreateDataFromType(Type).Cost;
+            }
+        }
+
+        List<Production.Type> UnlockedTypes = new();
+        foreach (var Tuple in UnlockedCost.GetTuples())
+        {
+            if (UnlockedTypes.Contains(Tuple.Key))
+                continue;
+
+            UnlockedTypes.Add(Tuple.Key);
+        }
+
+        if (UnlockedTypes.Count == 0)
+            return false;
+
+        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
+        RandomType = UnlockedTypes[RandomIndex];
+        return true;
     }
 
     private bool IsCategoryFullyUnlocked(int Category)

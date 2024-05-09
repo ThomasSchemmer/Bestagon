@@ -49,9 +49,6 @@ public abstract class CardDTO : ISaveable
         if (Card is BuildingCard)
             return new BuildingCardDTO(Card);
 
-        if (Card is UnitCard)
-            return new UnitCardDTO(Card);
-
         if (Card is EventCard)
             return new EventCardDTO(Card);
 
@@ -68,7 +65,6 @@ public abstract class CardDTO : ISaveable
         switch (CardType)
         {
             case Type.Building: return new BuildingCardDTO();
-            case Type.Unit: return new UnitCardDTO();
             case Type.Event: return new EventCardDTO();
         }
 

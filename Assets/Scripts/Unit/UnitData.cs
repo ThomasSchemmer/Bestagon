@@ -23,4 +23,6 @@ public abstract class UnitData : ScriptableObject, ISaveable
 
     public abstract void SetData(NativeArray<byte> Bytes);
 
+    public abstract bool TryInteractWith(HexagonVisualization Hex);
+
 }

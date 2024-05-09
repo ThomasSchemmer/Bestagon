@@ -2,31 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingPreviewScreen : ScreenFeatureGroup<MeshPreview>
+public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
 {
-    public MeshPreview MeshPreview;
+    private PreviewSystem Previews;
 
     public void Start()
     {
         Init();
         HideFeatures();
-        Game.RunAfterServiceInit((IconFactory IconFactory) =>
+        Game.RunAfterServicesInit((IconFactory IconFactory, PreviewSystem Previews) =>
         {
-            MeshPreview._OnPreviewShown += Show;
-            MeshPreview._OnPreviewHidden += HideFeatures;
+            this.Previews = Previews;
+            Previews._OnPreviewShown += Show;
+            Previews._OnPreviewHidden += HideFeatures;
         });
     }
 
     private void Show()
     {
-        if (MeshPreview.CurrentBuilding == null)
+        if (GetFeatureObject() == null)
             return;
 
         ShowFeatures();
     }
 
-    public override MeshPreview GetFeatureObject()
+    public override BuildingData GetFeatureObject()
     {
-        return MeshPreview;
+        return Previews.GetPreviewableAs<BuildingData>();
     }
 }

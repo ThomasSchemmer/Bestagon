@@ -22,7 +22,6 @@ public class CardDeck : CardCollection
         {
             Cards = new();
             Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
-            Factory.CreateCard(EventData.EventType.GrantUnit, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);

@@ -83,4 +83,14 @@ public class WorkerData : StarvableUnitData, ISaveable
 
         Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);
     }
+
+    public override bool TryInteractWith(HexagonVisualization Hex)
+    {
+        if (!Game.TryGetServices(out Workers Workers, out Stockpile Stockpile))
+            return false;
+
+        Workers.AddWorker(this);
+        Stockpile.RequestUIRefresh();
+        return true;
+    }
 }

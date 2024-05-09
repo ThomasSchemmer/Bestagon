@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static UnityEngine.UI.CanvasScaler;
 
 /** 
  * Any unit that is represented by an in-game token. Also supports moving this token
@@ -81,6 +82,26 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
     public abstract Quaternion GetRotation();
 
     public abstract bool CanBeInteractedOn(HexagonVisualization Hex);
+
+    public override bool TryInteractWith(HexagonVisualization Hex)
+    {
+        if (!Game.TryGetService(out Units Units))
+            return false;
+
+        if (!CanBeInteractedOn(Hex))
+            return false;
+
+        if (Units.IsUnitAt(Hex.Location))
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create unit here - one already exists");
+            return false;
+        }
+
+        Init();
+        Units.AddUnit(this);
+        MoveTo(Hex.Location, 0);
+        return true;
+    }
 
     public override int GetSize()
     {

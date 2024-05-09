@@ -157,6 +157,16 @@ public class MeshFactory : GameService
         return Copy;
     }
 
+    public UnitData GetDataFromType(UnitType Type)
+    {
+        if (!AvailableUnits.ContainsKey(Type))
+            return null;
+
+        var Entry = AvailableUnits[Type];
+        UnitData Unit = Entry.Key;
+        return Unit;
+    }
+
     public Mesh GetMeshFromType(UnitType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))

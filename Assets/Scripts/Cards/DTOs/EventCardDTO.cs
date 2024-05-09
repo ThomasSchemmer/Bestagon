@@ -82,6 +82,7 @@ public class EventCardDTO : CardDTO
         switch (Type)
         {
             case EventData.EventType.GrantUnit: return GrantUnitEventData.GetStaticSize();
+            case EventData.EventType.GrantResource: return GrantResourceEventData.GetStaticSize();
             default: break;
         }
 

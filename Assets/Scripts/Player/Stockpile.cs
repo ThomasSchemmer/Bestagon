@@ -48,6 +48,12 @@ public class Stockpile : GameService, ISaveable
         _OnResourcesChanged?.Invoke();
     }
 
+    public void AddResources(Production Production)
+    {
+        Resources += Production;
+        _OnResourcesChanged?.Invoke();
+    }
+
     public int GetResourceGroupCount(int GroupIndex) 
     {
         int Count = 0;
@@ -75,6 +81,11 @@ public class Stockpile : GameService, ISaveable
 
     public bool CanAfford(Production Costs) {
         return Costs <= Resources;
+    }
+
+    public void RequestUIRefresh()
+    {
+        _OnResourcesChanged?.Invoke();
     }
 
     protected override void StartServiceInternal()

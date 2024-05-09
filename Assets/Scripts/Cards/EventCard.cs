@@ -28,6 +28,8 @@ public class EventCard : Card
 
         GameObject EffectObject = GetEventVisuals();
         EffectObject.transform.SetParent(EffectTransform, false);
+
+        CostTransform.gameObject.SetActive(false);
     }
 
     public GameObject GetEventVisuals()
@@ -35,16 +37,37 @@ public class EventCard : Card
         return EventData.GetEventVisuals();
     }
 
-    public override void InteractWith(HexagonVisualization Hex) {}
+    public UnitData GetUnitData()
+    {
+        if (EventData.Type != EventData.EventType.GrantUnit)
+            return null;
+
+        return (EventData as GrantUnitEventData).GetUnitData();
+    }
+
+    public CardPreview AddPreviewByType(GameObject Obj)
+    {
+        switch (EventData.Type)
+        {
+            case EventData.EventType.GrantUnit: return Obj.AddComponent<UnitPreview>();
+            case EventData.EventType.GrantResource: return null;
+            default: return null;
+        }
+    }
+
+    public override void InteractWith(HexagonVisualization Hex) {
+        EventData.InteractWith(Hex);
+        Use();
+    }
 
     public override bool IsInteractableWith(HexagonVisualization Hex)
     {
-        return true;
+        return EventData.IsInteractableWith(Hex);
     }
 
     public override bool IsPreviewable()
     {
-        return false;
+        return EventData.IsPreviewable();
     }
 
     protected override CardCollection GetTargetAfterUse()
