@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
@@ -22,12 +23,12 @@ public class GrantUnitEventData : EventData
         return "Grants this unit for free";
     }
 
-    public override GameObject GetEventVisuals()
+    public override GameObject GetEventVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        return IconFactory.GetVisualsForGrantUnitEffect(this);
+        return IconFactory.GetVisualsForGrantUnitEffect(this, Parent);
     }
 
     public override byte[] GetData()
@@ -66,23 +67,30 @@ public class GrantUnitEventData : EventData
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out Selectors Selector, out Units Units))
-            return;
-
         UnitData Unit = CreateUnitData();
-        if (!Unit.TryInteractWith(Hex))
+        Unit.TryInteractWith(Hex);
+
+        if (!Game.TryGetService(out Selectors Selectors))
             return;
 
-        Selector.ForceDeselect();
-        Selector.SelectHexagon(Hex);
+        Selectors.SelectHexagon(Hex);
     }
 
     public override bool IsPreviewable()
     {
-        return (GetUnitData() as TokenizedUnitData) != null;
+        return true;
     }
 
-    public UnitData CreateUnitData()
+    public CardPreview AddEventPreviewByType(GameObject Obj)
+    {
+        UnitData Unit = GetUnitData();
+        if (Unit is TokenizedUnitData)
+            return Obj.AddComponent<UnitPreview>();
+
+        return Obj.AddComponent<GrantMiscellaneousPreview>();
+    }
+
+        public UnitData CreateUnitData()
     {
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
@@ -101,12 +109,18 @@ public class GrantUnitEventData : EventData
     public override Vector3 GetOffset()
     {
         TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        if (UnitData == null)
+            return Vector3.zero;
+
         return UnitData.GetOffset();
     }
 
     public override Quaternion GetRotation()
     {
         TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        if (UnitData == null)
+            return Quaternion.identity;
+
         return UnitData.GetRotation();
     }
 
@@ -114,5 +128,21 @@ public class GrantUnitEventData : EventData
     {
         TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
         return UnitData.CanBeInteractedOn(Hex);
+    }
+
+    public override int GetAdjacencyRange()
+    {
+        return 0;
+    }
+
+    public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
+    {
+        Bonus = GetStandardAdjacencyBonus();
+        return true;
+    }
+
+    public override bool ShouldShowAdjacency(HexagonVisualization Hex)
+    {
+        return true;
     }
 }

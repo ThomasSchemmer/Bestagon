@@ -25,6 +25,13 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
             Building.GetWorkingWorkerCount() > 0;
     }
 
+    private bool AreAssignedWorkersStarving()
+    {
+        return TryGetBuildingData(out BuildingData Building) &&
+            Building.GetWorkingWorkerCount() == 0 &&
+            Building.GetAssignedWorkerCount() > 0;
+    }
+
     private bool TryGetBuildingData(out BuildingData Building)
     {
         Building = null;
@@ -61,16 +68,19 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         Cleanup();
 
         Production Production = BuildingData.GetProduction();
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null);
         Visuals.transform.SetParent(ProductionTransform, false);
     }
 
-    private bool ShowFallback()
+    private void ShowFallback()
     {
+        bool bAreWorkersStarving = AreAssignedWorkersStarving();
         FallbackText.gameObject.SetActive(true);
+        FallbackText.text = bAreWorkersStarving ? StarvingWorkersText : NoWorkersText;
+        FallbackText.color = bAreWorkersStarving ? StarvingWorkersColor : NoWorkersColor;
+
         ProductionTransform.gameObject.SetActive(false);
         Cleanup();
-        return true;
     }
 
     private void Cleanup()
@@ -89,4 +99,10 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         FallbackText.gameObject.SetActive(false);
         ProductionTransform.gameObject.SetActive(false);
     }
+
+    private static string NoWorkersText = "No workers assigned!";
+    private static string StarvingWorkersText = "Workers are hungry and refuse to work!";
+
+    private static Color NoWorkersColor = Color.yellow;
+    private static Color StarvingWorkersColor = Color.red;
 }

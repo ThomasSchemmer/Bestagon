@@ -28,7 +28,7 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
     public static EventType GetRandomType()
     {
         // todo: debug remove after all types are implemented
-        return EventType.GrantResource;
+        return EventType.RemoveMalaise;
         return (EventType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(EventType)).Length));
     }
 
@@ -38,6 +38,7 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
         {
             case EventType.GrantUnit: return CreateInstance<GrantUnitEventData>();
             case EventType.GrantResource: return CreateInstance<GrantResourceEventData>();
+            case EventType.RemoveMalaise: return CreateInstance<RemoveMalaiseEventData>();
             default: return null;
         }
     }
@@ -49,13 +50,30 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public abstract string GetDescription();
 
-    public abstract GameObject GetEventVisuals();
+    public abstract GameObject GetEventVisuals(ISelectable Parent);
 
     public abstract bool IsInteractableWith(HexagonVisualization Hex);
 
     public abstract void InteractWith(HexagonVisualization Hex);
 
-    public abstract bool IsPreviewable();
+    public abstract bool IsPreviewable(); 
+    
+    public abstract int GetAdjacencyRange();
+    public abstract bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus);
+
+    public abstract bool ShouldShowAdjacency(HexagonVisualization Hex);
+
+    protected Dictionary<HexagonConfig.HexagonType, Production> GetStandardAdjacencyBonus()
+    {
+        Dictionary<HexagonConfig.HexagonType, Production> Bonus = new();
+        var Types = Enum.GetValues(typeof(HexagonConfig.HexagonType));
+        foreach (HexagonConfig.HexagonType Type in Types)
+        {
+            Bonus.Add(Type, Production.Empty);
+        }
+        return Bonus;
+    }
+
 
 
     public static int GetStaticSize()

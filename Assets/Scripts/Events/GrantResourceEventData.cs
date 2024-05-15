@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
@@ -28,12 +29,12 @@ public class GrantResourceEventData : EventData
         return "Grants this resource";
     }
 
-    public override GameObject GetEventVisuals()
+    public override GameObject GetEventVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        return IconFactory.GetVisualsForGrantResourceEffect(this);
+        return IconFactory.GetVisualsForGrantResourceEffect(this, Parent);
     }
 
     public override byte[] GetData()
@@ -80,7 +81,7 @@ public class GrantResourceEventData : EventData
 
     public override bool IsPreviewable()
     {
-        return false;
+        return true;
     }
 
     public override Vector3 GetOffset()
@@ -94,6 +95,22 @@ public class GrantResourceEventData : EventData
     }
 
     public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    {
+        return true;
+    }
+
+    public override int GetAdjacencyRange()
+    {
+        return 0;
+    }
+
+    public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
+    {
+        Bonus = GetStandardAdjacencyBonus();
+        return true;
+    }
+
+    public override bool ShouldShowAdjacency(HexagonVisualization Hex)
     {
         return true;
     }

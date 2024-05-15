@@ -72,7 +72,8 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         }
     }
 
-    public void ClickOn(Vector2 PixelPos) {
+    public void ClickOn(Vector2 PixelPos)
+    {
         if (SelectedInstance == this)
         {
             Show(false);
@@ -91,7 +92,7 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(Selectable Other)
+    public bool IsEqual(ISelectable Other)
     {
         if (Other is not StockpileGroupScreen)
             return false;
@@ -119,7 +120,7 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
     }
 
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return false;
     }

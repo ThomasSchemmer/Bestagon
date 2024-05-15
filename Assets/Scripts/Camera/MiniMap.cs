@@ -19,7 +19,7 @@ public class MiniMap : GameService, UIElement
         });
     }
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return true;
     }
@@ -89,7 +89,7 @@ public class MiniMap : GameService, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(Selectable other) {
+    public bool IsEqual(ISelectable other) {
         return other is MiniMap;
     }
 

@@ -41,8 +41,9 @@ public class StockpileScreen : MonoBehaviour
             GroupScreens[i] = Screen;
         }
 
-        GameObject WorkerVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, 0);
+        GameObject WorkerVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, null, 0);
         WorkerScreen = WorkerVisuals.GetComponent<NumberedIconScreen>();
+        WorkerScreen.HoverTooltip = "Unemployed / maximum worker count";
         RectTransform WorkerRect = WorkerVisuals.GetComponent<RectTransform>();
         WorkerRect.SetParent(transform, false);
         WorkerRect.anchoredPosition = new Vector2(

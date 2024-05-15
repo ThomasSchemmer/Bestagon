@@ -113,7 +113,7 @@ public class ChunkData : ISaveable
         if (!TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
-        int TempWorkerCount = Building.GetAssignedWorkerCount();
+        int TempWorkerCount = Building.GetMaximumWorkerCount();
         for (int i = 0; i < TempWorkerCount; i++)
         {
             WorkerService.KillWorker(Building.AssignedWorkers[i]);

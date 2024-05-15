@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing.Printing;
 using UnityEngine;
 
+/** Class representing any preview for cards. Usually previews are displayed ontop of the currently hovered hex*/
 public abstract class CardPreview : MonoBehaviour
 {
     public enum PreviewType
@@ -13,6 +14,7 @@ public abstract class CardPreview : MonoBehaviour
         Event
     }
 
+    /** Show the preview over the current hexagon */
     public virtual void Show(HexagonVisualization Hex)
     {
         SetAllowed(Hex);
@@ -26,6 +28,7 @@ public abstract class CardPreview : MonoBehaviour
 
     protected abstract void SetAllowed(bool bIsAllowed);
 
+    /** returns true if the card is for this exact preview (and doesnt have to be remade)*/
     public abstract bool IsFor(Card Card);
 
     public abstract void Init(Card Card);

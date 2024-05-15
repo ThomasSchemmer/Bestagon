@@ -4,8 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.Collections.Generic;
 
-public abstract class Card : Draggable, Selectable
+public abstract class Card : Draggable, ISelectable
 {        
     public virtual void Init(int Index) {
         CardHand = Game.GetService<CardHand>();
@@ -26,7 +27,6 @@ public abstract class Card : Draggable, Selectable
         DeleteVisuals();
 
         NameText.SetText(GetName());
-        //SymbolText.SetText(GetSymbol());
     }
 
     protected virtual void DeleteVisuals()
@@ -130,7 +130,7 @@ public abstract class Card : Draggable, Selectable
         return transform.GetChild(6).GetChild(0).GetChild(1);
     }
 
-    public bool IsEqual(Selectable other) {
+    public bool IsEqual(ISelectable other) {
         if (!(other is Card))
             return false;
 
@@ -178,6 +178,14 @@ public abstract class Card : Draggable, Selectable
     protected abstract void UseInternal();
     protected abstract CardCollection GetTargetAfterUse();
 
+    public abstract int GetAdjacencyRange();
+    public abstract bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus);
+
+    public abstract bool ShouldShowAdjacency(HexagonVisualization Hex);
+
+    public abstract bool IsCustomRuleApplying(Location NeighbourLocation);
+
+
     public bool WasUsedUpThisTurn()
     {
         return bWasUsedUp;
@@ -212,7 +220,7 @@ public abstract class Card : Draggable, Selectable
         return bIsInCardSelection && !bIsCardUpgrade;
     }
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return true;
     }

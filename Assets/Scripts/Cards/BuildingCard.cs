@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class BuildingCard : Card
 {
@@ -37,16 +38,16 @@ public class BuildingCard : Card
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 
-        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, BuildingData.CurrentUsages);
+        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, this, BuildingData.CurrentUsages);
         Usages.transform.SetParent(UsagesTransform, false);
 
-        GameObject Icons = IconFactory.GetVisualsForProduction(BuildingData.Cost);
+        GameObject Icons = IconFactory.GetVisualsForProduction(BuildingData.Cost, this);
         Icons.transform.SetParent(CostTransform, false);
 
-        GameObject MaxWorker = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, BuildingData.MaxWorker);
+        GameObject MaxWorker = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, this, BuildingData.MaxWorker);
         MaxWorker.transform.SetParent(MaxWorkerTransform, false);
 
-        GameObject EffectObject = BuildingData.Effect.GetEffectVisuals();
+        GameObject EffectObject = BuildingData.Effect.GetEffectVisuals(this);
         EffectObject.transform.SetParent(EffectTransform, false);
     }
 
@@ -133,6 +134,29 @@ public class BuildingCard : Card
     public override bool IsPreviewable()
     {
         return BuildingData.BuildingType != BuildingConfig.Type.DEFAULT;
+    }
+
+    public override int GetAdjacencyRange()
+    {
+        return GetBuildingData().Effect.Range;
+    }
+
+    public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
+    {
+        return GetBuildingData().TryGetAdjacencyBonus(out Bonus);
+    }
+
+    public override bool ShouldShowAdjacency(HexagonVisualization Hex)
+    {
+        return GetBuildingData().CanBeBuildOn(Hex);
+    }
+
+    public override bool IsCustomRuleApplying(Location NeighbourLocation)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        return MapGenerator.IsBuildingAt(NeighbourLocation) && GetBuildingData().IsNeighbourBuildingBlocking();
     }
 
     protected BuildingData BuildingData;

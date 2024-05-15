@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ToolTipScreen : MonoBehaviour
 {
-    public void Show(Selectable Selectable, bool bShow)
+    public void Show(ISelectable Selectable, bool bShow)
     {
         if ((!bShow || Selectable == null))
         {

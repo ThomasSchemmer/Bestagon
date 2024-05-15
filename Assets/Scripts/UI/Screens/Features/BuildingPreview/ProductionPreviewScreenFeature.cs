@@ -20,7 +20,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
 
         BuildingData CurrentBuilding = Target.GetFeatureObject();
         Production Production = CurrentBuilding.GetProductionPreview(CurrentBuilding.Location);
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null);
         Visuals.transform.SetParent(TargetTransform, false);
     }
 

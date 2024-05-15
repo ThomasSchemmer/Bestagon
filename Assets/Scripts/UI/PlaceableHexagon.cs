@@ -18,7 +18,7 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(Selectable other)
+    public bool IsEqual(ISelectable other)
     {
         PlaceableHexagon OtherHex = other as PlaceableHexagon;
         if (OtherHex == null)
@@ -52,7 +52,7 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
         Image.rectTransform.sizeDelta = new Vector2(SIZE, SIZE);
     }
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return false;
     }

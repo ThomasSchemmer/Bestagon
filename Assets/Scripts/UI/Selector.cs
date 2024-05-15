@@ -2,12 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public abstract class Selector
+{
+    public void SetSelected(ISelectable Target, bool bSelected)
+    {
+        if (bSelected)
+        {
+            Select(Target);
+        }
+        else
+        {
+            DeSelect();
+        }
+    }
+
+    public void SetHovered(ISelectable Target, bool bHovered)
+    {
+        if (bHovered)
+        {
+            Hover(Target);
+        }
+        else
+        {
+            DeHover();
+        }
+    }
+
+    public abstract void Select(ISelectable Target);
+    public abstract void Hover(ISelectable Target);
+
+    public abstract void DeSelect();
+    public abstract void DeHover();
+}
 
 /**
  * Class that automates selecting gameobjects with the mouse easy. Checks by type if a hovered object is selectable
  * and calls the Selectable interface accordingly
  */
-public class Selector<T> where T : Selectable
+public class Selector<T> : Selector where T : ISelectable
 {
     public Selector(bool bIsUIOnly = false)
     {
@@ -22,7 +56,7 @@ public class Selector<T> where T : Selectable
 
         if (bIsEscapeClick || !RayCast(out GameObject Hit))
         {
-            Deselect(bIsLeftClick);
+            DeSelect(bIsLeftClick);
             return false;
         }
 
@@ -36,7 +70,7 @@ public class Selector<T> where T : Selectable
 
         if (Target == null)
         {
-            Deselect(bIsLeftClick);
+            DeSelect(bIsLeftClick);
             return false;
         }
 
@@ -59,7 +93,7 @@ public class Selector<T> where T : Selectable
             return true;
         }
 
-        Deselect(bIsLeftClick);
+        DeSelect(bIsLeftClick);
         if (bIsLeftClick)
         {
             Select(Target);
@@ -71,12 +105,12 @@ public class Selector<T> where T : Selectable
         return true;
     }
 
-    public void Select(T Target)
+    public override void Select(ISelectable Target)
     {
         if (!Target.CanBeInteracted())
             return;
 
-        Selected = Target;
+        Selected = (T)Target;
         Target.SetSelected(true);
         if (OnItemSelected != null)
         {
@@ -84,12 +118,12 @@ public class Selector<T> where T : Selectable
         }
     }
 
-    public void Hover(T Target)
+    public override void Hover(ISelectable Target)
     {
         if (!Target.CanBeInteracted())
             return;
 
-        Hovered = Target;
+        Hovered = (T)Target;
         HoverPosition = Input.mousePosition;
         Target.SetHovered(true);
         if (OnItemHovered != null)
@@ -98,33 +132,42 @@ public class Selector<T> where T : Selectable
         }
     }
 
-    public void Deselect(bool bIsClicked)
+    public void DeSelect(bool bIsClicked)
     {
         if (bIsClicked)
         {
-            if (Selected != null)
-            {
-                Selected.SetSelected(false);
-                Selected = default(T);
-                if (OnItemDeSelected != null)
-                {
-                    OnItemDeSelected();
-                }
-            }
+            DeSelect();
         }
         else
         {
-            if (Hovered != null)
-            {
-                Hovered.SetHovered(false);
-                Hovered = default(T);
-                if (OnItemDeHovered != null)
-                {
-                    OnItemDeHovered();
-                }
-            }
+            DeHover();
         }
+    }
 
+    public override void DeSelect()
+    {
+        if (Selected == null)
+            return;
+
+        Selected.SetSelected(false);
+        Selected = default(T);
+        if (OnItemDeSelected != null)
+        {
+            OnItemDeSelected();
+        }
+    }
+
+    public override void DeHover()
+    {
+        if (Hovered == null)
+            return;
+
+        Hovered.SetHovered(false);
+        Hovered = default(T);
+        if (OnItemDeHovered != null)
+        {
+            OnItemDeHovered();
+        }
         StopLongHover();
     }
 
@@ -149,7 +192,7 @@ public class Selector<T> where T : Selectable
         if (Hovered == null)
             return;
 
-        if (!Hovered.CanBeHovered())
+        if (!Hovered.CanBeLongHovered())
             return;
 
         if (Vector2.Distance(HoverPosition, Input.mousePosition) > 10)

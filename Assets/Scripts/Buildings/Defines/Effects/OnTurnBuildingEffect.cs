@@ -102,15 +102,15 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         }
     }
 
-    public GameObject GetEffectVisuals()
+    public GameObject GetEffectVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
         switch (EffectType)
         {
-            case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this);
-            case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this);
+            case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this, Parent);
+            case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return null;
 
             default: return null;

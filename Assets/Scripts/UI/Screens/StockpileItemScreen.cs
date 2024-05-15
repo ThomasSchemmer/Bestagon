@@ -26,7 +26,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         ProductionUnitScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
         Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
-        ProductionUnitScreen.Initialize(Sprite, true);
+        ProductionUnitScreen.Initialize(Sprite, true, this);
 
         int Count = GetCount();
         PastCounts[0] = Count;
@@ -68,7 +68,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(Selectable other)
+    public bool IsEqual(ISelectable other)
     {
         if (other is not StockpileItemScreen)
             return false;
@@ -97,16 +97,13 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         return ProductionIndex;
     }
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return true;
     }
 
     public string GetHoverTooltip()
     {
-        if (!Game.TryGetService(out IconFactory IconFactory))
-            return "";
-
         if (ParentScreen != null)
             return ((Production.GoodsType)Production.Indices[ProductionIndex]).ToString();
 

@@ -15,7 +15,7 @@ using static MapGenerator;
  * Should always be representative for one @HexagonData
  * Will be reused if the actual hex location changes to save performance
  */ 
-public class HexagonVisualization : MonoBehaviour, Selectable
+public class HexagonVisualization : MonoBehaviour, ISelectable
 {
     public void Init(ChunkData ChunkData, Location Location, Material Mat) {
         this.transform.position = Location.WorldLocation;
@@ -39,7 +39,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
         GenerateMesh(Mat);
         Renderer = GetComponent<MeshRenderer>();
-        SetSelected(false, false);
+        SetSelected(false, false, true);
         SetHovered(false);
 
         if (Data.GetDiscoveryState() == HexagonData.DiscoveryState.Unknown)
@@ -65,13 +65,21 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Filter.mesh = Mesh;
     }
 
-    public void SetSelected(bool Selected, bool bShowReachableLocations) {
+    public void SetSelected(bool Selected, bool bShowReachableLocations, bool bIsInitializing = false) {
         isSelected = Selected;
         VisualizeSelection();
-        UpdateMeshPreview();
         if (bShowReachableLocations) {
             ShowReachableLocations(Selected);
         }
+
+        // UpdatePreview doesn't need to be spammed
+        if (bIsInitializing)
+            return;
+
+        if (!Game.TryGetService(out PreviewSystem Preview))
+            return;
+
+        Preview.UpdatePreview();
     }
 
     public void SetSelected(bool Selected) {
@@ -81,18 +89,29 @@ public class HexagonVisualization : MonoBehaviour, Selectable
     public void SetHovered(bool Hovered) {
         isHovered = Hovered;
         VisualizeSelection();
-        UpdateMeshPreview();
+
+        if (!Game.TryGetService(out PreviewSystem Preview))
+            return;
+
+        Preview.UpdatePreview();
+    }
+
+    public bool IsHovered()
+    {
+        return isHovered;
     }
 
     public void ClickOn(Vector2 PixelPos) { }
 
     public void Interact() {
-        if (!Game.TryGetService(out Selectors Selector))
+        if (!Game.TryGetServices(out Selectors Selector, out PreviewSystem Preview))
             return;
 
         Card Card = Selector.GetSelectedCard();
         if (Card && Card.IsInteractableWith(this)) {
             Card.InteractWith(this);
+            Selector.DeselectCard();
+            Preview.UpdatePreview();
             return;
         } 
 
@@ -144,7 +163,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         if (UnitService.TryGetUnitAt(this.Location, out TokenizedUnitData UnitAtTarget))
             return;
 
-        if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()))
+        if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()) || UnitOnTile.IsStarving())
             return;
 
         List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
@@ -175,7 +194,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         _OnMovementTo?.Invoke(NewHex.Location);
     }
 
-    public bool IsEqual(Selectable other) {
+    public bool IsEqual(ISelectable other) {
         if (other is not HexagonVisualization)
             return false;
 
@@ -190,50 +209,6 @@ public class HexagonVisualization : MonoBehaviour, Selectable
 
     public ChunkData GetChunk() { return Chunk; }
 
-    private void UpdateMeshPreview()
-    {
-        if (!Game.TryGetServices(out Selectors Selector, out PreviewSystem MeshPreview))
-            return;
-
-        Card SelectedCard = Selector.GetSelectedCard();
-        if (!SelectedCard || !isHovered || !SelectedCard.IsPreviewable()) {
-            MeshPreview.Hide();
-            ShowAdjacencyBonus(null);
-            return;
-        }
-
-        MeshPreview.Show(SelectedCard, this);
-        ShowAdjacencyBonus(SelectedCard);
-    }
-
-    private void ShowAdjacencyBonus(Card SelectedCard) {
-        BuildingCard SelectedBuildingCard = SelectedCard as BuildingCard;
-        BuildingData Building = SelectedBuildingCard ? SelectedBuildingCard.GetBuildingData() : null;
-        bool bIsVisible = Building != null ? Building.CanBeBuildOn(this) : false;
-
-        // check for each neighbour if it should be highlighted
-        int Range = Building != null ? Building.Effect.Range : 2;
-        List<HexagonVisualization> Neighbours = Generator.GetNeighbours(this, true, Range);
-        Dictionary<HexagonConfig.HexagonType, Production> Boni = new();
-        if (Building != null) {
-            Building.TryGetAdjacencyBonus(out Boni);
-        }
-
-        foreach (HexagonVisualization Neighbour in Neighbours) {
-            bool bIsAdjacent = false;
-            if (bIsVisible) {
-                if (Boni.TryGetValue(Neighbour.Data.Type, out _)) {
-                    bIsAdjacent = true;
-                }
-                if (Generator.IsBuildingAt(Neighbour.Location) && Building.IsNeighbourBuildingBlocking()) {
-                    bIsAdjacent = false;
-                }
-            }
-            Neighbour.isAdjacent = bIsAdjacent;
-            Neighbour.VisualizeSelection();
-        }
-    }
-
     public void ShowReachableLocations(bool bShow)
     {
         if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
@@ -242,7 +217,7 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         // always query, just reset if null
         UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit);
 
-        bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements());
+        bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements()) && !Unit.IsStarving();
 
         bool bIsVisible = Unit != null && bShow && bCanPay;
         int Range = Unit != null ? Unit.RemainingMovement : 0;
@@ -303,9 +278,14 @@ public class HexagonVisualization : MonoBehaviour, Selectable
         Renderer.SetPropertyBlock(Block);
     }
 
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return true;
+    }
+
+    public void SetAdjacent(bool bIsAdjacent)
+    {
+        isAdjacent = bIsAdjacent;
     }
 
     public string GetHoverTooltip()

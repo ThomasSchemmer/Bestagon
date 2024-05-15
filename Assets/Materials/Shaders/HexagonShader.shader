@@ -317,8 +317,9 @@ Shader"Custom/HexagonShader"
 
                 return  _Malaised > 0 ? 4 :
                         _Selected > 0 ? 1 :
+                        _Adjacent > 0 ? 3 :
                         _Hovered > 0 ? 2 :
-                        _Adjacent > 0 ? 3 : 0;
+                         0;
             }
 
             float4 getHighlightColor(int highlight){

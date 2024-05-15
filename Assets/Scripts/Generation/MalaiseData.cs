@@ -117,6 +117,11 @@ public class MalaiseData : ISaveable
         return MalaisedHexes;
     }
 
+    public void UnmarkToMalaise(Location Location)
+    {
+        LocationsToMalaise.Remove(Location);
+    }
+
     public List<HexagonData> GetMalaisedData()
     {
         List<HexagonData> MalaisedHexes = new();

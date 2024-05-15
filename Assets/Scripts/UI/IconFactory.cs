@@ -10,7 +10,7 @@ public class IconFactory : GameService
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
     private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
-    private GameObject ProduceUnitEffectPrefab, GrantUnitEventEffectPrefab, GrantResourceEventEffectPrefab;
+    private GameObject ProduceUnitEffectPrefab, GrantMiscPrefab, GrantResourceEventEffectPrefab;
 
     public enum MiscellaneousType
     {
@@ -18,7 +18,8 @@ public class IconFactory : GameService
         TrendDown,
         Worker,
         Scout,
-        Usages
+        Usages,
+        RemoveMalaise
     }
 
     public void Refresh()
@@ -37,7 +38,7 @@ public class IconFactory : GameService
         SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
         ProduceEffectPrefab = Resources.Load("UI/Cards/ProduceEffect") as GameObject;
         ProduceUnitEffectPrefab = Resources.Load("UI/Cards/ProduceUnitEffect") as GameObject;
-        GrantUnitEventEffectPrefab = Resources.Load("UI/Cards/GrantUnitEventEffect") as GameObject;
+        GrantMiscPrefab = Resources.Load("UI/Cards/GrantUnitEventEffect") as GameObject;
         GrantResourceEventEffectPrefab = Resources.Load("UI/Cards/GrantResourceEventEffect") as GameObject;
     }
 
@@ -111,7 +112,7 @@ public class IconFactory : GameService
         return AvailableTiles[Type];
     }
 
-    public GameObject GetVisualsForProduction(Production Production)
+    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent)
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
@@ -127,41 +128,51 @@ public class IconFactory : GameService
             UnitTransform.SetParent(GroupTransform, false);
             UnitTransform.localPosition = new(XOffset + i * Width, 0, 0);
             NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
-            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), false);
+
+            if (Parent != null)
+            {
+                UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Parent);
+            }
+            else
+            {
+                UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Tuple.Key.ToString());
+            }
             UnitScreen.UpdateVisuals(Tuple.Value);
         }
         return ProductionGroup;
     }
 
-    public GameObject GetVisualsForProduceEffect(OnTurnBuildingEffect Effect)
+    public GameObject GetVisualsForProduceEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
         GameObject ProductionEffect = Instantiate(ProduceEffectPrefab);
         Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Effect.GetDescription();
         Transform TypeContainer = ProductionEffect.transform.GetChild(3);
-        GameObject ProductionGO = GetVisualsForProduction(Effect.Production);
+        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent);
         ProductionGO.transform.SetParent(ProductionContainer, false);
-        GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType);
+        GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType, Parent);
         HexTypesGO.transform.SetParent(TypeContainer, false);
         return ProductionEffect;
     }
 
-    public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect)
+    public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
         GameObject ProduceUnitEffect = Instantiate(ProduceUnitEffectPrefab);
         TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         ProducesText.text = Effect.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
-        MiscellaneousType UnitType = Effect.UnitType == UnitData.UnitType.Worker ? MiscellaneousType.Worker : MiscellaneousType.Scout;
-        GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, 1);
+        if (!TryGetMiscFromUnit(Effect.UnitType, out MiscellaneousType UnitType))
+            return null;
+
+        GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, Parent, 1);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         TextMeshProUGUI ConsumesText = ProduceUnitEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         ConsumesText.text = Effect.GetDescriptionProduceUnitConsumption();
         Transform ConsumesContainer = ProduceUnitEffect.transform.GetChild(3);
-        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent);
         ConsumptionGO.transform.SetParent(ConsumesContainer, false);
 
         bool bConsumes = !Effect.Consumption.Equals(Production.Empty);
@@ -171,46 +182,78 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData)
+    public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData, ISelectable Parent)
     {
-        GameObject ProduceUnitEffect = Instantiate(GrantUnitEventEffectPrefab);
+        if (!TryGetMiscFromUnit(EventData.GrantedType, out MiscellaneousType UnitType))
+            return null;
+
+        return GetVisualsForMiscalleneousEffect(EventData, UnitType, Parent);
+    }
+
+    private GameObject GetVisualsForMiscalleneousEffect(EventData EventData, MiscellaneousType MiscType, ISelectable Parent)
+    {
+
+        GameObject ProduceUnitEffect = Instantiate(GrantMiscPrefab);
         TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
-        MiscellaneousType UnitType = EventData.GrantedType == UnitData.UnitType.Worker ? MiscellaneousType.Worker : MiscellaneousType.Scout;
-        GameObject UnitTypeGO = GetVisualsForMiscalleneous(UnitType, 1);
+
+        GameObject UnitTypeGO = GetVisualsForMiscalleneous(MiscType, Parent, 1);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForGrantResourceEffect(GrantResourceEventData EventData)
+    public GameObject GetVisualsForRemoveMalaiseEffect(RemoveMalaiseEventData EventData, ISelectable Parent)
+    {
+        return GetVisualsForMiscalleneousEffect(EventData, MiscellaneousType.RemoveMalaise, Parent);
+    }
+
+    public GameObject GetVisualsForGrantResourceEffect(GrantResourceEventData EventData, ISelectable Parent)
     {
         GameObject ProduceUnitEffect = Instantiate(GrantResourceEventEffectPrefab);
         TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource);
+        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource, Parent);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, int Amount = 0)
+    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount = 0)
     {
         GameObject MiscUnit = Instantiate(NumberedIconPrefab);
         RectTransform RectTransform = MiscUnit.GetComponent<RectTransform>();
         RectTransform.localPosition = Vector3.zero;
         NumberedIconScreen MiscScreen = MiscUnit.GetComponent<NumberedIconScreen>();
-        MiscScreen.Initialize(GetIconForMisc(Type), false);
+
+        if (Parent != null)
+        {
+            MiscScreen.Initialize(GetIconForMisc(Type), false, Parent);
+        }
+        else
+        {
+            MiscScreen.Initialize(GetIconForMisc(Type), false, Type.ToString());
+        }
         MiscScreen.UpdateVisuals(Amount);
         return MiscUnit;
     }
 
-    public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types)
+    public bool TryGetMiscFromUnit(UnitData.UnitType Type, out MiscellaneousType MiscType)
+    {
+        switch (Type)
+        {
+            case UnitData.UnitType.Worker: MiscType = MiscellaneousType.Worker; return true;
+            case UnitData.UnitType.Scout: MiscType = MiscellaneousType.Scout; return true;
+            default: MiscType = MiscellaneousType.Worker; return false;
+        }
+    }
+
+    public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types, ISelectable Parent)
     {
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
@@ -230,7 +273,14 @@ public class IconFactory : GameService
             IconTransform.SetParent(GroupTransform, false);
             IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
             SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
-            IconScreen.Initialize(GetIconForTile(Type), false);
+            if (Parent != null)
+            {
+                IconScreen.Initialize(GetIconForTile(Type), false, Parent);
+            }
+            else
+            {
+                IconScreen.Initialize(GetIconForTile(Type), false, Type.ToString());
+            }
             Index++;
         }
         return ProductionGroup;

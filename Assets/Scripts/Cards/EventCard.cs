@@ -23,7 +23,7 @@ public class EventCard : Card
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 
-        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, 1);
+        GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, this, 1);
         Usages.transform.SetParent(UsagesTransform, false);
 
         GameObject EffectObject = GetEventVisuals();
@@ -34,7 +34,7 @@ public class EventCard : Card
 
     public GameObject GetEventVisuals()
     {
-        return EventData.GetEventVisuals();
+        return EventData.GetEventVisuals(this);
     }
 
     public UnitData GetUnitData()
@@ -49,11 +49,13 @@ public class EventCard : Card
     {
         switch (EventData.Type)
         {
-            case EventData.EventType.GrantUnit: return Obj.AddComponent<UnitPreview>();
-            case EventData.EventType.GrantResource: return null;
+            case EventData.EventType.GrantUnit: return (EventData as GrantUnitEventData).AddEventPreviewByType(Obj);
+            case EventData.EventType.GrantResource: return Obj.AddComponent<GrantResourcesPreview>();
+            case EventData.EventType.RemoveMalaise: return Obj.AddComponent<GrantMiscellaneousPreview>();
             default: return null;
         }
     }
+
 
     public override void InteractWith(HexagonVisualization Hex) {
         EventData.InteractWith(Hex);
@@ -79,4 +81,24 @@ public class EventCard : Card
     }
 
     protected override void UseInternal() {}
+
+    public override int GetAdjacencyRange()
+    {
+        return EventData.GetAdjacencyRange();
+    }
+
+    public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
+    {
+        return EventData.TryGetAdjacencyBonus(out Bonus);
+    }
+
+    public override bool ShouldShowAdjacency(HexagonVisualization Hex)
+    {
+        return EventData.ShouldShowAdjacency(Hex);
+    }
+
+    public override bool IsCustomRuleApplying(Location NeighbourLocation)
+    {
+        return false;
+    }
 }

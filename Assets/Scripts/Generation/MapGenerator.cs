@@ -211,6 +211,9 @@ public class MapGenerator : GameService, ISaveable
 
     public List<HexagonVisualization> GetNeighbours(HexagonVisualization Hex, bool bShouldAddOrigin, int Range = 1) {
         List<HexagonVisualization> Neighbours = new List<HexagonVisualization>();
+        if (Hex == null)
+            return Neighbours;
+
         HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Hex.Location, bShouldAddOrigin, Range);
 
         foreach (Location NeighbourLocation in NeighbourTileLocations) {

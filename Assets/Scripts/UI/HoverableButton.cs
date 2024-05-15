@@ -8,7 +8,7 @@ using UnityEngine.UI;
  */
 public class HoverableButton : Button, UIElement
 {
-    public bool CanBeHovered()
+    public bool CanBeLongHovered()
     {
         return true;
     }
@@ -17,7 +17,7 @@ public class HoverableButton : Button, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(Selectable other){
+    public bool IsEqual(ISelectable other){
         if (other is not HoverableButton)
             return false;
 

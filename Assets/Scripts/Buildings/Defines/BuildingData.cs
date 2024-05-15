@@ -58,7 +58,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
 
     public Production GetProductionPreview(Location Location)
     {
-        return Effect.GetProduction(GetAssignedWorkerCount(), Location);
+        return Effect.GetProduction(GetMaximumWorkerCount(), Location);
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
@@ -103,7 +103,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         Generator.AddBuilding(this);
     }
 
-    public int GetAssignedWorkerCount() {
+    public int GetMaximumWorkerCount() {
         return AssignedWorkers.Length;
     }
 
@@ -113,6 +113,16 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         for (int i = 0; i < AssignedWorkers.Length; i++)
         {
             WorkerCount += AssignedWorkers[i] != null && !AssignedWorkers[i].IsStarving() ? 1 : 0;
+        }
+        return WorkerCount;
+    }
+
+    public int GetAssignedWorkerCount()
+    {
+        int WorkerCount = 0;
+        for (int i = 0; i < AssignedWorkers.Length; i++)
+        {
+            WorkerCount += AssignedWorkers[i] != null ? 1 : 0;
         }
         return WorkerCount;
     }

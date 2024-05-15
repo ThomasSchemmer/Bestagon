@@ -50,12 +50,15 @@ public class MessageSystem : MonoBehaviour
         Instance.DisplayMessages();
     }
 
-    public static void DeleteMessage(Message Message) {
+    public static void DeleteMessage(Message Message, bool bDisplayAfter = true) {
         if (!Instance || !Message)
             return;
 
         Instance.Messages.Remove(Message);
         DestroyImmediate(Message.gameObject);
+
+        if (!bDisplayAfter)
+            return;
 
         Instance.DisplayMessages();
     }
@@ -64,9 +67,7 @@ public class MessageSystem : MonoBehaviour
         // reverse to avoid change-while-iterating
         int Count = Instance.Messages.Count - 1;
         for (int i = Count; i >= 0; i--) {
-            Message ToDelete = Instance.Messages[i];
-            Instance.Messages.Remove(ToDelete);
-            Destroy(ToDelete.gameObject);
+            DeleteMessage(Instance.Messages[i], false);
         }
     }
 
