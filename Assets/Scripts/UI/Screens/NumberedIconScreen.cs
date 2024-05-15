@@ -10,15 +10,9 @@ public class NumberedIconScreen : SimpleIconScreen
 {
     private TMPro.TextMeshProUGUI CountText;
 
-    public override void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip)
+    public override void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip, ISelectable Parent)
     {
-        base.Initialize(Sprite, bShowRegular, HoverTooltip);
-        Initialize(bShowRegular);
-    }
-
-    public override void Initialize(Sprite Sprite, bool bShowRegular, ISelectable Parent)
-    {
-        base.Initialize(Sprite, bShowRegular, Parent);
+        base.Initialize(Sprite, bShowRegular, HoverTooltip, Parent);
         Initialize(bShowRegular);
     }
 
@@ -34,5 +28,11 @@ public class NumberedIconScreen : SimpleIconScreen
     {
         string MaxText = Max >= 0 ? "/" + Max : "";
         CountText.text = "" + Count + MaxText;
+    }
+
+    public override void SetSelectionEnabled(bool bEnabled)
+    {
+        base.SetSelectionEnabled(bEnabled);
+        CountText.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
 }

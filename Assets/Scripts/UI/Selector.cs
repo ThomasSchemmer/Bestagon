@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 public abstract class Selector
 {
+    public enum RaycastType { 
+        UIOnly,
+        WorldOnly
+    }
+
     public void SetSelected(ISelectable Target, bool bSelected)
     {
         if (bSelected)
@@ -45,7 +50,7 @@ public class Selector<T> : Selector where T : ISelectable
 {
     public Selector(bool bIsUIOnly = false)
     {
-        this.bIsUIOnly = bIsUIOnly;
+        Type = bIsUIOnly ? RaycastType.UIOnly : RaycastType.WorldOnly;
     }
 
     public bool RayCast()
@@ -232,12 +237,13 @@ public class Selector<T> : Selector where T : ISelectable
 
     private bool RayCast(out GameObject Hit)
     {
-        if (RayCastUI(out Hit))
+        Hit = null;
+        switch (Type)
         {
-            return true;
+            case RaycastType.UIOnly: return RayCastUI(out Hit);
+            case RaycastType.WorldOnly: return RayCastWorld(out Hit);
+            default: return false;
         }
-
-        return !bIsUIOnly && RayCastWorld(out Hit);
     }
 
     private bool RayCastWorld(out GameObject Hit)
@@ -269,10 +275,6 @@ public class Selector<T> : Selector where T : ISelectable
 
         foreach (RaycastResult Result in Hits)
         {
-            if (!bIsUIOnly && Result.gameObject.layer == LayerMask.NameToLayer("UI"))
-            {
-                return true;
-            }
             if (Result.gameObject.layer == LayerMask.NameToLayer(Layer))
             {
                 Hit = Result.gameObject;
@@ -291,7 +293,7 @@ public class Selector<T> : Selector where T : ISelectable
         };
     }
 
-    public bool bIsUIOnly = false;
+    public RaycastType Type = RaycastType.WorldOnly;
     public T Selected;
     public T Hovered;
     public float LongHoverTimeS = 1f;

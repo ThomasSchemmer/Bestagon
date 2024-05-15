@@ -65,7 +65,7 @@ public class CardHand : CardCollection
         base.AddCard(Card);
         Card.SetCanBeHovered(true);
         Card.gameObject.SetActive(true);
-        Card.gameObject.layer = LayerMask.NameToLayer("Card");
+        Card.gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         int i = 0;
         foreach (Card Other in Cards) {
             Other.SetIndex(i);

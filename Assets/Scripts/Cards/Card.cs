@@ -12,7 +12,7 @@ public abstract class Card : Draggable, ISelectable
         CardHand = Game.GetService<CardHand>();
         ID = System.Guid.NewGuid();
         this.Index = Index;
-        gameObject.layer = LayerMask.NameToLayer("Card");
+        gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         GenerateCard();
         Init();
     }
@@ -230,6 +230,17 @@ public abstract class Card : Draggable, ISelectable
         return "Cards can be played on hexagons to create buildings, units or events";
     }
 
+    public void SetHoveredAsParent(bool Hovered) {
+
+        // would lead to deselection of card by not hovering over smaller info sections
+        if (!Hovered)
+            return;
+
+        // we generally want to set this via the Selector since its different from the calling
+        // selector (aka Card vs UI)
+        ((ISelectable)this).GetSelectorByType().SetHovered(this, Hovered);
+    }
+
     protected System.Guid ID;
     protected int Index;
     protected bool isHovered, isSelected;
@@ -246,4 +257,5 @@ public abstract class Card : Draggable, ISelectable
     public static Color NormalColor = new Color(55 / 255f, 55 / 255f, 55 / 255f);
     public static Color HoverColor = new Color(23 / 255f, 171 / 255f, 167 / 255f);
     public static Color SelectColor = new Color(23 / 255f, 95 / 255f, 171 / 255f);
+
 }

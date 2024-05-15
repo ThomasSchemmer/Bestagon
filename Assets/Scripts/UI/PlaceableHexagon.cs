@@ -45,7 +45,7 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
     public void Init(HexagonConfig.HexagonType Type)
     {
         this.Type = Type;
-        gameObject.layer = LayerMask.NameToLayer("UI");
+        gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         transform.localScale = Vector3.one * UNSELECT_SIZE;
         Image Image = GetComponent<Image>();
         Image.sprite = Resources.Load<Sprite>("Pictures/" + Type);

@@ -27,6 +27,7 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         GroupItemScreen = transform.GetChild(1).GetComponent<StockpileItemScreen>();
         GroupItemScreen.Initialize(this, Index, Stockpile, IconFactory);
         GroupItemScreen.UpdateVisuals();
+        GroupItemScreen.SetSelectionEnabled(false);
 
         InitializeItems(Index, ItemPrefab, Stockpile, IconFactory);
         Container.gameObject.SetActive(false);
@@ -122,8 +123,13 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public bool CanBeLongHovered()
     {
-        return false;
+        return true;
     }
 
     public void SetSelected(bool Selected) {}
+
+    public string GetHoverTooltip()
+    {
+        return GroupItemScreen.GetHoverTooltip();
+    }
 }

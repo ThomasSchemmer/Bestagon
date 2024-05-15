@@ -11,7 +11,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     private int ProductionIndex = -1;
 
     private SVGImage IndicatorRenderer;
-    private NumberedIconScreen ProductionUnitScreen;
+    private NumberedIconScreen IconScreen;
     private int[] PastCounts = new int[3];
     private Stockpile Stockpile;
     private IconFactory IconFactory;
@@ -23,10 +23,10 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         ParentScreen = Screen;
         ProductionIndex = Index;
         IndicatorRenderer = transform.GetChild(0).GetComponent<SVGImage>();
-        ProductionUnitScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
+        IconScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
         Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
-        ProductionUnitScreen.Initialize(Sprite, true, this);
+        IconScreen.Initialize(Sprite, true, GetHoverTooltip(), this);
 
         int Count = GetCount();
         PastCounts[0] = Count;
@@ -41,7 +41,13 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         IndicatorRenderer.sprite = IconFactory.GetIconForMisc(Trend);
         IndicatorRenderer.enabled = CountDifference != 0;
 
-        ProductionUnitScreen.UpdateVisuals(GetCount());
+        IconScreen.UpdateVisuals(GetCount());
+    }
+
+    public void SetSelectionEnabled(bool bEnabled)
+    {
+        IconScreen.SetSelectionEnabled(bEnabled);
+        IndicatorRenderer.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
 
     public  void UpdateIndicatorCount()

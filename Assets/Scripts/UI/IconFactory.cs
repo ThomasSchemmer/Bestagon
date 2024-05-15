@@ -129,14 +129,7 @@ public class IconFactory : GameService
             UnitTransform.localPosition = new(XOffset + i * Width, 0, 0);
             NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
 
-            if (Parent != null)
-            {
-                UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Parent);
-            }
-            else
-            {
-                UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Tuple.Key.ToString());
-            }
+            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Tuple.Key.ToString(), Parent);
             UnitScreen.UpdateVisuals(Tuple.Value);
         }
         return ProductionGroup;
@@ -224,22 +217,15 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount = 0)
+    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount)
     {
         GameObject MiscUnit = Instantiate(NumberedIconPrefab);
         RectTransform RectTransform = MiscUnit.GetComponent<RectTransform>();
         RectTransform.localPosition = Vector3.zero;
-        NumberedIconScreen MiscScreen = MiscUnit.GetComponent<NumberedIconScreen>();
+        NumberedIconScreen IconScreen = MiscUnit.GetComponent<NumberedIconScreen>();
 
-        if (Parent != null)
-        {
-            MiscScreen.Initialize(GetIconForMisc(Type), false, Parent);
-        }
-        else
-        {
-            MiscScreen.Initialize(GetIconForMisc(Type), false, Type.ToString());
-        }
-        MiscScreen.UpdateVisuals(Amount);
+        IconScreen.Initialize(GetIconForMisc(Type), false, Type.ToString(), Parent);
+        IconScreen.UpdateVisuals(Amount);
         return MiscUnit;
     }
 
@@ -273,14 +259,8 @@ public class IconFactory : GameService
             IconTransform.SetParent(GroupTransform, false);
             IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
             SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
-            if (Parent != null)
-            {
-                IconScreen.Initialize(GetIconForTile(Type), false, Parent);
-            }
-            else
-            {
-                IconScreen.Initialize(GetIconForTile(Type), false, Type.ToString());
-            }
+
+            IconScreen.Initialize(GetIconForTile(Type), false, Type.ToString(), Parent);
             Index++;
         }
         return ProductionGroup;

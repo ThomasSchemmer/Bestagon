@@ -20,21 +20,16 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
     }
 
     public void ClickOn(Vector2 PixelPos) {
-        if (Parent != null)
-        {
-            Parent.ClickOn(PixelPos);
-        }
+        if (Parent == null)
+            return;
+
+        Parent.ClickOn(PixelPos);   
     }
 
-    public virtual void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip)
-    {
-        this.HoverTooltip = HoverTooltip;
-        Initialize(Sprite, bShowRegular);
-    }
-
-    public virtual void Initialize(Sprite Sprite, bool bShowRegular, ISelectable Parent)
+    public virtual void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip, ISelectable Parent)
     {
         this.Parent = Parent;
+        this.HoverTooltip = HoverTooltip;
         Initialize(Sprite, bShowRegular);
     }
 
@@ -61,7 +56,7 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
         if (Parent == null)
             return;
 
-        ((ISelectable)this).GetSelectorFor(Parent).SetHovered(Parent, Hovered);
+        Parent.SetHoveredAsParent(Hovered);
     }
 
     public void SetSelected(bool Selected)
@@ -69,17 +64,18 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
         if (Parent == null)
             return;
 
-        if (!Game.TryGetService(out Selectors Selectors))
-            return;
-
-        ((ISelectable)this).GetSelectorFor(Parent).SetSelected(Parent, Selected);
+        Parent.GetSelectorByType().SetSelected(Parent, Selected);
     }
 
     public string GetHoverTooltip()
     {
-        if (Parent == null)
-            return HoverTooltip;
+        if (Parent != null && Parent is not Card)
+            return Parent.GetHoverTooltip();
 
-        return Parent.GetHoverTooltip();
+        return HoverTooltip;
+    }
+    public virtual void SetSelectionEnabled(bool bEnabled)
+    {
+        IconRenderer.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
 }

@@ -12,13 +12,13 @@ public class Selectors : GameService
 
     protected override void StartServiceInternal()
     {
-        CardSelector = new Selector<Card>();
+        CardSelector = new Selector<Card>(true);
         HexagonSelector = new Selector<HexagonVisualization>();
         UISelector = new Selector<UIElement>(true);
 
-        CardSelector.Layer = "Card";
+        CardSelector.Layer = UILayerName;
         HexagonSelector.Layer = "Hexagon";
-        UISelector.Layer = "UI";
+        UISelector.Layer = UILayerName;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
 
@@ -32,10 +32,9 @@ public class Selectors : GameService
         if (!IsEnabled)
             return;
 
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) {
             Debug.Log("");
         }
-
 
         if (UISelector.RayCast())
             return;
@@ -126,4 +125,6 @@ public class Selectors : GameService
     public ToolTipScreen ToolTipScreen;
 
     private bool IsEnabled = true;
+
+    public static string UILayerName = "UI";
 }

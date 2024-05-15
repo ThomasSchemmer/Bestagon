@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4409275715451416746}
   - component: {fileID: 2370676600047208685}
   - component: {fileID: 3753629791563614602}
-  - component: {fileID: 5223808798478721449}
+  - component: {fileID: 1765814270505817803}
   m_Layer: 5
   m_Name: NoWorker
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5223808798478721449
+--- !u!114 &1765814270505817803
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4606014608062378719}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 87fba435768d9204d843b767139cc011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -120,16 +120,5 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3753629791563614602}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UI_SelectedHex, Assembly-CSharp
-        m_MethodName: AddWorker
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 4606014608062378719}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  HoverText: Add Worker
