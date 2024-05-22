@@ -81,8 +81,10 @@ public class EventCardDTO : CardDTO
         int EventSize = 0;
         switch (Type)
         {
-            case EventData.EventType.GrantUnit: return GrantUnitEventData.GetStaticSize();
-            case EventData.EventType.GrantResource: return GrantResourceEventData.GetStaticSize();
+            case EventData.EventType.GrantUnit: EventSize = GrantUnitEventData.GetStaticSize(); break;
+            case EventData.EventType.GrantResource: EventSize = GrantResourceEventData.GetStaticSize(); break;
+            case EventData.EventType.ConvertTile: EventSize = ConvertTileEventData.GetStaticSize(); break;
+            case EventData.EventType.RemoveMalaise: EventSize = RemoveMalaiseEventData.GetStaticSize(); break;
             default: break;
         }
 

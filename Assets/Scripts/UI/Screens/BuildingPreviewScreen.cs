@@ -30,4 +30,12 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
     {
         return Previews.GetPreviewableAs<BuildingData>();
     }
+
+    public Location GetPreviewLocation()
+    {
+        if (Previews == null)
+            return Location.Zero;
+
+        return Previews.GetPreviewLocation();
+    }
 }

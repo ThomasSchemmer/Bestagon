@@ -91,7 +91,7 @@ public class Selector<T> : Selector where T : ISelectable
             Target.ClickOn(GetPointerData().position);
         }
 
-        if ((bIsLeftClick && Target.IsEqual(Selected)) || (!bIsLeftClick && Target.IsEqual(Hovered)))
+        if ((Selected != null && bIsLeftClick && Target.IsEqual(Selected)) || (Hovered != null && !bIsLeftClick && Target.IsEqual(Hovered)))
         {
             // we still hit something, even if its still the old selectable
             LongHover();

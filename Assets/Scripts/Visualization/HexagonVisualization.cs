@@ -51,7 +51,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         MapGenerator.UpdateMapBounds(Chunk.Location, Location);
     }
 
-    void GenerateMesh(Material Mat) {
+    public void GenerateMesh(Material Mat) {
         if (!TileMeshGenerator.TryCreateMesh(Data, out Mesh Mesh))
             return;
 

@@ -65,6 +65,15 @@ public class CollectDecorationScreen : MonoBehaviour
 
         RemoveDecoration();
         Hide();
+        Deselect();
+    }
+
+    private void Deselect()
+    {
+        if (!Game.TryGetService(out Selectors Selectors))
+            return;
+
+        Selectors.ForceDeselect();
     }
 
     private void OnSelectCardChoice(DecorationChoice Choice)

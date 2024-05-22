@@ -36,6 +36,34 @@ public class CardDeck : CardCollection
         Text.text = "" + Cards.Count;
     }
 
+    private void CheckForScout()
+    {
+        bool bContainsScout = false;
+        foreach (Card Card in Cards) {
+            if (Card is not EventCard)
+                continue;
+
+            EventCard ECard = (EventCard)Card;
+            if (ECard.EventData.Type != EventData.EventType.GrantUnit)
+                continue;
+
+            GrantUnitEventData UnitEventData = ECard.EventData as GrantUnitEventData;
+            if (UnitEventData.GrantedType != UnitData.UnitType.Scout)
+                continue;
+
+            bContainsScout = true;
+            break;
+        }
+
+        if (bContainsScout)
+            return;
+
+        if (!Game.TryGetService(out CardFactory Factory))
+            return;
+
+        Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
+    }
+
     public override void Load()
     {
         foreach (Card Card in Cards)
@@ -43,6 +71,7 @@ public class CardDeck : CardCollection
             Card.gameObject.SetActive(false);
         }
 
+        CheckForScout();
         UpdateText();
         _OnInit?.Invoke();
     }

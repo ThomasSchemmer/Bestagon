@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
@@ -18,8 +16,11 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
         base.ShowAt(YOffset);
         Game.TryGetService(out IconFactory IconFactory);
 
+        BuildingPreviewScreen PreviewScreen = (BuildingPreviewScreen)Target;
+        Location PreviewLocation = PreviewScreen.GetPreviewLocation();
+
         BuildingData CurrentBuilding = Target.GetFeatureObject();
-        Production Production = CurrentBuilding.GetProductionPreview(CurrentBuilding.Location);
+        Production Production = CurrentBuilding.GetProductionPreview(PreviewLocation);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null);
         Visuals.transform.SetParent(TargetTransform, false);
     }

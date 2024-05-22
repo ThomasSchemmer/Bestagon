@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-
+﻿
 /**
  * Helper class to wrap all templated selectors into one easily accesible UI element / gameservice
  */
@@ -31,10 +26,6 @@ public class Selectors : GameService
     {
         if (!IsEnabled)
             return;
-
-        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E)) {
-            Debug.Log("");
-        }
 
         if (UISelector.RayCast())
             return;
@@ -85,14 +76,19 @@ public class Selectors : GameService
     {
         DeselectCard();
         DeselectHexagon();
-        UISelector.DeSelect(true);
-        UISelector.DeSelect(false);
+        DeselectUI();
     }
 
     public void DeselectCard()
     {
         CardSelector.DeSelect(true);
         CardSelector.DeSelect(false);
+    }
+
+    public void DeselectUI()
+    {
+        UISelector.DeSelect(false);
+        UISelector.DeSelect(true);
     }
 
     public HexagonVisualization GetHoveredHexagon()

@@ -12,48 +12,41 @@ public class GrantMiscellaneousPreview : IconPreview
             return;
 
         EventCard ECard = Card as EventCard;
-        if (ECard.EventData.Type == EventData.EventType.GrantUnit)
-        {
-            InitAsUnit(ECard);
-        }
-
-        if (ECard.EventData.Type == EventData.EventType.RemoveMalaise)
-        {
-            InitAsMalaise(ECard);
-        }
+        GrantedType = GetMiscTypeFromEventData(ECard.EventData);
 
         Previewable = ECard.EventData;
         InitRendering();
     }
 
-    private void InitAsUnit(EventCard Card)
-    {
-        if (!Game.TryGetService(out IconFactory IconFactory))
-            return;
-
-        GrantUnitEventData UnitEventData = Card.EventData as GrantUnitEventData;
-        IconFactory.TryGetMiscFromUnit(UnitEventData.GrantedType, out GrantedType);
-    }
-
-    private void InitAsMalaise(EventCard Card)
-    {
-        GrantedType = MiscellaneousType.RemoveMalaise;
-    }
-
-
     public override bool IsFor(Card Card)
     {
-        if (Card is not EventCard || (Card as EventCard).EventData.Type != EventData.EventType.GrantUnit)
+        if (Card is not EventCard)
             return false;
 
-        if (!Game.TryGetService(out IconFactory IconFactory))
+        EventCard ECard = Card as EventCard;
+        if (ECard.EventData.Type != EventData.EventType.GrantUnit && ECard.EventData.Type != EventData.EventType.RemoveMalaise)
             return false;
 
-        GrantUnitEventData UnitEventData = (Card as EventCard).EventData as GrantUnitEventData;
-        if (!IconFactory.TryGetMiscFromUnit(UnitEventData.GrantedType, out MiscellaneousType OtherGrantedType))
-            return false;
-
+        MiscellaneousType OtherGrantedType = GetMiscTypeFromEventData(ECard.EventData);
         return OtherGrantedType == GrantedType;
+    }
+
+    private MiscellaneousType GetMiscTypeFromEventData(EventData Data)
+    {
+        if (Data.Type == EventData.EventType.GrantUnit)
+        {
+            if (!Game.TryGetService(out IconFactory IconFactory))
+                return default;
+
+            GrantUnitEventData UnitEventData = Data as GrantUnitEventData;
+            IconFactory.TryGetMiscFromUnit(UnitEventData.GrantedType, out MiscellaneousType MiscType);
+            return MiscType;
+        }
+        if (Data.Type == EventData.EventType.RemoveMalaise)
+        {
+            return MiscellaneousType.RemoveMalaise;
+        }
+        return default;
     }
 
 

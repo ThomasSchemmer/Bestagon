@@ -18,6 +18,9 @@ public class HoverableButton : Button, UIElement
     public void Interact() {}
 
     public bool IsEqual(ISelectable other){
+        if (other == null)
+            return false;
+
         if (other is not HoverableButton)
             return false;
 

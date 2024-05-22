@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 public class RemoveMalaiseEventData : EventData
@@ -76,5 +77,16 @@ public class RemoveMalaiseEventData : EventData
     {
         Bonus = GetStandardAdjacencyBonus();
         return true;
+    }
+
+    public override int GetSize()
+    {
+        return GetStaticSize();
+    }
+
+    public static new int GetStaticSize()
+    {
+        //since this eventdata does need more info, we can just reuse the upper class
+        return EventData.GetStaticSize();
     }
 }

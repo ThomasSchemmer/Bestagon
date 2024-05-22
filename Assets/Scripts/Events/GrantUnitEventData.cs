@@ -33,7 +33,7 @@ public class GrantUnitEventData : EventData
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, GetSize(), base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GrantedType);
@@ -127,6 +127,10 @@ public class GrantUnitEventData : EventData
     public override bool CanBeInteractedOn(HexagonVisualization Hex)
     {
         TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        //for now can only be worker, which can always be interacted with
+        if (UnitData == null)
+            return true;
+
         return UnitData.CanBeInteractedOn(Hex);
     }
 

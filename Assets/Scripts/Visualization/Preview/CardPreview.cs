@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing.Printing;
 using UnityEngine;
 
 /** Class representing any preview for cards. Usually previews are displayed ontop of the currently hovered hex*/
@@ -13,7 +10,7 @@ public abstract class CardPreview : MonoBehaviour
         Unit,
         Event
     }
-
+    
     /** Show the preview over the current hexagon */
     public virtual void Show(HexagonVisualization Hex)
     {

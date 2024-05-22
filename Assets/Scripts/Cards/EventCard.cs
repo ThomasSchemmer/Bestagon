@@ -52,6 +52,7 @@ public class EventCard : Card
             case EventData.EventType.GrantUnit: return (EventData as GrantUnitEventData).AddEventPreviewByType(Obj);
             case EventData.EventType.GrantResource: return Obj.AddComponent<GrantResourcesPreview>();
             case EventData.EventType.RemoveMalaise: return Obj.AddComponent<GrantMiscellaneousPreview>();
+            case EventData.EventType.ConvertTile: return Obj.AddComponent<ConvertTilePreview>();
             default: return null;
         }
     }

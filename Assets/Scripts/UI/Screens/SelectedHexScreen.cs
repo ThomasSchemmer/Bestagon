@@ -35,11 +35,13 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
     }
 
     public void AddWorker(int i) {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out MapGenerator MapGenerator, out Selectors Selector))
             return;
 
         if (!MapGenerator || SelectedHexTile == null || !MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
+
+        Selector.DeselectUI();
 
         Building.RequestAddWorkerAt(i);
         Show();
@@ -47,11 +49,13 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
 
     public void RemoveWorker(int i)
     {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out MapGenerator MapGenerator, out Selectors Selector))
             return;
 
         if (SelectedHexTile == null || !MapGenerator.TryGetBuildingAt(SelectedHexTile.Location, out BuildingData Building))
             return;
+
+        Selector.DeselectUI();
 
         Building.RequestRemoveWorkerAt(i);
         Show();

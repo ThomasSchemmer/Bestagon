@@ -110,6 +110,48 @@ public class Unlockables : GameService, ISaveable
         return true;
     }
 
+    public bool TryGetRandomUnlockedTile(out HexagonConfig.HexagonType RandomType)
+    {
+        RandomType = default;
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return false;
+
+        HexagonConfig.HexagonType UnlockedTypesMask = 0;
+        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
+        {
+            for (int j = 0; j < BuildingConfig.MaxIndex; j++)
+            {
+                int Category = (int)BuildingConfig.Categories[i];
+                BuildingConfig.Type Type = (BuildingConfig.Type)(1 << j);
+                if (!IsIndexInCategory(Category, j))
+                    continue;
+
+                if (IsIndexLockedInCategoryIndex(i, j))
+                    continue;
+
+                UnlockedTypesMask |= MeshFactory.CreateDataFromType(Type).BuildableOn;
+            }
+        }
+
+        List<HexagonConfig.HexagonType> UnlockedTypes = new();
+        for (int i = 0; i < HexagonConfig.MaxTypeIndex; i++)
+        {
+            int HasType = ((int)UnlockedTypesMask >> i) & 0x1;
+            if (HasType == 0)
+                continue;
+
+            HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)(HasType << i);
+            UnlockedTypes.Add(Type);
+        }
+
+        if (UnlockedTypes.Count == 0)
+            return false;
+
+        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
+        RandomType = UnlockedTypes[RandomIndex];
+        return true;
+    }
+
     private bool IsCategoryFullyUnlocked(int Category)
     {
         return HexagonConfig.GetSetBitsAmount(Category) == 0;

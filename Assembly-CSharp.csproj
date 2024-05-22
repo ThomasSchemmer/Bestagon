@@ -146,12 +146,14 @@
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\UnitPreview.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
+    <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
     <Compile Include="Assets\Scripts\UI\IngameMenu.cs" />
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
@@ -181,6 +183,7 @@
     <Compile Include="Assets\Scripts\Visualization\UnitVisualization.cs" />
     <Compile Include="Assets\Scripts\Generation\Map.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitMovementScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\MeshFactory.cs" />
   </ItemGroup>
   <ItemGroup>

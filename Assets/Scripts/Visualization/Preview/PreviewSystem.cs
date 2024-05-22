@@ -78,6 +78,7 @@ public class PreviewSystem : GameService
 
         Preview.gameObject.SetActive(true);
         Preview.Show(Hex);
+        PreviewLocation = Hex.Location;
 
         _OnPreviewShown?.Invoke();
     }
@@ -108,12 +109,18 @@ public class PreviewSystem : GameService
         return Preview.GetPreviewableAs<T>();
     }
 
+    public Location GetPreviewLocation()
+    {
+        return PreviewLocation;
+    }
+
     protected override void StopServiceInternal() {}
 
     public Material PreviewMaterial;
     public GameObject UIContainer;
 
     private CardPreview Preview;
+    private Location PreviewLocation;
 
     public delegate void OnPreviewShown();
     public delegate void OnPreviewHidden();

@@ -239,6 +239,20 @@ public class IconFactory : GameService
         }
     }
 
+    public GameObject GetVisualsForConvertTileEvent(ConvertTileEventData EventData, ISelectable Parent)
+    {
+        GameObject ProduceUnitEffect = Instantiate(GrantMiscPrefab);
+        TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        ProducesText.text = EventData.GetDescription();
+        Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
+
+        GameObject UnitTypeGO = GetVisualsForHexTypes(EventData.TargetType, Parent);
+        UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
+        UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
+
+        return ProduceUnitEffect;
+    }
+
     public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types, ISelectable Parent)
     {
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);

@@ -35,7 +35,7 @@ public class ScoutData : TokenizedUnitData
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, GetSize(), base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddString(Bytes, Pos, Name);

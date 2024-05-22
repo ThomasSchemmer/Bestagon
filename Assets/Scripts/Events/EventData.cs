@@ -27,8 +27,6 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public static EventType GetRandomType()
     {
-        // todo: debug remove after all types are implemented
-        return EventType.RemoveMalaise;
         return (EventType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(EventType)).Length));
     }
 
@@ -39,6 +37,7 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
             case EventType.GrantUnit: return CreateInstance<GrantUnitEventData>();
             case EventType.GrantResource: return CreateInstance<GrantResourceEventData>();
             case EventType.RemoveMalaise: return CreateInstance<RemoveMalaiseEventData>();
+            case EventType.ConvertTile: return CreateInstance<ConvertTileEventData>();
             default: return null;
         }
     }
@@ -83,7 +82,8 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public virtual byte[] GetData()
     {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        // use StaticSize here, as Size will get overriden - and only the base size is important
+        NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
 
