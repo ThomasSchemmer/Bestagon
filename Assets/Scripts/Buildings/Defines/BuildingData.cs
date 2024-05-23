@@ -41,9 +41,10 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         return Quaternion.Euler(0, 180, 0);
     }
 
-    public bool CanBeInteractedOn(HexagonVisualization Hex)
+    public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        return CanBeBuildOn(Hex);
+        // ignore the preview parameter, as the error messages are only created in the BuildingCard
+        return CanBeBuildOn(Hex, true);
     }
 
     public Production GetCosts()
@@ -66,7 +67,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         return Effect.TryGetAdjacencyBonus(out Bonus);
     }
 
-    public bool CanBeBuildOn(HexagonVisualization Hex, bool bShouldCheckCosts = true) {
+    public bool CanBeBuildOn(HexagonVisualization Hex, bool bShouldCheckCosts) {
         if (!Hex)
             return false;
 

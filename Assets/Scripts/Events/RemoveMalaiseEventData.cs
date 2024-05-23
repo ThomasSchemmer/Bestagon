@@ -10,9 +10,18 @@ public class RemoveMalaiseEventData : EventData
         Type = EventType.RemoveMalaise;
     }
 
-    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        return Hex.Data.IsMalaised();
+        if (Hex.Data.MalaisedState == HexagonData.MalaiseState.None)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystem.CreateMessage(Message.Type.Error, "Cannot remove malaise - Tile is not afflicted");
+            }
+            return false;
+        }
+
+        return true;
     }
 
     public override int GetAdjacencyRange()
@@ -56,11 +65,6 @@ public class RemoveMalaiseEventData : EventData
             return;
 
         Hex.Chunk.Visualization.MalaiseVisualization.GenerateMesh();
-    }
-
-    public override bool IsInteractableWith(HexagonVisualization Hex)
-    {
-        return Hex.Data.IsMalaised();
     }
 
     public override bool IsPreviewable()

@@ -17,24 +17,22 @@ Shader"Custom/HexagonShader"
 {
     Properties
     {
+//also contains instanced props
         _TypeTex ("Types", 2D) = "white" {}
         _NoiseTex("Noise", 2D) = "white" {}
-        _Type("Type", Float) = 0
-        _Selected("Selected", Float) = 0
-        _Hovered("Hovered", Float) = 0
-        _Adjacent("Adjacent", Float) = 0
-        _Malaised("Malaised", Float) = 0
+
+        [Header(Painterly)][Space]
+        _NormalNoiseScale("Normal Noise Scale", Range(10, 40)) = 20
+        _NormalNoiseEffect("Normal Noise Effect", Range(0, 0.3)) = 0.1
+        _VoronoiScale ("Voronoi Scale", Range(0, 10)) = 6
+        _EdgeBlendFactor("Edge Blend Factor", Range(0, 0.3)) = 0.1
+        _CenterBlendFactor("Center Blend Factor", Range(0, 0.3)) = 0.1
+        _BrushNormalTex("Brush Texture", 2D) = "white" {}
+
+        
+        [Header(Globals)][Space]
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
         _Desaturation("Desaturation", Float) = 0
-
-//painterly
-        _Scale ("Scale", Float) = 1
-        _NoiseScale ("NoiseScale", Range(1, 3)) = 2
-        _NoiseMix("NoiseVoronoiMix", Range(0, 0.3)) = 0.1
-        _BrushVoronoiOffset("BrushVoronoiOffset", Range(0, 0.3)) = 0.1
-        _BrushVoronoiMix("BrushVoronoiMix", Range(0, 0.3)) = 0.1
-        _Offset("CenterOffset", Vector) = (0,0,0)
-        _BrushNormalTex("BrushNormal", 2D) = "white" {}
             
     }
 
@@ -55,12 +53,11 @@ Shader"Custom/HexagonShader"
         float _Desaturation;
 
         //painterly
-        float _Scale;
-        float _NoiseScale;
-        float _NoiseMix;
-        float _BrushVoronoiOffset;
-        float _BrushVoronoiMix;
-        float3 _Offset;
+        float _VoronoiScale;
+        float _NormalNoiseScale;
+        float _NormalNoiseEffect;
+        float _EdgeBlendFactor;
+        float _CenterBlendFactor;
         float4 _BrushNormalTex_ST;
         float4 _BrushNormalTex_TexelSize;
     CBUFFER_END
@@ -141,8 +138,6 @@ Shader"Custom/HexagonShader"
                 UNITY_DEFINE_INSTANCED_PROP(float, _Adjacent)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Malaised)
                 UNITY_DEFINE_INSTANCED_PROP(float, _PreMalaised)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Discovery)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Value)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             inline bool IsWater(){
@@ -175,10 +170,10 @@ Shader"Custom/HexagonShader"
                 }
             }
 
-            g2f HandleLighting(v2g IN, g2f o, float3 triangleNormal){
+            g2f HandleLighting(v2g IN, g2f o, float3 waterNormal){
                 //diffuse lighting calculations
                 VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN.normal);
-                float3 normal = IsWater() ? triangleNormal : NormalInputs.normalWS;
+                float3 normal = IsWater() ? waterNormal : NormalInputs.normalWS;
                 float4 lighting = NormalLighting(normal);
                 o.diff = IsWater() ? 1 : lighting;
                 bool bIsAllowed = !IsBorder(IN.uv) && !IsDecoration(IN.uv);
@@ -257,37 +252,43 @@ Shader"Custom/HexagonShader"
                 triStream.RestartStrip();
             }
 
-            float4 painterly(g2f i)
+            float3 painterly(g2f i)
             { 
-                // compare to center of object to have better range 
-                // also offset by world coordinates to avoid mirror'ing - but beware, y and z axis have bad influence!
-                float3 pos = i.normal;
-                float3 noise = ssnoise(pos, _NoiseScale, 0, 3, 2);
-                float3 posNoise = pos * (1 - _NoiseMix) + noise * _NoiseMix;
-                float3 vor = voronoi3(_Scale * posNoise) / _Scale;
-    
-                // bring from ~-1..0 (depends on object size) to 0..1 range for color mapping 
-                vor = vor + 1;
-                pos = pos + 1;
-                float2 UV = GetUVForVoronoi(vor, pos);
-    
+                // in general: make sure that the values do not go out of range too much, so that clamping them 
+                // is not affecting them too much. Depends mostly on object size, adapt with NormalNoiseEffect
+
+                // offset normals by world coordinates to avoid having flat surfaces (would lead to uniform outcome)
+                float3 normal = clamp(i.normal, -1, 1);
+                float worldSpaceNoise = snoise(i.vertexWS.xz / _NormalNoiseScale);
+
+                float3 randomNormal = (1 - _NormalNoiseEffect) * normal + i.vertexOS * worldSpaceNoise * _NormalNoiseEffect;
+                randomNormal = clamp(randomNormal, -1, 1);
+
+                // map normal to a close-by voronoi to fake centers
+                // cant use regular triangle centers as they would be too regular for round surfaces
+                float3 vor = voronoi3(_VoronoiScale * randomNormal) / _VoronoiScale;
+                vor = clamp(vor, -1, 1);
+                
                 // uv has a range of ~-0.2..0.2 (depending on voronoi scale), bring to 0..1
-                UV = (UV / (1 / _Scale * 2) + 0.5);
+                float2 UV = GetUVForVoronoi(vor, randomNormal) * _VoronoiScale;
+                UV = (UV / 2.0) + 0.5;
+                UV = clamp(UV, 0, 1);
+                    
                 float4 texData = tex2D(_BrushNormalTex, UV);
-                float3 normal = texData.xyz;
-                float3 alpha = texData.a;
+                float3 brushNormal = texData.xyz;
+                float alpha = texData.a;
     
-                // feed the brush into the original pos to offset the voronoi by strokes
-                float3 pos2 = alpha == 0 ? posNoise : blendLinearLight(posNoise, normal, _BrushVoronoiOffset);
-                float3 vor2 = voronoi3(_Scale * pos2) / _Scale;
-    
-                // now use this new voronoi and add normal brushstrokes per se 
-                float3 endNormal = alpha == 0 ? vor2 : vor2 * (1 - _BrushVoronoiMix) + normal * _BrushVoronoiMix;
+                // feed the brush into the original pos to offset the voronoi by strokes (stroking the edges)
+                float3 blendedNormal = alpha == 0 ? randomNormal : blendLinearLight(randomNormal, brushNormal, _EdgeBlendFactor);
+                float3 blendedVoronoi = voronoi3(_VoronoiScale * blendedNormal) / _VoronoiScale;
+                
+                // now use this new voronoi and add normal brushstrokes per se (stroking the centers)
+                float3 endNormal = alpha == 0 ? blendedVoronoi : blendedVoronoi * (1 - _CenterBlendFactor) + brushNormal * _CenterBlendFactor;
+
                 // bring back to 0..1
                 endNormal = endNormal * 0.5 + 0.5;
-    
-                half painterlyNL = max(0, dot(endNormal, _MainLightPosition.xyz));
-                return painterlyNL * _MainLightColor;
+                endNormal = clamp(endNormal, 0, 1);
+                return endNormal;
             }
 
             float4 getRegularColor(g2f i){
@@ -355,13 +356,16 @@ Shader"Custom/HexagonShader"
 
             half4 frag(g2f i) : SV_Target
             {
-                float4 color = getColorByType(i);
-
-                float4 painterlyEffect = painterly(i);
+                float4 baseColor = getColorByType(i);
+                float3 painterlyNormal = painterly(i);
+                float4 painterlyLight = max(0, dot(painterlyNormal, _MainLightPosition.xyz)) * _MainLightColor;
         
-                // light influence
-                float3 ambient = SampleSH(i.normal);
-                color.xyz *= i.diff.xyz + ambient * 0.3;
+                // light influence (both normal-based and ambient)
+                float4 diffuseLight = float4(i.diff.xyz, 1);
+                float4 ambientLight = float4(SampleSH(i.normal), 1);
+                float4 globalLight = diffuseLight + ambientLight * 0.6; 
+
+                float4 color = baseColor * painterlyLight * globalLight;
                 
     
                 float Desaturated = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));

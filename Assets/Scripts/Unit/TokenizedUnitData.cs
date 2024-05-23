@@ -81,14 +81,14 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
     public abstract Quaternion GetRotation();
 
-    public abstract bool CanBeInteractedOn(HexagonVisualization Hex);
+    public abstract bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview);
 
     public override bool TryInteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetService(out Units Units))
             return false;
 
-        if (!CanBeInteractedOn(Hex))
+        if (!IsPreviewInteractableWith(Hex, false))
             return false;
 
         if (Units.IsUnitAt(Hex.Location))

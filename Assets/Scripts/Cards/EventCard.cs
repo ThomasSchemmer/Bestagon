@@ -57,15 +57,14 @@ public class EventCard : Card
         }
     }
 
+    public override bool IsCardInteractableWith(HexagonVisualization Hex)
+    {
+        return EventData.IsPreviewInteractableWith(Hex, false);
+    }
 
     public override void InteractWith(HexagonVisualization Hex) {
         EventData.InteractWith(Hex);
         Use();
-    }
-
-    public override bool IsInteractableWith(HexagonVisualization Hex)
-    {
-        return EventData.IsInteractableWith(Hex);
     }
 
     public override bool IsPreviewable()

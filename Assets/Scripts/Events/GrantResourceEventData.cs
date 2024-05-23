@@ -66,11 +66,6 @@ public class GrantResourceEventData : EventData
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, GrantedResource);
     }
 
-    public override bool IsInteractableWith(HexagonVisualization Hex)
-    {
-        return true;
-    }
-
     public override void InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
@@ -94,8 +89,16 @@ public class GrantResourceEventData : EventData
         return Quaternion.identity;
     }
 
-    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
+        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystem.CreateMessage(Message.Type.Error, "Can only use on visited tiles");
+                return false;
+            }
+        }
         return true;
     }
 

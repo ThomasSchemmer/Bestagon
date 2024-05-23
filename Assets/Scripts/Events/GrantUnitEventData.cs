@@ -60,15 +60,14 @@ public class GrantUnitEventData : EventData
         GrantedType = (UnitData.UnitType)bGrantedType;
     }
 
-    public override bool IsInteractableWith(HexagonVisualization Hex)
-    {
-        return true;
-    }
-
     public override void InteractWith(HexagonVisualization Hex)
     {
         UnitData Unit = CreateUnitData();
-        Unit.TryInteractWith(Hex);
+        if (!Unit.TryInteractWith(Hex))
+        {
+            Destroy(Unit);
+            return;
+        }
 
         if (!Game.TryGetService(out Selectors Selectors))
             return;
@@ -124,14 +123,14 @@ public class GrantUnitEventData : EventData
         return UnitData.GetRotation();
     }
 
-    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
         //for now can only be worker, which can always be interacted with
         if (UnitData == null)
             return true;
 
-        return UnitData.CanBeInteractedOn(Hex);
+        return UnitData.IsPreviewInteractableWith(Hex, bIsPreview);
     }
 
     public override int GetAdjacencyRange()

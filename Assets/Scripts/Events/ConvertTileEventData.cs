@@ -24,9 +24,17 @@ public class ConvertTileEventData : EventData
         TargetType = GrantedType;
     }
 
-    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        return Hex.Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited;
+        if (Hex.Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystem.CreateMessage(Message.Type.Error, "Can only swap scouted tiles");
+            }
+            return false;
+        }
+        return true;
     }
 
     public override int GetAdjacencyRange()
@@ -76,11 +84,6 @@ public class ConvertTileEventData : EventData
             return;
 
         Minimap.FillBuffer();
-    }
-
-    public override bool IsInteractableWith(HexagonVisualization Hex)
-    {
-        return Hex.Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited;
     }
 
     public override bool IsPreviewable()

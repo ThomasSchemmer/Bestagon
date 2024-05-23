@@ -100,13 +100,25 @@ public class ScoutData : TokenizedUnitData
         return Quaternion.Euler(0, 60, 0);
     }
 
-    public override bool CanBeInteractedOn(HexagonVisualization Hex)
+    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystem.CreateMessage(Message.Type.Error, "Can only place on scouted tiles");
+            }
             return false;
+        }
 
         if (Hex.Data.HexHeight < HexagonConfig.HexagonHeight.Flat || Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Hill)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystem.CreateMessage(Message.Type.Error, "Cannot place on Mountains or in the ocean");
+            }
             return false;
+        }
 
         return true;
     }

@@ -108,7 +108,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             return;
 
         Card Card = Selector.GetSelectedCard();
-        if (Card && Card.IsInteractableWith(this)) {
+        if (Card && Card.IsCardInteractableWith(this)) {
             Card.InteractWith(this);
             Selector.DeselectCard();
             Preview.UpdatePreview();

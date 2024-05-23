@@ -67,6 +67,8 @@ public class Game : MonoBehaviour
 
     public void Start()
     {
+        //todo: debug remove
+        Application.targetFrameRate = 60;
         if (IngameMenu.Instance)
         {
             IngameMenu.Instance._OnOpenBegin += OnOpenMenu;

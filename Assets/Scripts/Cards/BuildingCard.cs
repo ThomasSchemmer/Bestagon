@@ -72,30 +72,35 @@ public class BuildingCard : Card
         return Target;
     }
 
-    public override bool IsInteractableWith(HexagonVisualization Hex)
+    public override bool IsCardInteractableWith(HexagonVisualization Hex)
     {
-        return true;
-    }
-
-    public override void InteractWith(HexagonVisualization Hex)
-    {
-        if (!Game.TryGetServices(out Selectors Selector, out Stockpile Stockpile))
-            return;
-
-        if (!Game.TryGetService(out MapGenerator Generator)) 
-            return;
+        if (!Game.TryGetServices(out MapGenerator Generator, out Stockpile Stockpile))
+            return false;
 
         if (Generator.IsBuildingAt(Hex.Location))
         {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
-            return;
+            return false;
         }
 
         if (!BuildingData.CanBeBuildOn(Hex, false))
         {
             MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
-            return;
+            return false;
         }
+
+        if (!Stockpile.CanAfford(BuildingData.GetCosts()))
+        {
+            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
+            return false;
+        }
+        return true;
+    }
+
+    public override void InteractWith(HexagonVisualization Hex)
+    {
+        if (!Game.TryGetServices(out Stockpile Stockpile, out Selectors Selector))
+            return;
 
         if (!Stockpile.Pay(BuildingData.GetCosts()))
         {
@@ -147,7 +152,7 @@ public class BuildingCard : Card
 
     public override bool ShouldShowAdjacency(HexagonVisualization Hex)
     {
-        return GetBuildingData().CanBeBuildOn(Hex);
+        return GetBuildingData().CanBeBuildOn(Hex, false);
     }
 
     public override bool IsCustomRuleApplying(Location NeighbourLocation)

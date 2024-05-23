@@ -51,8 +51,6 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public abstract GameObject GetEventVisuals(ISelectable Parent);
 
-    public abstract bool IsInteractableWith(HexagonVisualization Hex);
-
     public abstract void InteractWith(HexagonVisualization Hex);
 
     public abstract bool IsPreviewable(); 
@@ -100,5 +98,5 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public abstract Vector3 GetOffset();
     public abstract Quaternion GetRotation();
-    public abstract bool CanBeInteractedOn(HexagonVisualization Hex);
+    public abstract bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview);
 }

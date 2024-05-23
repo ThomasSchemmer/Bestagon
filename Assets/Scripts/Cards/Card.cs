@@ -47,7 +47,7 @@ public abstract class Card : Draggable, ISelectable
 
     public abstract bool IsPreviewable();
 
-    public abstract bool IsInteractableWith(HexagonVisualization Hex);
+    public abstract bool IsCardInteractableWith(HexagonVisualization Hex);
 
     public abstract void InteractWith(HexagonVisualization Hex);
 

@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitPathScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />

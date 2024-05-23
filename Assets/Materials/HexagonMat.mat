@@ -20,7 +20,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties: _Scale
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -90,14 +90,17 @@ Material:
     - _Allowed: 0
     - _AlphaClip: 0
     - _Blend: 0
-    - _BrushVoronoiMix: 0.103
-    - _BrushVoronoiOffset: 0.153
+    - _BrushBlendFactor: 0
+    - _BrushVoronoiMix: 0
+    - _BrushVoronoiOffset: 0.312
     - _BumpScale: 1
+    - _CenterBlendFactor: 0.147
     - _Cull: 2
     - _Cutoff: 0.5
     - _Desaturation: 0.1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EdgeBlendFactor: 0.111
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -107,13 +110,16 @@ Material:
     - _Malaised: 0
     - _Metallic: 0
     - _Mode: 0
-    - _NoiseMix: 0.115
-    - _NoiseScale: 1.508
+    - _NoiseMix: 0.086
+    - _NoiseScale: 1.97
+    - _NormalNoiseEffect: 0.07
+    - _NormalNoiseScale: 40
+    - _ObjectMaxSize: 20
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Scale: 2.5
+    - _Scale: 6
     - _Selected: 0
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
@@ -121,10 +127,12 @@ Material:
     - _SrcBlend: 1
     - _Surface: 0
     - _Type: 3
+    - _UVScale: 5.92
     - _UVSec: 0
     - _V0Scale: 0
     - _V1Scale: 0
     - _Value: 0
+    - _VoronoiScale: 5
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
