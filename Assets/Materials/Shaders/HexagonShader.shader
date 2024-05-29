@@ -29,7 +29,6 @@ Shader"Custom/HexagonShader"
         _CenterBlendFactor("Center Blend Factor", Range(0, 0.3)) = 0.1
         _BrushNormalTex("Brush Texture", 2D) = "white" {}
 
-        
         [Header(Globals)][Space]
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
         _Desaturation("Desaturation", Float) = 0
@@ -65,12 +64,15 @@ Shader"Custom/HexagonShader"
 
     SubShader
     {
-        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry+0"}
         LOD 100
+        
+        
+        /************************ BEGIN HEX SHADER *************************/
 
         Pass 
         {
-            Tags {"LightMode" = "UniversalForward"}
+        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry+0" "LightMode" = "UniversalForward"}
+        
             HLSLPROGRAM
 
             #pragma require geometry
@@ -89,11 +91,9 @@ Shader"Custom/HexagonShader"
             #pragma exclude_renderers d3d11_9x
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"  
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // shadows
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // for ambient light
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl" // shadows and ambient light
 
             #include "Assets/Materials/Shaders/Util/Util.cginc" //for snoise
-            #include "Assets/Materials/Shaders/Util/BlendModes.cginc" 
             #include "Assets/Materials/Shaders/Util/Painterly.cginc" 
 
             struct appdata
@@ -119,7 +119,6 @@ Shader"Custom/HexagonShader"
                 float2 uv : TEXCOORD0;
                 float4 diff : COLOR0; //diffuse lighting for shadows
                 float3 normal : TEXCOORD1;
-                float3 centerWorld : TEXCOORD2;
                 float3 vertexOS : TEXCOORD3;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -207,9 +206,7 @@ Shader"Custom/HexagonShader"
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
-    
-                VertexPositionInputs VertexInputs = GetVertexPositionInputs(v.vertex.xyz);
-                
+                    
                 // pass through in object space, since we have to use geometry shader to update the normal anyway
                 o.vertex = v.vertex;
                 o.normal = v.normal;
@@ -221,9 +218,6 @@ Shader"Custom/HexagonShader"
             [maxvertexcount(3)]
             void geom(triangle v2g IN[3], inout TriangleStream<g2f> triStream){
                 g2f o;
-                
-                float3 centerWorld = (IN[0].vertex + IN[1].vertex + IN[2].vertex).xyz / 3.0;
-                centerWorld = GetVertexPositionInputs(centerWorld).positionWS;
     
                 // since geometry shader has access to each triangle
                 // we can calculate the ocean lighting here
@@ -241,7 +235,6 @@ Shader"Custom/HexagonShader"
                     o.vertexCS = VertexInputs.positionCS;
                     o.vertexWS = VertexInputs.positionWS;
                     o.normal = NormalInputs.normalWS;
-                    o.centerWorld = centerWorld;
                     UNITY_TRANSFER_INSTANCE_ID(IN[i], o);
                     o = HandleLighting(IN[i], o, triangleNormal);
         
@@ -252,44 +245,6 @@ Shader"Custom/HexagonShader"
                 triStream.RestartStrip();
             }
 
-            float3 painterly(g2f i)
-            { 
-                // in general: make sure that the values do not go out of range too much, so that clamping them 
-                // is not affecting them too much. Depends mostly on object size, adapt with NormalNoiseEffect
-
-                // offset normals by world coordinates to avoid having flat surfaces (would lead to uniform outcome)
-                float3 normal = clamp(i.normal, -1, 1);
-                float worldSpaceNoise = snoise(i.vertexWS.xz / _NormalNoiseScale);
-
-                float3 randomNormal = (1 - _NormalNoiseEffect) * normal + i.vertexOS * worldSpaceNoise * _NormalNoiseEffect;
-                randomNormal = clamp(randomNormal, -1, 1);
-
-                // map normal to a close-by voronoi to fake centers
-                // cant use regular triangle centers as they would be too regular for round surfaces
-                float3 vor = voronoi3(_VoronoiScale * randomNormal) / _VoronoiScale;
-                vor = clamp(vor, -1, 1);
-                
-                // uv has a range of ~-0.2..0.2 (depending on voronoi scale), bring to 0..1
-                float2 UV = GetUVForVoronoi(vor, randomNormal) * _VoronoiScale;
-                UV = (UV / 2.0) + 0.5;
-                UV = clamp(UV, 0, 1);
-                    
-                float4 texData = tex2D(_BrushNormalTex, UV);
-                float3 brushNormal = texData.xyz;
-                float alpha = texData.a;
-    
-                // feed the brush into the original pos to offset the voronoi by strokes (stroking the edges)
-                float3 blendedNormal = alpha == 0 ? randomNormal : blendLinearLight(randomNormal, brushNormal, _EdgeBlendFactor);
-                float3 blendedVoronoi = voronoi3(_VoronoiScale * blendedNormal) / _VoronoiScale;
-                
-                // now use this new voronoi and add normal brushstrokes per se (stroking the centers)
-                float3 endNormal = alpha == 0 ? blendedVoronoi : blendedVoronoi * (1 - _CenterBlendFactor) + brushNormal * _CenterBlendFactor;
-
-                // bring back to 0..1
-                endNormal = endNormal * 0.5 + 0.5;
-                endNormal = clamp(endNormal, 0, 1);
-                return endNormal;
-            }
 
             float4 getRegularColor(g2f i){
                 // as we have a split uv map we need to wrap around
@@ -354,10 +309,23 @@ Shader"Custom/HexagonShader"
                        regularColor;
             }
 
+            painterlyInfo getPainterlyInfo(g2f i){
+                painterlyInfo info;
+                info.normal = i.normal;
+                info.vertexWS = i.vertexWS;
+                info.vertexOS = i.vertexOS;
+                info._NormalNoiseScale = _NormalNoiseScale;
+                info._NormalNoiseEffect = _NormalNoiseEffect;
+                info._VoronoiScale = _VoronoiScale;
+                info._EdgeBlendFactor = _EdgeBlendFactor;
+                info._CenterBlendFactor = _CenterBlendFactor;
+                return info;
+            }
+
             half4 frag(g2f i) : SV_Target
             {
                 float4 baseColor = getColorByType(i);
-                float3 painterlyNormal = painterly(i);
+                float3 painterlyNormal = painterly(getPainterlyInfo(i), _BrushNormalTex);
                 float4 painterlyLight = max(0, dot(painterlyNormal, _MainLightPosition.xyz)) * _MainLightColor;
         
                 // light influence (both normal-based and ambient)
@@ -366,7 +334,6 @@ Shader"Custom/HexagonShader"
                 float4 globalLight = diffuseLight + ambientLight * 0.6; 
 
                 float4 color = baseColor * painterlyLight * globalLight;
-                
     
                 float Desaturated = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
                 color.rgb = float3(
@@ -390,5 +357,9 @@ Shader"Custom/HexagonShader"
 
         // shadow casting support
         UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
+
+        /************************ END HEX SHADER *************************/
+
+        
     }
 }

@@ -219,6 +219,7 @@
     <None Include="Assets\Materials\Shaders\HexagonShader.shader" />
     <None Include="Assets\Materials\Shaders\Util\CloudNoise.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\Materials\Shaders\HexagonShellShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

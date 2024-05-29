@@ -89,11 +89,11 @@ public class MalaiseData : ISaveable
     private List<Location> GetRandomMalaised()
     {
         List<Location> MalaisedLocations = GetMalaised();
-        if (MalaisedLocations.Count < 3)
+        if (MalaisedLocations.Count < SpreadCountPerRound)
             return MalaisedLocations;
 
-        List<Location> RandomLocations = new(3);
-        for (int i = 0; i < 3; i++)
+        List<Location> RandomLocations = new(SpreadCountPerRound);
+        for (int i = 0; i < SpreadCountPerRound; i++)
         {
             int Index = Random.Range(0, MalaisedLocations.Count);
             RandomLocations.Add(MalaisedLocations[Index]);
@@ -190,4 +190,5 @@ public class MalaiseData : ISaveable
         new Location(0, 0, 0, 1),
     };
     public static bool bHasStarted = false;
+    public static int SpreadCountPerRound = 5;
 }

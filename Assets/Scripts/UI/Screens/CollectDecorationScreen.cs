@@ -204,12 +204,12 @@ public class CollectDecorationScreen : MonoBehaviour
 
     private void AddPrefabToContainer(Transform Container, GameObject Prefab)
     {
-        while (Container.childCount > 0)
+        if (Container.childCount > 0)
         {
-            DestroyImmediate(Container.GetChild(0));
+            DestroyImmediate(Container.GetChild(0).gameObject);
         }
 
-        GameObject Instance = Instantiate(Prefab, Container);
+        Instantiate(Prefab, Container);
     }
 
     private void HandleMovement(Location Location)

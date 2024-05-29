@@ -26,7 +26,7 @@ public class ConvertTileEventData : EventData
 
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        if (Hex.Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited)
+        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
         {
             if (!bIsPreview)
             {

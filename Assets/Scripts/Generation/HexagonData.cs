@@ -27,7 +27,7 @@ public class HexagonData : ISaveable
     public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
     public MalaiseState MalaisedState = MalaiseState.None;
-    private DiscoveryState Discovery;
+    private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
     public OnDiscovery _OnDiscovery;

@@ -7,20 +7,19 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: HexagonMat
-  m_Shader: {fileID: 4800000, guid: 3c79e84187c530947900b5df5de01e10, type: 3}
+  m_Name: PPMat_Shell
+  m_Shader: {fileID: 4800000, guid: 9d2dcbd0c30ac3b4ea11b13fd27586f4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords:
-  - _GLOSSYREFLECTIONS_OFF
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: _Scale
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -57,15 +56,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 9432c37858f3a0a4aa525ee43096caf0, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _NoiseTex:
-        m_Texture: {fileID: 2800000, guid: e11c27fe12055ce498adfac05ffde0c8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -80,86 +75,66 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _TypeTex:
-        m_Texture: {fileID: 2800000, guid: de1c92f2d81c5a840a8cd2e02d52d0b1, type: 3}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _TypesTex:
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Adjacent: 0
-    - _Allowed: 0
     - _AlphaClip: 0
+    - _AlphaToMask: 0
     - _Blend: 0
-    - _BrushBlendFactor: 0
-    - _BrushCutoff: 0.8
-    - _BrushVoronoiMix: 0
-    - _BrushVoronoiOffset: 0.312
+    - _BlendModePreserveSpecular: 1
+    - _BrushCutoff: 0.232
     - _BumpScale: 1
-    - _CenterBlendFactor: 0.147
+    - _CenterBlendFactor: 0.099
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
-    - _Desaturation: 0.1
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EdgeBlendFactor: 0.111
+    - _DstBlendAlpha: 0
+    - _EdgeBlendFactor: 0.08
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _HexPerLine: 0
-    - _Hovered: 0
-    - _Malaised: 0
+    - _LightMulti: 1
     - _Metallic: 0
-    - _Mode: 0
-    - _NoiseMix: 0.086
-    - _NoiseScale: 1.97
-    - _NormalCutoff: 0.369
-    - _NormalNoiseEffect: 0.07
-    - _NormalNoiseScale: 40
-    - _NormalOffset: 0
-    - _ObjectMaxSize: 20
+    - _NormalCutoff: 0.123
+    - _NormalNoiseEffect: 0.112
+    - _NormalNoiseScale: 10
+    - _NormalOffset: 1.95
     - _OcclusionStrength: 1
-    - _Parallax: 0.02
+    - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Scale: 6
-    - _Selected: 0
-    - _Smoothness: 0
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Type: 3
-    - _UVScale: 5.92
-    - _UVSec: 0
-    - _V0Scale: 0
-    - _V1Scale: 0
-    - _Value: 0
-    - _VoronoiScale: 5
+    - _VoronoiScale: 8.3
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _AlphaRamp: {r: 0, g: 0, b: 0, a: 1}
-    - _BaseColor: {r: 1, g: 0, b: 0.20058584, a: 1}
-    - _BottomView: {r: 1, g: 1, b: 0, a: 0}
-    - _Color: {r: 1, g: 0, b: 0, a: 1}
-    - _Direction: {r: 0, g: 0, b: 0, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _HexDistance: {r: 0, g: 0, b: 0, a: 0}
-    - _LineColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
-    - _NoColor: {r: 1, g: 0, b: 0, a: 0.5}
-    - _Offset: {r: 0, g: -0.5, b: 0, a: 1}
-    - _Scale: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _TopView: {r: 0, g: 1, b: 0, a: 0}
-    - _WorldSize: {r: 1560, g: 1560, b: 0, a: 0}
-    - _YesColor: {r: 0, g: 1, b: 0, a: 0.5}
   m_BuildTextureStacks: []
---- !u!114 &8885520318469395025
+--- !u!114 &6448074367406222323
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -171,4 +146,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1
+  version: 7
