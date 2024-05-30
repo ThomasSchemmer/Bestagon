@@ -95,7 +95,7 @@ Material:
     - _BlendModePreserveSpecular: 1
     - _BrushCutoff: 0.232
     - _BumpScale: 1
-    - _CenterBlendFactor: 0.099
+    - _CenterBlendFactor: 0.21
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -104,17 +104,17 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeBlendFactor: 0.08
+    - _EdgeBlendFactor: 0.241
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _LightMulti: 1
     - _Metallic: 0
-    - _NormalCutoff: 0.123
-    - _NormalNoiseEffect: 0.112
-    - _NormalNoiseScale: 10
-    - _NormalOffset: 1.95
+    - _NormalCutoff: 0.184
+    - _NormalNoiseEffect: 0.161
+    - _NormalNoiseScale: 15.2
+    - _NormalOffset: 2.35
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -125,7 +125,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _VoronoiScale: 8.3
+    - _VoronoiScale: 7.51
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2349994497826432516}
   - component: {fileID: 7065132146981108855}
   - component: {fileID: 1046724622213284013}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: UnitPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 31724c7d9d298e2458d2e7e85190b9ca, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

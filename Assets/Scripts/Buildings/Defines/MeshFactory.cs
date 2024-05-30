@@ -13,7 +13,7 @@ public class MeshFactory : GameService
     public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
-    public SerializedDictionary<UnitType, Tuple<UnitData, Mesh>> AvailableUnits = new();
+    public SerializedDictionary<UnitType, Tuple<UnitData, GameObject>> AvailableUnits = new();
     public Mesh UnknownMesh;
     public GameObject BuildingPrefab, UnitPrefab;
 
@@ -118,19 +118,19 @@ public class MeshFactory : GameService
             if (!UnitData)
                 continue;
 
-            GameObject MeshObject = Resources.Load("Units/Prefabs/" + UnitType) as GameObject;
+            GameObject UnitObject = Resources.Load("Units/Prefabs/" + UnitType) as GameObject;
             Mesh Mesh = null;
             if (UnitType != UnitType.Worker)
             {
-                if (!MeshObject || !MeshObject.GetComponent<MeshFilter>())
+                if (!UnitObject || !UnitObject.GetComponent<MeshFilter>())
                     continue;
 
-                Mesh = MeshObject.GetComponent<MeshFilter>().sharedMesh;
+                Mesh = UnitObject.GetComponent<MeshFilter>().sharedMesh;
                 if (!Mesh)
                     continue;
             }
 
-            AvailableUnits.Add(UnitType, new(UnitData, Mesh));
+            AvailableUnits.Add(UnitType, new(UnitData, UnitObject));
         }
     }
 
@@ -168,6 +168,15 @@ public class MeshFactory : GameService
     }
 
     public Mesh GetMeshFromType(UnitType Type)
+    {
+        if (!AvailableUnits.ContainsKey(Type))
+            return null;
+
+        GameObject UnitObject = AvailableUnits[Type].Value;
+        return UnitObject.GetComponent<MeshFilter>().sharedMesh;
+    }
+
+    public GameObject GetObjectFromType(UnitType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))
             return null;
