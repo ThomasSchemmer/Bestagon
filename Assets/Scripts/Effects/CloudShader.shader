@@ -243,6 +243,7 @@ Shader "Custom/CloudShader"
 
             half4 frag(Varyings input) : SV_Target
             { 
+            return 0;
                 float d = SampleSceneDepth(input.uv);
                 float2 UV = (input.uv - 0.5) * 2;
                 float3 PositionWorld = _CameraPos.xyz + UV.x * _CameraRight.xyz + UV.y * _CameraUp.xyz + 100 * -_CameraForward.xyz;

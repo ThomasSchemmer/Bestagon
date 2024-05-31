@@ -1,0 +1,177 @@
+#pragma kernel CreateNoiseTexture
+#pragma kernel Clear
+#pragma kernel Debug
+
+#define THREAD_AMOUNT 16
+#define THREAD_AMOUNT_Z 1
+
+RWStructuredBuffer<float3> points;
+RWStructuredBuffer<float3> directions;
+RWStructuredBuffer<float> distances;
+
+RWTexture3D<float4> result;
+int directionsCount;
+// per dimension!
+float pointCount;
+uint4 size;
+uint4 amountGroups;
+
+#define TOTAL_POINT_COUNT (pointCount * pointCount * pointCount)
+
+//stores the *groups* maximum thread values
+//as each group has its own values, the variable is groupshared (= shared only within the thread group and not globally)
+groupshared float maxThreadDistances[THREAD_AMOUNT * THREAD_AMOUNT * THREAD_AMOUNT_Z];
+// distance minimum per group
+RWStructuredBuffer<float> maxGroupDistances;
+// global distance minimum
+RWStructuredBuffer<float> maxMinDistance;
+
+
+float GetMinDistanceForPixel(uint3 pixel){
+    //we could check every other pixel for distance, but if we arrange them in a grid
+    //we can only check the adjacent grid spaces
+    uint3 gridPos = (uint3)(pixel / (float3)size * pointCount);
+
+    float minDistance = 999999;
+    for (int i = 0; i < directionsCount; i++) {  
+        int3 nPos = gridPos + directions[i];  
+        
+        uint3 wrappedNPos = (uint3)(nPos + (int3)pointCount) % (uint3)pointCount;
+
+        uint index = wrappedNPos.z * pointCount * pointCount + wrappedNPos.y * pointCount + wrappedNPos.x;
+        int3 pointLocation = points[index];
+        int3 offset;
+        offset.x = nPos.x >= (int)pointCount || nPos.x < 0 ? (int)(directions[i].x * size.x) : 0;
+        offset.y = nPos.y >= (int)pointCount || nPos.y < 0 ? (int)(directions[i].y * size.y) : 0;
+        offset.z = nPos.z >= (int)pointCount || nPos.z < 0 ? (int)(directions[i].z * size.z) : 0;
+        int3 wrappedPixel = pointLocation + offset;
+
+        // bring from 0..pixel to 0..1
+        float dist = distance(pixel, wrappedPixel) / (float)size;
+        minDistance = min(minDistance, dist);
+    }
+    
+    return sqrt(minDistance);
+}
+
+float ComputeValues (uint3 index, uint3 amountPerThread)
+{
+    float threadMaxMinDistance = -1;
+    for(uint z = index.z; z < index.z + amountPerThread.z; z++){    
+        for(uint y = index.y; y < index.y + amountPerThread.y; y++){
+            for(uint x = index.x; x < index.x + amountPerThread.x; x++){
+                uint3 CurrentIndex = uint3(x, y, z);
+                float minDistance = GetMinDistanceForPixel(CurrentIndex); 
+                distances[z * size.y * size.x + y * size.x + x] = minDistance;
+                threadMaxMinDistance = max(minDistance, threadMaxMinDistance);
+            }
+        }
+    }
+    return threadMaxMinDistance;
+}
+
+
+void NormalizeValues(uint threadIndex, uint groupIndex, uint3 index, uint3 amountPerGroup, uint3 amountPerThread){
+    //reiterate over the existing values and inverse scale them accoring to the max distance
+    for(uint z = index.z; z < index.z + amountPerThread.z; z++){
+        for(uint y = index.y; y < index.y + amountPerThread.y; y++){
+            for(uint x = index.x; x < index.x + amountPerThread.x; x++){
+                float value = clamp(1 - distances[z * size.y * size.x + y * size.x + x] / maxMinDistance[0], 0, 1);
+                result[uint3(x, y, z)] = float4(value, value, value, 1);
+            }
+        }
+    }
+}
+
+void ComputeMinimums(uint threadIndex, uint groupIndex, uint3 index, uint3 amountPerGroup, uint3 amountPerThread){
+    //every thread has its own max value, we need to combine them to find the global maximum
+    //this maximum can then be used to normalize every distance, so that the color range is 0..1
+    //wait for every thread in group to sync
+    
+    GroupMemoryBarrierWithGroupSync();
+    if(threadIndex == 0){
+        float groupMax = -1;
+        for(uint i = 0; i < THREAD_AMOUNT * THREAD_AMOUNT * THREAD_AMOUNT_Z; i++){
+            groupMax = max(groupMax, maxThreadDistances[i]);
+        }
+        maxGroupDistances[groupIndex] = groupMax;
+    }
+    //wait for every group to sync
+    GroupMemoryBarrierWithGroupSync();
+    if(groupIndex == 0 && threadIndex == 0){
+        for(uint i = 0; i < amountGroups.x * amountGroups.y * amountGroups.z; i++){
+            maxMinDistance[0] = max(maxMinDistance[0], maxGroupDistances[i]);
+        }
+    }
+    GroupMemoryBarrierWithGroupSync();
+    NormalizeValues(threadIndex, groupIndex, index, amountPerGroup, amountPerThread);
+}
+
+[numthreads(THREAD_AMOUNT, THREAD_AMOUNT, THREAD_AMOUNT_Z)]
+void CreateNoiseTexture (uint3 groupID : SV_GroupID, uint3 threadID : SV_GroupThreadID)
+{
+    //find from which pixels we have to start, according to group and thread size
+    uint3 amountPerGroup = uint3(
+        size.x / amountGroups.x,
+        size.y / amountGroups.y,
+        size.z / amountGroups.z 
+    );
+    uint3 amountPerThread = uint3(
+        amountPerGroup.x / THREAD_AMOUNT, 
+        amountPerGroup.y / THREAD_AMOUNT, 
+        amountPerGroup.z / THREAD_AMOUNT_Z
+    );
+
+    uint3 index = uint3(
+        groupID.x * amountPerGroup.x + threadID.x * amountPerThread.x, 
+        groupID.y * amountPerGroup.y + threadID.y * amountPerThread.y,
+        groupID.z * amountPerGroup.z + threadID.z * amountPerThread.z
+    );
+
+    uint threadIndex = threadID.z * THREAD_AMOUNT * THREAD_AMOUNT + threadID.y * THREAD_AMOUNT + threadID.x;
+    uint groupIndex = groupID.z * amountGroups.y * amountGroups.x + groupID.y * amountGroups.x + groupID.x;
+
+    maxThreadDistances[threadIndex] = ComputeValues(index, amountPerThread);
+    ComputeMinimums(threadIndex, groupIndex, index, amountPerGroup, amountPerThread);
+}
+
+[numthreads(THREAD_AMOUNT, THREAD_AMOUNT, THREAD_AMOUNT_Z)]
+void Clear (uint3 groupID : SV_GroupID, uint3 threadID : SV_GroupThreadID)
+{
+    uint3 amountPerGroup = uint3(
+        size.x / amountGroups.x,
+        size.y / amountGroups.y,
+        size.z / amountGroups.z 
+    );
+    uint3 amountPerThread = uint3(
+        amountPerGroup.x / THREAD_AMOUNT, 
+        amountPerGroup.y / THREAD_AMOUNT, 
+        amountPerGroup.z / THREAD_AMOUNT_Z
+    );
+
+    uint3 index = uint3(
+        groupID.x * amountPerGroup.x + threadID.x * amountPerThread.x, 
+        groupID.y * amountPerGroup.y + threadID.y * amountPerThread.y,
+        groupID.z * amountPerGroup.z + threadID.z * amountPerThread.z
+    );
+
+    for(uint z = index.z; z < index.z + amountPerThread.z; z++){    
+        for(uint y = index.y; y < index.y + amountPerThread.y; y++){
+            for(uint x = index.x; x < index.x + amountPerThread.x; x++){
+                uint3 CurrentIndex = uint3(x, y, z);
+                result[CurrentIndex] = float4(0, 0, 0, 1);
+            }
+        }
+    }
+}
+
+
+
+
+[numthreads(1, 1, 1)]
+void Debug (uint3 ID : SV_DISPATCHTHREADID)
+{
+    for (int i = 0; i < TOTAL_POINT_COUNT; i++){ 
+        result[points[i]] = 1;
+    }
+}

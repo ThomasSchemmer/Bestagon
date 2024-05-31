@@ -3,6 +3,30 @@ using System.Collections.Generic;
 
 public class Pathfinding
 {
+    public static List<Location> GetAffordableSubPath(List<Location> Path, int MovementPoints)
+    {
+        List<Location> AffordablePath = new();
+        if (Path.Count == 0)
+            return AffordablePath;
+
+        AffordablePath.Add(Path[0]);
+
+        int PathCosts = 0;
+        for(int i = 0; i < Path.Count - 1; i++)
+        {
+            List<Location> Move = new (){ Path[i], Path[i + 1]};
+            int MoveCosts = GetCostsForPath(Move);
+
+            if (MoveCosts + PathCosts > MovementPoints)
+                break;
+
+            AffordablePath.Add(Path[i + 1]);
+            PathCosts += MoveCosts;
+        }
+
+        return AffordablePath;
+    }
+
     public static HashSet<Location> FindReachableLocationsFrom(Location Start, int Range) {
 
         Dictionary<Location, int> LocationCosts;

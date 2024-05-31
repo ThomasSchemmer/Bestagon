@@ -34,7 +34,7 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
 
     public void UpdateHover(HexagonVisualization Hex)
     {
-        if (SelectedHex == null)
+        if (SelectedUnit == null)
         {
             Hide();
             return;
@@ -61,6 +61,7 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
         Selector.OnItemHovered -= UpdateHover;
 
         SelectedUnit = null;
+        SelectedHex = null;
         HideFeatures();
     }
 

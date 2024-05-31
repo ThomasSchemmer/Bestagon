@@ -17,13 +17,15 @@ public class UnitPathScreenFeature : ScreenFeature<UnitData>
     {
         base.ShowAt(YOffset);
 
+        TokenizedUnitData Unit = GetTargetAsTokenized();
         TryGetHexagons(out HexagonVisualization StartHex, out HexagonVisualization TargetHex);
         List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location);
+        List<Location> AffordablePath = Pathfinding.GetAffordableSubPath(Path, Unit.RemainingMovement);
 
-        Vector3[] WorldPositions = new Vector3[Path.Count];
-        for (int i = 0; i < Path.Count; i++)
+        Vector3[] WorldPositions = new Vector3[AffordablePath.Count];
+        for (int i = 0; i < AffordablePath.Count; i++)
         {
-            WorldPositions[i] = Path[i].WorldLocation + Offset;
+            WorldPositions[i] = AffordablePath[i].WorldLocation + Offset;
         }
         LineRenderer.positionCount = WorldPositions.Length;
         LineRenderer.SetPositions(WorldPositions);

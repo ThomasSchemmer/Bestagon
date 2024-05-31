@@ -219,6 +219,7 @@
     <None Include="Assets\Materials\Shaders\WorldGenerationCompute.compute" />
     <None Include="Assets\Materials\Shaders\HexagonShader.shader" />
     <None Include="Assets\Materials\Shaders\Util\CloudNoise.cginc" />
+    <None Include="Assets\Scripts\Effects\WhorleyCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\Materials\Shaders\HexagonShellShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />

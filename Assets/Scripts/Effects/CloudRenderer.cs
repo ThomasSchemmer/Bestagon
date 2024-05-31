@@ -1,45 +1,40 @@
 using System.Collections;
-using Unity.Mathematics;
-using UnityEditor;
+using System.Collections.Generic;
 using UnityEngine;
 
 /** 
  * Helper class to pass all necessary values to the actual two shaders doing the cloud computation:
- * - VoronoiCompute: calculates 4 different noises (1 simplex, 3 voronoi) and compresses them into a single int
+ * - WhorleyCompute: calculates 4 different noises (1 simplex, 3 WhorleyCompute) and compresses them into a single int
  * - CloudShader: Takes the noise data and screen space position to render clouds as a post-processing effect
  */
 public class CloudRenderer : GameService
 {
     public Material Material;
     public RenderTexture TargetTexture;
-    public Texture2D DebugTexture;
 
-    public ComputeShader VoronoiCompute;
+    public ComputeShader WhorleyShader;
+    [Range(1, 20)]
+    public int NumPoints = 10;
     [Range(0.25f, 5)]
     public float Zoom = 4;
-    [Range(0, 31)]
-    public int Slice = 0;
     [Range(1, 4)]
     public int Iterations = 2;
     [Range(0, 5)]
     public float Factor = 1.5f;
-    [Range(1, 100)]
-    public int CellCount = 25;
-
-    public int ResolutionXZ = 128;
-    public int ResolutionY = 8;
 
     private Camera MainCam;
     private ComputeBuffer MalaiseBuffer;
-    private MapGenerator MapGen;
+    private ComputeBuffer PointBuffer;
+    private ComputeBuffer DirectionsBuffer;
+    private ComputeBuffer DistancesBuffer;
+    private ComputeBuffer MaxGroupDistancesBuffer;
+    private ComputeBuffer MaxMinDistanceBuffer;
 
-    //private ComputeBuffer CloudNoiseBuffer;
-    private int Kernel, DebugKernel;
+    private MapGenerator MapGen;
 
     public void OnDestroy()
     {
-        MalaiseBuffer?.Release();
-        //CloudNoiseBuffer?.Dispose();
+        ClearBuffers();
     }
 
     public void Update()
@@ -68,31 +63,11 @@ public class CloudRenderer : GameService
         MalaiseBuffer.SetData(MalaiseDTOs);
     }
 
-    private void Initialize()
+    public void Initialize()
     {
-        InitializeComputeShader();
+        CreateWhorleyNoise();
         InitializeVertexShader();
         _OnInit?.Invoke();
-    }
-
-    private void InitializeComputeShader()
-    {
-        //CloudNoiseBuffer = new(ResolutionXZ * ResolutionXZ * ResolutionY, sizeof(int));
-
-        Kernel = VoronoiCompute.FindKernel("Main");
-        DebugKernel = VoronoiCompute.FindKernel("Debug");
-        VoronoiCompute.SetTexture(Kernel, "Result", TargetTexture);
-        VoronoiCompute.SetTexture(DebugKernel, "Result", TargetTexture);
-        VoronoiCompute.SetTexture(DebugKernel, "DebugTexture", DebugTexture);
-
-        VoronoiCompute.SetFloat("Zoom", Zoom);
-        VoronoiCompute.SetFloat("CellCount", CellCount);
-        VoronoiCompute.SetFloat("Iterations", Iterations);
-        VoronoiCompute.SetFloat("Factor", Factor);
-        VoronoiCompute.SetFloat("_ResolutionXZ", ResolutionXZ);
-        VoronoiCompute.SetFloat("_ResolutionY", ResolutionY);
-
-        VoronoiCompute.Dispatch(Kernel, ResolutionXZ / 16, ResolutionXZ / 16, ResolutionY);
     }
 
     private void InitializeVertexShader()
@@ -108,8 +83,8 @@ public class CloudRenderer : GameService
         Material.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
         Material.SetBuffer("MalaiseBuffer", MalaiseBuffer);
         Material.SetTexture("_NoiseTex", TargetTexture);
-        Material.SetFloat("_ResolutionXZ", ResolutionXZ);
-        Material.SetFloat("_ResolutionY", ResolutionY);
+        Material.SetFloat("_ResolutionXZ", TargetTexture.width);
+        Material.SetFloat("_ResolutionY", TargetTexture.volumeDepth);
         PassMaterialBuffer();
     }
 
@@ -125,4 +100,158 @@ public class CloudRenderer : GameService
     }
 
     protected override void StopServiceInternal() {}
+
+    public void CreateWhorleyNoise()
+    {
+        ClearBuffers();
+        FillPointBuffer();
+
+        int createNoiseKernel = WhorleyShader.FindKernel("CreateNoiseTexture");
+        Vector3Int ImageSize = new(TargetTexture.width, TargetTexture.height, TargetTexture.volumeDepth);
+        Vector3Int AmountGroups = new(ImageSize.x / 16, ImageSize.y / 16, ImageSize.z / 1);
+
+        FillWhorleyBuffers(createNoiseKernel, ImageSize, AmountGroups);
+
+        WhorleyShader.Dispatch(createNoiseKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
+    }
+
+    public void Tile()
+    {
+        Texture2D Tex = new(TargetTexture.width, TargetTexture.height, TextureFormat.ARGB32, TargetTexture.mipmapCount, true);
+        Graphics.CopyTexture(TargetTexture, Tex);
+        Graphics.Blit(Tex, TargetTexture, new Vector2(2, 2), new Vector2(0, 0));
+    }
+
+    private void FillPointBuffer()
+    {
+        Random.InitState(5);
+        List<Vector3> Points = new List<Vector3>(NumPoints * NumPoints );   //* NumPoints 
+        float scale = 1.0f / NumPoints;
+        for (int z = 0; z < NumPoints; z++)
+        {
+            for (int y = 0; y < NumPoints; y++)
+            {
+                for (int x = 0; x < NumPoints; x++)
+                {
+                    {
+                        Vector3 p = new Vector3(
+                            (x * scale + Random.Range(0, scale)) * TargetTexture.width,
+                            (y * scale + Random.Range(0, scale)) * TargetTexture.height,
+                            (z * scale + Random.Range(0, scale)) * TargetTexture.volumeDepth
+                        );
+                        Points.Add(p);
+                    }
+                }
+            }
+        }
+
+        PointBuffer = new ComputeBuffer(Points.Count, sizeof(float) * 3);
+        PointBuffer.SetData(Points);
+    }
+
+    private void FillWhorleyBuffers(int createNoiseKernel, Vector3Int ImageSize, Vector3Int AmountGroups)
+    {
+
+        DirectionsBuffer = new ComputeBuffer(DIRECTIONS.Length, sizeof(float) * 3);
+        DirectionsBuffer.SetData(DIRECTIONS);
+
+        DistancesBuffer = new ComputeBuffer(ImageSize.x * ImageSize.y * ImageSize.z, sizeof(float));
+        MaxGroupDistancesBuffer = new ComputeBuffer(AmountGroups.x * AmountGroups.y, sizeof(float));
+        MaxMinDistanceBuffer = new ComputeBuffer(1, sizeof(float));
+
+        WhorleyShader.SetBuffer(createNoiseKernel, "points", PointBuffer);
+        WhorleyShader.SetBuffer(createNoiseKernel, "directions", DirectionsBuffer);
+        WhorleyShader.SetBuffer(createNoiseKernel, "distances", DistancesBuffer);
+        WhorleyShader.SetBuffer(createNoiseKernel, "maxGroupDistances", MaxGroupDistancesBuffer);
+        WhorleyShader.SetBuffer(createNoiseKernel, "maxMinDistance", MaxMinDistanceBuffer);
+
+        WhorleyShader.SetInt("directionsCount", DIRECTIONS.Length);
+        WhorleyShader.SetFloat("pointCount", NumPoints);
+        WhorleyShader.SetVector("size", new(ImageSize.x, ImageSize.y, ImageSize.z, 0));
+        WhorleyShader.SetVector("amountGroups", new(AmountGroups.x, AmountGroups.y, AmountGroups.z, 0));
+
+        WhorleyShader.SetTexture(createNoiseKernel, "result", TargetTexture);
+    }
+
+    public void Debug()
+    {
+        ClearBuffers();
+        FillPointBuffer();
+        int debugKernel = WhorleyShader.FindKernel("Debug");
+
+        WhorleyShader.SetFloat("pointCount", NumPoints);
+        WhorleyShader.SetBuffer(debugKernel, "points", PointBuffer);
+        WhorleyShader.SetTexture(debugKernel, "result", TargetTexture);
+
+        WhorleyShader.Dispatch(debugKernel, 1, 1, 1);
+    }
+
+    public void Clear()
+    {
+        ClearBuffers();
+        int clearKernel = WhorleyShader.FindKernel("Clear");
+        Vector3Int ImageSize = new(TargetTexture.width, TargetTexture.height, TargetTexture.volumeDepth);
+        Vector3Int AmountGroups = new(ImageSize.x / 16, ImageSize.y / 16, ImageSize.z / 1);
+
+        WhorleyShader.SetVector("size", new(ImageSize.x, ImageSize.y, ImageSize.z, 0));
+        WhorleyShader.SetVector("amountGroups", new(AmountGroups.x, AmountGroups.y, AmountGroups.z, 0));
+
+        WhorleyShader.SetTexture(clearKernel, "result", TargetTexture);
+
+        WhorleyShader.Dispatch(clearKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
+    }
+
+    private void ClearBuffers()
+    {
+        MalaiseBuffer?.Release();
+        PointBuffer?.Release();
+        DirectionsBuffer?.Release();
+        DistancesBuffer?.Release();
+        MaxGroupDistancesBuffer?.Release();
+        MaxMinDistanceBuffer?.Release();
+    }
+
+
+    private static Vector3[] DIRECTIONS2D = new Vector3[9]{
+        new Vector3(+0, +0),
+        new Vector3(+1, +0),
+        new Vector3(+1, -1),
+        new Vector3(+0, -1),
+        new Vector3(-1, -1),
+        new Vector3(-1, +0),
+        new Vector3(-1, +1),
+        new Vector3(+0, +1),
+        new Vector3(+1, +1),
+    };
+
+    private static Vector3[] DIRECTIONS3D = new Vector3[27]{
+        new Vector3(+0, +0, -1),
+        new Vector3(+1, +0, -1),
+        new Vector3(+1, -1, -1),
+        new Vector3(+0, -1, -1),
+        new Vector3(-1, -1, -1),
+        new Vector3(-1, +0, -1),
+        new Vector3(-1, +1, -1),
+        new Vector3(+0, +1, -1),
+        new Vector3(+1, +1, -1),
+        new Vector3(+0, +0, +0),
+        new Vector3(+1, +0, +0),
+        new Vector3(+1, -1, +0),
+        new Vector3(+0, -1, +0),
+        new Vector3(-1, -1, +0),
+        new Vector3(-1, +0, +0),
+        new Vector3(-1, +1, +0),
+        new Vector3(+0, +1, +0),
+        new Vector3(+1, +1, +0),
+        new Vector3(+0, +0, +1),
+        new Vector3(+1, +0, +1),
+        new Vector3(+1, -1, +1),
+        new Vector3(+0, -1, +1),
+        new Vector3(-1, -1, +1),
+        new Vector3(-1, +0, +1),
+        new Vector3(-1, +1, +1),
+        new Vector3(+0, +1, +1),
+        new Vector3(+1, +1, +1),
+    };
+    private static Vector3[] DIRECTIONS = DIRECTIONS3D;
 }

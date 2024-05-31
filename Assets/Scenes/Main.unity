@@ -3267,7 +3267,7 @@ MonoBehaviour:
   State: 1
   Mode: 0
   bIsPaused: 0
-  ChunkCount: 3
+  TargetFramerate: -1
   Services:
   - IsForEditor: 1
     IsForGame: 1
@@ -5230,7 +5230,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288013423}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c36f027b8d19ec54a816ade1c02d789d, type: 3}
   m_Name: 
@@ -5238,16 +5238,12 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   Material: {fileID: 2100000, guid: 3f29c47348eadcd49bfa36f79834b178, type: 2}
-  TargetTexture: {fileID: 8400000, guid: 1c4394a7faec93248b39a1532b4e7e3b, type: 2}
-  DebugTexture: {fileID: 2800000, guid: 620c06cdbe7299740aec11c8d598eb30, type: 3}
-  VoronoiCompute: {fileID: 7200000, guid: 0202cb7fc6397104aae804179a28fb59, type: 3}
-  Zoom: 4
-  Slice: 0
+  TargetTexture: {fileID: 8400000, guid: 01e6e05ed17b8b0448d503bd3f7b16a6, type: 2}
+  WhorleyShader: {fileID: 7200000, guid: 8c7981dbde7ea824fae89ada1207fb87, type: 3}
+  NumPoints: 10
+  Zoom: 1
   Iterations: 2
   Factor: 1.5
-  CellCount: 50
-  ResolutionXZ: 128
-  ResolutionY: 8
 --- !u!4 &1288013425
 Transform:
   m_ObjectHideFlags: 0

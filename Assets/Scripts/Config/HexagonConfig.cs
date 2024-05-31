@@ -22,7 +22,7 @@ public class HexagonConfig {
     public static int mapMinChunk = 0;
 
     /** Highest index of a chunk in the world, describes the border location */
-    public static int mapMaxChunk = 10;
+    public static int mapMaxChunk = 5;
 
     /** Tile width for the complete map */
     public static int MapWidth

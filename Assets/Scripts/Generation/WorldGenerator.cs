@@ -307,10 +307,6 @@ public class WorldGenerator : GameService
         for (int i = 0; i < MapData.Length; i++)
         {
             Vector2Int MapPos = new(i % MapWidth, i / MapWidth);
-            if (MapPos.x == 14 && MapPos.y == 31)
-            {
-                Debug.Log("");
-            }
             Vector2Int ImagePos = new((int)(MapPos.x * SizeMultiplier), (int)(MapPos.y * SizeMultiplier));
             int ImageIndex = ImagePos.y * ImageWidth + ImagePos.x;
             MapData[i] = HexagonData.CreateFromInfo(ImageData[ImageIndex]);

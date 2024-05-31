@@ -44,6 +44,6 @@ Material:
     m_Colors:
     - _CameraDir: {r: 0, g: 0, b: 0, a: 0}
     - _CameraExtent: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraPos: {r: 157.3311, g: 35, b: 84.92007, a: 0}
+    - _CameraPos: {r: 25.98076, g: 35, b: 15, a: 0}
     - _UV: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

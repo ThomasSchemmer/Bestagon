@@ -9,7 +9,7 @@ public class Game : MonoBehaviour
     public GameState State = GameState.GameMenu;
     public GameMode Mode = GameMode.Game;
     public bool bIsPaused = false;
-    public int ChunkCount;
+    public int TargetFramerate = 60;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
     private Dictionary<Type, GameServiceWrapper> InternalServices = new();
@@ -67,14 +67,12 @@ public class Game : MonoBehaviour
 
     public void Start()
     {
-        //todo: debug remove
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = TargetFramerate;
         if (IngameMenu.Instance)
         {
             IngameMenu.Instance._OnOpenBegin += OnOpenMenu;
             IngameMenu.Instance._OnClose += OnCloseMenu;
         }
-        HexagonConfig.mapMaxChunk = ChunkCount;
 
         ConvertToDictionary();
         InitMode();

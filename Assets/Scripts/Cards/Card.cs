@@ -75,6 +75,11 @@ public abstract class Card : Draggable, ISelectable
         transform.localPosition = CurrentPos;
         CardHand.Sort(isHovered);
         SetColor();
+
+        if (!Selected || !Game.TryGetService(out Selectors Selectors))
+            return;
+
+        Selectors.DeselectHexagon();
     }
 
     public void SetHovered(bool Hovered) {

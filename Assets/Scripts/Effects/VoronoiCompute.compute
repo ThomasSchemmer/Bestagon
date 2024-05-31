@@ -1,10 +1,7 @@
 #include "Assets/Materials/Shaders/Util/Util.cginc"
 
 #pragma kernel Main
-#pragma kernel Debug
-
 RWTexture3D<float4> Result;
-Texture2D<float4> DebugTexture;
 float CellCount;
 float Zoom;
 float Iterations;
@@ -15,15 +12,17 @@ float _ResolutionY;
 [numthreads(16,16,1)]
 void Main (uint3 id : SV_DispatchThreadID)
 {
-
-    float DistSqrR = ssnoise(id / (4.0 * 10), 1, 0, 3, Factor);
-    float DistSqrG = svoronoi3Tiled(id / ((Zoom - 0) * 10), CellCount, Iterations + 0, Factor);
-    float DistSqrB = svoronoi3Tiled(id / ((Zoom - 1) * 10), CellCount, Iterations + 1, Factor);
-    float DistSqrA = svoronoi3Tiled(id / ((Zoom - 2) * 10), CellCount, Iterations + 2, Factor);
-    float R = 1 - sqrt(DistSqrR);
-    float G = 1 - sqrt(DistSqrG);
-    float B = 1 - sqrt(DistSqrB);
-    float A = 1 - sqrt(DistSqrA);
+    float R = 1 - voronoi3Tiled(id / ((Zoom - 0) * 10), CellCount);
+    Result[id] = float4(R, R, R, 1);
+    Result[id + uint3(128, 0, 0)] = float4(R, R, R, 1);
+    //float DistSqrR = ssnoise(id / (4.0 * 10), 1, 0, 3, Factor);
+    //float DistSqrG = svoronoi3Tiled(id / ((Zoom - 0) * 10), CellCount, Iterations + 0, Factor);
+    //float DistSqrB = svoronoi3Tiled(id / ((Zoom - 1) * 10), CellCount, Iterations + 1, Factor);
+    //float DistSqrA = svoronoi3Tiled(id / ((Zoom - 2) * 10), CellCount, Iterations + 2, Factor);
+    //float R = 1 - sqrt(DistSqrR);
+    //float G = 1 - sqrt(DistSqrG);
+    //float B = 1 - sqrt(DistSqrB);
+    //float A = 1 - sqrt(DistSqrA);
     //int R = (int)(sqrt(DistSqrR) * 255) & 0xFF;
     //int G = (int)((1 - sqrt(DistSqrG)) * 255) & 0xFF;
     //int B = (int)((1 - sqrt(DistSqrB)) * 255) & 0xFF;
@@ -31,22 +30,6 @@ void Main (uint3 id : SV_DispatchThreadID)
 
     //int Data = R << 24 | G << 16 | B << 8 | A;
 
-    int Pos = id.z * _ResolutionXZ * _ResolutionXZ + id.y * _ResolutionXZ + id.x;
-    Result[id] = float4(R, G, B, A);
+    //int Pos = id.z * _ResolutionXZ * _ResolutionXZ + id.y * _ResolutionXZ + id.x;
+    //Result[id] = float4(R, G, B, A);
 }
-
-[numthreads(16,16,1)]
-void Debug (uint3 id : SV_DispatchThreadID)
-{
-    float4 Color = DebugTexture[id.xy];
-    //int R = (int)(Color.r * 255) & 0xFF;
-    //int G = (int)(Color.g * 255) & 0xFF;
-    //int B = (int)(Color.b * 255) & 0xFF;
-    //int A = (int)(Color.a * 255) & 0xFF;
-    
-    //int Data = R << 24 | G << 16 | B << 8 | A;
-
-    int Pos = id.z * _ResolutionXZ * _ResolutionXZ + id.y * _ResolutionXZ + id.x;
-    Result[float3(id.xy, 0)] = Color;
-}
-

@@ -61,28 +61,38 @@ public class MalaiseData : ISaveable
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        List<Location> ChosenLocations = GetRandomMalaised();
+        List<Location> StartLocations = GetRandomMalaised();
 
-        for (int i = 0; i < ChosenLocations.Count; i++)
+        for (int LocationIndex = 0; LocationIndex < StartLocations.Count; LocationIndex++) 
         {
-            List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(ChosenLocations[i], false);
-            int Index = Random.Range(0, Neighbours.Count);
-            HexagonData Neighbour = Neighbours[Index];
-            if (Neighbour.MalaisedState != HexagonData.MalaiseState.None)
-                continue;
+            List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(StartLocations[LocationIndex], false);
+            int RandomNeighbourIndex = Random.Range(0, Neighbours.Count);
+            int MaxSearchCount = Mathf.Min(GlobalMaxSearchCount, Neighbours.Count);
 
-            Neighbour.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+            // take a random neighbour direction and check clockwise for the first uncorrupted tile
+            for (int SearchCount = 0; SearchCount < MaxSearchCount; SearchCount++)
+            {
+                int SelectedNeighbourIndex = (RandomNeighbourIndex + SearchCount) % Neighbours.Count;
+                HexagonData Neighbour = Neighbours[SelectedNeighbourIndex];
+                if (Neighbour.MalaisedState != HexagonData.MalaiseState.None)
+                    continue;
 
-            if (!MapGenerator.TryGetChunkData(Neighbour.Location, out ChunkData NeighbourChunk))
-                continue;
+                Neighbour.MalaisedState = HexagonData.MalaiseState.PreMalaise;
 
-            NeighbourChunk.Malaise.LocationsToMalaise.Add(Neighbour.Location);
-            NeighbourChunk.Malaise.Infect();
+                //now we have to break asap to ensure only one neighbour gets infected
+                if (!MapGenerator.TryGetChunkData(Neighbour.Location, out ChunkData NeighbourChunk))
+                    break;
 
-            if (!MapGenerator.TryGetHexagon(Neighbour.Location, out HexagonVisualization HexVis))
-                continue;
+                NeighbourChunk.Malaise.LocationsToMalaise.Add(Neighbour.Location);
+                NeighbourChunk.Malaise.Infect();
 
-            HexVis.VisualizeSelection();
+                if (!MapGenerator.TryGetHexagon(Neighbour.Location, out HexagonVisualization HexVis))
+                    break;
+
+                HexVis.VisualizeSelection();
+                break;
+            }
+
         }
     }
 
@@ -191,4 +201,5 @@ public class MalaiseData : ISaveable
     };
     public static bool bHasStarted = false;
     public static int SpreadCountPerRound = 5;
+    public static int GlobalMaxSearchCount = 6;
 }

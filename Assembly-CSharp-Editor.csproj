@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Util\BiomeMap\Editor\BiomeInspectorWindow.cs" />
+    <Compile Include="Assets\Scripts\Effects\Editor\CloudRendererEditor.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Editor\ISaveableDrawer.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Editor\BuildingEffectDrawer.cs" />
     <Compile Include="Assets\Scripts\Player\Editor\ProductionDrawer.cs" />
