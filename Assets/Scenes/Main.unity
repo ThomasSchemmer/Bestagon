@@ -4464,10 +4464,8 @@ MonoBehaviour:
   IsInit: 0
   Resources:
     _Production:
-      Tuples:
-      - Key: 0
-        Value: 5
-  UpgradePoints: 2
+      Tuples: []
+  UpgradePoints: 0
 --- !u!1 &1137653718
 GameObject:
   m_ObjectHideFlags: 0
@@ -5863,6 +5861,7 @@ MonoBehaviour:
     type: 3}
   WarningSprite: {fileID: 21300000, guid: 90b43d73016a5d647be8c6ed10d6818e, type: 3}
   ErrorSprite: {fileID: 21300000, guid: a188fc061967aea499a147a680a05cc1, type: 3}
+  SuccessSprite: {fileID: 0}
 --- !u!1 &1601135166
 GameObject:
   m_ObjectHideFlags: 0

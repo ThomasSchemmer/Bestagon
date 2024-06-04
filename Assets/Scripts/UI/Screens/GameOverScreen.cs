@@ -15,6 +15,24 @@ public class GameOverScreen : MonoBehaviour
     {
         if (!Game.TryGetService(out SaveGameManager SaveGameManager))
             return;
+
+        UpdateResources();
+        UpdateCards();
+
+        string SaveGame = SaveGameManager.Save();
+        Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
+    }
+
+    private void UpdateResources()
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        Stockpile.ResetResources();
+    }
+
+    private void UpdateCards()
+    {
         if (!Game.TryGetServices(out CardHand CardHand, out CardStash CardStash, out DiscardDeck DiscardDeck))
             return;
         if (!Game.TryGetService(out CardDeck CardDeck))
@@ -34,9 +52,6 @@ public class GameOverScreen : MonoBehaviour
             return Card.WasUsedUpThisTurn();
         });
         CardDeck.RefreshAllUsedUps();
-
-        string SaveGame = SaveGameManager.Save();
-        Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
     }
 
     public void Show()

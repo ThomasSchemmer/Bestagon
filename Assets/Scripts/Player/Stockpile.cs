@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
+using static Stockpile;
 
 public class Stockpile : GameService, ISaveable
 {
@@ -42,9 +43,11 @@ public class Stockpile : GameService, ISaveable
         if (!Game.TryGetServices(out Workers WorkerService, out Units UnitService))
             return;
 
-        Resources += MapGenerator.GetProductionPerTurn();
+        Production ProducedThisRound = MapGenerator.GetProductionPerTurn();
+        Resources += ProducedThisRound;
         HandleStarvation(WorkerService, UnitService);
 
+        _OnResourcesCollected?.Invoke(ProducedThisRound);
         _OnResourcesChanged?.Invoke();
     }
 

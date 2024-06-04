@@ -23,6 +23,11 @@ public class BuildingCard : Card
         MaxWorkerTransform = transform.Find("MaxWorker").GetComponent<RectTransform>();
     }
 
+    public RectTransform GetMaxWorkerTransform()
+    {
+        return MaxWorkerTransform;
+    }
+
     protected override void DeleteVisuals()
     {
         base.DeleteVisuals();

@@ -18,10 +18,8 @@ public class CardSelectionScreen : MonoBehaviour
 
     public void OnConfirm()
     {
-        if (!Game.TryGetServices(out SaveGameManager Manager, out Stockpile Stockpile))
+        if (!Game.TryGetService(out SaveGameManager Manager))
             return;
-
-        Stockpile.ResetResources();
 
         // write into temp and then trigger a reload through the scene load
         string FileToLoad = Manager.Save();

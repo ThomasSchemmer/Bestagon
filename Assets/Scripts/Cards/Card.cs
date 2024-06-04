@@ -120,14 +120,9 @@ public abstract class Card : Draggable, ISelectable
         CardBase.color = Color;
     }
 
-    public Transform GetMaxWorkerTransform()
-    {
-        return transform.GetChild(3);
-    }
-
     public Transform GetUsagesTransform()
     {
-        return transform.GetChild(4);
+        return UsagesTransform;
     }
 
     public Transform GetProductionTransform()

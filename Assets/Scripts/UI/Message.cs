@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Message : MonoBehaviour
 {
     public enum Type {
+        Success,
         Warning,
         Error
     }

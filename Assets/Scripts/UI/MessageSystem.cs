@@ -74,6 +74,7 @@ public class MessageSystem : MonoBehaviour
     private Sprite GetSpriteByType(Message.Type Type) {
         switch (Type) {
             case Message.Type.Warning: return WarningSprite;
+            case Message.Type.Success: return SuccessSprite;
             default: return ErrorSprite;
         }
     }
@@ -91,6 +92,7 @@ public class MessageSystem : MonoBehaviour
 
     public Sprite WarningSprite;
     public Sprite ErrorSprite;
+    public Sprite SuccessSprite;
 
     private static MessageSystem Instance;
     private static Vector3 Offset = new Vector3(0, -80, 0);
