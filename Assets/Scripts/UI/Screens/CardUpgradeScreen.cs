@@ -97,12 +97,20 @@ public class CardUpgradeScreen : GameService
 
     public void LoadCard()
     {
-        CopyCard = Instantiate(LastCard);
-        GameObject Clone = CopyCard.gameObject;
-        MoveToContainer(Clone, false);
-        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
-        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
-        ConvertToButton(Clone, LastCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
+        if (!Game.TryGetService(out CardFactory CardFactory))
+            return;
+
+        CardFactory.CloneCard(LastCard, OnLoadedCard);
+    }
+
+    private void OnLoadedCard(Card Card)
+    {
+        CopyCard = Card as BuildingCard;
+
+        MoveToContainer(CopyCard.gameObject, false);
+        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
+        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
+        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
         EnableConfirmButton(false);
     }
 
@@ -116,21 +124,21 @@ public class CardUpgradeScreen : GameService
         CloneTransform.anchorMax = Vector2.one * 0.5f;
     }
 
-    private void ConvertToButton(GameObject Clone, BuildingData BuildingData, Transform UsagesTransform, UpgradeableAttributes Type)
+    private void ConvertToButton(BuildingData BuildingData, Transform OldTransform, UpgradeableAttributes Type)
     {
         if (!BuildingData.IsUpgradePossible(Type))
             return;
 
-        RectTransform OldUsagesVisuals = UsagesTransform.GetChild(0).GetComponent<RectTransform>();
+        RectTransform OldUsagesVisuals = OldTransform.GetChild(0).GetComponent<RectTransform>();
 
         Button UsagesButton = Instantiate(UpgradeButtonPrefab).GetComponent<Button>();
-        RectTransform NewUsagesVisuals = UsagesButton.GetComponent<RectTransform>();
-        NewUsagesVisuals.anchorMin = OldUsagesVisuals.anchorMin;
-        NewUsagesVisuals.anchorMax = OldUsagesVisuals.anchorMax;
-        NewUsagesVisuals.sizeDelta = OldUsagesVisuals.sizeDelta;
-        NewUsagesVisuals.SetParent(UsagesTransform, false);
-        NewUsagesVisuals.anchoredPosition = OldUsagesVisuals.anchoredPosition;
-        OldUsagesVisuals.SetParent(NewUsagesVisuals, true);
+        RectTransform ButtonVisuals = UsagesButton.GetComponent<RectTransform>();
+        ButtonVisuals.anchorMin = OldUsagesVisuals.anchorMin;
+        ButtonVisuals.anchorMax = OldUsagesVisuals.anchorMax;
+        ButtonVisuals.sizeDelta = OldUsagesVisuals.sizeDelta;
+        ButtonVisuals.SetParent(OldTransform, false);
+        ButtonVisuals.anchoredPosition = OldUsagesVisuals.anchoredPosition;
+        OldUsagesVisuals.SetParent(ButtonVisuals, true);
 
         UsagesButton.onClick.RemoveAllListeners();
         UsagesButton.onClick.AddListener(delegate { SelectUpgrade(Type); });
@@ -142,6 +150,9 @@ public class CardUpgradeScreen : GameService
 
     private void SelectUpgrade(UpgradeableAttributes SelectedUpgrade)
     {
+        if (!Game.TryGetService(out CardFactory CardFactory))
+            return;
+
         UpgradedBuildingData = Instantiate(LastCard.GetBuildingData());
         UpgradedBuildingData.Upgrade(SelectedUpgrade);
         UpgradedCardContainer.SetActive(true);
@@ -153,9 +164,15 @@ public class CardUpgradeScreen : GameService
         {
             Destroy(UpgradedCard.gameObject);
         }
-        UpgradedCard = Instantiate(LastCard);
-        UpgradedCard.SetBuildingData(UpgradedBuildingData);
-        UpgradedCard.GenerateCard();
+
+        BuildingCardDTO DTO = new();
+        DTO.BuildingData = UpgradedBuildingData;
+        CardFactory.CreateCardFromDTO(DTO, 0, null, OnUpgradePreviewCard);
+    }
+
+    private void OnUpgradePreviewCard(Card Card)
+    {
+        UpgradedCard = Card as BuildingCard;
         MoveToContainer(UpgradedCard.gameObject, true);
     }
 

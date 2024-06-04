@@ -10,18 +10,19 @@ public class NumberedIconScreen : SimpleIconScreen
 {
     private TMPro.TextMeshProUGUI CountText;
 
-    public override void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip, ISelectable Parent)
+    public override void Initialize(Sprite Sprite, string HoverTooltip, ISelectable Parent)
     {
-        base.Initialize(Sprite, bShowRegular, HoverTooltip, Parent);
-        Initialize(bShowRegular);
+        base.Initialize(Sprite, HoverTooltip, Parent);
+        Initialize();
     }
 
-    private void Initialize(bool bShowRegular)
+    private void Initialize()
     {
         CountText = transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
         float x = CountText.transform.localPosition.x;
-        CountText.transform.localPosition = new Vector3(bShowRegular ? x : -x, 0, 0);
-        CountText.alignment = bShowRegular ? TMPro.TextAlignmentOptions.MidlineLeft : TMPro.TextAlignmentOptions.MidlineRight;
+
+        CountText.transform.localPosition = new Vector3(x, 0, 0);
+        CountText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
     }
 
     public void UpdateVisuals(int Count, int Max = -1)

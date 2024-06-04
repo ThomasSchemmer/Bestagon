@@ -102,6 +102,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
 
         this.Location = Location.Copy();
         Generator.AddBuilding(this);
+        _OnBuildingBuilt?.Invoke(this);
     }
 
     public int GetMaximumWorkerCount() {
@@ -181,6 +182,16 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
     public bool IsNeighbourBuildingBlocking()
     {
         return Effect.IsProductionBlockedByBuilding;
+    }
+
+    public bool IsFoodProductionBuilding()
+    {
+        int FoodValue = 0;
+        foreach (var Tuple in GetProduction().GetTuples())
+        {
+            FoodValue += Production.GetHungerFromFood(Tuple.Key) * Tuple.Value;
+        }
+        return FoodValue > 0;
     }
 
     public void Upgrade(UpgradeableAttributes SelectedAttribute)
@@ -283,4 +294,8 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
     }
+
+
+    public delegate void OnBuildingBuilt(BuildingData Building);
+    public static event OnBuildingBuilt _OnBuildingBuilt;
 }

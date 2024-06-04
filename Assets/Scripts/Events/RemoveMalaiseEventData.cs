@@ -34,6 +34,11 @@ public class RemoveMalaiseEventData : EventData
         return "Removes malaise from one tile";
     }
 
+    public override string GetEventName()
+    {
+        return "Cleanse";
+    }
+
     public override GameObject GetEventVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))

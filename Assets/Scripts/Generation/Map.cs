@@ -1,3 +1,6 @@
+
+using static HexagonConfig;
+
 /** 
  * Container for the actual map data. 
  * Should not be accessed directly, but queried via MapGenerator to also update the visualization
@@ -10,17 +13,19 @@ public class Map : GameService
      */
     public HexagonData[] MapData;
 
+    public SerializedDictionary<Location, HexagonDecoration> AdditionalDecorations = new();
+
     public HexagonData GetHexagonAtLocation(Location Location)
     {
-        int Pos = HexagonConfig.GetMapPosFromLocation(Location);
+        int Pos = GetMapPosFromLocation(Location);
         return MapData[Pos];
     }
 
     public float GetWorldHeightAtLocation(Location Location)
     {
-        int Pos = HexagonConfig.GetMapPosFromLocation(Location);
+        int Pos = GetMapPosFromLocation(Location);
         HexagonData Hex = MapData[Pos];
-        return HexagonConfig.GetWorldHeightFromTile(Hex);
+        return GetWorldHeightFromTile(Hex);
     }
 
     public void OverwriteSettings(int TileCount, int ChunkCount)
@@ -33,8 +38,20 @@ public class Map : GameService
     {
         foreach (HexagonData Hex in Chunk.HexDatas)
         {
-            int Pos = HexagonConfig.GetMapPosFromLocation(Hex.Location);
+            int Pos = GetMapPosFromLocation(Hex.Location);
             MapData[Pos] = Hex;
+        }
+    }
+
+    private void AddDelayedDecorations()
+    {
+        if (Game.Instance.Mode != Game.GameMode.Game)
+            return;
+
+        foreach (var Tuple in AdditionalDecorations)
+        {
+            int Pos = GetMapPosFromLocation(Tuple.Key);
+            MapData[Pos].Decoration = Tuple.Value;
         }
     }
 
@@ -47,6 +64,7 @@ public class Map : GameService
             if (!Manager.HasDataFor(ISaveable.SaveGameType.MapGenerator))
             {
                 MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
+                AddDelayedDecorations();
             }
 
             _OnInit?.Invoke();

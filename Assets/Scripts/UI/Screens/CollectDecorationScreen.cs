@@ -40,14 +40,14 @@ public class CollectDecorationScreen : MonoBehaviour
 
     private void Start()
     {
-        HexagonVisualization._OnMovementTo += HandleMovement;
+        TokenizedUnitData._OnMovementTo += HandleMovement;
         Container = transform.GetChild(0).gameObject;
         Hide();
     }
 
     private void OnDestroy()
     {
-        HexagonVisualization._OnMovementTo -= HandleMovement;
+        TokenizedUnitData._OnMovementTo -= HandleMovement;
     }
 
     public void OnSelectOption(bool bIsChoiceA)
@@ -123,18 +123,12 @@ public class CollectDecorationScreen : MonoBehaviour
 
     public void ShowRuinChoices()
     {
-        Game.Instance.OnOpenMenu();
-        Container.SetActive(true);
-
         CreateCardAt(true, CardDTO.Type.Building);
         CreateUpgradeAt(false);
     }
 
     public void ShowTribeChoices()
     {
-        Game.Instance.OnOpenMenu();
-        Container.SetActive(true);
-
         CreateCardAt(true, CardDTO.Type.Event);
         CreateCardAt(false, CardDTO.Type.Event);
     }
@@ -214,12 +208,19 @@ public class CollectDecorationScreen : MonoBehaviour
 
     private void HandleMovement(Location Location)
     {
-        CurrentLocation = Location;
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
         if (!MapGenerator.TryGetHexagonData(Location, out HexagonData HexData))
             return;
+
+        if (HexData.Decoration == HexagonConfig.HexagonDecoration.None)
+            return;
+
+        CurrentLocation = Location;
+
+        Game.Instance.OnPopupAction(true);
+        Container.SetActive(true);
 
         switch (HexData.Decoration)
         {
@@ -249,7 +250,7 @@ public class CollectDecorationScreen : MonoBehaviour
 
     public void Hide()
     {
-        Game.Instance.OnCloseMenu();
+        Game.Instance.OnPopupAction(false);
         Container.SetActive(false);
     }
 }

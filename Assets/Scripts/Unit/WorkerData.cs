@@ -41,6 +41,15 @@ public class WorkerData : StarvableUnitData, ISaveable
         return GetStaticSize();
     }
 
+    protected override bool IsInFoodProductionBuilding()
+    {
+        BuildingData AssignedBuilding = GetAssignedBuilding();
+        if (AssignedBuilding == null)
+            return false;
+
+        return AssignedBuilding.IsFoodProductionBuilding();
+    }
+
     public static new int GetStaticSize()
     {
         // foodcount, employed, assigned building slot
@@ -89,6 +98,7 @@ public class WorkerData : StarvableUnitData, ISaveable
         if (!Game.TryGetServices(out Workers Workers, out Stockpile Stockpile))
             return false;
 
+        Init();
         Workers.AddWorker(this);
         Stockpile.RequestUIRefresh();
         return true;

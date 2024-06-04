@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\Util\Saving\ISaveable.cs" />
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
+    <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitPathScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
@@ -114,7 +115,6 @@
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
-    <Compile Include="Assets\Scripts\Config\Location.cs" />
     <Compile Include="Assets\Scripts\Tutorial\Tip.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
@@ -146,8 +146,8 @@
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\CorruptionScreenFeature.cs" />
-    <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
+    <Compile Include="Assets\Scripts\Player\Statistics.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\UnitPreview.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
@@ -159,6 +159,7 @@
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitRequirementsScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Util\SerializedVector.cs" />
     <Compile Include="Assets\Scripts\Unit\Workers.cs" />
     <Compile Include="Assets\Scripts\Unit\WorkerData.cs" />
     <Compile Include="Assets\Scripts\UI\HoverableButton.cs" />

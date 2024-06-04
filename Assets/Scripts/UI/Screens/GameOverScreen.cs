@@ -25,6 +25,10 @@ public class GameOverScreen : MonoBehaviour
 
         CardDeck.RefreshAllUsages();
         CardStash.RefreshAllUsages();
+        CardStash.DeleteAllCardsConditionally((Card) =>
+        {
+            return Card.ShouldBeDeleted();
+        });
         CardStash.MoveAllCardsConditionallyTo(CardDeck, (Card) =>
         {
             return Card.WasUsedUpThisTurn();

@@ -26,19 +26,24 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
         Parent.ClickOn(PixelPos);   
     }
 
-    public virtual void Initialize(Sprite Sprite, bool bShowRegular, string HoverTooltip, ISelectable Parent)
+    public virtual void Initialize(Sprite Sprite, string HoverTooltip, ISelectable Parent)
     {
         this.Parent = Parent;
         this.HoverTooltip = HoverTooltip;
-        Initialize(Sprite, bShowRegular);
+        Initialize(Sprite);
     }
 
-    private void Initialize(Sprite Sprite, bool bShowRegular)
+    private void Initialize(Sprite Sprite)
     {
-        IconRenderer = transform.GetChild(0).GetComponent<SVGImage>();
+        Refresh();
         IconRenderer.sprite = Sprite;
         float x = IconRenderer.transform.localPosition.x;
-        IconRenderer.transform.localPosition = new Vector3(bShowRegular ? x : -x, 0, 0);
+        IconRenderer.transform.localPosition = new Vector3(x, 0, 0);
+    }
+
+    public void Refresh()
+    {
+        IconRenderer = transform.GetChild(0).GetComponent<SVGImage>();
     }
 
     public void Interact() {}

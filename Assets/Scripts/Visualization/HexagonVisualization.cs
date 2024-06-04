@@ -152,7 +152,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         Minimap.FillBuffer();
     }
 
-    private void InteractMoveUnit(HexagonVisualization SelectedHex) {
+    public void InteractMoveUnit(HexagonVisualization SelectedHex) {
         if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
             return;
 
@@ -191,7 +191,6 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             return;
 
         Selector.SelectHexagon(NewHex);
-        _OnMovementTo?.Invoke(NewHex.Location);
     }
 
     public bool IsEqual(ISelectable other) {
@@ -292,9 +291,6 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
     {
         return "This tile represents a part of the world, providing space for units or buildings. Can be used to produce resources";
     }
-
-    public delegate void OnMovementTo(Location Location);
-    public static event OnMovementTo _OnMovementTo;
 
     public Location Location;
     public ChunkData Chunk;

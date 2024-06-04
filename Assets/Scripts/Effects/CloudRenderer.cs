@@ -11,6 +11,7 @@ public class CloudRenderer : GameService
 {
     public Material Material;
     public RenderTexture TargetTexture;
+    public RenderTexture TempTexture;
 
     public ComputeShader WhorleyShader;
     [Range(1, 20)]
@@ -24,11 +25,10 @@ public class CloudRenderer : GameService
 
     private Camera MainCam;
     private ComputeBuffer MalaiseBuffer;
+
     private ComputeBuffer PointBuffer;
     private ComputeBuffer DirectionsBuffer;
-    private ComputeBuffer DistancesBuffer;
-    private ComputeBuffer MaxGroupDistancesBuffer;
-    private ComputeBuffer MaxMinDistanceBuffer;
+    private ComputeBuffer MinMaxBuffer;
 
     private MapGenerator MapGen;
 
@@ -107,19 +107,27 @@ public class CloudRenderer : GameService
         FillPointBuffer();
 
         int createNoiseKernel = WhorleyShader.FindKernel("CreateNoiseTexture");
+        int normalizeKernel = WhorleyShader.FindKernel("Normalize");
         Vector3Int ImageSize = new(TargetTexture.width, TargetTexture.height, TargetTexture.volumeDepth);
-        Vector3Int AmountGroups = new(ImageSize.x / 16, ImageSize.y / 16, ImageSize.z / 1);
+        Vector3Int AmountGroups = new(ImageSize.x / THREAD_AMOUNT, ImageSize.y / THREAD_AMOUNT, ImageSize.z / THREAD_AMOUNT_Z);
 
-        FillWhorleyBuffers(createNoiseKernel, ImageSize, AmountGroups);
+        FillWhorleyBuffers(createNoiseKernel, normalizeKernel, ImageSize, AmountGroups);
 
         WhorleyShader.Dispatch(createNoiseKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
+
+        int[] data = new int[2];
+        MinMaxBuffer.GetData(data);
+
+        WhorleyShader.Dispatch(normalizeKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
     }
 
     public void Tile()
     {
-        Texture2D Tex = new(TargetTexture.width, TargetTexture.height, TextureFormat.ARGB32, TargetTexture.mipmapCount, true);
-        Graphics.CopyTexture(TargetTexture, Tex);
-        Graphics.Blit(Tex, TargetTexture, new Vector2(2, 2), new Vector2(0, 0));
+        Graphics.Blit(TargetTexture, TempTexture, new Vector2(1, 1), new Vector2(0, 0), 3, 0);
+
+        //Texture2D Tex = new(TargetTexture.width, TargetTexture.height, TextureFormat.ARGB32, TargetTexture.mipmapCount, true);
+        //Graphics.CopyTexture(TempTexture, Tex);
+        //Graphics.Blit(Tex, TargetTexture, new Vector2(2, 2), new Vector2(0, 0), 0, 0);
     }
 
     private void FillPointBuffer()
@@ -149,21 +157,18 @@ public class CloudRenderer : GameService
         PointBuffer.SetData(Points);
     }
 
-    private void FillWhorleyBuffers(int createNoiseKernel, Vector3Int ImageSize, Vector3Int AmountGroups)
+    private void FillWhorleyBuffers(int createNoiseKernel, int normalizeKernel, Vector3Int ImageSize, Vector3Int AmountGroups)
     {
 
         DirectionsBuffer = new ComputeBuffer(DIRECTIONS.Length, sizeof(float) * 3);
         DirectionsBuffer.SetData(DIRECTIONS);
 
-        DistancesBuffer = new ComputeBuffer(ImageSize.x * ImageSize.y * ImageSize.z, sizeof(float));
-        MaxGroupDistancesBuffer = new ComputeBuffer(AmountGroups.x * AmountGroups.y, sizeof(float));
-        MaxMinDistanceBuffer = new ComputeBuffer(1, sizeof(float));
+        MinMaxBuffer = new ComputeBuffer(2, sizeof(int));
+        MinMaxBuffer.SetData(new int[2] { 1000, 0});
 
         WhorleyShader.SetBuffer(createNoiseKernel, "points", PointBuffer);
         WhorleyShader.SetBuffer(createNoiseKernel, "directions", DirectionsBuffer);
-        WhorleyShader.SetBuffer(createNoiseKernel, "distances", DistancesBuffer);
-        WhorleyShader.SetBuffer(createNoiseKernel, "maxGroupDistances", MaxGroupDistancesBuffer);
-        WhorleyShader.SetBuffer(createNoiseKernel, "maxMinDistance", MaxMinDistanceBuffer);
+        WhorleyShader.SetBuffer(createNoiseKernel, "minMax", MinMaxBuffer);
 
         WhorleyShader.SetInt("directionsCount", DIRECTIONS.Length);
         WhorleyShader.SetFloat("pointCount", NumPoints);
@@ -171,6 +176,9 @@ public class CloudRenderer : GameService
         WhorleyShader.SetVector("amountGroups", new(AmountGroups.x, AmountGroups.y, AmountGroups.z, 0));
 
         WhorleyShader.SetTexture(createNoiseKernel, "result", TargetTexture);
+
+        WhorleyShader.SetBuffer(normalizeKernel, "minMax", MinMaxBuffer);
+        WhorleyShader.SetTexture(normalizeKernel, "result", TargetTexture);
     }
 
     public void Debug()
@@ -191,7 +199,7 @@ public class CloudRenderer : GameService
         ClearBuffers();
         int clearKernel = WhorleyShader.FindKernel("Clear");
         Vector3Int ImageSize = new(TargetTexture.width, TargetTexture.height, TargetTexture.volumeDepth);
-        Vector3Int AmountGroups = new(ImageSize.x / 16, ImageSize.y / 16, ImageSize.z / 1);
+        Vector3Int AmountGroups = new(ImageSize.x / THREAD_AMOUNT, ImageSize.y / THREAD_AMOUNT, ImageSize.z / THREAD_AMOUNT_Z);
 
         WhorleyShader.SetVector("size", new(ImageSize.x, ImageSize.y, ImageSize.z, 0));
         WhorleyShader.SetVector("amountGroups", new(AmountGroups.x, AmountGroups.y, AmountGroups.z, 0));
@@ -206,23 +214,8 @@ public class CloudRenderer : GameService
         MalaiseBuffer?.Release();
         PointBuffer?.Release();
         DirectionsBuffer?.Release();
-        DistancesBuffer?.Release();
-        MaxGroupDistancesBuffer?.Release();
-        MaxMinDistanceBuffer?.Release();
+        MinMaxBuffer?.Release();
     }
-
-
-    private static Vector3[] DIRECTIONS2D = new Vector3[9]{
-        new Vector3(+0, +0),
-        new Vector3(+1, +0),
-        new Vector3(+1, -1),
-        new Vector3(+0, -1),
-        new Vector3(-1, -1),
-        new Vector3(-1, +0),
-        new Vector3(-1, +1),
-        new Vector3(+0, +1),
-        new Vector3(+1, +1),
-    };
 
     private static Vector3[] DIRECTIONS3D = new Vector3[27]{
         new Vector3(+0, +0, -1),
@@ -253,5 +246,8 @@ public class CloudRenderer : GameService
         new Vector3(+0, +1, +1),
         new Vector3(+1, +1, +1),
     };
+    
     private static Vector3[] DIRECTIONS = DIRECTIONS3D;
+    private static int THREAD_AMOUNT = 16;
+    private static int THREAD_AMOUNT_Z = 1;
 }

@@ -22,7 +22,6 @@ public class SaveGameManager : GameService
         {
             Game.RunAfterServiceInit((CardFactory CardFactory) =>
             {
-                FillSaveables();
                 HandleDelayedLoading();
 
                 _OnInit?.Invoke();

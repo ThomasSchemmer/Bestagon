@@ -1,4 +1,7 @@
 ﻿
+
+using UnityEngine;
+
 /**
  * Helper class to wrap all templated selectors into one easily accesible UI element / gameservice
  */
@@ -16,6 +19,7 @@ public class Selectors : GameService
         UISelector.Layer = UILayerName;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
+        Game.Instance._OnPopup += OnPopup;
 
         _OnInit?.Invoke();
     }
@@ -24,10 +28,17 @@ public class Selectors : GameService
 
     public void Update()
     {
-        if (!IsEnabled)
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log(" ");
+        }
+        if (!bIsEnabled)
             return;
 
         if (UISelector.RayCast())
+            return;
+
+        if (bIsPopuped)
             return;
 
         if (CardSelector.RayCast())
@@ -38,13 +49,22 @@ public class Selectors : GameService
 
     private void OnPause()
     {
-        IsEnabled = false;
+        bIsEnabled = false;
         ForceDeselect();
+    }
+
+    private void OnPopup(bool bIsOpen)
+    {
+        bIsPopuped = bIsOpen;
+        if (bIsPopuped)
+        {
+            ForceDeselect();
+        }
     }
 
     private void OnResume()
     {
-        IsEnabled = true;
+        bIsEnabled = true;
     }
 
     public Card GetSelectedCard()
@@ -77,6 +97,7 @@ public class Selectors : GameService
         DeselectCard();
         DeselectHexagon();
         DeselectUI();
+        HideTooltip();
     }
 
     public void DeselectCard()
@@ -101,6 +122,11 @@ public class Selectors : GameService
         ToolTipScreen.Show(Selectable, bShow);
     }
 
+    public void HideTooltip()
+    {
+        ToolTipScreen.Show(null, false);
+    }
+
     public Selector GetSelectorByType(ISelectable Selectable)
     {
         if (Selectable is Card)
@@ -120,7 +146,8 @@ public class Selectors : GameService
     public Selector<UIElement> UISelector;
     public ToolTipScreen ToolTipScreen;
 
-    private bool IsEnabled = true;
+    private bool bIsEnabled = true;
+    private bool bIsPopuped = false;
 
     public static string UILayerName = "UI";
 }

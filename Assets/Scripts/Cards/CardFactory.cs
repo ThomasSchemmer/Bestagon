@@ -76,6 +76,12 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
+    public void CloneCard(Card Card, Action<Card> Callback)
+    {
+        CardDTO DTO = CardDTO.CreateFromCard(Card);
+        CreateCardFromDTO(DTO, 0, null, Callback);
+    }
+
     private void CreateCard(DelayedCardInfo Info)
     {
         CardsToCreate.Add(Info);

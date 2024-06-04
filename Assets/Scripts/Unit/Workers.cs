@@ -122,5 +122,5 @@ public class Workers : GameService
     public List<WorkerData> ActiveWorkers = new();
 
     public delegate void OnWorkersChanged();
-    public OnWorkersChanged _OnWorkersChanged;
+    public static OnWorkersChanged _OnWorkersChanged;
 }

@@ -12,6 +12,8 @@ public class FloatRange
         Max = max;
     }
 
+    public FloatRange() { }
+
     public bool Contains(float value)
     {
         return value >= Min && value <= Max;

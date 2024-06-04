@@ -51,6 +51,8 @@ public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
 
     public abstract GameObject GetEventVisuals(ISelectable Parent);
 
+    public abstract string GetEventName();
+
     public abstract void InteractWith(HexagonVisualization Hex);
 
     public abstract bool IsPreviewable(); 

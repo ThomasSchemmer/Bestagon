@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver where TKey : new()
 {
     [Serializable]
     public class Tuple
@@ -29,6 +29,14 @@ public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISer
             if (!ContainsKey(Key))
             {
                 Add(Key, Tuples[i].Value);
+            }
+            else 
+            {
+                TKey NewKey = new();
+                if (!ContainsKey(NewKey))
+                {
+                    Add(NewKey, Tuples[i].Value);
+                }
             }
         }
     }

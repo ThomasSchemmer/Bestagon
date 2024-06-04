@@ -6,21 +6,25 @@ public class StockpileScreen : MonoBehaviour
 {
     public void Start()
     {
-        Game.RunAfterServicesInit((Stockpile Stockpile, Turn Turn) =>
+        Game.RunAfterServicesInit((Stockpile Stockpile, IconFactory IconFactory) =>
         {
-            Game.RunAfterServicesInit((IconFactory IconFactory, Workers Workers) => 
-            {
-                // update visuals everytime something changes in the amounts
-                Stockpile._OnResourcesChanged += UpdateVisuals;
-                Workers._OnWorkersChanged += UpdateVisuals;
-                // only update the +/- indicators every turn
-                Turn._OnTurnEnd += UpdateIndicatorCount;
+            // update visuals everytime something changes in the amounts
+            Stockpile._OnResourcesChanged += UpdateVisuals;
+            Workers._OnWorkersChanged += UpdateVisuals;
+            // only update the +/- indicators every turn
+            Turn._OnTurnEnd += UpdateIndicatorCount;
 
-                Initialize(Stockpile, IconFactory);
-                UpdateVisuals();
-            });
+            Initialize(Stockpile, IconFactory);
+            UpdateVisuals();
         });
 
+    }
+
+    private void OnDestroy()
+    {
+        Stockpile._OnResourcesChanged -= UpdateVisuals;
+        Workers._OnWorkersChanged -= UpdateVisuals;
+        Turn._OnTurnEnd -= UpdateIndicatorCount;
     }
 
     private void Initialize(Stockpile Stockpile, IconFactory IconFactory)

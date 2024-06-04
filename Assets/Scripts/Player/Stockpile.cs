@@ -90,6 +90,21 @@ public class Stockpile : GameService, ISaveable
 
     protected override void StartServiceInternal()
     {
+        if (!Game.TryGetService(out SaveGameManager Manager))
+            return;
+
+        if (!Manager.HasDataFor(ISaveable.SaveGameType.Stockpile)){
+            ResetResources();
+        }
+
+        _OnInit?.Invoke();
+    }
+
+    protected override void StopServiceInternal() {}
+
+    public void ResetResources()
+    {
+        // does not reset upgrade points!
         Resources = new(new[]
         {
             Production.Type.Wood,
@@ -101,10 +116,7 @@ public class Stockpile : GameService, ISaveable
             2,
             5
         });
-        _OnInit?.Invoke();
     }
-
-    protected override void StopServiceInternal() {}
 
     public int GetSize()
     {
@@ -134,5 +146,7 @@ public class Stockpile : GameService, ISaveable
     public int UpgradePoints = 0;
 
     public delegate void OnResourcesChanged();
-    public OnResourcesChanged _OnResourcesChanged;
+    public delegate void OnResourcesCollected(Production Production);
+    public static OnResourcesChanged _OnResourcesChanged;
+    public static OnResourcesCollected _OnResourcesCollected;
 }

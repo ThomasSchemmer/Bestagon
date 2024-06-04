@@ -11,6 +11,7 @@ public class IconFactory : GameService
 
     private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
     private GameObject ProduceUnitEffectPrefab, GrantMiscPrefab, GrantResourceEventEffectPrefab;
+    private GameObject ProduceConsumeEffectPrefab;
 
     public enum MiscellaneousType
     {
@@ -40,6 +41,7 @@ public class IconFactory : GameService
         ProduceUnitEffectPrefab = Resources.Load("UI/Cards/ProduceUnitEffect") as GameObject;
         GrantMiscPrefab = Resources.Load("UI/Cards/GrantUnitEventEffect") as GameObject;
         GrantResourceEventEffectPrefab = Resources.Load("UI/Cards/GrantResourceEventEffect") as GameObject;
+        ProduceConsumeEffectPrefab = Resources.Load("UI/Cards/ProduceConsumeEffect") as GameObject;
     }
 
     private void LoadResources()
@@ -118,18 +120,20 @@ public class IconFactory : GameService
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
         int Width = 62;
-        int XOffset = Width / 2;
         GroupTransform.sizeDelta = new(Width * Tuples.Count, 30);
+        GroupTransform.anchoredPosition = new Vector2(GroupTransform.sizeDelta.x / 2f, 0);
+        float XOffset = (Tuples.Count % 2) == 0 ? -Width / 2f : 0;
+
         for (int i = 0; i < Tuples.Count; i++)
         {
             Tuple<Production.Type, int> Tuple = Tuples[i];
             GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
             RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
             UnitTransform.SetParent(GroupTransform, false);
-            UnitTransform.localPosition = new(XOffset + i * Width, 0, 0);
+            UnitTransform.localPosition = new(i * Width + XOffset, 0, 0);
             NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
 
-            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), true, Tuple.Key.ToString(), Parent);
+            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), Tuple.Key.ToString(), Parent);
             UnitScreen.UpdateVisuals(Tuple.Value);
         }
         return ProductionGroup;
@@ -173,6 +177,20 @@ public class IconFactory : GameService
         ConsumesContainer.gameObject.SetActive(bConsumes);
 
         return ProduceUnitEffect;
+    }
+
+    public GameObject GetVisualsForProduceConsumeEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    {
+        GameObject ProductionEffect = Instantiate(ProduceConsumeEffectPrefab);
+        Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
+        TextMeshProUGUI ConsumptionText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        ConsumptionText.text = Effect.GetDescription();
+        Transform ConsumptionContainer = ProductionEffect.transform.GetChild(3);
+        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent);
+        ProductionGO.transform.SetParent(ProductionContainer, false);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent);
+        ConsumptionGO.transform.SetParent(ConsumptionContainer, false);
+        return ProductionEffect;
     }
 
     public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData, ISelectable Parent)
@@ -220,11 +238,9 @@ public class IconFactory : GameService
     public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount)
     {
         GameObject MiscUnit = Instantiate(NumberedIconPrefab);
-        RectTransform RectTransform = MiscUnit.GetComponent<RectTransform>();
-        RectTransform.localPosition = Vector3.zero;
         NumberedIconScreen IconScreen = MiscUnit.GetComponent<NumberedIconScreen>();
 
-        IconScreen.Initialize(GetIconForMisc(Type), false, Type.ToString(), Parent);
+        IconScreen.Initialize(GetIconForMisc(Type), Type.ToString(), Parent);
         IconScreen.UpdateVisuals(Amount);
         return MiscUnit;
     }
@@ -274,7 +290,7 @@ public class IconFactory : GameService
             IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
             SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
 
-            IconScreen.Initialize(GetIconForTile(Type), false, Type.ToString(), Parent);
+            IconScreen.Initialize(GetIconForTile(Type), Type.ToString(), Parent);
             Index++;
         }
         return ProductionGroup;

@@ -15,6 +15,11 @@ public abstract class UnitData : ScriptableObject, ISaveable
 
     public UnitType Type;
 
+    public virtual void Init()
+    {
+        _OnUnitCreated?.Invoke(this);
+    }
+
     public virtual void Refresh() {}
 
     public abstract int GetSize();
@@ -25,4 +30,6 @@ public abstract class UnitData : ScriptableObject, ISaveable
 
     public abstract bool TryInteractWith(HexagonVisualization Hex);
 
+    public delegate void OnUnitCreated(UnitData Unit);
+    public static event OnUnitCreated _OnUnitCreated;
 }

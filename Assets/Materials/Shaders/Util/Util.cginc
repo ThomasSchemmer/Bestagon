@@ -282,6 +282,7 @@ float3 voronoi3(float3 Position)
     return ClosestVertexPosition;
 }
 
+// does not tile correctly!
 float voronoi3Tiled(float3 Position, float CellCount)
 {
     float3 PositionCenter = floor(Position);

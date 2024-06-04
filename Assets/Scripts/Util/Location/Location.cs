@@ -1,35 +1,36 @@
 using System;
-using System.Drawing;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.XR;
+
 [Serializable]
 public class Location : ISaveable
 {
     public Location(Vector2Int ChunkLocation, Vector2Int HexLocation) {
-        _ChunkLocation = ChunkLocation;
-        _HexLocation = HexLocation;
+        _ChunkLocation = new (ChunkLocation.x, ChunkLocation.y);
+        _HexLocation = new (HexLocation.x, HexLocation.y);
     }
 
     public Location(int v1, int v2, int v3, int v4) : 
         this(new Vector2Int(v1, v2), new Vector2Int(v3, v4)) 
         { }
 
+    public Location() : this(0, 0, 0, 0) {}
+
     public Vector2Int GlobalTileLocation{
         get {
-            return HexagonConfig.ChunkSpaceToTileSpace(_ChunkLocation) + _HexLocation;
+            return HexagonConfig.ChunkSpaceToTileSpace(ChunkLocation) + HexLocation;
         }
     }
 
     public Vector2Int HexLocation {
         get {
-            return _HexLocation;
+            return new(_HexLocation.x, _HexLocation.y);
         }
     }
 
     public Vector2Int ChunkLocation {
         get {
-            return _ChunkLocation;
+            return new(_ChunkLocation.x, _ChunkLocation.y);
         }
     }
 
@@ -87,8 +88,10 @@ public class Location : ISaveable
         return HashCode.Combine(ChunkLocation.GetHashCode(), HexLocation.GetHashCode());
     }
 
-    private Vector2Int _ChunkLocation;
-    private Vector2Int _HexLocation;
+    [SerializeField]
+    protected SerializedVector2<int> _ChunkLocation;
+    [SerializeField]
+    protected SerializedVector2<int> _HexLocation;
 
     public static Location Zero {
         get {
@@ -171,7 +174,7 @@ public class Location : ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int CY);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int HX);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int HY);
-        _ChunkLocation = new Vector2Int(CX, CY);
-        _HexLocation = new Vector2Int(HX, HY);
+        _ChunkLocation = new (CX, CY);
+        _HexLocation = new (HX, HY);
     }
 }

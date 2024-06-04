@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static UnityEditor.FilePathAttribute;
 using static UnityEngine.UI.CanvasScaler;
 
 /** 
@@ -14,8 +15,6 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 {
     public abstract string GetPrefabName();
 
-    public abstract void Init();
-
     public int GetMovementCostTo(Location ToLocation)
     {
         List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation);
@@ -24,9 +23,14 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
     public void MoveTo(Location Location, int Costs)
     {
+        List<Location> Path = Pathfinding.FindPathFromTo(this.Location, Location);
+
         Location OldLocation = this.Location;
         this.Location = Location;
         this.RemainingMovement -= Costs;
+
+        _OnMovementTo?.Invoke(Location);
+        _OnMovement?.Invoke(Path.Count);
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
@@ -85,7 +89,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
     public override bool TryInteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetService(out Units Units))
+        if (!Game.TryGetServices(out Units Units, out MapGenerator MapGenerator))
             return false;
 
         if (!IsPreviewInteractableWith(Hex, false))
@@ -99,6 +103,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
         Init();
         Units.AddUnit(this);
+
         MoveTo(Hex.Location, 0);
         return true;
     }
@@ -157,4 +162,9 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
     // don't save, its only temporarily constructed anyway
     [HideInInspector]
     public UnitVisualization Visualization;
+
+    public delegate void OnMovementTo(Location Location);
+    public delegate void OnMovement(int Count);
+    public static event OnMovementTo _OnMovementTo;
+    public static event OnMovement _OnMovement;
 }

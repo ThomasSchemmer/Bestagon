@@ -36,7 +36,10 @@ public abstract class StarvableUnitData : UnitData
         int StarvingCount = 0;
         foreach (StarvableUnitData Unit in Units)
         {
-            Unit.HandleStarvation();
+            // prevents food being unobtainable
+            if (!Unit.IsInFoodProductionBuilding()) { 
+                Unit.HandleStarvation();
+            }
             if (!Unit.IsStarving())
                 continue;
 
@@ -48,6 +51,12 @@ public abstract class StarvableUnitData : UnitData
             return;
 
         MessageSystem.CreateMessage(Message.Type.Warning, StarvingCount + " "+ Name+" are starving - they will not work!");
+    }
+
+    protected virtual bool IsInFoodProductionBuilding()
+    {
+        // overriden in subclasses
+        return false;
     }
 
     public override int GetSize()

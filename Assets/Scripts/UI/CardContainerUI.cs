@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CardContainerUI : CardCollection, IDragTarget
+public class CardContainerUI : CardCollection
 {
     public Scrollbar VerticalBar;
     public CardUpgradeScreen CardScreen;
@@ -25,17 +25,7 @@ public class CardContainerUI : CardCollection, IDragTarget
         PrevScrollValue = VerticalBar.value;
         CardScreen.HideUpgradeButton();
     }
-
-    public void OnStartDragOver()
-    {
-
-    }
-
-    public void OnStopDragOver()
-    {
-
-    }
-
+    
     public override void Load()
     {
         base.Load();

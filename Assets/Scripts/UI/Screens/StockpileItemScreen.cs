@@ -26,7 +26,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         IconScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
         Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
-        IconScreen.Initialize(Sprite, true, GetHoverTooltip(), this);
+        IconScreen.Initialize(Sprite, GetHoverTooltip(), this);
 
         int Count = GetCount();
         PastCounts[0] = Count;

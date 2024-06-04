@@ -10,16 +10,17 @@ public interface ISaveable
 {
     public enum SaveGameType
     {
-        None = -1,
-        MapGenerator = 0,
-        CardHand = 1,
-        CardDeck = 2,
-        CardStash = 3,
-        Unlockables = 4,
-        Stockpile = 5
+        None = 0,
+        MapGenerator = 1,
+        CardHand = 2,
+        CardDeck = 3,
+        CardStash = 4,
+        Unlockables = 5,
+        Stockpile = 6,
+        Statistics = 7
     }
 
-    public static int MaxTypeIndex = 5;
+    public static int MaxTypeIndex = 7;
 
     public abstract int GetSize();
 

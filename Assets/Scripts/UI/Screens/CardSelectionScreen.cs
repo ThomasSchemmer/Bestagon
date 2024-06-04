@@ -18,8 +18,10 @@ public class CardSelectionScreen : MonoBehaviour
 
     public void OnConfirm()
     {
-        if (!Game.TryGetService(out SaveGameManager Manager))
+        if (!Game.TryGetServices(out SaveGameManager Manager, out Stockpile Stockpile))
             return;
+
+        Stockpile.ResetResources();
 
         // write into temp and then trigger a reload through the scene load
         string FileToLoad = Manager.Save();
@@ -28,7 +30,7 @@ public class CardSelectionScreen : MonoBehaviour
 
     public void UpdateText(int UpgradePoints)
     {
-        UpgradeText.text = "UpgradesAvailable " + UpgradePoints;
+        UpgradeText.text = "Upgrades available " + UpgradePoints;
     }
 
     public void UpdateText()

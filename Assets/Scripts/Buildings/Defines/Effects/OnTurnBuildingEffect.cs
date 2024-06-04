@@ -111,7 +111,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         {
             case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this, Parent);
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
-            case Type.ConsumeProduce: return null;
+            case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(this, Parent);
 
             default: return null;
         }
@@ -124,7 +124,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
     private string GetDescriptionConsumeProduce()
     {
-        return "Produces X at the cost of Y";
+        return "by consuming";
     }
 
     private string GetDescriptionProduceUnit()

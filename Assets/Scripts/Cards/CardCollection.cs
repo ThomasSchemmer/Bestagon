@@ -44,6 +44,19 @@ public abstract class CardCollection : GameService, ISaveable
         }
     }
 
+    public void DeleteAllCardsConditionally(Func<Card, bool> Check)
+    {
+        for (int i = Cards.Count - 1; i >= 0; i--)
+        {
+            Card Card = Cards[i];
+            if (Check(Card))
+            {
+                RemoveCard(Card);
+                Destroy(Card.gameObject);
+            }
+        }
+    }
+
     public virtual void RemoveCard(Card Card) {
         Cards.Remove(Card);
         if (Text) {

@@ -12,11 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: ForagersHut
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 32
   Cost:
     _Production:
       Tuples:
       - Key: 0
+        Value: 3
+      - Key: 1
+        Value: 3
+      - Key: 2
         Value: 3
   Effect:
     EffectType: 1

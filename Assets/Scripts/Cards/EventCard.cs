@@ -13,7 +13,12 @@ public class EventCard : Card
 
     public override string GetName()
     {
-        return EventData.Type.ToString();
+        return EventData.GetEventName();
+    }
+
+    public override bool ShouldBeDeleted()
+    {
+        return true;
     }
 
     protected override void GenerateVisuals()
@@ -74,10 +79,11 @@ public class EventCard : Card
 
     protected override CardCollection GetTargetAfterUse()
     {
-        if (!Game.TryGetService(out DiscardDeck Discard))
+        // events are one time only
+        if (!Game.TryGetService(out CardStash CardStash))
             return null;
 
-        return Discard;
+        return CardStash;
     }
 
     protected override void UseInternal() {}

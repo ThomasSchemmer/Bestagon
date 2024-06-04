@@ -18,10 +18,12 @@ public class Game : MonoBehaviour
     public delegate void OnModeChange(GameMode NewMode);
     public delegate void OnPause();
     public delegate void OnResume();
+    public delegate void OnPopup(bool bIsOpen);
     public OnStateChange _OnStateChange;
     public OnModeChange _OnModeChange;
     public OnPause _OnPause;
     public OnResume _OnResume;
+    public OnPopup _OnPopup;
 
     public static Game Instance;
     public static string MenuSceneName = "Menu";
@@ -46,6 +48,10 @@ public class Game : MonoBehaviour
     {
         Instance = this;
     }
+    public void OnPopupAction(bool bIsOpen)
+    {
+        _OnPopup?.Invoke(bIsOpen);
+    }
 
     public void OnOpenMenu()
     {
@@ -55,6 +61,7 @@ public class Game : MonoBehaviour
         _OnModeChange?.Invoke(Mode);
         _OnPause?.Invoke();
     }
+
 
     public void OnCloseMenu()
     {

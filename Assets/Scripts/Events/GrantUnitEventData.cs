@@ -31,6 +31,12 @@ public class GrantUnitEventData : EventData
         return IconFactory.GetVisualsForGrantUnitEffect(this, Parent);
     }
 
+    public override string GetEventName()
+    {
+        UnitData Unit = GetUnitData();
+        return Unit.Type.ToString();
+    }
+
     public override byte[] GetData()
     {
         NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());

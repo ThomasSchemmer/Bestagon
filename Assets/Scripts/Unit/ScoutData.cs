@@ -14,6 +14,7 @@ public class ScoutData : TokenizedUnitData
 
     public override void Init()
     {
+        base.Init();
         SetName(GetPrefabName() + " " + ID);
         ID = MAX_SCOUT_ID++;
     }

@@ -148,5 +148,5 @@ public class Turn : GameService
     public GameObject TurnUI;
 
     public delegate void OnTurnEnd();
-    public OnTurnEnd _OnTurnEnd;
+    public static OnTurnEnd _OnTurnEnd;
 }

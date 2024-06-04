@@ -29,6 +29,11 @@ public class GrantResourceEventData : EventData
         return "Grants this resource";
     }
 
+    public override string GetEventName()
+    {
+        return "Treasure";
+    }
+
     public override GameObject GetEventVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))

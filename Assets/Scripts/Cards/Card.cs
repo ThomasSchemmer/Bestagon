@@ -196,6 +196,11 @@ public abstract class Card : Draggable, ISelectable
         return bWasUsedUp;
     }
 
+    public virtual bool ShouldBeDeleted()
+    {
+        return false;
+    }
+
     public void RefreshUsedUp()
     {
         bWasUsedUp = false;

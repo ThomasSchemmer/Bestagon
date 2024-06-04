@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\Buildings\Defines\Editor\BuildingFactoryEditor.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\HoverableButtonEditor.cs" />
     <Compile Include="Assets\Scripts\Generation\Editor\WorldGenerationInspector.cs" />
+    <Compile Include="Assets\Scripts\Util\Location\Editor\LocationDrawer.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\Editor\GameServiceDrawer.cs" />
   </ItemGroup>
   <ItemGroup>

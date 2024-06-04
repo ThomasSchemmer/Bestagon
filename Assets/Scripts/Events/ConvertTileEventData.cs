@@ -47,6 +47,11 @@ public class ConvertTileEventData : EventData
         return "Converts any tile to";
     }
 
+    public override string GetEventName()
+    {
+        return "Conversion";
+    }
+
     public override GameObject GetEventVisuals(ISelectable Parent)
     {
         if (!Game.TryGetService(out IconFactory IconFactory))

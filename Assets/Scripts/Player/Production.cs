@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEngine;
 
 [Serializable]
 /**
@@ -289,7 +290,9 @@ public class Production : ISaveable
         }
     }
 
-    public SerializedDictionary<Type, int> _Production;
+    [SerializeField]
+    protected SerializedDictionary<Type, int> _Production;
+
     public int this[Type Type]
     {
         get { return _Production.ContainsKey(Type) ? _Production[Type] : 0; }
