@@ -241,7 +241,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
             case UpgradeableAttributes.MaxWorker:
                 return MaxWorker < UpgradeMaxWorker;
             case UpgradeableAttributes.Production:
-                return Effect.Production < Effect.UpgradeProduction;
+                return Effect.Production.SmallerThanAny(Effect.UpgradeProduction);
         }
         return false;
     }

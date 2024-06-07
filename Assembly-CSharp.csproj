@@ -204,7 +204,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF.shader" />
-    <None Include="Assets\Materials\Shaders\CloudShader.shader" />
+    <None Include="Assets\Materials\Shaders\CloudsShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
@@ -215,7 +215,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\Materials\Shaders\WorldGenerationCompute.compute" />
     <None Include="Assets\Materials\Shaders\HexagonShader.shader" />
-    <None Include="Assets\Materials\Shaders\Util\CloudNoise.cginc" />
+    <None Include="Assets\Materials\Shaders\Util\CloudUtil.cginc" />
     <None Include="Assets\Materials\Shaders\WhorleyCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\Materials\Shaders\HexagonShellShader.shader" />
@@ -223,6 +223,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Materials\Shaders\CloudsShadowShader.shader" />
     <None Include="Assets\Materials\Shaders\Util\Painterly.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Sprite.shader" />
   </ItemGroup>

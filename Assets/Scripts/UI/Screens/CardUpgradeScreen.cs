@@ -22,7 +22,6 @@ public class CardUpgradeScreen : GameService
         AffectedTiles,
         Production,
         Range,
-        ProductionIncrease,
         BuildableTiles,
         MaxUsages,
         MaxWorker
@@ -76,6 +75,8 @@ public class CardUpgradeScreen : GameService
     public void ShowButtonAtCard(Card Card, bool bIsVisible) {
 
         bIsVisible = Card is BuildingCard ? bIsVisible : false;
+        bIsVisible = Game.TryGetService(out DraggableManager DraggableManager) && !DraggableManager.IsDragging() ? bIsVisible : false;
+
         bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.UpgradePoints > 0;
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();

@@ -24,10 +24,6 @@ public class CloudRendererEditor : Editor
         {
             CloudRenderer.CreateWhorleyNoise();
         }
-        if (GUILayout.Button("Tile"))
-        {
-            CloudRenderer.Tile();
-        }
         if (GUILayout.Button("Debug"))
         {
             CloudRenderer.Debug();

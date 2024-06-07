@@ -9,9 +9,9 @@ using UnityEngine;
  */
 public class CloudRenderer : GameService
 {
-    public Material Material;
+    public Material CloudMaterial;
+    public Material CloudShadowMaterial;
     public RenderTexture TargetTexture;
-    public RenderTexture TempTexture;
 
     public ComputeShader WhorleyShader;
     [Range(1, 20)]
@@ -36,6 +36,8 @@ public class CloudRenderer : GameService
 
     public void OnDestroy()
     {
+        CloudShadowMaterial.SetInt("_bIsEnabled", 0);
+        CloudMaterial.SetInt("_bIsEnabled", 0);
         ClearBuffers(true);
     }
 
@@ -51,11 +53,17 @@ public class CloudRenderer : GameService
         Vector3 Right = (BR - BL) / 2;
         Vector3 Up = (TR - BR) / 2;
 
-        Material.SetVector("_CameraPos", MainCam.transform.position);
-        Material.SetVector("_CameraForward", MainCam.transform.forward);
-        Material.SetVector("_CameraRight", Right);
-        Material.SetVector("_CameraUp", Up);
-        Material.SetInt("_bIsEnabled", 1);
+        CloudMaterial.SetVector("_CameraPos", MainCam.transform.position);
+        CloudMaterial.SetVector("_CameraForward", MainCam.transform.forward);
+        CloudMaterial.SetVector("_CameraRight", Right);
+        CloudMaterial.SetVector("_CameraUp", Up);
+        CloudMaterial.SetInt("_bIsEnabled", 1);
+
+        CloudShadowMaterial.SetVector("_CameraPos", MainCam.transform.position);
+        CloudShadowMaterial.SetVector("_CameraForward", MainCam.transform.forward);
+        CloudShadowMaterial.SetVector("_CameraRight", Right);
+        CloudShadowMaterial.SetVector("_CameraUp", Up);
+        CloudShadowMaterial.SetInt("_bIsEnabled", 1);
         PassMaterialBuffer();
     }
 
@@ -80,14 +88,24 @@ public class CloudRenderer : GameService
 
         Location MaxLocation = HexagonConfig.GetMaxLocation();
         Vector2Int MaxTileLocation = MaxLocation.GlobalTileLocation;
-        Material.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
-        Material.SetVector("_TileSize", HexagonConfig.TileSize);
-        Material.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
-        Material.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
-        Material.SetBuffer("MalaiseBuffer", MalaiseBuffer);
-        Material.SetTexture("_NoiseTex", TargetTexture);
-        Material.SetFloat("_ResolutionXZ", TargetTexture.width);
-        Material.SetFloat("_ResolutionY", TargetTexture.volumeDepth);
+        CloudMaterial.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
+        CloudMaterial.SetVector("_TileSize", HexagonConfig.TileSize);
+        CloudMaterial.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
+        CloudMaterial.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
+        CloudMaterial.SetBuffer("MalaiseBuffer", MalaiseBuffer);
+        CloudMaterial.SetTexture("_NoiseTex", TargetTexture);
+        CloudMaterial.SetFloat("_ResolutionXZ", TargetTexture.width);
+        CloudMaterial.SetFloat("_ResolutionY", TargetTexture.volumeDepth);
+
+
+        CloudShadowMaterial.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
+        CloudShadowMaterial.SetVector("_TileSize", HexagonConfig.TileSize);
+        CloudShadowMaterial.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
+        CloudShadowMaterial.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
+        CloudShadowMaterial.SetBuffer("MalaiseBuffer", MalaiseBuffer);
+        CloudShadowMaterial.SetTexture("_NoiseTex", TargetTexture);
+        CloudShadowMaterial.SetFloat("_ResolutionXZ", TargetTexture.width);
+        CloudShadowMaterial.SetFloat("_ResolutionY", TargetTexture.volumeDepth);
         PassMaterialBuffer();
     }
 
@@ -122,21 +140,6 @@ public class CloudRenderer : GameService
         MinMaxBuffer.GetData(data);
 
         WhorleyShader.Dispatch(normalizeKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
-    }
-
-    public void Tile()
-    {
-        Texture2D tex = new Texture2D(TargetTexture.width, TargetTexture.height, TextureFormat.RGB24, false);
-        var OldRT = RenderTexture.active;
-        RenderTexture.active = TargetTexture;
-
-        tex.ReadPixels(new Rect(0, 0, TargetTexture.width, TargetTexture.height), 0, 0);
-        tex.Apply();
-
-        RenderTexture.active = OldRT;
-
-        Graphics.Blit(tex, TempTexture, new Vector2(4, 4), new Vector2(0,0));
-        DestroyImmediate(tex);
     }
 
     private void FillPointBuffer()

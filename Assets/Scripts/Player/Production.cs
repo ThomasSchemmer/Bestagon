@@ -162,6 +162,19 @@ public class Production : ISaveable
         return true;
     }
 
+    public bool SmallerThanAny(Production Other)
+    {
+        foreach (var Tuple in _Production)
+        {
+            if (!Other.Contains(Tuple.Key))
+                continue;
+
+            if (this[Tuple.Key] < Other[Tuple.Key])
+                return true;
+        }
+        return false;
+    }
+
     public static bool operator >(Production A, Production B)
     {
         foreach (var Tuple in A.GetTuples())

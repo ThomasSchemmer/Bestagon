@@ -3600,6 +3600,8 @@ MonoBehaviour:
   Targets:
   - {fileID: 813403402}
   - {fileID: 2101546837}
+  DraggingPreviewPrefab: {fileID: 8726221788230207971, guid: 9a6f8c3345b1c544284bef887ac9887d,
+    type: 3}
 --- !u!4 &1395935126
 Transform:
   m_ObjectHideFlags: 0

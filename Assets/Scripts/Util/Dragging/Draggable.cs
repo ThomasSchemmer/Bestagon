@@ -12,12 +12,13 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         Canvas = GameObject.Find("UI").GetComponent<Canvas>();
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public void OnDrag(PointerEventData EventData)
     {
         if (!bIsBeingDragged)
             return;
 
-        RectTransform.anchoredPosition += eventData.delta * Canvas.scaleFactor * 0.6f;
+        RectTransform.anchoredPosition += EventData.delta * Canvas.scaleFactor * 0.6f;
+        Manager.Drag(this, EventData);
     }
 
     public virtual bool CanBeDragged()
@@ -31,10 +32,10 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         if (!bIsBeingDragged)
             return;
 
-        if (!Game.TryGetService(out DraggableManager Manager))
+        if (!Game.TryGetService(out Manager))
             return;
 
-        CanvasGroup.alpha = 0.6f;
+        CanvasGroup.alpha = 0.8f;
         CanvasGroup.blocksRaycasts = false;
         OldParent = (RectTransform)transform.parent;
         Manager.BeginDrag(this);
@@ -53,14 +54,13 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         Manager.EndDrag(this, EventData);
         HandleHighlight();
     }
-
+    
     public virtual void SetDragParent(RectTransform NewParent)
     {
         RectTransform Target;
         if (NewParent)
         {
-            // we are targeting the container, not the viewport
-            Target = NewParent.transform.GetChild(0)?.GetComponent<RectTransform>();
+            Target = Manager.GetContentFromViewport(NewParent);
         }
         else
         {
@@ -91,4 +91,5 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     protected CanvasGroup CanvasGroup;
     protected bool bIsBeingDragged = false;
     protected RectTransform OldParent = null;
+    protected DraggableManager Manager;
 }
