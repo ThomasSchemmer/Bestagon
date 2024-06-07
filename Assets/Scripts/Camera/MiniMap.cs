@@ -10,6 +10,7 @@ public class MiniMap : GameService, UIElement
         {
             MapGenerator = Generator;
             DTOs = Generator.GetDTOs();
+            ClearBuffer();
             HexagonBuffer = new ComputeBuffer(DTOs.Length, Marshal.SizeOf(DTOs[0]));
             HexagonBuffer.SetData(DTOs);
             MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
@@ -58,7 +59,13 @@ public class MiniMap : GameService, UIElement
 
     public void OnDestroy()
     {
-        if (HexagonBuffer != null) { 
+        ClearBuffer();
+    }
+
+    private void ClearBuffer()
+    {
+        if (HexagonBuffer != null)
+        {
             HexagonBuffer.Release();
         }
     }

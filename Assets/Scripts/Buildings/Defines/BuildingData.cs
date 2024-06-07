@@ -57,6 +57,11 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         return Effect.GetProduction(GetWorkerMultiplier(), Location);
     }
 
+    public Production GetTheoreticalMaximumProduction()
+    {
+        return Effect.GetProduction(AssignedWorkers.Length, Location);
+    }
+
     public Production GetProductionPreview(Location Location)
     {
         return Effect.GetProduction(GetMaximumWorkerCount(), Location);
@@ -114,7 +119,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         int WorkerCount = 0;
         for (int i = 0; i < AssignedWorkers.Length; i++)
         {
-            WorkerCount += AssignedWorkers[i] != null && !AssignedWorkers[i].IsStarving() ? 1 : 0;
+            WorkerCount += AssignedWorkers[i] != null && AssignedWorkers[i].IsReadyToWork() ? 1 : 0;
         }
         return WorkerCount;
     }
@@ -187,7 +192,7 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
     public bool IsFoodProductionBuilding()
     {
         int FoodValue = 0;
-        foreach (var Tuple in GetProduction().GetTuples())
+        foreach (var Tuple in GetTheoreticalMaximumProduction().GetTuples())
         {
             FoodValue += Production.GetHungerFromFood(Tuple.Key) * Tuple.Value;
         }

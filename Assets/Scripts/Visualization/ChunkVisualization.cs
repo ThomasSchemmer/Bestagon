@@ -32,7 +32,6 @@ public class ChunkVisualization : MonoBehaviour
             yield return null;
         }
 
-        MalaiseVisualization.Initialize(Data.Malaise, MalaiseMat);
         RefreshTokens();
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
@@ -54,7 +53,6 @@ public class ChunkVisualization : MonoBehaviour
 
         GameObject MalaiseObj = new GameObject();
         MalaiseObj.transform.parent = this.transform;
-        MalaiseVisualization = MalaiseObj.AddComponent<MalaiseVisualization>();
 
         BuildingVisualizations = new();
         UnitVisualizations = new();
@@ -112,7 +110,6 @@ public class ChunkVisualization : MonoBehaviour
         {
             Destroy(Vis.gameObject);
         }
-        Destroy(MalaiseVisualization.gameObject);
     }
 
     public void RefreshTokens() {
@@ -136,7 +133,6 @@ public class ChunkVisualization : MonoBehaviour
     public HexagonVisualization[,] Hexes;
     public List<BuildingVisualization> BuildingVisualizations;
     public List<UnitVisualization> UnitVisualizations;
-    public MalaiseVisualization MalaiseVisualization;
     public ChunkData Data;
     public Coroutine Generator;
 

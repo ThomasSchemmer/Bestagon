@@ -73,7 +73,6 @@
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
-    <Compile Include="Assets\Scripts\Visualization\MalaiseVisualization.cs" />
     <Compile Include="Assets\Scripts\Events\RemoveMalaiseEventData.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
     <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
@@ -92,6 +91,7 @@
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
+    <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitStarvingScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
@@ -123,7 +123,6 @@
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\LabelScreenFeature.cs" />
-    <Compile Include="Assets\Scripts\Effects\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
@@ -194,21 +193,18 @@
     <None Include="Assets\Materials\Shaders\BuildingShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Materials\Shaders\TectonicPlateCompute.compute" />
-    <None Include="Assets\Scripts\Effects\VoronoiCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Materials\Shaders\UnitShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Materials\Shaders\Util\Util.cginc" />
-    <None Include="Assets\Materials\Shaders\MalaiseShader.shader" />
     <None Include="Assets\Scripts\Config\BiomeMapBack.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF.shader" />
-    <None Include="Assets\Scripts\Effects\CloudShader.shader" />
-    <None Include="Assets\Scripts\Effects\TestShader.shader" />
+    <None Include="Assets\Materials\Shaders\CloudShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
@@ -220,7 +216,7 @@
     <None Include="Assets\Materials\Shaders\WorldGenerationCompute.compute" />
     <None Include="Assets\Materials\Shaders\HexagonShader.shader" />
     <None Include="Assets\Materials\Shaders\Util\CloudNoise.cginc" />
-    <None Include="Assets\Scripts\Effects\WhorleyCompute.compute" />
+    <None Include="Assets\Materials\Shaders\WhorleyCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\Materials\Shaders\HexagonShellShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />

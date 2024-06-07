@@ -16,6 +16,11 @@ public abstract class StarvableUnitData : UnitData
         return CurrentFoodCount == 0;
     }
 
+    public bool IsReadyToWork()
+    {
+        return !IsStarving() || IsInFoodProductionBuilding();
+    }
+
     public void HandleFeeding(Production Food)
     {
         int MinFoodIndex = (int)Production.GoodsType.Food;
@@ -36,10 +41,7 @@ public abstract class StarvableUnitData : UnitData
         int StarvingCount = 0;
         foreach (StarvableUnitData Unit in Units)
         {
-            // prevents food being unobtainable
-            if (!Unit.IsInFoodProductionBuilding()) { 
-                Unit.HandleStarvation();
-            }
+            Unit.HandleStarvation();
             if (!Unit.IsStarving())
                 continue;
 

@@ -514,10 +514,21 @@ public class MapGenerator : GameService, ISaveable
 
     public uint[] GetMalaiseDTOs()
     {
+        if (bAreMalaiseDTOsDirty || MalaiseDTOs == null)
+        {
+            CreateMalaiseDTOs();
+            bAreMalaiseDTOsDirty = false;
+        }
+
+        return MalaiseDTOs;
+    }
+
+    private void CreateMalaiseDTOs()
+    {
         // see GetDTOs for explanation, this merges it even more:
         // one bit per hex, indicating malaise
         // requires the chunks to be multiple of 8 big, best exactly 8
-        uint[] DTOs = new uint[GetMalaiseDTOByteCount()];
+        MalaiseDTOs = new uint[GetMalaiseDTOByteCount()];
 
         int ByteIndex = 0;
         int IntIndex = 0;
@@ -532,16 +543,16 @@ public class MapGenerator : GameService, ISaveable
                     for (int i = 0; i < HexagonConfig.chunkSize; i++)
                     {
                         // read part of the int into a byte, then check if the bit position should be set
-                        uint OldInt = DTOs[OverallIndex];
+                        uint OldInt = MalaiseDTOs[OverallIndex];
                         byte OldValue = (byte)((OldInt >> ((3 - IntIndex) * 8)) & 0xFF);
 
                         bool bIsMalaised = Chunks[x, y].HexDatas[i, j].IsMalaised();
                         byte NewValue = (byte)((bIsMalaised ? 1 : 0) << (7 - ByteIndex));
-    
+
                         // now write it back into the buffer
                         NewValue = (byte)(OldValue | NewValue);
                         uint NewInt = (uint)(NewValue << ((3 - IntIndex) * 8));
-                        DTOs[OverallIndex] = OldInt | NewInt; 
+                        MalaiseDTOs[OverallIndex] = OldInt | NewInt;
 
                         ByteIndex++;
                     }
@@ -556,8 +567,6 @@ public class MapGenerator : GameService, ISaveable
                 }
             }
         }
-
-        return DTOs;
     }
 
     public int GetSize()
@@ -629,4 +638,8 @@ public class MapGenerator : GameService, ISaveable
     private Location LastCenterChunk = Location.MinValue;
     private Location MinBottomLeft, MaxTopRight;
     private int FinishedVisualizationCount = 0;
+
+    // do not save anything below this line
+    private uint[] MalaiseDTOs = null;
+    public bool bAreMalaiseDTOsDirty = false;
 }

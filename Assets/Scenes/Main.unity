@@ -3252,7 +3252,7 @@ MonoBehaviour:
   State: 1
   Mode: 0
   bIsPaused: 0
-  TargetFramerate: -1
+  TargetFramerate: 60
   Services:
   - IsForEditor: 1
     IsForGame: 1
@@ -5190,7 +5190,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288013423}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c36f027b8d19ec54a816ade1c02d789d, type: 3}
   m_Name: 
@@ -5201,10 +5201,11 @@ MonoBehaviour:
   TargetTexture: {fileID: 8400000, guid: 01e6e05ed17b8b0448d503bd3f7b16a6, type: 2}
   TempTexture: {fileID: 8400000, guid: 55b604ede932fd24287dee2f36f34f40, type: 2}
   WhorleyShader: {fileID: 7200000, guid: 8c7981dbde7ea824fae89ada1207fb87, type: 3}
-  NumPoints: 8
+  NumPoints: 6
   Zoom: 1
-  Iterations: 2
-  Factor: 0
+  SimplexZoom: 0.05
+  Iterations: 1
+  Face: 5
 --- !u!4 &1288013425
 Transform:
   m_ObjectHideFlags: 0

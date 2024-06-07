@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PPMat_Shell
-  m_Shader: {fileID: 4800000, guid: 9d2dcbd0c30ac3b4ea11b13fd27586f4, type: 3}
+  m_Name: M_Unit
+  m_Shader: {fileID: 4800000, guid: 0581b4e61c10d6945b8b02bee5c22eef, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -29,10 +29,6 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _BrushNormalTex:
         m_Texture: {fileID: 2800000, guid: e786fcb072ea4524fa719d6d1563bf37, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _BrushTex:
-        m_Texture: {fileID: 2800000, guid: e2eefe4bee756c749932945cbd7efbf9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -93,9 +89,8 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _BrushCutoff: 0.232
     - _BumpScale: 1
-    - _CenterBlendFactor: 0.124
+    - _CenterBlendFactor: 0.219
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -104,17 +99,14 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeBlendFactor: 0.194
+    - _EdgeBlendFactor: 0.19
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _LightMulti: 1
     - _Metallic: 0
-    - _NormalCutoff: 0.102
-    - _NormalNoiseEffect: 0.248
-    - _NormalNoiseScale: 21
-    - _NormalOffset: 0.3
+    - _NormalNoiseEffect: 0.079
+    - _NormalNoiseScale: 27.9
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -125,7 +117,7 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _VoronoiScale: 4.68
+    - _VoronoiScale: 8.74
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
@@ -133,8 +125,9 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _UnitColor: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
   m_BuildTextureStacks: []
---- !u!114 &6448074367406222323
+--- !u!114 &5963461194376031505
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

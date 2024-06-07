@@ -63,13 +63,10 @@ public class RemoveMalaiseEventData : EventData
         Hex.Chunk.Malaise.UnmarkToMalaise(Hex.Location);
         Hex.VisualizeSelection();
 
-        if (Hex.Chunk.Visualization == null)
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        if (Hex.Chunk.Visualization.MalaiseVisualization == null)
-            return;
-
-        Hex.Chunk.Visualization.MalaiseVisualization.GenerateMesh();
+        MapGenerator.bAreMalaiseDTOsDirty = true;
     }
 
     public override bool IsPreviewable()

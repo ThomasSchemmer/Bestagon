@@ -65,6 +65,13 @@ public class BuildingCard : Card
             MessageSystem.CreateMessage(Message.Type.Warning, "A card has been lost due to durability");
             bWasUsedUp = true;
         }
+        UpdateUsageText();
+    }
+
+    private void UpdateUsageText()
+    {
+        NumberedIconScreen Screen = UsagesTransform.GetChild(0).gameObject.GetComponent<NumberedIconScreen>();
+        Screen.UpdateVisuals(BuildingData.CurrentUsages);
     }
 
     protected override CardCollection GetTargetAfterUse()
@@ -123,6 +130,7 @@ public class BuildingCard : Card
     public void RefreshUsage()
     {
         BuildingData.CurrentUsages = BuildingData.MaxUsages;
+        UpdateUsageText();
     }
 
     public void SetBuildingData(BuildingData BuildingData)

@@ -1,0 +1,144 @@
+/** compute shader to create and normalize a whorley noise from given PointStream
+* Influenced (and slightly improved in comparison to) sebastian lagues version
+*/
+
+#pragma kernel CreateNoiseTexture
+#pragma kernel Clear
+#pragma kernel Debug
+#pragma kernel Normalize
+
+#define THREAD_AMOUNT 8
+#define THREAD_AMOUNT_Z 4
+
+#include "Assets/Materials/Shaders/Util/Util.cginc"
+
+RWStructuredBuffer<float3> points;
+RWStructuredBuffer<float3> directions;
+RWStructuredBuffer<int> minMax;
+
+RWTexture3D<float4> result;
+int directionsCount;
+// per dimension!
+float pointCount;
+uint4 size;
+uint4 amountGroups;
+
+float zoom;
+int iterations;
+float simplexZoom;
+
+int face;
+
+static const int minMaxAccuracy = 100000;
+
+#define TOTAL_POINT_COUNT (pointCount * pointCount * pointCount)
+
+
+float GetMinDistanceForPixel(uint3 pixel){
+    //we could check every other pixel for distance, but if we arrange them in a grid
+    //we can only check the adjacent grid spaces
+    uint3 gridPos = (uint3)(pixel / (float3)size * pointCount); //0, 0
+
+    float minDistance = 999999;
+    for (int i = 0; i < directionsCount; i++) {  
+        int3 nPos = gridPos + directions[i];
+        
+        int3 wrappedNPos = (int3)(nPos + (int3)pointCount) % (uint3)pointCount;
+        uint index = wrappedNPos.z * pointCount * pointCount + wrappedNPos.y * pointCount + wrappedNPos.x;
+        int3 pointLocation = points[index];
+        
+        int3 offset = 0;
+        offset.x += nPos.x >= (int)pointCount ? (int)(size.x) * (int)(nPos.x / pointCount) : 0;
+        offset.y += nPos.y >= (int)pointCount ? (int)(size.y) * (int)(nPos.y / pointCount) : 0;
+        offset.z += nPos.z >= (int)pointCount ? (int)(size.z) * (int)(nPos.z / pointCount) : 0;
+        offset.x -= nPos.x < 0 ? (int)(size.x) : 0;  
+        offset.y -= nPos.y < 0 ? (int)(size.y) : 0;  
+        offset.z -= nPos.z < 0 ? (int)(size.z) : 0;
+        int3 wrappedPixel = pointLocation + offset;
+        
+        // bring from 0..pixel to 0..1
+        float dist = distance(pixel, wrappedPixel) / (float)size;
+        minDistance = min(minDistance, dist);
+    }
+    return sqrt(minDistance); 
+}
+
+float Whorley(uint3 pixel, float _zoom, int _iterations, int count){
+    float value = 0;
+    
+    for (int i = 0; i < _iterations; i++){
+        value += GetMinDistanceForPixel(pixel * _zoom);
+        _zoom *= 2;
+    }
+    
+    int parsedValue = value * minMaxAccuracy;
+    InterlockedMin(minMax[count * 2 + 0], parsedValue);
+    InterlockedMax(minMax[count * 2 + 1], parsedValue);
+    return value;
+}
+
+float Noise(uint3 pixel, int count){
+
+    float value =  ssnoise(pixel, simplexZoom, 0, 3, 1);
+    // bring from -1..1 to 0..1
+    value = value * 0.5 + 0.5;
+
+    int parsedValue = value * minMaxAccuracy;
+    InterlockedMin(minMax[count * 2 + 0], parsedValue);
+    InterlockedMax(minMax[count * 2 + 1], parsedValue);
+    return value;
+
+}
+
+float NormalizeValue(float value, int count)
+{
+    float minValue = (float)minMax[count * 2 + 0] / minMaxAccuracy;
+    float maxValue = (float)minMax[count * 2 + 1] / minMaxAccuracy;
+
+    value = (value - minValue) / (maxValue - minValue);
+    value = clamp(1 - value, 0, 1);
+    return value;
+}
+
+[numthreads(THREAD_AMOUNT, THREAD_AMOUNT, THREAD_AMOUNT_Z)]
+void CreateNoiseTexture (uint3 ID : SV_DispatchThreadID)
+{
+    float R = Noise(ID, 0);
+    float G = Whorley(ID, zoom + 0, iterations + 0, 1);
+    float B = Whorley(ID, zoom + 1, iterations + 1, 2);
+    float A = Whorley(ID, zoom + 2, iterations + 2, 3);
+
+    result[ID] = float4(R, G, B, A);
+}
+
+[numthreads(THREAD_AMOUNT, THREAD_AMOUNT, THREAD_AMOUNT_Z)]
+void Normalize (uint3 ID : SV_DispatchThreadID)
+{
+    float4 values = result[ID];
+    float R = NormalizeValue(values.x, 0);
+    float G = NormalizeValue(values.y, 1);
+    float B = NormalizeValue(values.z, 2); 
+    float A = NormalizeValue(values.w, 3);
+    
+    // have to map alpha to all colors to make it visible
+    R = face == 1 || face == 5 ? R : (face == 4 ? A : 0);
+    G = face == 2 || face == 5 ? G : (face == 4 ? A : 0);
+    B = face == 3 || face == 5 ? B : (face == 4 ? A : 0);
+    A = face == 4 || face == 5 ? A : 1;
+
+    result[ID] = float4(R, G, B, A);
+}
+
+[numthreads(THREAD_AMOUNT, THREAD_AMOUNT, THREAD_AMOUNT_Z)]
+void Clear (uint3 ID : SV_DispatchThreadID)
+{
+    result[ID] = float4(0, 0, 0, 1);
+}
+
+[numthreads(1, 1, 1)]
+void Debug (uint3 ID : SV_DISPATCHTHREADID)
+{
+    for (int i = 0; i < TOTAL_POINT_COUNT; i++){ 
+        result[points[i]] = float4(1, 0, 0, 1);
+    }
+}

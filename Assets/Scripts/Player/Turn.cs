@@ -69,12 +69,10 @@ public class Turn : GameService
     }
 
     private void UpdateMalaiseVisualization() {
-        foreach (MalaiseData Data in ActiveMalaises) {
-            if (!Data.Chunk.Visualization)
-                continue;
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
 
-            Data.Chunk.Visualization.MalaiseVisualization.GenerateMesh();
-        }
+        MapGenerator.bAreMalaiseDTOsDirty = true;
 
         CloudRenderer.PassMaterialBuffer();
     }

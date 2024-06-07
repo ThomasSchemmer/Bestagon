@@ -13,12 +13,24 @@ Shader "Custom/CloudShader"
     Properties
     {
         _NoiseTex ("NoiseTex", 3D) = "white" {}
-        _StepAmount ("StepAmount", Range(1, 5)) = 1
-        _CloudHeightMin("CloudHeightMin", Float) = 10
-        _CloudHeightMax("CloudHeightMax", Float) = 15
-        _CloudCutoff ("CloudCutoff", Range(0, 1)) = 0.5
-        _CloudDensityMultiplier("CloudDensityMultiplier", Range(1, 100)) = 50
-        _ShowIndex("ShowIndex", Float) = 0
+
+        [Header(Clouds)][Space]
+        _StepAmount ("Step Amount", Range(1, 25)) = 1
+        _CloudHeightMin("Height Min", Float) = 10
+        _CloudHeightMax("Height Max", Float) = 15
+        _CloudCutoff ("Cutoff", Range(0, 1)) = 0.5
+        _CloudDensityMultiplier("Density Multiplier", Range(1, 100)) = 50
+        _CloudColor("Color", Color) = (0, 0, 0, 1)
+        _NoiseWeights("Noise Weights", Vector) = (1, 0, 0, 0)
+        _WindSpeed("Wind Speed", Range(0.001, 0.1)) = 0.01
+        
+        [Header(Light)][Space]
+        _LightStepAmount ("Step Amount", Range(1, 15)) = 1
+        _LightAbsorptionTowardsSun ("Absorption Sun", Range(0, 2)) = 0.5
+        _LightAbsorptionThroughCloud ("Absorption Through Cloud", Range(0, 2)) = 0.5
+        _DarknessThreshold("Darkness Threshold", Range(0, 1)) = 0.5
+        _PhaseParams("Phase Params", Vector) = (0, 0, 0, 0)
+
     }
 
 
@@ -43,7 +55,15 @@ Shader "Custom/CloudShader"
     float _CloudHeightMin;
     float _CloudHeightMax;
     float _CloudDensityMultiplier;
-    float _ShowIndex;
+    float4 _CloudColor;
+    float4 _NoiseWeights;
+    float _WindSpeed;
+    
+    float _LightAbsorptionTowardsSun;
+    float _LightAbsorptionThroughCloud;
+    float _DarknessThreshold;
+    float _LightStepAmount;
+    float4 _PhaseParams;
 
     CBUFFER_END
     ENDHLSL
@@ -78,8 +98,6 @@ Shader "Custom/CloudShader"
 
             /** See CloudRenderer data: each line of hex's is packed into these uints */
             StructuredBuffer<uint> MalaiseBuffer;
-            /** Contains 3D noise textures for actual cloud density computation, compressed into int's */
-            //StructuredBuffer<int> CloudNoiseBuffer;
 
             struct Attributes {
                 uint vertexID : SV_VertexID;
@@ -174,6 +192,18 @@ Shader "Custom/CloudShader"
                 return _CloudHeightMax - _CloudHeightMin;
             }
 
+            // Henyey-Greenstein
+            float hg(float a, float g) {
+                float g2 = g*g;
+                return (1-g2) / (4*3.1415*pow(1+g2-2*g*(a), 1.5));
+            }
+
+            float phase(float a) {
+                float blend = .5;
+                float hgBlend = hg(a, _PhaseParams.x) * (1 - blend) + hg(a, -_PhaseParams.y) * blend;
+                return _PhaseParams.z + hgBlend * _PhaseParams.w;
+            }
+
             float2 RayBoxDist(float3 RayOrigin, float3 RayDir){
                 // adapted from sebastian lague
                 // slightly extend the box since the hexagons are center positioned
@@ -194,46 +224,60 @@ Shader "Custom/CloudShader"
             }
 
             float GetDensityForWorld(float3 WorldLocation) {
-                // prolly remove ifs
                 int2 GlobalTileLocation = WorldSpaceToTileSpace(WorldLocation);
-                //int4 Location = TileSpaceToHexSpace(GlobalTileLocation);
 
                 int _IsValidLocation = IsValidLocation(GlobalTileLocation);
                 if (_IsValidLocation == 0)
                     return 0;
 
                 int _IsHexMalaised = IsHexAtLocationMalaised(GlobalTileLocation);
-                //if (_IsHexMalaised == 0)
-                //    return 0;
+                if (_IsHexMalaised == 0)
+                    return 0;
 
                 float3 NoisePerc = WorldPosToNoisePerc(WorldLocation, GetCloudsMin(), GetCloudsMax());
-                //int3 NoisePos = NoisePercToNoisePos(NoisePerc, _ResolutionXZ, _ResolutionY);
-                //int NoiseIndex = NoisePosToNoiseIndex(NoisePos, _ResolutionXZ, _ResolutionY);
-                //float Density = GetUnpackedDensity(CloudNoiseBuffer[NoiseIndex]);
-
-                NoisePerc.xz = TRANSFORM_TEX(NoisePerc.xz, _NoiseTex);
-                // unity expects the z coordinate in a 3D tex to be the "depth", but we have y 
-                float4 Noise = tex3Dlod(_NoiseTex, float4(NoisePerc.xzy, 1));
                 
-                if (_ShowIndex == 1)
-                    return Noise.r;
-                if (_ShowIndex == 2)
-                    return Noise.g;
-                if (_ShowIndex == 3)
-                    return Noise.b;
-                if (_ShowIndex == 4)
-                    return Noise.a;
+                // tile the coordinates according to texture settings (but leave y untiled, as its way smaller)
+                // also unity expects the z coordinate in a 3D tex to be the "depth", but we have y 
+                float3 TiledNoisePerc = NoisePerc;
+                TiledNoisePerc.xz = TRANSFORM_TEX(NoisePerc.xz, _NoiseTex);
+                
+                // simplex noise (x part of the texture) does not tile, so we need to have a global UV coord
+                float3 TimedOffset = float3(-1, -1, 0) * _Time.y * _WindSpeed;
+                float3 TimedNoisePerc = NoisePerc.xzy + TimedOffset;
+                TiledNoisePerc += TimedOffset * 20;
 
-                float Density = GetDensityFromColor(Noise);
+                float4 Noise = 0;
+                Noise.x = tex3Dlod(_NoiseTex, float4(TimedNoisePerc, 1)).x;
+                Noise.yzw = tex3Dlod(_NoiseTex, float4(TiledNoisePerc.xzy, 1)).yzw;
 
-                Density = max(0, Density - _CloudCutoff) * _CloudDensityMultiplier;
+                float4 normalizedNoiseWeights = _NoiseWeights / dot(_NoiseWeights, 1);
+                float shapeFBM = dot(Noise, normalizedNoiseWeights);
+
+                float Density = max(0, shapeFBM - _CloudCutoff) * _CloudDensityMultiplier;
                 return Density;
             }
 
-            /** create a fullscreen rect out of thin air */
+            float GetLightIntensityForWorld(float3 WorldPos){
+                float3 LightDir = _MainLightPosition.xyz;
+                float2 Box = RayBoxDist(WorldPos, LightDir);
+                
+                float StepLength = Box.y / _LightStepAmount;
+
+                float LightSum = 0;
+                for (int i = 0; i < _LightStepAmount; i++){
+                    float3 Pos = WorldPos + i * StepLength * LightDir;
+                    float Density = GetDensityForWorld(Pos);
+                    LightSum += Density * StepLength;
+                }
+
+                float transmittance = exp(-LightSum * _LightAbsorptionTowardsSun);
+                return _DarknessThreshold + transmittance * (1 - _DarknessThreshold);
+            }
+
             Varyings vert(Attributes i) {
 				Varyings OUT;
                 
+                /** create a fullscreen rect out of thin air */
                 float4 pos = GetFullScreenTriangleVertexPosition(i.vertexID);
                 float2 uv  = GetFullScreenTriangleTexCoord(i.vertexID);
 				OUT.positionCS = pos;
@@ -243,12 +287,11 @@ Shader "Custom/CloudShader"
 
             half4 frag(Varyings input) : SV_Target
             { 
-            return 0;
-                float d = SampleSceneDepth(input.uv);
+                // check if pixel is looking at cloud container
                 float2 UV = (input.uv - 0.5) * 2;
                 float3 PositionWorld = _CameraPos.xyz + UV.x * _CameraRight.xyz + UV.y * _CameraUp.xyz + 100 * -_CameraForward.xyz;
-                float2 Box = RayBoxDist(PositionWorld, _CameraForward.xyz);
 
+                float2 Box = RayBoxDist(PositionWorld, _CameraForward.xyz);
                 if (Box.y == 0)
                     return 0;
 
@@ -258,26 +301,27 @@ Shader "Custom/CloudShader"
                 float BoxDistance = distance(BoxStartWorld, BoxEndWorld);
                 float StepLength = BoxDistance / _StepAmount;
 
-                float Sum = 0;
+                float cosAngle = dot(BoxDir, _MainLightPosition.xyz);
+                float phaseVal = phase(cosAngle);
+
+                float LightEnergy = 0;
+                float Transmittance = 1;
                 for (int i = 0; i < _StepAmount; i++){
                     float3 Pos = BoxStartWorld + i * StepLength * BoxDir;
-                    float Density = GetDensityForWorld(Pos);
-                    Sum += Density / _StepAmount;
+                    float Density = GetDensityForWorld(Pos) * StepLength;
+
+                    if (Density <= 0)
+                        continue;
+                        
+                    float Light = GetLightIntensityForWorld(Pos);
+                    LightEnergy += Density * Light * Transmittance * phaseVal;
+                    Transmittance *= exp(-Density * _LightAbsorptionThroughCloud);
+                    if (Transmittance < 0.01)
+                        break;
                 }
                 
-                float Transmittance = exp(-Sum);
-
-                if (_ShowIndex == 0){
-                    float4 OriginalColor = SAMPLE_TEXTURE2D_X(_CameraColorTexture, sampler_CameraColorTexture, input.uv);
-                    return Transmittance * OriginalColor + (1 - Transmittance) * float4(0, 0, 0, 1);
-                }
-                return Sum;
-
-
-                /*                
-                tex2D(_TypeTex, uv);
-                return color;
-                */
+                float4 OriginalColor = SAMPLE_TEXTURE2D_X(_CameraColorTexture, sampler_CameraColorTexture, input.uv);
+                return float4(OriginalColor.xyz * Transmittance + LightEnergy * _CloudColor.xyz, 1);
             }
             ENDHLSL
         }

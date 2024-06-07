@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEditor;
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
 
 [CustomEditor(typeof(CloudRenderer))]
@@ -9,8 +11,15 @@ public class CloudRendererEditor : Editor
 {
     override public void OnInspectorGUI()
     {
-        DrawDefaultInspector();
         CloudRenderer CloudRenderer = (CloudRenderer)target;
+        EditorGUI.BeginChangeCheck();
+        DrawDefaultInspector();
+        if (EditorGUI.EndChangeCheck())
+        {
+            CloudRenderer.CreateWhorleyNoise();
+            EditorUtility.SetDirty(CloudRenderer.TargetTexture);
+        }
+
         if (GUILayout.Button("Refresh"))
         {
             CloudRenderer.CreateWhorleyNoise();
@@ -27,5 +36,6 @@ public class CloudRendererEditor : Editor
         {
             CloudRenderer.Clear();
         }
+
     }
 }

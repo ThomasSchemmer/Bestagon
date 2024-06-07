@@ -16,12 +16,14 @@ public class CloudRenderer : GameService
     public ComputeShader WhorleyShader;
     [Range(1, 20)]
     public int NumPoints = 10;
-    [Range(0.25f, 5)]
-    public float Zoom = 4;
+    [Range(0.1f, 5)]
+    public float Zoom = 1;
+    [Range(0.01f, 0.2f)]
+    public float SimplexZoom = 1;
     [Range(1, 4)]
     public int Iterations = 2;
-    [Range(0, 5)]
-    public float Factor = 1.5f;
+    [Range(1, 5)]
+    public int Face = 1;
 
     private Camera MainCam;
     private ComputeBuffer MalaiseBuffer;
@@ -34,7 +36,7 @@ public class CloudRenderer : GameService
 
     public void OnDestroy()
     {
-        ClearBuffers();
+        ClearBuffers(true);
     }
 
     public void Update()
@@ -72,6 +74,7 @@ public class CloudRenderer : GameService
 
     private void InitializeVertexShader()
     {
+        ClearBuffers(true);
         int MalaiseIntCount = MapGen.GetMalaiseDTOByteCount();
         MalaiseBuffer = new ComputeBuffer(MalaiseIntCount, sizeof(int));
 
@@ -115,7 +118,7 @@ public class CloudRenderer : GameService
 
         WhorleyShader.Dispatch(createNoiseKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
 
-        int[] data = new int[2];
+        int[] data = new int[MinMaxBuffer.count];
         MinMaxBuffer.GetData(data);
 
         WhorleyShader.Dispatch(normalizeKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
@@ -123,17 +126,23 @@ public class CloudRenderer : GameService
 
     public void Tile()
     {
-        Graphics.Blit(TargetTexture, TempTexture, new Vector2(1, 1), new Vector2(0, 0), 3, 0);
+        Texture2D tex = new Texture2D(TargetTexture.width, TargetTexture.height, TextureFormat.RGB24, false);
+        var OldRT = RenderTexture.active;
+        RenderTexture.active = TargetTexture;
 
-        //Texture2D Tex = new(TargetTexture.width, TargetTexture.height, TextureFormat.ARGB32, TargetTexture.mipmapCount, true);
-        //Graphics.CopyTexture(TempTexture, Tex);
-        //Graphics.Blit(Tex, TargetTexture, new Vector2(2, 2), new Vector2(0, 0), 0, 0);
+        tex.ReadPixels(new Rect(0, 0, TargetTexture.width, TargetTexture.height), 0, 0);
+        tex.Apply();
+
+        RenderTexture.active = OldRT;
+
+        Graphics.Blit(tex, TempTexture, new Vector2(4, 4), new Vector2(0,0));
+        DestroyImmediate(tex);
     }
 
     private void FillPointBuffer()
     {
         Random.InitState(5);
-        List<Vector3> Points = new List<Vector3>(NumPoints * NumPoints );   //* NumPoints 
+        List<Vector3> Points = new List<Vector3>(NumPoints * NumPoints * NumPoints);   
         float scale = 1.0f / NumPoints;
         for (int z = 0; z < NumPoints; z++)
         {
@@ -163,8 +172,10 @@ public class CloudRenderer : GameService
         DirectionsBuffer = new ComputeBuffer(DIRECTIONS.Length, sizeof(float) * 3);
         DirectionsBuffer.SetData(DIRECTIONS);
 
-        MinMaxBuffer = new ComputeBuffer(2, sizeof(int));
-        MinMaxBuffer.SetData(new int[2] { 1000, 0});
+        int MaxValue = 999999;
+        int MinValue = -MaxValue;
+        MinMaxBuffer = new ComputeBuffer(8, sizeof(int));
+        MinMaxBuffer.SetData(new int[8] { MaxValue, MinValue, MaxValue, MinValue, MaxValue, MinValue, MaxValue, MinValue });
 
         WhorleyShader.SetBuffer(createNoiseKernel, "points", PointBuffer);
         WhorleyShader.SetBuffer(createNoiseKernel, "directions", DirectionsBuffer);
@@ -172,8 +183,13 @@ public class CloudRenderer : GameService
 
         WhorleyShader.SetInt("directionsCount", DIRECTIONS.Length);
         WhorleyShader.SetFloat("pointCount", NumPoints);
-        WhorleyShader.SetVector("size", new(ImageSize.x, ImageSize.y, ImageSize.z, 0));
+        WhorleyShader.SetVector("size", new Vector4(ImageSize.x, ImageSize.y, ImageSize.z, 0));
         WhorleyShader.SetVector("amountGroups", new(AmountGroups.x, AmountGroups.y, AmountGroups.z, 0));
+
+        WhorleyShader.SetFloat("zoom", Zoom);
+        WhorleyShader.SetInt("iterations", Iterations);
+        WhorleyShader.SetInt("face", Face);
+        WhorleyShader.SetFloat("simplexZoom", SimplexZoom);
 
         WhorleyShader.SetTexture(createNoiseKernel, "result", TargetTexture);
 
@@ -209,9 +225,12 @@ public class CloudRenderer : GameService
         WhorleyShader.Dispatch(clearKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
     }
 
-    private void ClearBuffers()
+    private void ClearBuffers(bool bClearVertex = false)
     {
-        MalaiseBuffer?.Release();
+        if (bClearVertex)
+        {
+            MalaiseBuffer?.Release();
+        }
         PointBuffer?.Release();
         DirectionsBuffer?.Release();
         MinMaxBuffer?.Release();
@@ -246,8 +265,20 @@ public class CloudRenderer : GameService
         new Vector3(+0, +1, +1),
         new Vector3(+1, +1, +1),
     };
-    
+
+    private static Vector3[] DIRECTIONS2D = new Vector3[9]{
+        new Vector3(+0, +0, +0),
+        new Vector3(+1, +0, +0),
+        new Vector3(+1, -1, +0),
+        new Vector3(+0, -1, +0),
+        new Vector3(-1, -1, +0),
+        new Vector3(-1, +0, +0),
+        new Vector3(-1, +1, +0),
+        new Vector3(+0, +1, +0),
+        new Vector3(+1, +1, +0)
+    };
+
     private static Vector3[] DIRECTIONS = DIRECTIONS3D;
-    private static int THREAD_AMOUNT = 16;
-    private static int THREAD_AMOUNT_Z = 1;
+    private static int THREAD_AMOUNT = 8;
+    private static int THREAD_AMOUNT_Z = 4;
 }
