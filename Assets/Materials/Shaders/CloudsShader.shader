@@ -24,6 +24,7 @@ Shader "Custom/Clouds"
         _CloudColor("Color", Color) = (0, 0, 0, 1)
         _NoiseWeights("Noise Weights", Vector) = (1, 0, 0, 0)
         _WindSpeed("Wind Speed", Range(0.001, 0.1)) = 0.01
+        _WindCrossMulti("Wind Cross Multi", Range(1, 20)) = 20
         
         [Header(Light)][Space]
         _LightStepAmount ("Step Amount", Range(1, 15)) = 1

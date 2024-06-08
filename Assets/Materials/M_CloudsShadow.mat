@@ -86,6 +86,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
+    - _AlphaScale: 0.42
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
@@ -115,14 +116,16 @@ Material:
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ShadowCutoff: 0.258
+    - _ShadowCutoff: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _StepAmount: 3
+    - _StepAmount: 10
     - _Surface: 0
+    - _UVScale: 42
+    - _WindCrossMulti: 1
     - _WindSpeed: 0.0018
     - _WorkflowMode: 1
     - _ZWrite: 1

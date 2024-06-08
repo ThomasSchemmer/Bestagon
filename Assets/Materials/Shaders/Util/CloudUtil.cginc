@@ -40,6 +40,7 @@ float _CloudDensityMultiplier;
 float4 _CloudColor;
 float4 _NoiseWeights;
 float _WindSpeed;
+float _WindCrossMulti;
     
 float _LightAbsorptionTowardsSun;
 float _LightAbsorptionThroughCloud;
@@ -196,7 +197,7 @@ float GetDensityForWorld(float3 WorldLocation, float4 _NoiseTex_ST, float4 _Nois
     // simplex noise (x part of the texture) does not tile, so we need to have a global UV coord
     float3 TimedOffset = float3(-1, -1, 0) * _Time.y * _WindSpeed;
     float3 TimedNoisePerc = NoisePerc.xzy + TimedOffset;
-    TiledNoisePerc += TimedOffset * 20;
+    TiledNoisePerc += TimedOffset * _WindCrossMulti;
 
     float4 Noise = 0;
 
@@ -234,6 +235,11 @@ float4 GetCloudColorForPixel(float3 PositionWorld, float4 _NoiseTex_ST, float4 _
     if (Box.y == 0)
         return 0;
 
+        
+#ifndef ENABLE_LIGHT_PASS
+    _StepAmount /= 3;
+#endif
+
     float3 BoxStartWorld = PositionWorld + _CameraForward.xyz * Box.x;
     float3 BoxEndWorld = PositionWorld + _CameraForward.xyz * (Box.x + Box.y);
     float3 BoxDir = normalize(BoxEndWorld - BoxStartWorld);
@@ -264,7 +270,7 @@ float4 GetCloudColorForPixel(float3 PositionWorld, float4 _NoiseTex_ST, float4 _
     return float4(OriginalColor.xyz * Transmittance + LightEnergy * _CloudColor.xyz, 1);
 
 #else 
-    for (int i = 0; i < _StepAmount / 3; i++){
+    for (int i = 0; i < _StepAmount; i++){
         float3 Pos = BoxStartWorld + i * StepLength * BoxDir;
         float Density = GetDensityForWorld(Pos, _NoiseTex_ST, _NoiseTex_TexelSize) * StepLength;
         if (Density <= 0)
@@ -275,6 +281,20 @@ float4 GetCloudColorForPixel(float3 PositionWorld, float4 _NoiseTex_ST, float4 _
 
     return 1 - Transmittance;
 #endif // ENABLE_LIGHT_PASS
+}
+
+// https://forum.unity.com/threads/urp-opacity-and-shadows-is-this-even-supported-anymore.1045252/
+half dither(half2 uv, half alpha)
+{
+    const half DITHER_THRESHOLDS[16] =
+    {
+        1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
+        13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
+        4.0 / 17.0, 12.0 / 17.0,  2.0 / 17.0, 10.0 / 17.0,
+        16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0
+    };
+    uint index = (uint(uv.x) % 4) * 4 + uint(uv.y) % 4;
+    return alpha - DITHER_THRESHOLDS[index];
 }
 
 #endif // INCLUDE_CLOUDNOISE

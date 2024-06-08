@@ -20,6 +20,7 @@ Shader "Custom/CloudsShadow"
         _CloudColor("Color", Color) = (0, 0, 0, 1)
         _NoiseWeights("Noise Weights", Vector) = (1, 0, 0, 0)
         _WindSpeed("Wind Speed", Range(0.001, 0.1)) = 0.01
+        _WindCrossMulti("Wind Cross Multi", Range(1, 20)) = 1
         
         // hidden cause not necessary to adapt for shadows (ie no light)
         // but definition is important for clouds include
@@ -31,8 +32,8 @@ Shader "Custom/CloudsShadow"
         [HideInInspector]_PhaseParams("Phase Params", Vector) = (0, 0, 0, 0)
         
         [Header(Shadows)][Space]
-        _ShadowOffset ("Offset", Vector) = (0, 0, 0, 0)
-        _ShadowCutoff ("Cutoff", Range(0, 1)) = 0.5
+        _UVScale ("UV Scale", Float) = 1
+        _AlphaScale ("Alpha Scale", Range(0, 10)) = 1
     
     }
 
@@ -46,7 +47,8 @@ Shader "Custom/CloudsShadow"
         float4 _NoiseTex_ST;
         float4 _NoiseTex_TexelSize;
 
-        float _ShadowCutoff;
+        float _UVScale;
+        float _AlphaScale;
 
     CBUFFER_END
 
@@ -72,27 +74,35 @@ Shader "Custom/CloudsShadow"
 
             };
 
+            struct v2f {
+	            //float4 positionCS 	: SV_POSITION;
+                float3 positionWS : TEXCOORD1;
+	            float2 uv		: TEXCOORD0;
+            };
+
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 5.0
 
-            Varyings vert (Attributes v)
+            v2f vert (Attributes v, out float4 positionCS : SV_POSITION)
             {
-                Varyings o;
+                v2f o;
                 VertexPositionInputs VertexInputs = GetVertexPositionInputs(v.vertex.xyz);
-				o.positionCS = VertexInputs.positionCS;
+				positionCS = VertexInputs.positionCS;
                 o.positionWS = VertexInputs.positionWS;
 				o.uv = ComputeScreenPos (VertexInputs.positionCS);
                 return o;
             }
 
-            float4 frag(Varyings i) : SV_Target
+            //float4 screenPos : VPOS / SV_POSITION
+            float4 frag(v2f i, float4 screenPos : VPOS) : SV_Target
             {
                 // is uninitialized in game view, so shadows will be hidden, debug remove
                 clip(_bIsEnabled <= 0 ? -1 : 0);
 
                 float4 Cloud = GetCloudColorForPixel(i.positionWS, _NoiseTex_ST, _NoiseTex_TexelSize, 0);
-                clip(Cloud.r - _ShadowCutoff);
+                
+                clip(dither(screenPos.xy * _UVScale, Cloud.r * _AlphaScale) + 0.001);
                 return 1;
             }
             ENDHLSL
