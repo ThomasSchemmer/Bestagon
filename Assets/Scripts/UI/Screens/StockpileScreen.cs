@@ -10,7 +10,9 @@ public class StockpileScreen : MonoBehaviour
         {
             // update visuals everytime something changes in the amounts
             Stockpile._OnResourcesChanged += UpdateVisuals;
-            Workers._OnWorkersChanged += UpdateVisuals;
+            Workers._OnWorkersChanged += UpdateWorkerVisuals;
+            Units._OnUnitCountChanged += UpdateScoutVisuals;
+            TokenizedUnitData._OnMovement += UpdateScoutVisuals;
             // only update the +/- indicators every turn
             Turn._OnTurnEnd += UpdateIndicatorCount;
 
@@ -23,7 +25,9 @@ public class StockpileScreen : MonoBehaviour
     private void OnDestroy()
     {
         Stockpile._OnResourcesChanged -= UpdateVisuals;
-        Workers._OnWorkersChanged -= UpdateVisuals;
+        Workers._OnWorkersChanged -= UpdateWorkerVisuals;
+        Units._OnUnitCountChanged -= UpdateScoutVisuals;
+        TokenizedUnitData._OnMovement -= UpdateScoutVisuals;
         Turn._OnTurnEnd -= UpdateIndicatorCount;
     }
 
@@ -53,6 +57,16 @@ public class StockpileScreen : MonoBehaviour
         WorkerRect.anchoredPosition = new Vector2(
             (StockpileGroupScreen.WIDTH + StockpileGroupScreen.OFFSET) * (GroupCount + 1),
             0);
+
+
+        GameObject ScoutVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Scout, null, 0);
+        ScoutScreen = ScoutVisuals.GetComponent<NumberedIconScreen>();
+        ScoutScreen.HoverTooltip = "Idle / maximum scouts";
+        RectTransform ScoutRect = ScoutVisuals.GetComponent<RectTransform>();
+        ScoutRect.SetParent(transform, false);
+        ScoutRect.anchoredPosition = new Vector2(
+            (StockpileGroupScreen.WIDTH + StockpileGroupScreen.OFFSET) * (GroupCount + 2),
+            0);
     }
 
     private void UpdateIndicatorCount()
@@ -70,10 +84,31 @@ public class StockpileScreen : MonoBehaviour
             Group.UpdateVisuals();
         }
 
+        UpdateWorkerVisuals();
+        UpdateScoutVisuals();
+    }
+
+    private void UpdateWorkerVisuals()
+    {
         if (!Game.TryGetService(out Workers Workers))
             return;
 
         WorkerScreen.UpdateVisuals(Workers.GetUnemployedWorkerCount(), Workers.GetTotalWorkerCount());
+
+    }
+
+    // just for callnback from event
+    private void UpdateScoutVisuals(int i)
+    {
+        UpdateScoutVisuals();
+    }
+
+    private void UpdateScoutVisuals()
+    {
+        if (!Game.TryGetService(out Units Units))
+            return;
+
+        ScoutScreen.UpdateVisuals(Units.GetIdleScoutCount(), Units.GetMaxScoutCount());
     }
 
     public GameObject GroupPrefab;
@@ -81,4 +116,5 @@ public class StockpileScreen : MonoBehaviour
 
     private StockpileGroupScreen[] GroupScreens;
     private NumberedIconScreen WorkerScreen;
+    private NumberedIconScreen ScoutScreen;
 }

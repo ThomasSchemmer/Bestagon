@@ -18,7 +18,7 @@ public class CameraController : GameService
 
     protected override void StopServiceInternal() {}
 
-    void Update() {
+    void FixedUpdate() {
         if (IsPaused || !IsInit)
             return;
 

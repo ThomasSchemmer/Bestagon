@@ -95,6 +95,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitStarvingScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
+    <Compile Include="Assets\Scripts\UI\IndicatorService.cs" />
     <Compile Include="Assets\Scripts\Unit\ScoutData.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\CardPreview.cs" />
@@ -171,10 +172,12 @@
     <Compile Include="Assets\Scripts\UI\Screens\Features\ScreenFeatureGroup.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
     <Compile Include="Assets\Scripts\UI\MessageSystem.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\WorkerIndicator.cs" />
     <Compile Include="Assets\Scripts\Generation\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\LoadMenuScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorComponent.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\WorkerScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />

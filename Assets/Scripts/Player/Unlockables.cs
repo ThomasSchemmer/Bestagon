@@ -193,7 +193,7 @@ public class Unlockables : GameService, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingConfig.CategoryAmount);
         for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
         {
-            Pos = SaveGameManager.AddInt(Bytes, Pos, (int)LockedTypesPerCategory[0]);
+            Pos = SaveGameManager.AddInt(Bytes, Pos, (int)LockedTypesPerCategory[i]);
         }
 
         return Bytes.ToArray();
@@ -207,7 +207,7 @@ public class Unlockables : GameService, ISaveable
     public void SetData(NativeArray<byte> Bytes)
     {
         InitializeCategories();
-        int Pos = sizeof(int);
+        int Pos = 0;
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int Count);
         for (int i = 0; i < Count; i++)
         {

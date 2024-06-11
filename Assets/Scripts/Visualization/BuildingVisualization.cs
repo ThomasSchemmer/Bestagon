@@ -12,8 +12,9 @@ public class BuildingVisualization : MonoBehaviour
         GameObject BuildingObject = Factory.GetGameObjectFromType(Building.BuildingType);
         BuildingObject.transform.position = Building.Location.WorldLocation + Building.GetOffset();
         BuildingObject.transform.localRotation = Building.GetRotation();
-
-        return AddVisualization(BuildingObject, Building);
+        BuildingVisualization Vis = AddVisualization(BuildingObject, Building);
+        BuildingObject.AddComponent<WorkerIndicator>();
+        return Vis;
     }
 
     public static BuildingVisualization AddVisualization<T>(GameObject Object, T Building) where T : BuildingData

@@ -12,6 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Woodcutter
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 4194304
   Cost:
     _Production:
@@ -22,6 +31,7 @@ MonoBehaviour:
         Value: 1
   Effect:
     EffectType: 1
+    UnitType: 0
     TileType: 4098
     Production:
       _Production:
@@ -40,7 +50,7 @@ MonoBehaviour:
         - Key: 0
           Value: 2
     UpgradeRange: 0
-  MaxWorker: 1
+  MaxWorker: 3
   BuildableOn: 1027
   CurrentUsages: 2
   MaxUsages: 2

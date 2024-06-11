@@ -20,7 +20,9 @@ public class IconFactory : GameService
         Worker,
         Scout,
         Usages,
-        RemoveMalaise
+        RemoveMalaise,
+        WorkerIndicator,
+        NoWorkerIndicator
     }
 
     public void Refresh()

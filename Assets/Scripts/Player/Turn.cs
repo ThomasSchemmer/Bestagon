@@ -20,6 +20,7 @@ public class Turn : GameService
         MiniMap = Game.GetService<MiniMap>();
         Units = Game.GetService<Units>();
         CloudRenderer = Game.GetService<CloudRenderer>();
+        Selectors = Game.GetService<Selectors>();
 
         gameObject.SetActive(true);
         TurnUI.SetActive(true);
@@ -47,6 +48,7 @@ public class Turn : GameService
         UpdateSelection();
 
         MiniMap.FillBuffer();
+        Selectors.DeselectCard();
         _OnTurnEnd?.Invoke();
     }
 
@@ -140,6 +142,7 @@ public class Turn : GameService
     private MiniMap MiniMap;
     private Units Units;
     private CloudRenderer CloudRenderer;
+    private Selectors Selectors;
 
     public int TurnNr = 1;
     public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();

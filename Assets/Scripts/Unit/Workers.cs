@@ -20,6 +20,7 @@ public class Workers : GameService
         Worker.RemoveFromBuilding();
         Building.RemoveWorker(i);
         _OnWorkersChanged?.Invoke();
+        _OnWorkersAssigned?.Invoke(Building.Location);
     }
 
     public void AssignWorkerTo(WorkerData Worker, BuildingData Building, int i)
@@ -27,6 +28,7 @@ public class Workers : GameService
         Worker.AssignToBuilding(Building, i);
         Building.PutWorkerAt(Worker, i);
         _OnWorkersChanged?.Invoke();
+        _OnWorkersAssigned?.Invoke(Building.Location);
     }
 
     public void KillWorker(WorkerData WorkerUnit)
@@ -122,5 +124,7 @@ public class Workers : GameService
     public List<WorkerData> ActiveWorkers = new();
 
     public delegate void OnWorkersChanged();
+    public delegate void OnWorkersAssigned(Location Location);
     public static OnWorkersChanged _OnWorkersChanged;
+    public static OnWorkersAssigned _OnWorkersAssigned;
 }

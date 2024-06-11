@@ -108,17 +108,10 @@ public class Stockpile : GameService, ISaveable
     public void ResetResources()
     {
         // does not reset upgrade points!
-        Resources = new(new[]
+        foreach (var Tuple in StartingResources.GetTuples())
         {
-            Production.Type.Wood,
-            Production.Type.Clay,
-            Production.Type.Mushroom,
-        }, new[]
-        {
-            5,
-            2,
-            5
-        });
+            Resources[Tuple.Key] = Tuple.Value;
+        }
     }
 
     public int GetSize()
@@ -146,6 +139,7 @@ public class Stockpile : GameService, ISaveable
     }
 
     public Production Resources;
+    public Production StartingResources;
     public int UpgradePoints = 0;
 
     public delegate void OnResourcesChanged();

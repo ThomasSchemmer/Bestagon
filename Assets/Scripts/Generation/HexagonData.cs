@@ -23,7 +23,7 @@ public class HexagonData : ISaveable
     public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
     public MalaiseState MalaisedState = MalaiseState.None;
-    private DiscoveryState Discovery = DiscoveryState.Visited;
+    private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
     public OnDiscovery _OnDiscovery;
@@ -86,6 +86,16 @@ public class HexagonData : ISaveable
     public bool IsMalaised()
     {
         return MalaisedState == MalaiseState.Malaised;
+    }
+
+    public bool IsScouted()
+    {
+        return Discovery >= DiscoveryState.Scouted;
+    }
+
+    public bool IsVisited()
+    {
+        return Discovery >= DiscoveryState.Visited;
     }
 
     public bool IsPreMalaised()

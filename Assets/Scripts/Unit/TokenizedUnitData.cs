@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static UnityEditor.FilePathAttribute;
-using static UnityEngine.UI.CanvasScaler;
 
 /** 
  * Any unit that is represented by an in-game token. Also supports moving this token
@@ -106,6 +104,11 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
         MoveTo(Hex.Location, 0);
         return true;
+    }
+
+    public bool HasRemainingMovement()
+    {
+        return RemainingMovement > 0;
     }
 
     public override int GetSize()

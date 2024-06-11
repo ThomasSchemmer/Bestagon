@@ -120,7 +120,9 @@ public class BuildingCard : Card
             return;
         }
 
-        BuildingData.BuildAt(Hex.Location);
+        // avoids "doubling" the actual building (including workers) when building a second time
+        BuildingData Copy = Instantiate(BuildingData);
+        Copy.BuildAt(Hex.Location);
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);
 

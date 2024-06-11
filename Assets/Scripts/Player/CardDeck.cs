@@ -61,7 +61,13 @@ public class CardDeck : CardCollection
         if (!Game.TryGetService(out CardFactory Factory))
             return;
 
-        Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
+        Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddDelayedScout);
+    }
+
+    private void AddDelayedScout(Card Card)
+    {
+        AddCard(Card);
+        Card.SetIndex(0);
     }
 
     public override void Load()

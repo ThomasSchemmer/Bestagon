@@ -59,6 +59,7 @@ public class Units : GameService
             return;
 
         ActiveUnits.Add(Unit);
+        _OnUnitCountChanged?.Invoke();
 
         if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
             return;
@@ -94,6 +95,35 @@ public class Units : GameService
         Game.Instance.GameOver("Your tribe has died out!");
     }
 
+    public int GetIdleScoutCount()
+    {
+        int Count = 0;
+        foreach (var Unit in ActiveUnits)
+        {
+            if (Unit is not ScoutData)
+                continue;
+
+            if (!Unit.HasRemainingMovement())
+                continue;
+
+            Count++;
+        }
+        return Count;
+    }
+
+    public int GetMaxScoutCount()
+    {
+        int Count = 0;
+        foreach (var Unit in ActiveUnits)
+        {
+            if (Unit is not ScoutData)
+                continue;
+
+            Count++;
+        }
+        return Count;
+    }
+
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
@@ -106,4 +136,7 @@ public class Units : GameService
 
     public static List<Location> ScoutStartLocations = new() {
     };
+
+    public delegate void OnUnitCountChanged();
+    public static event OnUnitCountChanged _OnUnitCountChanged;
 }

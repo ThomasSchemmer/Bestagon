@@ -546,7 +546,8 @@ public class MapGenerator : GameService, ISaveable
                         uint OldInt = MalaiseDTOs[OverallIndex];
                         byte OldValue = (byte)((OldInt >> ((3 - IntIndex) * 8)) & 0xFF);
 
-                        bool bIsMalaised = Chunks[x, y].HexDatas[i, j].IsMalaised();
+                        HexagonData HexData = Chunks[x, y].HexDatas[i, j];
+                        bool bIsMalaised = HexData.IsMalaised() && HexData.IsScouted();
                         byte NewValue = (byte)((bIsMalaised ? 1 : 0) << (7 - ByteIndex));
 
                         // now write it back into the buffer
