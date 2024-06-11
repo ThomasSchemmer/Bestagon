@@ -60,6 +60,7 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.16f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\UI\Screens\CollectChoiceScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\IPreviewable.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
     <Compile Include="Assets\Scripts\Events\EventData.cs" />

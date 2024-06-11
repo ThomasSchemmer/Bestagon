@@ -11,6 +11,7 @@ public class CardFactory : GameService
         public int Index;
         public Transform Parent;
         public Action<Card> Callback;
+        public Action<Card, int> CallbackIndex;
 
         public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<Card> Callback)
         {
@@ -18,6 +19,14 @@ public class CardFactory : GameService
             this.Index = Index;
             this.Parent = Parent;
             this.Callback = Callback;
+        }
+
+        public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<Card, int> Callback)
+        {
+            this.DTO = DTO;
+            this.Index = Index;
+            this.Parent = Parent;
+            this.CallbackIndex = Callback;
         }
 
         public DelayedCardInfo(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card> Callback)
@@ -31,12 +40,31 @@ public class CardFactory : GameService
             this.Callback = Callback;
         }
 
+        public DelayedCardInfo(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card, int> Callback)
+        {
+            if (!Game.TryGetService(out MeshFactory TileFactory))
+                return;
+
+            this.DTO = BuildingCardDTO.CreateFromBuildingData(TileFactory.CreateDataFromType(Type));
+            this.Index = Index;
+            this.Parent = Parent;
+            this.CallbackIndex = Callback;
+        }
+
         public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
         {
             this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
             this.Index = Index;
             this.Parent = Parent;
             this.Callback = Callback;
+        }
+
+        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card, int> Callback)
+        {
+            this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
+            this.Index = Index;
+            this.Parent = Parent;
+            this.CallbackIndex = Callback;
         }
 
         public DelayedCardInfo(UnitData.UnitType UnitType, int Index, Transform Parent, Action<Card> Callback)
@@ -58,7 +86,18 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
+    public void CreateCard(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card, int> Callback)
+    {
+        DelayedCardInfo Info = new(Type, Index, Parent, Callback);
+        CreateCard(Info);
+    }
+
     public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card> Callback)
+    {
+        DelayedCardInfo Info = new(Type, Index, Parent, Callback);
+        CreateCard(Info);
+    }
+    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card, int> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
@@ -71,6 +110,12 @@ public class CardFactory : GameService
     }
 
     public void CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent, Action<Card> Callback)
+    {
+        DelayedCardInfo Info = new(DTO, Index, Parent, Callback);
+        CreateCard(Info);
+    }
+
+    public void CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent, Action<Card, int> Callback)
     {
         DelayedCardInfo Info = new(DTO, Index, Parent, Callback);
         CreateCard(Info);
@@ -106,7 +151,8 @@ public class CardFactory : GameService
         GameObject CardPrefab = Resources.Load("UI/Cards/Card") as GameObject;
         GameObject GO = Instantiate(CardPrefab, Info.Parent);
         Card Card = InitDelayedCardByType(GO, Info);
-        Info.Callback.Invoke(Card);
+        Info.Callback?.Invoke(Card);
+        Info.CallbackIndex?.Invoke(Card, Info.Index);
     }
 
     private Card InitDelayedCardByType(GameObject CardObject, DelayedCardInfo Info)
