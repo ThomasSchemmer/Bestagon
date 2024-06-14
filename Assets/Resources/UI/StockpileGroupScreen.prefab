@@ -217,6 +217,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: StockpileItemScreen
       objectReference: {fileID: 0}
+    - target: {fileID: 582981792584570697, guid: 25f6201ee5c4c6945aa551663fbefa59,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2043037903917390171, guid: 25f6201ee5c4c6945aa551663fbefa59,
         type: 3}
       propertyPath: m_Pivot.x

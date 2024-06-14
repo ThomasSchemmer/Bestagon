@@ -2,6 +2,7 @@ using System;
 using System.Security.AccessControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class IconFactory : GameService
 {
@@ -12,6 +13,7 @@ public class IconFactory : GameService
     private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
     private GameObject ProduceUnitEffectPrefab, GrantMiscPrefab, GrantResourceEventEffectPrefab;
     private GameObject ProduceConsumeEffectPrefab;
+    private GameObject UpgradeButtonPrefab;
 
     public enum MiscellaneousType
     {
@@ -44,6 +46,7 @@ public class IconFactory : GameService
         GrantMiscPrefab = Resources.Load("UI/Cards/GrantUnitEventEffect") as GameObject;
         GrantResourceEventEffectPrefab = Resources.Load("UI/Cards/GrantResourceEventEffect") as GameObject;
         ProduceConsumeEffectPrefab = Resources.Load("UI/Cards/ProduceConsumeEffect") as GameObject;
+        UpgradeButtonPrefab = Resources.Load("UI/UpgradeButton") as GameObject;
     }
 
     private void LoadResources()
@@ -116,7 +119,7 @@ public class IconFactory : GameService
         return AvailableTiles[Type];
     }
 
-    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent)
+    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe)
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
@@ -137,6 +140,10 @@ public class IconFactory : GameService
 
             UnitScreen.Initialize(GetIconForProduction(Tuple.Key), Tuple.Key.ToString(), Parent);
             UnitScreen.UpdateVisuals(Tuple.Value);
+            if (bSubscribe)
+            {
+                UnitScreen.SetSubscription(Tuple.Key, Tuple.Value);
+            }
         }
         return ProductionGroup;
     }
@@ -148,11 +155,21 @@ public class IconFactory : GameService
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Effect.GetDescription();
         Transform TypeContainer = ProductionEffect.transform.GetChild(3);
-        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent);
+        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent, false);
         ProductionGO.transform.SetParent(ProductionContainer, false);
         GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType, Parent);
         HexTypesGO.transform.SetParent(TypeContainer, false);
         return ProductionEffect;
+    }
+
+    public GameObject GetVisualsForMerchantEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    {
+        GameObject MerchantEffect = Instantiate(ProduceEffectPrefab);
+        TextMeshProUGUI MerchantText = MerchantEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        MerchantText.text = Effect.GetDescription();
+        Transform TypeContainer = MerchantEffect.transform.GetChild(3);
+        DestroyImmediate(TypeContainer.gameObject);
+        return MerchantEffect;
     }
 
     public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
@@ -171,7 +188,7 @@ public class IconFactory : GameService
         TextMeshProUGUI ConsumesText = ProduceUnitEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         ConsumesText.text = Effect.GetDescriptionProduceUnitConsumption();
         Transform ConsumesContainer = ProduceUnitEffect.transform.GetChild(3);
-        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent, true);
         ConsumptionGO.transform.SetParent(ConsumesContainer, false);
 
         bool bConsumes = !Effect.Consumption.Equals(Production.Empty);
@@ -188,9 +205,9 @@ public class IconFactory : GameService
         TextMeshProUGUI ConsumptionText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         ConsumptionText.text = Effect.GetDescription();
         Transform ConsumptionContainer = ProductionEffect.transform.GetChild(3);
-        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent);
+        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent, false);
         ProductionGO.transform.SetParent(ProductionContainer, false);
-        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent, true);
         ConsumptionGO.transform.SetParent(ConsumptionContainer, false);
         return ProductionEffect;
     }
@@ -230,7 +247,7 @@ public class IconFactory : GameService
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource, Parent);
+        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource, Parent, false);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
@@ -296,6 +313,20 @@ public class IconFactory : GameService
             Index++;
         }
         return ProductionGroup;
+    }
+
+    public GameObject ConvertVisualsToButton(Transform ParentTransform, RectTransform TransformToBeConverted)
+    {
+        Button Button = Instantiate(UpgradeButtonPrefab).GetComponent<Button>();
+        RectTransform ButtonTransform = Button.GetComponent<RectTransform>();
+        ButtonTransform.anchorMin = TransformToBeConverted.anchorMin;
+        ButtonTransform.anchorMax = TransformToBeConverted.anchorMax;
+        ButtonTransform.sizeDelta = TransformToBeConverted.sizeDelta;
+        ButtonTransform.SetParent(ParentTransform, false);
+        ButtonTransform.anchoredPosition = TransformToBeConverted.anchoredPosition;
+        TransformToBeConverted.SetParent(ButtonTransform, true);
+
+        return ButtonTransform.gameObject;
     }
 
     public Sprite GetIconForMisc(MiscellaneousType Type)

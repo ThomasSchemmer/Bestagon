@@ -36,7 +36,8 @@ public class Production : ISaveable
         IronBars = 21,
         Iron = 22,
         Grain = 23,
-        HardWood = 24
+        HardWood = 24,
+        Coins = 25
     }
 
     /** Categories for the different production types. 
@@ -48,7 +49,7 @@ public class Production : ISaveable
         Food = 7,
         LuxuryItems = 12, 
         TradeGoods = 17,
-        MaxIndex = 25
+        MaxIndex = 26
     }
 
     public static int[] Indices = { 

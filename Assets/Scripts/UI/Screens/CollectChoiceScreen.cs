@@ -41,14 +41,19 @@ public abstract class CollectChoiceScreen : MonoBehaviour
     public List<Transform> ChoiceContainers = new();
     public List<ChoiceType> ChoiceTypes = new();
     public SerializedDictionary<ChoiceType, GameObject> ChoicesPrefab = new();
+    public GameObject Container;
 
     protected CollectableChoice[] Choices;
-    protected GameObject Container;
+    protected bool bCloseOnPick = true;
+    protected bool bDestroyOnPick = true;
 
     protected void Create()
     {
         Choices = new CollectableChoice[ChoiceContainers.Count];
-        for (int i = 0; i < ChoiceContainers.Count; i++) { 
+        for (int i = 0; i < ChoiceContainers.Count; i++)
+        {
+            ChoiceContainers[i].gameObject.SetActive(true);
+
             switch (ChoiceTypes[i])
             {
                 case ChoiceType.Card: CreateCardAt(i, GetCardTypeAt(i)); break;
@@ -59,6 +64,7 @@ public abstract class CollectChoiceScreen : MonoBehaviour
 
     protected abstract CardDTO.Type GetCardTypeAt(int i);
     protected abstract bool ShouldCardBeUnlocked(int i);
+    protected abstract Production GetCostsForChoice(int i);
 
     protected void CreateCardAt(int ChoiceIndex, CardDTO.Type Type)
     {
@@ -107,7 +113,7 @@ public abstract class CollectChoiceScreen : MonoBehaviour
     }
 
 
-    private void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<Card, int> Callback)
+    protected virtual void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<Card, int> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
         AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
@@ -144,12 +150,12 @@ public abstract class CollectChoiceScreen : MonoBehaviour
         Instantiate(Prefab, Container);
     }
 
-    private void SetChoiceCard(Card Card, int i)
+    protected virtual void SetChoiceCard(Card Card, int i)
     {
         Choices[i] = new(Card);
     }
 
-    private void SetChoiceUpgrade(Card Card, int i)
+    protected virtual void SetChoiceUpgrade(Card Card, int i)
     {
         // dont need to save anything, the upgrade definition is implicit
         Choices[i] = new();
@@ -157,6 +163,15 @@ public abstract class CollectChoiceScreen : MonoBehaviour
 
     public virtual void OnSelectOption(int ChoiceIndex)
     {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        Production Costs = GetCostsForChoice(ChoiceIndex);
+        if (!Stockpile.CanAfford(Costs))
+            return;
+
+        Stockpile.Pay(Costs);
+
         CollectableChoice Choice = Choices[ChoiceIndex];
         List<CollectableChoice> OtherChoices = new();
         OtherChoices.AddRange(Choices);
@@ -167,13 +182,27 @@ public abstract class CollectChoiceScreen : MonoBehaviour
             case ChoiceType.Card: OnSelectCardChoice(Choice); break;
             case ChoiceType.Upgrade: OnSelectUpgradeChoice(Choice); break;
         }
+        DeactivateChoice(ChoiceIndex);
+        Choices[ChoiceIndex] = null;
 
-        for (int i = OtherChoices.Count; i > 0; i--)
+        if (bDestroyOnPick)
         {
-            DestroyChoice(OtherChoices[i - 1]);
+            for (int i = OtherChoices.Count; i > 0; i--)
+            {
+                DestroyChoice(OtherChoices[i - 1]);
+            }
+            Choices = null;
         }
-        
-        Deselect();
+
+        if (bCloseOnPick)
+        {
+            Deselect();
+        }
+    }
+
+    private void DeactivateChoice(int ChoiceIndex)
+    {
+        ChoiceContainers[ChoiceIndex].gameObject.SetActive(false);
     }
 
     private void OnSelectCardChoice(CollectableChoice Choice)
@@ -205,8 +234,11 @@ public abstract class CollectChoiceScreen : MonoBehaviour
         Selectors.ForceDeselect();
     }
 
-    private void DestroyChoice(CollectableChoice Choice)
+    protected void DestroyChoice(CollectableChoice Choice)
     {
+        if (Choice == null)
+            return;
+
         // updates dont have any created card objects
         if (Choice.Type != ChoiceType.Card)
             return;
@@ -214,13 +246,13 @@ public abstract class CollectChoiceScreen : MonoBehaviour
         Destroy(Choice.GeneratedCard.gameObject);
     }
 
-    protected virtual void Show()
+    public virtual void Show()
     {
         Game.Instance.OnPopupAction(true);
         Container.SetActive(true);
     }
 
-    protected virtual void Close()
+    public virtual void Hide()
     {
         Game.Instance.OnPopupAction(false);
         Container.SetActive(false);

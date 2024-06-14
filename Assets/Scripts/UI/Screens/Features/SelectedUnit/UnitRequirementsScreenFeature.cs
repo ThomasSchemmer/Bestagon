@@ -46,7 +46,7 @@ public class UnitRequirementsScreenFeature : ScreenFeature<UnitData>
         Cleanup();
 
         Production Production = Scout.GetMovementRequirements();
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, true);
         Visuals.transform.SetParent(ProductionRect, false);
     }
 

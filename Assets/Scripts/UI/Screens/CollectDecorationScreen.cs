@@ -100,9 +100,8 @@ public class CollectDecorationScreen : CollectChoiceScreen
         return GetDecorationType() == HexagonConfig.HexagonDecoration.Ruins;
     }
 
-
-    public void Hide()
+    protected override Production GetCostsForChoice(int i)
     {
-        Close();
+        return Production.Empty;
     }
 }

@@ -130,17 +130,13 @@ public class CardUpgradeScreen : GameService
         if (!BuildingData.IsUpgradePossible(Type))
             return;
 
-        RectTransform OldUsagesVisuals = OldTransform.GetChild(0).GetComponent<RectTransform>();
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return;
 
-        Button UsagesButton = Instantiate(UpgradeButtonPrefab).GetComponent<Button>();
-        RectTransform ButtonVisuals = UsagesButton.GetComponent<RectTransform>();
-        ButtonVisuals.anchorMin = OldUsagesVisuals.anchorMin;
-        ButtonVisuals.anchorMax = OldUsagesVisuals.anchorMax;
-        ButtonVisuals.sizeDelta = OldUsagesVisuals.sizeDelta;
-        ButtonVisuals.SetParent(OldTransform, false);
-        ButtonVisuals.anchoredPosition = OldUsagesVisuals.anchoredPosition;
-        OldUsagesVisuals.SetParent(ButtonVisuals, true);
+        RectTransform UsageVisuals = OldTransform.GetChild(0).GetComponent<RectTransform>();
 
+        GameObject Button = IconFactory.ConvertVisualsToButton(OldTransform, UsageVisuals);
+        Button UsagesButton = Button.GetComponent<Button>();
         UsagesButton.onClick.RemoveAllListeners();
         UsagesButton.onClick.AddListener(delegate { SelectUpgrade(Type); });
     }

@@ -12,6 +12,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
         Produce,
         ConsumeProduce,
         ProduceUnit,
+        Merchant,
     }
 
     public Type EffectType = Type.Produce;
@@ -97,6 +98,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
             case Type.Produce: return GetDescriptionProduce();
             case Type.ProduceUnit: return GetDescriptionProduceUnit();
             case Type.ConsumeProduce: return GetDescriptionConsumeProduce();
+            case Type.Merchant: return "Allows trading resources for new cards";
 
             default: return "No effect";
         }
@@ -112,7 +114,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
             case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this, Parent);
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(this, Parent);
-
+            case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
             default: return null;
         }
     }

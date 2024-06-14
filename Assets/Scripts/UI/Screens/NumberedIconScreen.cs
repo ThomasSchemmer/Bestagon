@@ -9,6 +9,13 @@ using UnityEngine;
 public class NumberedIconScreen : SimpleIconScreen
 {
     private TMPro.TextMeshProUGUI CountText;
+    private Production.Type Type;
+    private int Amount = -1;
+
+    public void OnDestroy()
+    {
+        SetSubscription(false);
+    }
 
     public override void Initialize(Sprite Sprite, string HoverTooltip, ISelectable Parent)
     {
@@ -36,4 +43,40 @@ public class NumberedIconScreen : SimpleIconScreen
         base.SetSelectionEnabled(bEnabled);
         CountText.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
+
+    public void SetSubscription(Production.Type Type, int Amount)
+    {
+        this.Type = Type;
+        this.Amount = Amount;
+        SetSubscription(true);
+    }
+
+    private void SetSubscription(bool bEnable)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        if (bEnable) 
+        {
+            Stockpile._OnResourcesChanged += UpdateColor;
+            UpdateColor();
+        }
+        else
+        {
+            Stockpile._OnResourcesChanged -= UpdateColor;
+        }
+    }
+
+    private void UpdateColor()
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        bool bCanAfford = Stockpile.CanAfford(new Production(Type, Amount));
+        CountText.color = bCanAfford ? ALLOWED_COLOR : FORBIDDEN_COLOR;
+    }
+
+    private static Color ALLOWED_COLOR = new Color(0.2f, 0.4f, 0.2f);
+    private static Color FORBIDDEN_COLOR = new Color(0.9f, 0.25f, 0.25f);
+
 }

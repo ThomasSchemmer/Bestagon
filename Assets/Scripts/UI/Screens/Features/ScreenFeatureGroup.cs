@@ -127,7 +127,10 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
         foreach (ScreenFeature<T> Feature in ScreenFeatures)
         {
             if (!Feature.ShouldBeDisplayed())
+            {
+                Feature.Hide();
                 continue;
+            }
 
             float CurrentHeight = Feature.GetHeight();
             YOffset = YOffset - OffsetBetweenElements - PrevHeight / 2.0f - CurrentHeight / 2.0f;

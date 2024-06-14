@@ -21,6 +21,7 @@ public class CardDeck : CardCollection
         Game.RunAfterServiceInit((CardFactory Factory) =>
         {
             Cards = new();
+            Factory.CreateCard(BuildingConfig.Type.Merchant, 0, transform, AddCard);
             Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);

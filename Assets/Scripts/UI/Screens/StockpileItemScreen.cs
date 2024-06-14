@@ -50,11 +50,16 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         IndicatorRenderer.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
 
-    public  void UpdateIndicatorCount()
+    public void UpdateIndicatorCount()
     {
         PastCounts[0] = PastCounts[1];
         PastCounts[1] = PastCounts[2];
         PastCounts[2] = GetCount();
+    }
+
+    public void SetItemSubscription(Production.Type Type, int Amount)
+    {
+        IconScreen.SetSubscription(Type, Amount);
     }
 
     private int GetCount()

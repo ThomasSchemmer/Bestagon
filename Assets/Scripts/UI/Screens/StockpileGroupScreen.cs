@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,44 +8,83 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 {
     public Color StandardColor, HoverColor, SelectionColor;
 
-    private Image HighlightImage;
-    private Transform Container;
-    private bool bIsHovered = false;
-    private StockpileItemScreen GroupItemScreen;
-    private StockpileItemScreen[] ItemScreens;
+    protected Image HighlightImage;
+    protected Transform Container;
+    protected bool bIsHovered = false;
+    protected StockpileItemScreen GroupItemScreen;
+    protected StockpileItemScreen[] ItemScreens;
+    protected bool bDisplayActiveOnly = false;
 
-    private static StockpileGroupScreen SelectedInstance;
+    protected static StockpileGroupScreen SelectedInstance;
+    protected StockpileScreen Parent;
+    protected int ProductionGroupIndex;
 
     public static int WIDTH = 76;
     public static int OFFSET = 14;
 
-    public void Initialize(int Index, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory)
+    public void Initialize(StockpileScreen Parent, int Index, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory, bool bDisplayActiveOnly)
     {
         HighlightImage = transform.GetChild(0).GetComponent<Image>();
         HighlightImage.color = StandardColor;
         Container = transform.GetChild(2);
 
-        GroupItemScreen = transform.GetChild(1).GetComponent<StockpileItemScreen>();
-        GroupItemScreen.Initialize(this, Index, Stockpile, IconFactory);
-        GroupItemScreen.UpdateVisuals();
-        GroupItemScreen.SetSelectionEnabled(false);
+        this.bDisplayActiveOnly = bDisplayActiveOnly;
+        this.Parent = Parent;
+        this.ProductionGroupIndex = Index;
+        InitializeHeader(Index, Stockpile, IconFactory);
 
         InitializeItems(Index, ItemPrefab, Stockpile, IconFactory);
-        Container.gameObject.SetActive(false);
+        Container.gameObject.SetActive(!bDisplayActiveOnly);
 
         UpdateVisuals();
     }
 
-    private void InitializeItems(int GroupIndex, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory)
+    private void InitializeHeader(int Index, Stockpile Stockpile, IconFactory IconFactory)
+    {
+        if (Parent.ShouldHeaderBeIcon())
+        {
+            GroupItemScreen = transform.GetChild(1).GetComponent<StockpileItemScreen>();
+            GroupItemScreen.Initialize(this, Index, Stockpile, IconFactory);
+            GroupItemScreen.UpdateVisuals();
+            GroupItemScreen.SetSelectionEnabled(false);
+        }
+        else
+        {
+            DestroyImmediate(transform.GetChild(0).GetComponent<Image>());
+            DestroyImmediate(transform.GetChild(1).gameObject);
+            TMPro.TextMeshProUGUI Text = transform.GetChild(0).gameObject.AddComponent<TMPro.TextMeshProUGUI>();
+            Text.text = ((Production.GoodsType)Production.Indices[Index]).ToString();
+            Text.enableAutoSizing = true;
+            RectTransform Rect = Text.gameObject.GetComponent<RectTransform>();
+            Rect.anchoredPosition = new(Parent.GetContainerOffset().x, 0);
+            Rect.sizeDelta = new(Parent.GetContainerSize().x - 15, Rect.sizeDelta.y);
+        }
+    }
+
+    protected virtual void InitializeItems(int GroupIndex, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory)
     {
         int MinIndex = Production.Indices[GroupIndex];
         int MaxIndex = Production.Indices[GroupIndex + 1];
+
+        // adapt container size
+        int Count = Mathf.RoundToInt((MaxIndex - MinIndex + 1) / 2f);
+        float ContainerHeight = Count * Parent.GetElementTotalSize().y;
+        RectTransform ContainerRect = Container.GetComponent<RectTransform>();
+        ContainerRect.sizeDelta = new Vector2(Parent.GetContainerSize().x, ContainerHeight);
+        ContainerRect.anchoredPosition = new Vector2(
+            Parent.GetContainerOffset().x,
+            -Parent.GetContainerOffset().y - Count * Parent.GetElementTotalSize().y / 2
+        );
+
+        float ContainerStart = ContainerHeight / 2 - Parent.GetElementTotalSize().y / 2;
+
         ItemScreens = new StockpileItemScreen[MaxIndex - MinIndex];
         for (int Index = MinIndex; Index < MaxIndex; Index++)
         {
             int IndexInGroup = Index - MinIndex;
-            int x = (IndexInGroup % 2) == 0 ? -42 : 42;
-            int y = 65 - 40 * (IndexInGroup / 2);
+            float Offset = Parent.GetContainerSize().x / 4;
+            float x = (IndexInGroup % 2) == 0 ? -Offset : Offset;
+            float y = ContainerStart - Parent.GetElementTotalSize().y * (IndexInGroup / 2);
             GameObject NewItem = Instantiate(ItemPrefab);
             NewItem.transform.SetParent(Container);
             NewItem.transform.localPosition = new Vector3(x, y, 0);
@@ -52,12 +92,18 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
             StockpileItemScreen ItemScreen = NewItem.GetComponent<StockpileItemScreen>();
             ItemScreen.Initialize(null, Index, Stockpile, IconFactory);
             ItemScreens[IndexInGroup] = ItemScreen;
+            Parent.AdaptItemScreen(this, ItemScreen);
         }
     }
 
+
     public void UpdateIndicatorCount()
     {
-        GroupItemScreen.UpdateIndicatorCount();
+        if (GroupItemScreen != null)
+        {
+            GroupItemScreen.UpdateIndicatorCount();
+        }
+        
         foreach (StockpileItemScreen ItemScreen in ItemScreens)
         {
             ItemScreen.UpdateIndicatorCount();
@@ -66,7 +112,10 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public void UpdateVisuals()
     {
-        GroupItemScreen.UpdateVisuals();
+        if (GroupItemScreen != null)
+        {
+            GroupItemScreen.UpdateVisuals();
+        }
         foreach (StockpileItemScreen ItemScreen in ItemScreens)
         {
             ItemScreen.UpdateVisuals();
@@ -75,6 +124,9 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public void ClickOn(Vector2 PixelPos)
     {
+        if (!bDisplayActiveOnly)
+            return;
+
         if (SelectedInstance == this)
         {
             Show(false);
@@ -90,7 +142,12 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
             SelectedInstance.Show(true);
         }
     }
-
+    
+    public Transform GetContainer()
+    {
+        return Container;
+    }
+    
     public void Interact() {}
 
     public bool IsEqual(ISelectable Other)
@@ -99,11 +156,14 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
             return false;
 
         StockpileGroupScreen OtherSGS = Other as StockpileGroupScreen;
-        return GroupItemScreen.GetProductionIndex() == OtherSGS.GroupItemScreen.GetProductionIndex();
+        return ProductionGroupIndex == OtherSGS.ProductionGroupIndex;
     }
 
     public void Show(bool bIsVisible)
     {
+        if (!bDisplayActiveOnly)
+            return;
+
         HighlightImage.color = bIsVisible ? SelectionColor : StandardColor;
         Container.gameObject.SetActive(bIsVisible);
     }
@@ -115,11 +175,13 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public void SetHovered(bool Hovered)
     {
+        if (!bDisplayActiveOnly)
+            return;
+
         bIsHovered = Hovered;
         HighlightImage.color = IsSelected() ? SelectionColor :
                         bIsHovered ? HoverColor : StandardColor;
     }
-
 
     public bool CanBeLongHovered()
     {
@@ -130,6 +192,10 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
     public string GetHoverTooltip()
     {
-        return GroupItemScreen.GetHoverTooltip();
+        if (GroupItemScreen != null)
+        {
+            return GroupItemScreen.GetHoverTooltip();
+        }
+        return "";
     }
 }

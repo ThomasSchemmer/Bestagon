@@ -15,7 +15,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     public override bool ShouldBeDisplayed()
     {
-        return TryGetBuildingData(out BuildingData Building);
+        return TryGetBuildingData(out BuildingData Building) && Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant;
     }
 
     private bool ShouldProductionBeDisplayed()
@@ -68,7 +68,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         Cleanup();
 
         Production Production = BuildingData.GetProduction();
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
         Visuals.transform.SetParent(ProductionTransform, false);
     }
 

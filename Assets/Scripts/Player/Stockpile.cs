@@ -107,11 +107,9 @@ public class Stockpile : GameService, ISaveable
 
     public void ResetResources()
     {
+        Resources = new();
         // does not reset upgrade points!
-        foreach (var Tuple in StartingResources.GetTuples())
-        {
-            Resources[Tuple.Key] = Tuple.Value;
-        }
+        AddResources(StartingResources);
     }
 
     public int GetSize()
