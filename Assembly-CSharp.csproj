@@ -68,9 +68,9 @@
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Features\BuildingPreview\MerchantScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Events\EventData.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
@@ -94,6 +94,7 @@
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
     <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantSellScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitStarvingScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantBuyScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
@@ -144,6 +146,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\BuildingPreview.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardSelectionScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Features\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />

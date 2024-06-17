@@ -154,10 +154,6 @@ public class MapGenerator : GameService, ISaveable
             for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++) {
                 NecChunkEnumerator.MoveNext();
                 Location TargetChunkIndx = NecChunkEnumerator.Current;
-                if (TargetChunkIndx.ChunkLocation.x >= Chunks.Length ||TargetChunkIndx.ChunkLocation.y >= Chunks.Length)
-                {
-                    Debug.Log("");
-                }
 
                 GameObject ChunkVisObj = new GameObject();
                 ChunkVisualization Vis = ChunkVisObj.AddComponent<ChunkVisualization>();

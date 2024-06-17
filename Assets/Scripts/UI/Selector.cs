@@ -1,5 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Lifetime;
+using Unity.Mathematics;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -51,6 +55,7 @@ public class Selector<T> : Selector where T : ISelectable
     public Selector(bool bIsUIOnly = false)
     {
         Type = bIsUIOnly ? RaycastType.UIOnly : RaycastType.WorldOnly;
+        MainCam = Camera.main;
     }
 
     public bool RayCast()
@@ -253,12 +258,16 @@ public class Selector<T> : Selector where T : ISelectable
         if (!ScreenRect.Contains(Input.mousePosition))
             return false;
 
-        Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - Camera.main.transform.forward * 10;
+        Vector3 WorldPos = GetHexMappedWorldPosition();
+        Vector2Int TileSpace = WorldSpaceToTileSpace(WorldPos);
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
 
-        // since we are using a orthogonal, angled camera we need to actually use its forward vector and cant use "Down"
-        bool hasHit = Physics.Raycast(WorldPos, Camera.main.transform.forward, out RaycastHit RaycastHit, 1 << LayerMask.NameToLayer(Layer));
+        HexagonConfig.GlobalTileToChunkAndTileSpace(TileSpace, out Location Location);
+        bool hasHit = MapGenerator.TryGetHexagon(Location, out HexagonVisualization Hex);
+        bool bIsValid = hasHit && Hex.Location != null;
 
-        Hit = hasHit ? RaycastHit.collider.gameObject : null;
+        Hit = bIsValid ? Hex.gameObject : null;
 
         return hasHit;
     }
@@ -285,6 +294,98 @@ public class Selector<T> : Selector where T : ISelectable
         return false;
     }
 
+    /** Conversion functions from RedBlobGames. God i love their resources */
+    Vector2Int RoundToAxial(float x, float y)
+    {
+        int xgrid = Mathf.RoundToInt(x);
+        int ygrid = Mathf.RoundToInt(y);
+        x -= xgrid;
+        y -= ygrid;
+        int bx = x * x >= y * y ? 1 : 0;
+        int dx = Mathf.RoundToInt(x + 0.5f * y) * bx;
+        int dy = Mathf.RoundToInt(y + 0.5f * x) * (1 - bx);
+        return new Vector2Int(xgrid + dx, ygrid + dy);
+    }
+
+    Vector2Int AxialToOffset(Vector2Int hex)
+    {
+        int col = (int)(hex.x + (hex.y - (hex.y & 1)) / 2.0);
+        int row = hex.y;
+        return new Vector2Int(col, row);
+    }
+
+    Vector2Int WorldSpaceToTileSpace(Vector3 WorldSpace)
+    {
+        float q = (Mathf.Sqrt(3) / 3.0f * WorldSpace.x - 1.0f / 3 * WorldSpace.z) / 10;
+        float r = (2.0f / 3 * WorldSpace.z) / 10;
+        return AxialToOffset(RoundToAxial(q, r));
+    }
+
+    Vector3 GetHexMappedWorldPosition()
+    {
+        float WidthToHeight = (float)Screen.width / Screen.height;
+        Vector2 MouseUV = new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height);
+        MouseUV = (MouseUV - Vector2.one * 0.5f) * 2;
+
+        float Size = MainCam.orthographicSize;
+        Vector3 Offset =
+            MouseUV.x * MainCam.transform.right * Size * WidthToHeight +
+            MouseUV.y * MainCam.transform.up * Size +
+            10 * -MainCam.transform.forward;
+        Vector3 WorldPos = MainCam.transform.position + Offset;
+
+        Vector2 Box = RayBoxDist(WorldPos, MainCam.transform.forward);
+        Vector3 BoxStart = WorldPos + MainCam.transform.forward * Box.x;
+        Vector3 BoxEnd = BoxStart + MainCam.transform.forward * Box.y;
+        Vector3 MappedWorldPos = (BoxStart + BoxEnd) / 2.0f;
+        return MappedWorldPos;
+    }
+
+    Vector3 GetCloudsMin()
+    {
+        return new(
+            -HexagonConfig.TileSize.x,
+            HexagonConfig.TileSize.y + 0.5f,
+            -HexagonConfig.TileSize.z
+        );
+    }
+
+    Vector3 GetCloudsMax()
+    {
+        Location MaxLocation = HexagonConfig.GetMaxLocation();
+        Vector2Int MaxTileLocation = MaxLocation.GlobalTileLocation;
+        return new(
+            MaxTileLocation.x * HexagonConfig.TileSize.x * 2 + HexagonConfig.TileSize.x,
+            HexagonConfig.TileSize.y + 0.6f,
+            MaxTileLocation.y * HexagonConfig.TileSize.z * 2 + HexagonConfig.TileSize.z
+        );
+    }
+
+    static Vector3 Div(Vector3 A, Vector3 B)
+    {
+        return new Vector3(A.x / B.x, A.y / B.y, A.z / B.z);
+    }
+
+    Vector2 RayBoxDist(Vector3 RayOrigin, Vector3 RayDir)
+    {
+        // adapted from sebastian lague
+        // slightly extend the box since the hexagons are center positioned
+        Vector3 BoundsMin = GetCloudsMin();
+        Vector3 BoundsMax = GetCloudsMax();
+
+        Vector3 T0 = Div((BoundsMin - RayOrigin), RayDir);
+        Vector3 T1 = Div((BoundsMax - RayOrigin), RayDir);
+        Vector3 TMin = Vector3.Min(T0, T1);
+        Vector3 TMax = Vector3.Max(T0, T1);
+
+        float DistA = Mathf.Max(Mathf.Max(TMin.x, TMin.y), TMin.z); ;
+        float DistB = Mathf.Min(TMax.x, Mathf.Min(TMax.y, TMax.z));
+
+        float DistToBox = Mathf.Max(0, DistA);
+        float DistInsideBox = Mathf.Max(0, DistB - DistToBox);
+        return new Vector3(DistToBox, DistInsideBox);
+    }
+
     static PointerEventData GetPointerData()
     {
         return new PointerEventData(EventSystem.current)
@@ -303,6 +404,7 @@ public class Selector<T> : Selector where T : ISelectable
     private float HoverTimeS = 0;
     private bool bShowHover = false;
     private Vector2 HoverPosition = Vector2.zero;
+    private Camera MainCam;
 
     public delegate void _ItemInteracted(T Item);
     public delegate void _ItemNotInteracted();

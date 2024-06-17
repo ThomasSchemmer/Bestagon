@@ -136,9 +136,6 @@ public class CloudRenderer : GameService
 
         WhorleyShader.Dispatch(createNoiseKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
 
-        int[] data = new int[MinMaxBuffer.count];
-        MinMaxBuffer.GetData(data);
-
         WhorleyShader.Dispatch(normalizeKernel, AmountGroups.x, AmountGroups.y, AmountGroups.z);
     }
 

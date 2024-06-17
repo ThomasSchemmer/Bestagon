@@ -1,15 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using UnityEngine.UI;
-using Unity.Mathematics;
-using System.Threading;
 using static MapGenerator;
+using UnityEngine.Profiling;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
-[RequireComponent(typeof(MeshCollider))]
+
 /**
  * Visualization for a specific hexagon, contained in a @ChunkVisualization
  * Should always be representative for one @HexagonData
@@ -34,6 +31,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
     public void UpdateMesh()
     {
+        Profiler.BeginSample("HexVis");
         MeshFilter Filter = GetComponent<MeshFilter>();
         Destroy(Filter.mesh);
 
@@ -41,6 +39,8 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         Renderer = GetComponent<MeshRenderer>();
         SetSelected(false, false, true);
         SetHovered(false);
+
+        Profiler.EndSample();
 
         if (Data.GetDiscoveryState() == HexagonData.DiscoveryState.Unknown)
             return;
@@ -57,9 +57,6 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
         MeshRenderer Renderer = GetComponent<MeshRenderer>();
         Renderer.material = Mat;
-
-        MeshCollider Collider = GetComponent<MeshCollider>();
-        Collider.sharedMesh = Mesh;
 
         MeshFilter Filter = GetComponent<MeshFilter>();
         Filter.mesh = Mesh;

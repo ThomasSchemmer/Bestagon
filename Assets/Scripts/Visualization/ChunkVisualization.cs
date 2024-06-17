@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 /**
  * Visualization for a specific chunk
@@ -19,7 +21,9 @@ public class ChunkVisualization : MonoBehaviour
         FinishedVisualizationCount = 0;
         Location MaxDiscoveredLoc = new Location(0, 0, 0, 0);
 
-        for (int y = 0; y < HexagonConfig.chunkSize; y++) {
+        for (int y = 0; y < HexagonConfig.chunkSize; y++)
+        {
+            Profiler.BeginSample("ChunkVis");
             for (int x = 0; x < HexagonConfig.chunkSize; x++) {
                 // simply add the base position of the chunk as the bottom left corner
                 Location Location = Location.CreateHex(x, y) + Data.Location;
@@ -29,9 +33,9 @@ public class ChunkVisualization : MonoBehaviour
                     MaxDiscoveredLoc = Location.Max(MaxDiscoveredLoc, Hexes[x, y].Location);
                 }
             }
+            Profiler.EndSample();
             yield return null;
         }
-
         RefreshTokens();
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))

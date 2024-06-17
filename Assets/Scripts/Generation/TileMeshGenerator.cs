@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 /**
  * Helper class to create custom meshes for the different tiles
@@ -17,12 +18,19 @@ public class TileMeshGenerator : MonoBehaviour
         Vertices = new();
         Triangles = new();
         UVs = new();
+        Profiler.BeginSample("CreateMesh_Base");
         if (!TryCreateBaseData(Data))
             return false;
+        Profiler.EndSample();
+        Profiler.BeginSample("CreateMesh_AddTile");
         if (!TryAddTile(Data))
             return false;
 
+        Profiler.EndSample();
+        Profiler.BeginSample("CreateMesh_Fill");
         Mesh = CreateAndFillMesh();
+
+        Profiler.EndSample();
         return true;
     }
 
