@@ -17,10 +17,11 @@ public interface ISaveable
         CardStash = 4,
         Unlockables = 5,
         Stockpile = 6,
-        Statistics = 7
+        Statistics = 7,
+        Buildings = 8
     }
 
-    public static int MaxTypeIndex = 7;
+    public static int MaxTypeIndex = 8;
 
     public abstract int GetSize();
 

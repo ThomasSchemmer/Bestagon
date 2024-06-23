@@ -95,7 +95,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
         if (Units.IsUnitAt(Hex.Location))
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create unit here - one already exists");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create unit here - one already exists");
             return false;
         }
 

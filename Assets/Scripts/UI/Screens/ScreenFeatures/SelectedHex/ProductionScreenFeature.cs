@@ -35,11 +35,11 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
     private bool TryGetBuildingData(out BuildingData Building)
     {
         Building = null;
-        if (!Game.TryGetServices(out IconFactory IconFactory, out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out IconFactory IconFactory, out BuildingService Buildings))
             return false;
 
         HexagonData SelectedHex = Target.GetFeatureObject();
-        if (SelectedHex == null || !MapGenerator.TryGetBuildingAt(SelectedHex.Location, out Building))
+        if (SelectedHex == null || !Buildings.TryGetBuildingAt(SelectedHex.Location, out Building))
             return false;
 
         return true;

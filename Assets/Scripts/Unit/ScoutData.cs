@@ -107,7 +107,7 @@ public class ScoutData : TokenizedUnitData
         {
             if (!bIsPreview)
             {
-                MessageSystem.CreateMessage(Message.Type.Error, "Can only place on scouted tiles");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Can only place on scouted tiles");
             }
             return false;
         }
@@ -116,7 +116,7 @@ public class ScoutData : TokenizedUnitData
         {
             if (!bIsPreview)
             {
-                MessageSystem.CreateMessage(Message.Type.Error, "Cannot place on Mountains or in the ocean");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on Mountains or in the ocean");
             }
             return false;
         }

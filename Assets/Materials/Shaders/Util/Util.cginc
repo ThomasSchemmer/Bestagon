@@ -493,7 +493,7 @@ float svoronoi3Tiled(float3 Position, float CellCount, float Iterations, float F
 }
 
 /** Draws a line between each two voronoi cells */
-void LineVoronoi(float2 Position, float Thickness, out bool bIsCorner, out int TargetCell)
+void LineVoronoi(float2 Position, out float DistanceDiff, out int TargetCell)
 {
     float2 base = floor(Position);
     float FirstDistanceSqr = 10000;
@@ -519,8 +519,7 @@ void LineVoronoi(float2 Position, float Thickness, out bool bIsCorner, out int T
             }
         }
     }
-    float Diff = abs(FirstDistanceSqr - SecondDistanceSqr);
-    bIsCorner = Diff < Thickness;
+    DistanceDiff = abs(FirstDistanceSqr - SecondDistanceSqr);
 }
 
 

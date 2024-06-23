@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MessageSystem : MonoBehaviour
+public class MessageSystemScreen : ScreenUI
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override void Initialize()
     {
+        base.Initialize();
         Instance = this;
         DisplayMessages();
         Game.Instance._OnPause += OnPause;
@@ -15,20 +15,12 @@ public class MessageSystem : MonoBehaviour
 
     private void OnPause()
     {
-        EnableMessages(false);
+        Hide();
     }
 
     private void OnResume()
     {
-        EnableMessages(true);
-    }
-
-    private void EnableMessages(bool IsEnabled)
-    {
-        foreach (Message Message in Messages)
-        {
-            Message.gameObject.SetActive(IsEnabled);
-        }
+        Show();
     }
 
     public static void CreateMessage(Message.Type Type, string Text) {
@@ -38,7 +30,7 @@ public class MessageSystem : MonoBehaviour
         GameObject MessageObj = Instantiate(Instance.MessagePrefab);
         Message Message = MessageObj.GetComponent<Message>();
         Message.Initialize(Instance.GetSpriteByType(Type), Text);
-        Message.transform.SetParent(Instance.transform);
+        Message.transform.SetParent(Instance.Container.transform, false);
         Instance.Messages.Add(Message);
 
         if (Instance.Messages.Count > MaxMessages) {
@@ -80,10 +72,15 @@ public class MessageSystem : MonoBehaviour
     }
 
     private void DisplayMessages() {
-        for (int i = 0; i < transform.childCount; i++) {
-            Transform Child = transform.GetChild(i);
-            Child.transform.localPosition = Offset * i + Position;
+        int MessageCount = 0;
+        for (int i = 0; i < Container.transform.childCount; i++) {
+            Transform Child = Container.transform.GetChild(i);
+            if (Child.GetComponent<Message>() == null)
+                continue;
+
+            Child.transform.localPosition = Offset * MessageCount + Position;
             Child.transform.localScale = Vector3.one;
+            MessageCount++;
         }
     }
 
@@ -94,7 +91,7 @@ public class MessageSystem : MonoBehaviour
     public Sprite ErrorSprite;
     public Sprite SuccessSprite;
 
-    private static MessageSystem Instance;
+    private static MessageSystemScreen Instance;
     private static Vector3 Offset = new Vector3(0, -80, 0);
     private static Vector3 Position = new Vector3(0, 200, 0);
     private static int MaxMessages = 8;

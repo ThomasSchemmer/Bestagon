@@ -16,11 +16,10 @@ public class Stockpile : GameService, ISaveable
 
     public void ProduceWorkers()
     {
-        if (!Game.TryGetServices(out MapGenerator MapGenerator, out Workers WorkerService))
+        if (!Game.TryGetServices(out BuildingService BuildingService, out Workers WorkerService))
             return;
 
-        if (!MapGenerator.TryGetAllBuildings(out List<BuildingData> Buildings))
-            return;
+        List<BuildingData> Buildings = BuildingService.Buildings;
 
         foreach (BuildingData Building in Buildings)
         {

@@ -14,7 +14,9 @@ using UnityEngine.Profiling;
  */ 
 public class HexagonVisualization : MonoBehaviour, ISelectable
 {
-    public void Init(ChunkData ChunkData, Location Location, Material Mat) {
+    public void Init(ChunkData ChunkData, Location Location, Material Mat)
+    {
+        Profiler.BeginSample("Init");
         this.transform.position = Location.WorldLocation;
         this.Location = Location;
         this.gameObject.layer = LayerMask.NameToLayer("Hexagon");
@@ -27,6 +29,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         UpdateMesh();
         Data._OnDiscovery = UpdateMesh;
         ChunkData.Visualization?.FinishVisualization();
+        Profiler.EndSample();
     }
 
     public void UpdateMesh()

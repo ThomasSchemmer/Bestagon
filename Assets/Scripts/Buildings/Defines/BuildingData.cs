@@ -85,13 +85,13 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
             return false;
 
-        if (!Game.TryGetServices(out Stockpile Stockpile, out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out Stockpile Stockpile, out BuildingService Buildings))
             return false;
 
         if (bShouldCheckCosts && !Stockpile.CanAfford(GetCosts()))
             return false;
 
-        if (MapGenerator.IsBuildingAt(Hex.Location))
+        if (Buildings.IsBuildingAt(Hex.Location))
             return false;
 
         if (Hex.IsMalaised())

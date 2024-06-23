@@ -16,10 +16,10 @@ public class BuildingTypeScreenFeature : ScreenFeature<HexagonData>
         if (SelectedHex == null)
             return false;
 
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        if (!MapGenerator.TryGetBuildingAt(SelectedHex.Location, out Building))
+        if (!Buildings.TryGetBuildingAt(SelectedHex.Location, out Building))
             return false;
 
         return true;

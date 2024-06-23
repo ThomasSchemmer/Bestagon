@@ -15,7 +15,7 @@ public class Message : MonoBehaviour
         transform.GetChild(1).GetComponent<Image>().sprite = Sprite;
         transform.GetChild(2).GetComponent<TMPro.TextMeshProUGUI>().text = Message;
         transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() => {
-            MessageSystem.DeleteMessage(this);
+            MessageSystemScreen.DeleteMessage(this);
         });
     }
 }

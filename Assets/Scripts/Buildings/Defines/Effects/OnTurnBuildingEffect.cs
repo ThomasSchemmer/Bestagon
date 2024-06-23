@@ -42,7 +42,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
     }
 
     private Production GetProductionAt(int Worker, Location Location) {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out MapGenerator MapGenerator, out BuildingService Buildings))
             return new();
 
         bool bShouldAddOrigin = Range == 0;
@@ -54,7 +54,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveable
 
         foreach (HexagonData Data in NeighbourData)
         {
-            if (MapGenerator.IsBuildingAt(Data.Location) && IsProductionBlockedByBuilding)
+            if (Buildings.IsBuildingAt(Data.Location) && IsProductionBlockedByBuilding)
                 continue;
 
             if (Bonus.TryGetValue(Data.Type, out Production AdjacentProduction))

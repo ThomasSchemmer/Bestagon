@@ -351,40 +351,15 @@ public class MapGenerator : GameService, ISaveable
         return true;
     }
 
-    public bool IsBuildingAt(Location Location) {
-        if (!TryGetChunkData(Location, out ChunkData Chunk))
-            return false;
-
-        return Chunk.IsBuildingAt(Location);
-    }
-
-    public bool TryGetBuildingAt(Location Location, out BuildingData Data) {
-        Data = null;
-
-        if (!TryGetChunkData(Location, out ChunkData Chunk))
-            return false;
-
-        return Chunk.TryGetBuildingAt(Location, out Data);
-    }
-
-    public bool TryGetAllBuildings(out List<BuildingData> Buildings)
-    {
-        Buildings = new List<BuildingData>();
-        foreach (ChunkData Chunk in Chunks)
-        {
-            Buildings.AddRange(Chunk.Buildings);
-        }
-        return Buildings.Count > 0;
-    }
 
     public void AddBuilding(BuildingData BuildingData) {
-        if (!TryGetHexagonData(BuildingData.Location, out HexagonData HexData))
+        if (!Game.TryGetService(out BuildingService Buildings))
             return;
 
         if (!TryGetChunkData(BuildingData.Location, out ChunkData Chunk))
             return;
 
-        Chunk.Buildings.Add(BuildingData);
+        Buildings.Buildings.Add(BuildingData);
 
         // if the chunk is currently being shown, force create the building
         if (Chunk.Visualization == null)

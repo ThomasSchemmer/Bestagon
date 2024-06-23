@@ -62,7 +62,7 @@ public class BuildingCard : Card
         bool bIsUsedUp = BuildingData.CurrentUsages <= 0;
         if (bIsUsedUp)
         {
-            MessageSystem.CreateMessage(Message.Type.Warning, "A card has been lost due to durability");
+            MessageSystemScreen.CreateMessage(Message.Type.Warning, "A "+BuildingData.BuildingType.ToString()+" card has been lost due to durability");
             bWasUsedUp = true;
         }
         UpdateUsageText();
@@ -86,24 +86,24 @@ public class BuildingCard : Card
 
     public override bool IsCardInteractableWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out MapGenerator Generator, out Stockpile Stockpile))
+        if (!Game.TryGetServices(out BuildingService Buildings, out Stockpile Stockpile))
             return false;
 
-        if (Generator.IsBuildingAt(Hex.Location))
+        if (Buildings.IsBuildingAt(Hex.Location))
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
             return false;
         }
 
         if (!BuildingData.CanBeBuildOn(Hex, false))
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
             return false;
         }
 
         if (!Stockpile.CanAfford(BuildingData.GetCosts()))
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
             return false;
         }
         return true;
@@ -116,7 +116,7 @@ public class BuildingCard : Card
 
         if (!Stockpile.Pay(BuildingData.GetCosts()))
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
             return;
         }
 
@@ -172,10 +172,10 @@ public class BuildingCard : Card
 
     public override bool IsCustomRuleApplying(Location NeighbourLocation)
     {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        return MapGenerator.IsBuildingAt(NeighbourLocation) && GetBuildingData().IsNeighbourBuildingBlocking();
+        return Buildings.IsBuildingAt(NeighbourLocation) && GetBuildingData().IsNeighbourBuildingBlocking();
     }
 
     protected BuildingData BuildingData;

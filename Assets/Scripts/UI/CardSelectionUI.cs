@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class CardSelectionScreen : MonoBehaviour
+public class CardSelectionUI : MonoBehaviour
 {
     public TextMeshProUGUI UpgradeText;
 

@@ -8,7 +8,7 @@ public class CardUpgradeScreen : GameService
 {
     public RectTransform UpgradeButton;
     public GameObject RegularCardContainer, UpgradedCardContainer, UpgradeArrow, ConfirmButton;
-    public CardSelectionScreen CardSelectionScreen;
+    public CardSelectionUI CardSelectionUI;
     public GameObject UpgradeButtonPrefab;
     public List<GameObject> ToHide = new();
     public List<GameObject> ToDim = new();
@@ -183,7 +183,7 @@ public class CardUpgradeScreen : GameService
         LastCard.GenerateCard();
         Hide();
         Stockpile.UpgradePoints -= 1;
-        CardSelectionScreen.UpdateText();
+        CardSelectionUI.UpdateText();
     }
 
     protected override void StartServiceInternal() {}

@@ -2,19 +2,28 @@ Shader"Custom/BackgroundShader"
 {
     Properties
     {
-        _ColorA("ColorA", Color) = (1, 1, 1, 1)
-        _ColorB("ColorB", Color) = (1, 1, 1, 1)
-        _NoiseScale("NoiseScale", float) = 1
-        _NoiseIterations("NoiseIterations", float) = 1
-        _NoiseFactor("NoiseFactor", float) = 1
-        _FoldScale("FoldScale", float) = 0.001
-        _FoldThickness("FoldThickness", float) = 1
-        _FoldIntensity("FoldIntensity", float) = 1
-        _FlatIntensity("FlatIntensity", float) = 1
+        [Header(Folds)][Space]
+        _ColorA("Color A", Color) = (1, 1, 1, 1)
+        _ColorB("Color B", Color) = (1, 1, 1, 1)
+        _NoiseScale("Noise Scale", float) = 1
+        _NoiseIterations("Noise Iterations", float) = 1
+        _NoiseFactor("Noise Factor", float) = 1
+        _FoldScale("Scale", float) = 0.001
+        _FoldIntensity("Intensity", float) = 1
+        _LowerDistance("Min Distance", float) = 1
+        _UpperDistance("Max Distance", float) = 4
+
+        [Header(Flats)][Space]
+        _FlatIntensity("Intensity", float) = 1
+
+        [Header(Border)][Space]
+        _BorderThickness("BorderThickness", float) = 1
+        _BorderOffset("BorderOffset", float) = 3
+        _BorderColor("BorderColor", Color) = (1, 1, 1, 1)
+
+        [Header(Util)][Space]
         _WorldMin("WorldMin", Vector) = (0,0,0,0)
         _WorldMax("WorldMax", Vector) = (300, 300, 0, 0)
-        _BorderThickness("BorderThickness", float) = 1
-        _BorderColor("BorderColor", Color) = (1, 1, 1, 1)
     }
     SubShader
     {
@@ -53,6 +62,9 @@ Shader"Custom/BackgroundShader"
             float _FoldThickness;
             float _FoldIntensity;
             float _FlatIntensity;
+            float _LowerDistance;
+            float _UpperDistance;
+            float _BorderOffset;
             float4 _WorldMin;
             float4 _WorldMax;
             float _BorderThickness;
@@ -73,17 +85,35 @@ Shader"Custom/BackgroundShader"
                 Alpha = clamp(Alpha, 0, 1);
                 float4 Color = lerp(_ColorA, _ColorB, Alpha);
     
-                bool bIsFold;
                 int CellID;
-                LineVoronoi(i.world.xz * _FoldScale, _FoldThickness, bIsFold, CellID);
-                float FoldModifier = bIsFold * _FoldIntensity;
-                // todo: use hashed normal per cell instead of cell id for shading
+                float DistanceDiff;
+                LineVoronoi(i.world.xz * _FoldScale, DistanceDiff, CellID);
+                float FoldModifier = smoothstep(_LowerDistance, _UpperDistance, DistanceDiff) * _FoldIntensity;
+
                 float FlatModifier = CellID / 10.0 * _FlatIntensity;
                 Color = Color * (1 - FoldModifier) * (1 - FlatModifier);
-        
-                // todo: make actual borders
-                bool bIsBorder = abs(i.world.xy - _WorldMin.xy) < _BorderThickness || abs(i.world.xz - _WorldMax.xy) < _BorderThickness;
-                //Color = bIsBorder * _BorderColor + !bIsBorder * Color; //
+
+                float2 WorldPos = i.world.xz + float2(5, 6);
+                float2 BorderMin = 0;
+                float2 BorderMax = _WorldMax;
+                float2 BorderDistanceMin = float2(pow(WorldPos.x - BorderMin.x, 2), pow(WorldPos.y - BorderMin.y, 2));
+                float2 BorderDistanceMax = float2(pow(WorldPos.x - BorderMax.x, 2), pow(WorldPos.y - BorderMax.y, 2));
+                float2 BorderValueMin = float2(
+                    smoothstep(_BorderThickness, -_BorderThickness, sqrt(BorderDistanceMin.x)),
+                    smoothstep(_BorderThickness, -_BorderThickness, sqrt(BorderDistanceMin.y))
+                );
+                float2 BorderValueMax = float2(
+                    smoothstep(_BorderThickness, -_BorderThickness, sqrt(BorderDistanceMax.x)),
+                    smoothstep(_BorderThickness, -_BorderThickness, sqrt(BorderDistanceMax.y))
+                );
+                float BorderValue = BorderValueMin.x + BorderValueMin.y + BorderValueMax.x + BorderValueMax.y;
+                //border should not be drawn into infinity
+                float IsInMap = 
+                    (WorldPos.x + _BorderOffset >= _WorldMin.x && WorldPos.y + _BorderOffset >= _WorldMin.y  &&
+                    WorldPos.x - _BorderOffset < _WorldMax.x && WorldPos.y - _BorderOffset < _WorldMax.y) ? 1 : 0;
+                BorderValue *= IsInMap;
+
+                Color = BorderValue * _BorderColor + (1 - BorderValue) * Color;
                 return Color;
 }
             ENDCG

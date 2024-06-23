@@ -52,7 +52,7 @@ public abstract class StarvableUnitData : UnitData
         if (StarvingCount == 0)
             return;
 
-        MessageSystem.CreateMessage(Message.Type.Warning, StarvingCount + " "+ Name+" are starving - they will not work!");
+        MessageSystemScreen.CreateMessage(Message.Type.Warning, StarvingCount + " "+ Name+" are starving - they will not work!");
     }
 
     protected virtual bool IsInFoodProductionBuilding()

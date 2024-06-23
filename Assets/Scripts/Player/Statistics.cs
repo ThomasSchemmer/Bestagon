@@ -1,9 +1,10 @@
 using System;
 using Unity.Collections;
-using static Stockpile;
 
 public class Statistics : GameService, ISaveable
 {
+    // how many are counting towards the next upgrade
+    // gets reset after each upgrade point
     private int BuildingsBuilt = 0;
     private int HexesMoved = 0;
     private int UnitsCreated = 0;
@@ -19,6 +20,31 @@ public class Statistics : GameService, ISaveable
     private int UnitsIncrease = 2;
     private int ResourcesIncrease = 10;
 
+    public int BestHighscore = 0;
+    public int BestBuildings = 0;
+    public int BestMoves = 0;
+    public int BestUnits = 0;
+    public int BestResources = 0;
+
+    public int CurrentBuildings = 0;
+    public int CurrentMoves = 0;
+    public int CurrentUnits = 0;
+    public int CurrentResources = 0;
+
+    public int GetHighscore()
+    {
+        int Highscore =
+            CurrentBuildings * POINTS_BUILDINGS +
+            CurrentMoves * POINTS_HEXES +
+            CurrentUnits * POINTS_UNITS +
+            CurrentResources * POINTS_RESOURCES;
+
+        if (Highscore > BestHighscore)
+        {
+            BestHighscore = Highscore;
+        }
+        return Highscore;
+    }
 
     private void CheckForPoints(ref int Collected, ref int Needed, int Increase, string Action, string Type)
     {
@@ -34,15 +60,18 @@ public class Statistics : GameService, ISaveable
         Stockpile.UpgradePoints += EarnedPoints;
 
         string Upgrade = EarnedPoints > 1 ? "Upgrades" : "Upgrade";
-        MessageSystem.CreateMessage(Message.Type.Success, "You earned " + EarnedPoints + " " + Upgrade + " for " + Action + " " + Goal + " " + Type);
+        MessageSystemScreen.CreateMessage(Message.Type.Success, "You earned " + EarnedPoints + " " + Upgrade + " for " + Action + " " + Goal + " " + Type);
     }
 
     private void CountResources(Production Production)
     {
         foreach (var Tuple in Production.GetTuples())
         {
+            CurrentResources += Tuple.Value;
             ResourcesCollected += Tuple.Value;
         }
+
+        BestResources = Math.Max(CurrentResources, BestResources);
 
         string Action = "collecting";
         string Type = "resources";
@@ -51,7 +80,9 @@ public class Statistics : GameService, ISaveable
 
     private void CountUnit(UnitData UnitData)
     {
-        UnitsCreated++; 
+        UnitsCreated++;
+        CurrentUnits++;
+        BestUnits = Math.Max(CurrentUnits, BestUnits);
         
         string Action = "creating";
         string Type = "units";
@@ -61,6 +92,8 @@ public class Statistics : GameService, ISaveable
     private void CountMoves(int Moves)
     {
         HexesMoved += Moves;
+        CurrentMoves += Moves;
+        BestMoves = Math.Max(CurrentMoves, BestMoves);
 
         string Action = "moving";
         string Type = "";
@@ -70,6 +103,8 @@ public class Statistics : GameService, ISaveable
     private void CountBuilding(BuildingData BuildingData)
     {
         BuildingsBuilt++;
+        CurrentBuildings++;
+        BestBuildings = Math.Max(CurrentBuildings, BestBuildings);
 
         string Action = "creating";
         string Type = "buildings";
@@ -110,6 +145,13 @@ public class Statistics : GameService, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, UnitsIncrease);
         Pos = SaveGameManager.AddInt(Bytes, Pos, ResourcesIncrease);
 
+        Pos = SaveGameManager.AddInt(Bytes, Pos, BestHighscore);
+
+        Pos = SaveGameManager.AddInt(Bytes, Pos, BestBuildings);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, BestMoves);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, BestUnits);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, BestResources);
+        
         return Bytes.ToArray();
     }
 
@@ -120,7 +162,7 @@ public class Statistics : GameService, ISaveable
 
     public int GetStaticSize()
     {
-        return sizeof(int) * 12;
+        return sizeof(int) * 17;
     }
 
     public void SetData(NativeArray<byte> Bytes)
@@ -140,6 +182,13 @@ public class Statistics : GameService, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out MovesIncrease);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UnitsIncrease);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out ResourcesIncrease);
+
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestHighscore);
+
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestBuildings);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestMoves);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestUnits);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestResources);
     }
 
     protected override void StartServiceInternal()
@@ -159,4 +208,9 @@ public class Statistics : GameService, ISaveable
         TokenizedUnitData._OnMovement -= CountMoves;
         BuildingData._OnBuildingBuilt -= CountBuilding;
     }
+
+    private static int POINTS_BUILDINGS = 5;
+    private static int POINTS_UNITS = 3;
+    private static int POINTS_HEXES = 2;
+    private static int POINTS_RESOURCES = 1;
 }

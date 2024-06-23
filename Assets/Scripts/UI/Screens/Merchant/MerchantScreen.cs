@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MerchantScreen : MonoBehaviour
+public class MerchantScreen : ScreenUI
 {
     public MerchantBuyScreen BuyTab;
     public MerchantSellScreen SellTab;
-    public GameObject Container;
     public Sprite ActiveTabSprite, InActiveTabSprite;
 
     private Button BuyButton, SellButton;
 
-    public void Start()
+    protected override void Initialize()
     {
+        base.Initialize();
         BuyButton = BuyTab?.transform.GetChild(1).GetComponent<Button>();
         SellButton = SellTab?.transform.GetChild(1).GetComponent<Button>();
     }
@@ -36,14 +36,19 @@ public class MerchantScreen : MonoBehaviour
 
     public void OnClickClose()
     {
-        BuyTab.Hide();
-        SellTab.Hide();
-        Container.SetActive(false);
+        Hide();
     }
 
-    public void Show()
+    public override void Hide()
     {
-        Container.SetActive(true);
+        base.Hide();
+        BuyTab.Hide();
+        SellTab.Hide();
+    }
+
+    public override void Show()
+    {
+        base.Show();
         // force initialisation
         BuyTab.Show();
         SellTab.Show();

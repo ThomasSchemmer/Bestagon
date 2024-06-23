@@ -36,7 +36,7 @@ public class Turn : GameService
         if (!IsEnabled || !IsInit)
             return;
 
-        MessageSystem.DeleteAllMessages();
+        MessageSystemScreen.DeleteAllMessages();
         Stockpile.ProduceResources();
         Stockpile.ProduceWorkers();
         TurnNr++;

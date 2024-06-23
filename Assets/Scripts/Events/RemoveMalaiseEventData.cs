@@ -16,7 +16,7 @@ public class RemoveMalaiseEventData : EventData
         {
             if (!bIsPreview)
             {
-                MessageSystem.CreateMessage(Message.Type.Error, "Cannot remove malaise - Tile is not afflicted");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot remove malaise - Tile is not afflicted");
             }
             return false;
         }

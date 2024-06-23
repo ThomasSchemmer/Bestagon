@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,7 +13,9 @@ public class Game : MonoBehaviour
     public int TargetFramerate = 60;
     public List<GameServiceWrapper> Services = new();
     private List<GameServiceDelegate> Delegates = new();
-    private Dictionary<Type, GameServiceWrapper> InternalServices = new();
+    private Dictionary<Type, GameServiceWrapper> ServicesInternal = new();
+
+    private Dictionary<GameService, HashSet<GameService>> CallbackMap = new();
 
     public delegate void OnStateChange(GameState NewState);
     public delegate void OnModeChange(GameMode NewMode);
@@ -75,10 +78,10 @@ public class Game : MonoBehaviour
     public void Start()
     {
         Application.targetFrameRate = TargetFramerate;
-        if (IngameMenu.Instance)
+        if (IngameMenuScreen.Instance)
         {
-            IngameMenu.Instance._OnOpenBegin += OnOpenMenu;
-            IngameMenu.Instance._OnClose += OnCloseMenu;
+            IngameMenuScreen.Instance._OnOpenBegin += OnOpenMenu;
+            IngameMenuScreen.Instance._OnClose += OnCloseMenu;
         }
 
         ConvertToDictionary();
@@ -106,13 +109,13 @@ public class Game : MonoBehaviour
         foreach (GameServiceWrapper Wrapper in Services)
         {
             Type Type = Wrapper.TargetScript.GetType();
-            InternalServices.Add(Type, Wrapper);
+            ServicesInternal.Add(Type, Wrapper);
         }
     }
 
     private void InitMode()
     {
-        foreach (GameServiceWrapper Wrapper in InternalServices.Values)
+        foreach (GameServiceWrapper Wrapper in ServicesInternal.Values)
         {
             if (ShouldStartService(Wrapper))
             {
@@ -135,10 +138,10 @@ public class Game : MonoBehaviour
         if (!Instance)
             return null;
 
-        if (!Instance.InternalServices.ContainsKey(typeof(T)))
+        if (!Instance.ServicesInternal.ContainsKey(typeof(T)))
             return null;
 
-        return Instance.InternalServices[typeof(T)].TargetScript as T;
+        return Instance.ServicesInternal[typeof(T)].TargetScript as T;
     }
 
     public static bool TryGetService<T>(out T Service, bool ForceLoad = false) where T: GameService
@@ -203,6 +206,8 @@ public class Game : MonoBehaviour
 
         GameServiceDelegate<T> Delegate = new(Service, Callback, GameServiceDelegate.DelegateType.OnInit);
         Instance.Delegates.Add(Delegate);
+
+        Instance.RegisterCallback(Callback.Target, Service);
     }
 
     public static void RunAfterServicesInit<X, Y>(Action<X, Y> Callback) where X : GameService where Y : GameService
@@ -214,6 +219,55 @@ public class Game : MonoBehaviour
 
         GameServiceDelegate<X, Y> Delegate = new(ServiceX, ServiceY, Callback, GameServiceDelegate.DelegateType.OnInit);
         Instance.Delegates.Add(Delegate);
+
+        Instance.RegisterCallback(Callback.Target, ServiceX);
+        Instance.RegisterCallback(Callback.Target, ServiceY);
+    }
+
+    private void RegisterCallback(object ObjectA, GameService B)
+    {
+        if (ObjectA is not GameService)
+            return;
+
+        GameService A = (GameService)ObjectA;
+        if (!A)
+            return;
+
+        if (CheckForAnyLoopBetween(A, B, out List<GameService> Chain))
+        {
+            throw new Exception("Infinite wait-for-callback loop between: " + A.name + " and " + B.name);
+        }
+
+        if (!CallbackMap.ContainsKey(A))
+        {
+            CallbackMap[A] = new();
+        }
+        CallbackMap[A].Add(B);
+    }
+
+    private bool CheckForAnyLoopBetween(GameService A, GameService B, out List<GameService> Chain)
+    {
+        Chain = new();
+
+        if (A == B)
+        {
+            Chain.Add(A);
+            return true;
+        }
+
+        if (!CallbackMap.ContainsKey(B))
+            return false;
+
+        foreach (var OtherService in CallbackMap[B])
+        {
+            if (!CheckForAnyLoopBetween(A, OtherService, out List<GameService> PrevChain))
+                continue;
+
+            Chain.Add(B);
+            Chain.AddRange(PrevChain);
+            return true;
+        }
+        return false;
     }
 
     public static void RemoveServiceDelegate(GameServiceDelegate Delegate) { 

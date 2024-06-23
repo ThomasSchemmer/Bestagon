@@ -13,10 +13,10 @@ public class MerchantScreenFeature : ScreenFeature<HexagonData>
         if (Hex == null)
             return false;
 
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        if (!MapGenerator.TryGetBuildingAt(Hex.Location, out BuildingData CurrentBuilding))
+        if (!Buildings.TryGetBuildingAt(Hex.Location, out BuildingData CurrentBuilding))
             return false;
 
         if (CurrentBuilding.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant)

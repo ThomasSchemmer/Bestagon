@@ -7,7 +7,7 @@ using UnityEngine.UI;
  * Screen class to share generating cards to chose from, eg for the merchant
  * Stores types in the public variables and creates choices to save access to cards
  */
-public abstract class CollectChoiceScreen : MonoBehaviour
+public abstract class CollectChoiceScreen : ScreenUI
 {
     public enum ChoiceType
     {
@@ -41,7 +41,6 @@ public abstract class CollectChoiceScreen : MonoBehaviour
     public List<Transform> ChoiceContainers = new();
     public List<ChoiceType> ChoiceTypes = new();
     public SerializedDictionary<ChoiceType, GameObject> ChoicesPrefab = new();
-    public GameObject Container;
 
     protected CollectableChoice[] Choices;
     protected bool bCloseOnPick = true;
@@ -246,16 +245,16 @@ public abstract class CollectChoiceScreen : MonoBehaviour
         Destroy(Choice.GeneratedCard.gameObject);
     }
 
-    public virtual void Show()
+    public override void Show()
     {
+        base.Show();
         Game.Instance.OnPopupAction(true);
-        Container.SetActive(true);
     }
 
-    public virtual void Hide()
+    public override void Hide()
     {
+        base.Hide();
         Game.Instance.OnPopupAction(false);
-        Container.SetActive(false);
     }
 
 

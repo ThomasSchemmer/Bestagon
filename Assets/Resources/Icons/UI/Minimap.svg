@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="500"
+   height="500"
+   viewBox="0 0 132.29166 132.29167"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="Minimap.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="1"
+     inkscape:cx="146"
+     inkscape:cy="244.5"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       d="M -1,1.0424457 V 13.542458 133.33463 h 119.79217 12.50001 c -8.31279,-0.35317 -12.41161,-5.38681 -12.50001,-12.50001 V 19.792206 c -1.4e-4,-3.451778 -2.79849,-6.249894 -6.25026,-6.249748 H 11.500012 C 4.3868336,13.454069 -0.6468397,9.355234 -1,1.0424457 Z"
+       style="display:inline;fill:#4a6584;stroke:#be8e03;stroke-width:2;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:5.2;stroke-dasharray:none;paint-order:markers fill stroke;fill-opacity:1"
+       id="path8"
+       inkscape:label="path8" />
+    <path
+       d="M -0.99999367,1.0424473 V 13.542525 133.33533 H 118.79251 131.29256 c -8.31282,-0.35317 -12.41166,-5.38684 -12.50005,-12.50007 V 19.792307 c -1.4e-4,-3.451798 -2.7985,-6.249928 -6.25027,-6.249782 H 11.500053 C 4.3868551,13.454136 -0.64683233,9.3552796 -0.99999367,1.0424473 Z"
+       style="display:inline;fill:none;stroke:#e5be3e;stroke-width:1;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:5.2;stroke-dasharray:none;paint-order:markers fill stroke"
+       id="path9"
+       inkscape:label="highlight" />
+  </g>
+</svg>

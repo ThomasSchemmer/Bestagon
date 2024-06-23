@@ -30,7 +30,7 @@ public class ConvertTileEventData : EventData
         {
             if (!bIsPreview)
             {
-                MessageSystem.CreateMessage(Message.Type.Error, "Can only swap scouted tiles");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Can only swap scouted tiles");
             }
             return false;
         }
@@ -75,7 +75,7 @@ public class ConvertTileEventData : EventData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        if (!MapGenerator.TrySetHexagonData(Hex.Location, Hex.Data.HexHeight, TargetType))
+        if (!MapGenerator.TrySetHexagonData(Hex.Location, HexagonConfig.HexagonHeight.Flat, TargetType))
             return;
 
         if (!MapGenerator.TryGetChunkData(Hex.Location, out ChunkData Chunk))

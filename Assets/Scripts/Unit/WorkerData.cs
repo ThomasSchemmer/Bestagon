@@ -73,7 +73,7 @@ public class WorkerData : StarvableUnitData, ISaveable
     public override void SetData(NativeArray<byte> Bytes)
     {
         base.SetData(Bytes);
-        if (!Game.TryGetServices(out MapGenerator MapGen, out Workers Workers))
+        if (!Game.TryGetServices(out BuildingService Buildings, out Workers Workers))
             return;
 
         int Pos = base.GetSize();
@@ -87,7 +87,7 @@ public class WorkerData : StarvableUnitData, ISaveable
         if (!bIsEmployed)
             return;
 
-        if (!MapGen.TryGetBuildingAt(Location, out BuildingData Building))
+        if (!Buildings.TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
         Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);

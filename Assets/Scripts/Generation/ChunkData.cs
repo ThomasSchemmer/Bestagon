@@ -48,7 +48,10 @@ public class ChunkData : ISaveable
 
     public Production GetProductionPerTurn() {
         Production Production = new();
-        foreach (BuildingData Building in Buildings) {
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return Production;
+
+        foreach (BuildingData Building in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
             Production BuildingProduction = Building.GetProduction();
             Production += BuildingProduction;
         }
@@ -65,55 +68,15 @@ public class ChunkData : ISaveable
         return HexDatas[HexLocation.x, HexLocation.y];
     }
 
-    public bool IsBuildingAt(Location Location) {
-        foreach (BuildingData Building in Buildings) {
-            if (Building.Location.Equals(Location)) 
-                return true;
-        }
-        return false;
-    }
-
-    public bool TryGetBuildingAt(Location Location, out BuildingData Data) {
-        Data = null;
-
-        foreach (BuildingData Building in Buildings) {
-            if (Building.Location.Equals(Location)) {
-                Data = Building;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void DestroyBuildingAt(Location Location) {
-        if (!Game.TryGetService(out Workers WorkerService))
-            return;
-
-        if (!TryGetBuildingAt(Location, out BuildingData Building))
-            return;
-
-        // Workers have been killed previously
-        Buildings.Remove(Building);
-
-        string Text = Building.BuildingType.ToString()+" has been destroyed by the malaise";
-        MessageSystem.CreateMessage(Message.Type.Warning, Text);
-
-        if (!Visualization)
-            return;
-
-        Visualization.RefreshTokens();
-    }
-
     private void DestroyWorkersAt(Location Location)
     {
-        if (!Game.TryGetService(out Workers WorkerService))
+        if (!Game.TryGetServices(out Workers WorkerService, out BuildingService Buildings))
             return;
 
-        if (!TryGetBuildingAt(Location, out BuildingData Building))
+        if (!Buildings.TryGetBuildingAt(Location, out BuildingData Building))
             return;
 
-        int TempWorkerCount = Building.GetMaximumWorkerCount();
+        int TempWorkerCount = Building.GetAssignedWorkerCount();
         for (int i = 0; i < TempWorkerCount; i++)
         {
             WorkerService.KillWorker(Building.AssignedWorkers[i]);
@@ -122,7 +85,7 @@ public class ChunkData : ISaveable
         if (TempWorkerCount > 0)
         {
             string Text = TempWorkerCount + " worker " + (TempWorkerCount == 1 ? "has " : "have ") + "been killed by malaise";
-            MessageSystem.CreateMessage(Message.Type.Warning, Text);
+            MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
         }
     }
 
@@ -137,32 +100,30 @@ public class ChunkData : ISaveable
         UnitService.KillUnit(Unit);
 
         string Text = "One unit has been killed by malaise";
-        MessageSystem.CreateMessage(Message.Type.Warning, Text);
+        MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
     }
 
     public void DestroyTokensAt(Location Location)
     {
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return;
+
         DestroyWorkersAt(Location);
         DestroyUnitsAt(Location);
-        DestroyBuildingAt(Location);
-    }
 
-    private int GetBuildingsSize()
-    {
-        int Size = 0;
-        foreach (BuildingData Building in Buildings)
-        {
-            Size += Building.GetSize();
-        }
-        return Size;
+        Buildings.DestroyBuildingAt(Location);
+
+        if (!Visualization)
+            return;
+
+        Visualization.RefreshTokens();
     }
 
     public int GetSize()
     {
         int HexagonSize = HexDatas.Length > 0 ? HexDatas.Length * HexDatas[0, 0].GetSize() : 0;
-        int BuildingSize = GetBuildingsSize();
-        // Location and malaise, data of hexes and buildings, as well as size info for hex, building and overall size
-        return HexagonSize + BuildingSize + 3 * sizeof(int) + Location.GetStaticSize() + Malaise.GetSize();
+        // Location and malaise, data of hexes, as well as size info for hex and overall size
+        return HexagonSize + 2 * sizeof(int) + Location.GetStaticSize() + Malaise.GetSize();
     }
 
     public byte[] GetData()
@@ -173,7 +134,6 @@ public class ChunkData : ISaveable
         // save the size to make reading it easier
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, HexDatas.Length);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Buildings.Count);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
 
@@ -181,11 +141,6 @@ public class ChunkData : ISaveable
         foreach (HexagonData Hexagon in HexDatas)
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, Hexagon);
-        }
-
-        foreach (BuildingData Building in Buildings)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Building);
         }
 
         return Bytes.ToArray();
@@ -199,7 +154,6 @@ public class ChunkData : ISaveable
         // skip overall size info at the beginning
         int Pos = sizeof(int);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int HexLength);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int BuildingsLength);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Malaise);
 
@@ -214,19 +168,11 @@ public class ChunkData : ISaveable
                 Pos = SaveGameManager.SetSaveable(Bytes, Pos, HexDatas[x, y]);
             }
         }
-
-        Buildings = new();
-        for (int i = 0; i <  BuildingsLength; i++) {
-            BuildingData Building = ScriptableObject.CreateInstance<BuildingData>();
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Building);
-            Buildings.Add(Building);
-        }
     }
 
     public bool ShouldLoadWithLoadedSize() {  return true; }
 
     public HexagonData[,] HexDatas;
-    public List<BuildingData> Buildings = new();
     public Location Location;
     public ChunkVisualization Visualization;
     public MalaiseData Malaise;

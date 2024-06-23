@@ -63,7 +63,10 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     private void CreateBuildings() {
-        foreach (BuildingData BuildingData in Data.Buildings) {
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return;
+
+        foreach (BuildingData BuildingData in Buildings.GetBuildingsInChunk(Data.Location.ChunkLocation)) {
             BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
             Vis.transform.parent = transform;
             BuildingVisualizations.Add(Vis);

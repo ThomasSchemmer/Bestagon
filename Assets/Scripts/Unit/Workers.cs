@@ -7,7 +7,7 @@ public class Workers : GameService
     public void RequestAddWorkerFor(BuildingData Building, int i) {
         if (!HasUnemployedWorkers())
         {
-            MessageSystem.CreateMessage(Message.Type.Error, "No idle worker exist for this building");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "No idle worker exist for this building");
             return;
         }
 

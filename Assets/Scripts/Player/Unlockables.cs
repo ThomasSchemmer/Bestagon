@@ -74,6 +74,9 @@ public class Unlockables : GameService, ISaveable
     public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
     {
         RandomType = default;
+        if (!IsFullyLoaded())
+            return false;
+
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return false;
 
@@ -113,9 +116,12 @@ public class Unlockables : GameService, ISaveable
     public bool TryGetRandomUnlockedTile(out HexagonConfig.HexagonType RandomType)
     {
         RandomType = default;
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
+        if (!IsFullyLoaded())
             return false;
 
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return false;
+        
         HexagonConfig.HexagonType UnlockedTypesMask = 0;
         for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
         {
@@ -149,6 +155,16 @@ public class Unlockables : GameService, ISaveable
 
         int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
         RandomType = UnlockedTypes[RandomIndex];
+        return true;
+    }
+
+    private bool IsFullyLoaded()
+    {
+        // can get called after being init, but not yet loaded!
+        // should not matter then, cause calling object should be loaded (overwritten) too
+        if (LockedTypesPerCategory.Length != BuildingConfig.CategoryAmount)
+            return false;
+
         return true;
     }
 
@@ -217,15 +233,15 @@ public class Unlockables : GameService, ISaveable
     }
 
     protected override void StartServiceInternal() {
-        Game.RunAfterServiceInit((SaveGameManager SaveGameManager) =>
-        {
-            if (!SaveGameManager.HasDataFor(ISaveable.SaveGameType.Unlockables))
-            {
-                InitializeCategories();
-            }
+        if (!Game.TryGetService(out SaveGameManager SaveGameManager))
+            return;
 
-            _OnInit?.Invoke();
-        });
+        if (!SaveGameManager.HasDataFor(ISaveable.SaveGameType.Unlockables))
+        {
+            InitializeCategories();
+        }
+
+        _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() {}

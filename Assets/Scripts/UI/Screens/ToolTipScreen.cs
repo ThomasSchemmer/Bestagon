@@ -2,8 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ToolTipScreen : MonoBehaviour
+public class ToolTipScreen : ScreenUI
 {
+    protected override void Initialize()
+    {
+        base.Initialize();
+        bIsInit = true;
+    }
+
+    public override void Hide()
+    {
+        if (!bIsInit)
+            return;
+
+        base.Hide();
+    }
+
+    public override void Show()
+    {
+        if (!bIsInit)
+            return;
+
+        base.Show();
+    }
+
     public void Show(ISelectable Selectable, bool bShow)
     {
         if ((!bShow || Selectable == null))
@@ -12,7 +34,7 @@ public class ToolTipScreen : MonoBehaviour
             return;
         }
 
-        ContainerRect.gameObject.SetActive(true);
+        Show();
         // reset to get accurate text sizes
         TextRect.sizeDelta = new Vector2(MaxWidth, HeightPerLine);
         Text.text = Selectable.GetHoverTooltip();
@@ -25,6 +47,7 @@ public class ToolTipScreen : MonoBehaviour
         float Width = TextLength > MaxCountPerLine ? MaxWidth : TextSize.x;
         TextRect.sizeDelta = new Vector2(Width, Height);
         BackgroundRect.sizeDelta = new Vector2(Width + 10, Height + 5);
+        RectTransform ContainerRect = Container.GetComponent<RectTransform>();
         ContainerRect.anchoredPosition = new Vector2(Width / 2, -(Height + 5) / 2.0f);
 
         // flip if we are too far off screen
@@ -34,13 +57,10 @@ public class ToolTipScreen : MonoBehaviour
         SelfRect.anchoredPosition = TargetPosition;
     }
 
-    public void Hide()
-    {
-        transform.GetChild(0).gameObject.SetActive(false);
-    }
-
-    public RectTransform TextRect, BackgroundRect, ContainerRect, SelfRect;
+    public RectTransform TextRect, BackgroundRect, SelfRect;
     public TMPro.TextMeshProUGUI Text;
+
+    private bool bIsInit = false;
 
     public static int MaxCountPerLine = 40;
     public static int MaxWidth = 290;

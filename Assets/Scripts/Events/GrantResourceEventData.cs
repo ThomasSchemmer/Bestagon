@@ -100,7 +100,7 @@ public class GrantResourceEventData : EventData
         {
             if (!bIsPreview)
             {
-                MessageSystem.CreateMessage(Message.Type.Error, "Can only use on visited tiles");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Can only use on visited tiles");
                 return false;
             }
         }

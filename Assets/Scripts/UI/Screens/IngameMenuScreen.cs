@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -6,7 +7,7 @@ using UnityEngine;
 /**
  * Represents the ingame menu (escape)
  */
-public class IngameMenu : MonoBehaviour
+public class IngameMenuScreen : ScreenUI
 {
     public void ButtonClick()
     {
@@ -20,28 +21,21 @@ public class IngameMenu : MonoBehaviour
         }
     }
 
-    public void Show()
+    public override void Show()
     {
+        base.Show();
         _OnOpenBegin?.Invoke();
         IsShown = true;
-        ShowElements(IsShown);
         _OnOpenFinish?.Invoke();
     }
 
-    public void Hide()
+    public override void Hide()
     {
+        base.Hide();
         IsShown = false;
-        ShowElements(IsShown);
         _OnClose?.Invoke();
     }
 
-    private void ShowElements(bool Visible)
-    {
-        foreach (Transform Child in transform)
-        {
-            Child.gameObject.SetActive(Visible);
-        }
-    }
 
     public void Update()
     {
@@ -58,13 +52,12 @@ public class IngameMenu : MonoBehaviour
 
     public void OnClickExit()
     {
-        Game.ExitGame();
-    }
 
-    public void OnClickGiveUp()
-    {
-        Hide();
-        Game.Instance.GameOver("You have given up!");
+        Action A = () =>
+        {
+            Game.ExitGame();
+        };
+        ConfirmScreen.Show("Are you sure you want exit the game? Any unsaved progress will be lost!", A);
     }
 
     private bool IsShown = false;
@@ -76,5 +69,5 @@ public class IngameMenu : MonoBehaviour
     public OnOpenFinish _OnOpenFinish;
     public OnClose _OnClose;
 
-    public static IngameMenu Instance;
+    public static IngameMenuScreen Instance;
 }

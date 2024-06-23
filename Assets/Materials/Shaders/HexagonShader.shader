@@ -145,11 +145,11 @@ Shader"Custom/HexagonShader"
             }
 
             inline bool IsBorder(float2 uv) {
-                return uv.x < (1.01 / 16.0) && uv.y < (1.01 / 16.0);
+                return uv.x < 0.063125 && uv.y < 0.063125; // 1.01 / 16
             }
 
             inline bool IsDecoration(float2 uv){
-                return uv.y > (14.0 / 16.0);
+                return uv.y > 0.875;        // 14 / 16
             }
 
             float4 NormalLighting(float3 normal){
@@ -162,7 +162,7 @@ Shader"Custom/HexagonShader"
 
                 if (IsWater()){
                     // needs to be 0..3/16
-                    nl = nl * 3 / 16.0;
+                    nl = nl * 0.1875;
                     return float4(nl, 0, 0, 0);
                 }else{
                     return nl * _MainLightColor;
@@ -179,7 +179,7 @@ Shader"Custom/HexagonShader"
                 bool shouldChangeUV = IsWater() && bIsAllowed;
                 o.uv = IN.uv + float2(shouldChangeUV ? lighting.x : 0, 0);
                 // if we change the color too much, we suddenly declare this pixel as border!
-                o.uv.x = bIsAllowed ? max(o.uv.x, 1.1 / 16.0) : o.uv.x;
+                o.uv.x = bIsAllowed ? max(o.uv.x, 0.06875) : o.uv.x;
                 return o;
             }
 
@@ -250,7 +250,7 @@ Shader"Custom/HexagonShader"
                 // as we have a split uv map we need to wrap around
                 int xType = _Type / 16.0;
                 int yType = _Type % 16;
-                float StandardColor = (i.uv.x * 16.0) + xType * 16 / 2.0;
+                float StandardColor = (i.uv.x * 16.0) + xType * 8.0;
                 float u = StandardColor;
                 float v = yType;
                 float2 uv = float2(u, v) / 16.0;

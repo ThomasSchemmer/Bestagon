@@ -512,7 +512,7 @@ MonoBehaviour:
   UpgradedCardContainer: {fileID: 696115998}
   UpgradeArrow: {fileID: 769979714}
   ConfirmButton: {fileID: 60412256}
-  CardSelectionScreen: {fileID: 544533891}
+  CardSelectionUI: {fileID: 544533891}
   UpgradeButtonPrefab: {fileID: 6997754559251964638, guid: dfa6e18a55bbd0047b5d3fd47ac3a903,
     type: 3}
   ToHide:
@@ -3464,6 +3464,9 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   Resources:
+    _Production:
+      Tuples: []
+  StartingResources:
     _Production:
       Tuples: []
   UpgradePoints: 0
