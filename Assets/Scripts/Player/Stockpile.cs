@@ -77,8 +77,8 @@ public class Stockpile : GameService, ISaveable
 
     private void HandleStarvation(Workers WorkerService, Units UnitService)
     {
-        StarvableUnitData.HandleStarvationFor(WorkerService.ActiveWorkers, Resources, "Workers");
-        StarvableUnitData.HandleStarvationFor(UnitService.ActiveUnits, Resources, "Units");
+        StarvableUnitData.HandleStarvationFor(WorkerService.Units, Resources, "Workers");
+        StarvableUnitData.HandleStarvationFor(UnitService.Units, Resources, "Units");
     }
 
     public bool CanAfford(Production Costs) {

@@ -124,7 +124,9 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+        // necessary as ScoutData overrides GetSize, forcing this Data to be too large for its own data
+        int TotalSize = GetStaticSize();
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(TotalSize, base.GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);

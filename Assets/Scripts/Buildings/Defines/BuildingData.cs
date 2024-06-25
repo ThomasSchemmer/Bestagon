@@ -298,6 +298,8 @@ public class BuildingData : ScriptableObject, ISaveable, IPreviewable
         BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
+
+        AssignedWorkers = new WorkerData[MaxWorker];
     }
 
 

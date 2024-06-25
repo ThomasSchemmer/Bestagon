@@ -21,6 +21,16 @@ public class IngameMenuScreen : ScreenUI
         }
     }
 
+    public void OnSave()
+    {
+        if (!Game.TryGetService(out SaveGameManager Manager))
+            return;
+
+        Manager.Save();
+        MessageSystemScreen.CreateMessage(Message.Type.Success, "Saved successfully");
+        Hide();
+    }
+
     public override void Show()
     {
         base.Show();

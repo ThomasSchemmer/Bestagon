@@ -157,6 +157,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\UnitPreview.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
+    <Compile Include="Assets\Scripts\Unit\UnitProvider.cs" />
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />

@@ -129,7 +129,7 @@ public abstract class CardCollection : GameService, ISaveable
 
         for (int i = 0; i < Cards.Count; i++)
         {
-            Destroy(Cards[i].gameObject);
+            DestroyImmediate(Cards[i].gameObject);
         }
         Cards = new();
 

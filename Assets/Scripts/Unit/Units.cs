@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 /** 
@@ -6,15 +7,12 @@ using UnityEngine;
  * Since the unit data is independent of any chunk, while UnitVisualization is directly bound and managed by 
  * a chunk, there is no direct link from the UnitData to its visualization
  */
-public class Units : GameService
+public class Units : UnitProvider<TokenizedUnitData>
 {
-    // todo: save
-    public List<TokenizedUnitData> ActiveUnits = new();
-
     public bool TryGetUnitAt(Location Location, out TokenizedUnitData Unit)
     {
         Unit = null;
-        foreach (TokenizedUnitData ActiveUnit in ActiveUnits)
+        foreach (TokenizedUnitData ActiveUnit in Units)
         {
             if (!ActiveUnit.Location.Equals(Location))
                 continue;
@@ -31,34 +29,27 @@ public class Units : GameService
         return TryGetUnitAt(Location, out TokenizedUnitData Unit);
     }
 
-    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<TokenizedUnitData> Units)
+    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<TokenizedUnitData> UnitsInChunk)
     {
-        Units = new();
-        foreach (TokenizedUnitData ActiveUnit in ActiveUnits)
+        UnitsInChunk = new();
+        foreach (TokenizedUnitData ActiveUnit in Units)
         {
             if (!ActiveUnit.Location.ChunkLocation.Equals(ChunkLocation.ChunkLocation))
                 continue;
 
-            Units.Add(ActiveUnit);
+            UnitsInChunk.Add(ActiveUnit);
         }
 
-        return Units.Count > 0;
+        return UnitsInChunk.Count > 0;
     }
 
-    public void RefreshUnits()
-    {
-        foreach(UnitData ActiveUnit in ActiveUnits)
-        {
-            ActiveUnit.Refresh();
-        }
-    }
 
     public void AddUnit(TokenizedUnitData Unit)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        ActiveUnits.Add(Unit);
+        Units.Add(Unit);
         _OnUnitCountChanged?.Invoke();
 
         if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
@@ -70,9 +61,9 @@ public class Units : GameService
         Chunk.Visualization.RefreshTokens();
     }
 
-    public void KillUnit(TokenizedUnitData Unit)
+    public override void KillUnit(TokenizedUnitData Unit)
     {
-        ActiveUnits.Remove(Unit);
+        base.KillUnit(Unit);
 
         if (Unit.Visualization != null){
             Destroy(Unit.Visualization);
@@ -83,13 +74,13 @@ public class Units : GameService
 
     private void CheckForGameOver()
     {
-        if (ActiveUnits.Count != 0)
+        if (Units.Count != 0)
             return;
 
         if (!Game.TryGetService(out Workers Workers))
             return;
 
-        if (Workers.ActiveWorkers.Count != 0)
+        if (Workers.GetTotalWorkerCount() != 0)
             return;
 
         Game.Instance.GameOver("Your tribe has died out!");
@@ -98,7 +89,7 @@ public class Units : GameService
     public int GetIdleScoutCount()
     {
         int Count = 0;
-        foreach (var Unit in ActiveUnits)
+        foreach (var Unit in Units)
         {
             if (Unit is not ScoutData)
                 continue;
@@ -114,7 +105,7 @@ public class Units : GameService
     public int GetMaxScoutCount()
     {
         int Count = 0;
-        foreach (var Unit in ActiveUnits)
+        foreach (var Unit in Units)
         {
             if (Unit is not ScoutData)
                 continue;
@@ -133,9 +124,6 @@ public class Units : GameService
     }
 
     protected override void StopServiceInternal() { }
-
-    public static List<Location> ScoutStartLocations = new() {
-    };
 
     public delegate void OnUnitCountChanged();
     public static event OnUnitCountChanged _OnUnitCountChanged;

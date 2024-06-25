@@ -95,7 +95,7 @@ public class GrantUnitEventData : EventData
         return Obj.AddComponent<GrantMiscellaneousPreview>();
     }
 
-        public UnitData CreateUnitData()
+    public UnitData CreateUnitData()
     {
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;

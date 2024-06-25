@@ -14,11 +14,13 @@ public class GameOverScreen : ScreenUI
 
     public void Leave()
     {
-        if (!Game.TryGetService(out SaveGameManager SaveGameManager))
+        if (!Game.TryGetServices(out SaveGameManager SaveGameManager, out Statistics Statistics))
             return;
 
         UpdateResources();
         UpdateCards();
+
+        Statistics.ResetCurrentStats();
 
         string SaveGame = SaveGameManager.Save();
         Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);

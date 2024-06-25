@@ -169,15 +169,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  BuildingsBuilt: 0
-  HexesMoved: 0
-  UnitsCreated: 0
-  ResourcesCollected: 0
   BestHighscore: 0
   BestBuildings: 0
   BestMoves: 0
   BestUnits: 0
   BestResources: 0
+  CurrentBuildings: 0
+  CurrentMoves: 0
+  CurrentUnits: 0
+  CurrentResources: 0
 --- !u!1 &21891839
 GameObject:
   m_ObjectHideFlags: 0
@@ -5905,6 +5905,10 @@ MonoBehaviour:
       Value: {fileID: 1100774296}
     - Key: 8
       Value: {fileID: 918192454}
+    - Key: 9
+      Value: {fileID: 1491204138}
+    - Key: 10
+      Value: {fileID: 2106233178}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -10024,7 +10028,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  ActiveWorkers: []
+  Units: []
 --- !u!1 &1504592662
 GameObject:
   m_ObjectHideFlags: 0
@@ -13742,8 +13746,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 785273179}
-        m_TargetAssemblyTypeName: SaveGameManager, ScriptsAssemblyDef
+      - m_Target: {fileID: 908851252}
+        m_TargetAssemblyTypeName: IngameMenuScreen, Assembly-CSharp
         m_MethodName: OnSave
         m_Mode: 1
         m_Arguments:
@@ -15113,7 +15117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  ActiveUnits: []
+  Units: []
 --- !u!1 &2112215642
 GameObject:
   m_ObjectHideFlags: 0

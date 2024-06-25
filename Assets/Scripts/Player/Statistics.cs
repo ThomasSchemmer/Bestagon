@@ -151,7 +151,12 @@ public class Statistics : GameService, ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, BestMoves);
         Pos = SaveGameManager.AddInt(Bytes, Pos, BestUnits);
         Pos = SaveGameManager.AddInt(Bytes, Pos, BestResources);
-        
+
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentBuildings);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentMoves);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentUnits);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentResources);
+
         return Bytes.ToArray();
     }
 
@@ -162,7 +167,7 @@ public class Statistics : GameService, ISaveable
 
     public int GetStaticSize()
     {
-        return sizeof(int) * 17;
+        return sizeof(int) * 21;
     }
 
     public void SetData(NativeArray<byte> Bytes)
@@ -189,6 +194,11 @@ public class Statistics : GameService, ISaveable
         Pos = SaveGameManager.GetInt(Bytes, Pos, out BestMoves);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out BestUnits);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out BestResources);
+
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentBuildings);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentMoves);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentUnits);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentResources);
     }
 
     protected override void StartServiceInternal()
@@ -197,6 +207,15 @@ public class Statistics : GameService, ISaveable
         UnitData._OnUnitCreated += CountUnit;
         TokenizedUnitData._OnMovement += CountMoves;
         BuildingData._OnBuildingBuilt += CountBuilding;
+
+    }
+
+    public void ResetCurrentStats()
+    {
+        CurrentBuildings = 0;
+        CurrentMoves = 0;
+        CurrentResources = 0;
+        CurrentUnits = 0;
     }
 
     protected override void StopServiceInternal() {}

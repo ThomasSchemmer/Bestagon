@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Workers : GameService
+public class Workers : UnitProvider<StarvableUnitData>
 {
-    // todo: save
     public void RequestAddWorkerFor(BuildingData Building, int i) {
         if (!HasUnemployedWorkers())
         {
@@ -40,20 +39,20 @@ public class Workers : GameService
         {
             RequestRemoveWorkerFor(WorkerUnit.GetAssignedBuilding(), WorkerUnit, WorkerUnit.GetAssignedBuildingSlot());
         }
-        ActiveWorkers.Remove(WorkerUnit);
+        Units.Remove(WorkerUnit);
         _OnWorkersChanged?.Invoke();
         CheckForGameOver();
     }
 
     private void CheckForGameOver()
     {
-        if (ActiveWorkers.Count != 0)
+        if (Units.Count != 0)
             return;
 
-        if (!Game.TryGetService(out Units Units))
+        if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (Units.ActiveUnits.Count != 0)
+        if (UnitService.Units.Count != 0)
             return;
 
         Game.Instance.GameOver("Your tribe has died out!");
@@ -61,7 +60,7 @@ public class Workers : GameService
 
     private WorkerData GetUnemployedWorker()
     {
-        foreach (WorkerData WorkerUnit in ActiveWorkers)
+        foreach (WorkerData WorkerUnit in Units)
         {
             if (!WorkerUnit.IsEmployed())
                 return WorkerUnit;
@@ -71,7 +70,7 @@ public class Workers : GameService
 
     public int GetEmployedWorkerCount() {
         int EmployedCount = 0;
-        foreach (WorkerData WorkerUnit in ActiveWorkers)
+        foreach (WorkerData WorkerUnit in Units)
         {
             if (!WorkerUnit.IsEmployed())
                 continue;
@@ -92,7 +91,7 @@ public class Workers : GameService
     }
 
     public int GetTotalWorkerCount() {
-        return ActiveWorkers.Count;
+        return Units.Count;
     }
 
     public void CreateNewWorker()
@@ -106,7 +105,7 @@ public class Workers : GameService
 
     public void AddWorker(WorkerData Worker)
     {
-        ActiveWorkers.Add(Worker);
+        Units.Add(Worker);
     }
     
     protected override void StartServiceInternal()
@@ -120,8 +119,6 @@ public class Workers : GameService
     }
 
     protected override void StopServiceInternal() {}
-
-    public List<WorkerData> ActiveWorkers = new();
 
     public delegate void OnWorkersChanged();
     public delegate void OnWorkersAssigned(Location Location);

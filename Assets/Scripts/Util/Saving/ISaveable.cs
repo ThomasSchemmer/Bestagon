@@ -18,7 +18,9 @@ public interface ISaveable
         Unlockables = 5,
         Stockpile = 6,
         Statistics = 7,
-        Buildings = 8
+        Buildings = 8,
+        Workers = 9,
+        Units = 10
     }
 
     public static int MaxTypeIndex = 8;
