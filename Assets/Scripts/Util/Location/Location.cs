@@ -3,7 +3,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
-public class Location : ISaveable
+public class Location : ISaveableData
 {
     public Location(Vector2Int ChunkLocation, Vector2Int HexLocation) {
         _ChunkLocation = new (ChunkLocation.x, ChunkLocation.y);

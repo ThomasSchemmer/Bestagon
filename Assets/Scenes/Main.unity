@@ -5909,6 +5909,8 @@ MonoBehaviour:
       Value: {fileID: 1491204138}
     - Key: 10
       Value: {fileID: 2106233178}
+    - Key: 11
+      Value: {fileID: 1288013424}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -12174,8 +12176,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 785273179}
-        m_TargetAssemblyTypeName: SaveGameManager, ScriptsAssemblyDef
+      - m_Target: {fileID: 908851252}
+        m_TargetAssemblyTypeName: IngameMenuScreen, Assembly-CSharp
         m_MethodName: OnLoad
         m_Mode: 1
         m_Arguments:

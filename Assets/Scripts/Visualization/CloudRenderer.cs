@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 /** 
@@ -7,8 +8,10 @@ using UnityEngine;
  * - WhorleyCompute: calculates 4 different noises (1 simplex, 3 WhorleyCompute) and compresses them into a single int
  * - CloudShader: Takes the noise data and screen space position to render clouds as a post-processing effect
  */
-public class CloudRenderer : GameService
+public class CloudRenderer : GameService, ISaveableService
 {
+    public Dictionary<Vector2Int, MalaiseData> ActiveMalaises = new();
+
     public Material CloudMaterial;
     public Material CloudShadowMaterial;
     public RenderTexture TargetTexture;
@@ -67,10 +70,28 @@ public class CloudRenderer : GameService
         PassMaterialBuffer();
     }
 
-    public void PassMaterialBuffer()
+    public void PassMaterialBuffer(bool bForce = false)
     {
+        if (MapGen == null)
+            return;
+        if (!MapGen.bAreMalaiseDTOsDirty && !bForce)
+            return;
+
         uint[] MalaiseDTOs = MapGen.GetMalaiseDTOs();
         MalaiseBuffer.SetData(MalaiseDTOs);
+    }
+
+
+    public void SpreadMalaise()
+    {
+        foreach (var Tuple in ActiveMalaises)
+        {
+            MalaiseData Data = Tuple.Value;
+            Data.Spread();
+        }
+
+        MapGen.bAreMalaiseDTOsDirty = true;
+        PassMaterialBuffer();
     }
 
     public void Initialize()
@@ -106,7 +127,7 @@ public class CloudRenderer : GameService
         CloudShadowMaterial.SetTexture("_NoiseTex", TargetTexture);
         CloudShadowMaterial.SetFloat("_ResolutionXZ", TargetTexture.width);
         CloudShadowMaterial.SetFloat("_ResolutionY", TargetTexture.volumeDepth);
-        PassMaterialBuffer();
+        PassMaterialBuffer(true);
     }
 
     protected override void StartServiceInternal()
@@ -235,6 +256,33 @@ public class CloudRenderer : GameService
         DirectionsBuffer?.Release();
         MinMaxBuffer?.Release();
     }
+
+    public void Reset()
+    {
+        ActiveMalaises = new();
+    }
+
+    public void Load()
+    {
+        Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
+        {
+            MapGen = MapGenerator;
+            MapGen.bAreMalaiseDTOsDirty = true;
+            PassMaterialBuffer();
+        });
+    }
+
+    /** Doesn't actually save anything, only in the list to force a clear on load! */
+    public int GetSize()
+    {
+        return 0;
+    }
+
+    public byte[] GetData() { 
+        return new byte[0]; 
+    }
+
+    public void SetData(NativeArray<byte> Bytes) {}
 
     private static Vector3[] DIRECTIONS3D = new Vector3[27]{
         new Vector3(+0, +0, -1),

@@ -3,7 +3,7 @@ using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 
-public class MapGenerator : GameService, ISaveable
+public class MapGenerator : GameService, ISaveableService
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -42,7 +42,7 @@ public class MapGenerator : GameService, ISaveable
                 return;
 
             // already loaded then
-            if (Manager.HasDataFor(ISaveable.SaveGameType.MapGenerator))
+            if (Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
                 return;
 
             GenerateMap();
@@ -112,11 +112,13 @@ public class MapGenerator : GameService, ISaveable
             if (!TryGetChunkData(TargetLocation, out ChunkData NecessaryChunkData))
                 return;
 
-            ChunkVisualization UnusedVis = UnusedChunkData.Visualization;
-            StopCoroutine(UnusedVis.Generator);
-            UnusedVis.Reset();
+            if (!TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
+                return;
 
-            UnusedVis.Generator = StartCoroutine(UnusedVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat));
+            StopCoroutine(ChunkVis.Generator);
+            ChunkVis.Reset();
+
+            ChunkVis.Generator = StartCoroutine(ChunkVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat));
         }
         Enumerator.Dispose();
     }
@@ -126,17 +128,19 @@ public class MapGenerator : GameService, ISaveable
         if (ChunkVis == null)
             return;
         
-        foreach (ChunkVisualization Vis in ChunkVis)
+        foreach (ChunkVisualization Vis in ChunkVis.Values)
         {
             Destroy(Vis.gameObject);
         }
+        ChunkVis = null;
+        Chunks = null;
     }
 
     private void CreateChunks()
     {
         FinishedVisualizationCount = 0;
         Chunks = new ChunkData[HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk];
-        ChunkVis = new ChunkVisualization[HexagonConfig.loadedChunkVisualizations, HexagonConfig.loadedChunkVisualizations];
+        ChunkVis = new(HexagonConfig.loadedChunkVisualizations * HexagonConfig.loadedChunkVisualizations);
 
         if (!Game.TryGetService(out Map Map))
             return;
@@ -154,14 +158,14 @@ public class MapGenerator : GameService, ISaveable
             for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++) {
                 NecChunkEnumerator.MoveNext();
                 Location TargetChunkIndx = NecChunkEnumerator.Current;
+                ChunkData ChunkData = Chunks[TargetChunkIndx.ChunkLocation.x, TargetChunkIndx.ChunkLocation.y]; 
 
                 GameObject ChunkVisObj = new GameObject();
                 ChunkVisualization Vis = ChunkVisObj.AddComponent<ChunkVisualization>();
                 Vis.transform.parent = Map.transform;
-                Vis.Data = Chunks[TargetChunkIndx.ChunkLocation.x, TargetChunkIndx.ChunkLocation.y];
                 Vis.Initialize();
-                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(Vis.Data, HexMat, MalaiseMat));
-                ChunkVis[x, y] = Vis;
+                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(ChunkData, HexMat, MalaiseMat));
+                ChunkVis.Add(new(x, y), Vis);
             }
         }
     }
@@ -200,12 +204,8 @@ public class MapGenerator : GameService, ISaveable
     private HashSet<Location> GetAllVisualizedChunkIndices() {
         HashSet<Location> Set = new();
 
-        foreach (ChunkVisualization Vis in ChunkVis) {
-            bool bIsUsed = Vis.Data != null;
-            if (!bIsUsed)
-                continue;
-
-            Set.Add(Vis.Data.Location);
+        foreach (ChunkVisualization Vis in ChunkVis.Values) {
+            Set.Add(Vis.Location);
         }
         return Set;
     }
@@ -305,17 +305,14 @@ public class MapGenerator : GameService, ISaveable
     public bool TryGetHexagon(Location Location, out HexagonVisualization Hex) {
         Hex = null;
 
-        if (!TryGetChunkData(Location, out ChunkData ChunkData))
+        if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
             return false;
-
+        
         // cannot get the actual hex object if its not visualized
-        if (!ChunkData.Visualization)
+        if (!TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
             return false;
 
-        if (!HexagonConfig.IsValidHexIndex(Location.HexLocation)) 
-            return false;
-
-        Hex = ChunkData.Visualization.Hexes[Location.HexLocation.x, Location.HexLocation.y];
+        Hex = ChunkVis.Hexes[Location.HexLocation.x, Location.HexLocation.y];
         return Hex != null;
     }
 
@@ -362,10 +359,10 @@ public class MapGenerator : GameService, ISaveable
         Buildings.Buildings.Add(BuildingData);
 
         // if the chunk is currently being shown, force create the building
-        if (Chunk.Visualization == null)
+        if (!TryGetChunkVis(BuildingData.Location, out ChunkVisualization ChunkVis))
             return;
 
-        Chunk.Visualization.CreateBuilding(BuildingData);
+        ChunkVis.CreateBuilding(BuildingData);
     }
 
     public Production GetProductionPerTurn() {
@@ -405,6 +402,15 @@ public class MapGenerator : GameService, ISaveable
         return true;
     }
 
+    public bool TryGetChunkVis(Location Location, out ChunkVisualization Visualization)
+    {
+        Visualization = null;
+        if (ChunkVis == null)
+            return false;
+
+        return ChunkVis.TryGetValue(Location.ChunkLocation, out Visualization);
+    }
+
     public void UpdateMapBounds(Location MinDiscoveredLoc, Location MaxDiscoveredLoc) {
         MinBottomLeft = Location.Min(MinBottomLeft, MinDiscoveredLoc);
         MaxTopRight = Location.Max(MaxTopRight, MaxDiscoveredLoc);
@@ -431,7 +437,7 @@ public class MapGenerator : GameService, ISaveable
     public void FinishChunkVisualization()
     {
         Interlocked.Increment(ref FinishedVisualizationCount);
-        if (FinishedVisualizationCount >= ChunkVis.Length)
+        if (FinishedVisualizationCount >= ChunkVis.Count)
         {
             _OnInit?.Invoke();
         }
@@ -597,11 +603,21 @@ public class MapGenerator : GameService, ISaveable
         GenerateMap();
     }
 
+    public void Reset()
+    {
+        DestroyChunks();
+        
+        if (!Game.TryGetService(out Selectors Selector))
+            return;
+
+        Selector.ForceDeselect();
+    }
+
     public bool ShouldLoadWithLoadedSize() { return true; }
 
 
     public ChunkData[,] Chunks;
-    public ChunkVisualization[,] ChunkVis;
+    public Dictionary<Vector2Int, ChunkVisualization> ChunkVis;
 
     public Material HexMat;
     public Material MalaiseMat;
@@ -613,5 +629,5 @@ public class MapGenerator : GameService, ISaveable
 
     // do not save anything below this line
     private uint[] MalaiseDTOs = null;
-    public bool bAreMalaiseDTOsDirty = false;
+    public bool bAreMalaiseDTOsDirty = true;
 }

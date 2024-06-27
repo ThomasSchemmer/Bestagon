@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class BuildingService : GameService, ISaveable
+public class BuildingService : GameService, ISaveableService
 {
     protected override void StartServiceInternal()
     {
@@ -110,6 +110,11 @@ public class BuildingService : GameService, ISaveable
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, Building);
             Buildings.Add(Building);
         }
+    }
+
+    public void Reset()
+    {
+        Buildings = new();
     }
 
     public bool ShouldLoadWithLoadedSize() { return true; }

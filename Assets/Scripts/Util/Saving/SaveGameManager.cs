@@ -5,11 +5,13 @@ using System.IO;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static ISaveable;
+using static ISaveableService;
 
 public class SaveGameManager : GameService
 {
     public SerializedDictionary<SaveGameType, MonoBehaviour> Saveables;
+
+    private SerializedDictionary<SaveGameType, int> FoundSaveableServices;
 
     public bool bLoadLastFile = false;
     // static so that it can be shared between scenes and a delayed load can be executed
@@ -33,7 +35,7 @@ public class SaveGameManager : GameService
 
     private void HandleDelayedLoading()
     {
-        if (bLoadLastFile && FileToLoad == null)
+       if (bLoadLastFile && FileToLoad == null)
         {
             FileToLoad = GetMostRecentSave();
         }
@@ -41,7 +43,7 @@ public class SaveGameManager : GameService
         if (FileToLoad == null)
             return;
 
-        TryLoad();
+        Load();
     }
 
     private void HandleSwitchToMenu()
@@ -55,23 +57,6 @@ public class SaveGameManager : GameService
         Game.LoadGame(null, Game.MenuSceneName, false);
     }
 
-    private void FillSaveables()
-    {
-        /** hack to fully fill the saveables dictionary */
-        if (Saveables == null)
-        {
-            Saveables = new();
-        }
-
-        foreach (var Type in Enum.GetValues(typeof(SaveGameType)))
-        {
-            if (Saveables.ContainsKey((SaveGameType)Type))
-                continue;
-
-            Saveables.Add((SaveGameType)Type, null);
-        }
-    }
-
     public void OnSave()
     {
         Save();
@@ -80,7 +65,14 @@ public class SaveGameManager : GameService
     public void OnLoad()
     {
         ShouldCreateNewFile = false;
-        TryLoad();
+        Load();
+    }
+
+    public void Load()
+    {
+        FindSaveables();
+        ResetFoundServices();
+        TryExecuteLoading();
     }
 
     public string Save()
@@ -91,7 +83,7 @@ public class SaveGameManager : GameService
         int i = 0;
         foreach (var Tuple in Saveables)
         {
-            ISaveable Saveable = Tuple.Value as ISaveable;
+            ISaveableData Saveable = Tuple.Value as ISaveableData;
             if (Saveable == null)
                 continue;
 
@@ -108,15 +100,29 @@ public class SaveGameManager : GameService
         return FileName;
     }
 
+    public static void RunIfNotInSavegame(Action Callback, SaveGameType Type)
+    {
+        Game.RunAfterServiceInit((SaveGameManager Manager) =>
+        {
+            if (Manager.HasDataFor(Type))
+                return;
+
+            Callback();
+        });
+    }
+
     public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
     {
         FileToLoad = FileName;
-        SaveGameManager.ShouldCreateNewFile = bShouldCreateNewFile;
+        ShouldCreateNewFile = bShouldCreateNewFile;
     }
 
     public bool HasDataFor(SaveGameType TargetType)
     {
-        return TryLoad(TargetType);
+        if (FoundSaveableServices == null)
+            return false;
+
+        return FoundSaveableServices.ContainsKey(TargetType);
     }
 
     public string[] GetSavegameNames()
@@ -148,15 +154,10 @@ public class SaveGameManager : GameService
         return TargetIndex >= 0 ? Saves[TargetIndex] : "";
     }
 
-    /** Loads the save or returns true if the targeted saveable is in the savegame (but doesn#t actually load it then) */
-    public bool TryLoad(SaveGameType TargetType = SaveGameType.None)
+    private void FindSaveables()
     {
-        if (ShouldCreateNewFile)
-            return false;
-
-        string SaveGame = FileToLoad != null ? FileToLoad : GetMostRecentSave();
-        string Filename = GetSavegamePath() + SaveGame;
-        NativeArray<byte> Bytes = new(File.ReadAllBytes(Filename), Allocator.Temp);
+        FoundSaveableServices = new();
+        NativeArray<byte> Bytes = GetFileData();
 
         // no increase after loop, its done by reading the data
         for (int i = 0; i < Bytes.Length;)
@@ -170,29 +171,68 @@ public class SaveGameManager : GameService
                 continue;
             }
 
-            // don't actually load, just check if data exists
-            if (Type == TargetType)
-                return true;
-
-            if (TargetType != SaveGameType.None)
-            {
-                i += Size;
-                continue;
-            }
-
-            ISaveable Saveable = Behaviour as ISaveable;
+            ISaveableService Saveable = Behaviour as ISaveableService;
             if (Saveable == null)
             {
                 i += Size;
                 continue;
             }
 
-            i = SetSaveable(Bytes, i, Saveable);
+            FoundSaveableServices.Add(Type, i);
+            i += Size;
+        }
+    }
+
+    private NativeArray<byte> GetFileData()
+    {
+        string SaveGame = FileToLoad != null ? FileToLoad : GetMostRecentSave();
+        string Filename = GetSavegamePath() + SaveGame;
+        NativeArray<byte> Bytes = new(File.ReadAllBytes(Filename), Allocator.Temp);
+        return Bytes;
+    }
+
+    private void ResetFoundServices()
+    {
+        foreach (var Tuple in FoundSaveableServices)
+        {
+            SaveGameType Type = Tuple.Key;
+            if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
+                continue;
+
+            ISaveableService Saveable = Behaviour as ISaveableService;
+            if (Saveable == null)
+                continue;
+
+            Saveable.Reset();
+        }
+    }
+
+    /** Loads the save and returns true if successful*/
+    private bool TryExecuteLoading()
+    {
+        if (ShouldCreateNewFile)
+            return false;
+
+        if (FoundSaveableServices == null)
+            return false;
+
+        NativeArray<byte> Bytes = GetFileData();
+        foreach (var Tuple in FoundSaveableServices)
+        {
+            SaveGameType Type = Tuple.Key;
+            if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
+                continue;
+
+            ISaveableService Saveable = Behaviour as ISaveableService;
+            if (Saveable == null)
+                continue;
+
+            SetSaveable(Bytes, Tuple.Value, Saveable);
 
             Saveable.Load();
         }
 
-        return TargetType == SaveGameType.None ? true : false;
+        return true;
     }
 
     private int GetSaveableSize()
@@ -200,7 +240,7 @@ public class SaveGameManager : GameService
         int Size = 0;
         foreach (var Tuple in Saveables)
         {
-            ISaveable Saveable = Tuple.Value as ISaveable;
+            ISaveableData Saveable = Tuple.Value as ISaveableData;
             if (Saveable == null)
                 continue;
 
@@ -213,7 +253,7 @@ public class SaveGameManager : GameService
     }
 
     /** Convenience function to create a new NativeArray and fill it with the base data */
-    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveable Saveable, int BaseSize, byte[] BaseData)
+    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveableData Saveable, int BaseSize, byte[] BaseData)
     {
         NativeArray<byte> Bytes = new(Saveable.GetSize(), Allocator.Temp);
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, BaseSize);
@@ -266,7 +306,7 @@ public class SaveGameManager : GameService
         return Start + 1;
     }
 
-    public static int AddSaveable(NativeArray<byte> Bytes, int Start, ISaveable Value)
+    public static int AddSaveable(NativeArray<byte> Bytes, int Start, ISaveableData Value)
     {
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Value.GetSize());
         Slice.CopyFrom(Value.GetData());
@@ -329,7 +369,7 @@ public class SaveGameManager : GameService
     /** Unlike the other getters we don't actually want to recreate the object, so we just set the values and keep the object
      * We might not be able to always load a saveable with the same size
      */
-    public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
+    public static int SetSaveable(NativeArray<byte> Bytes, int Start, ISaveableData Saveable)
     {
         int Size = Saveable.ShouldLoadWithLoadedSize() ? LoadSizeOfSaveable(Bytes, Start, Saveable) : Saveable.GetSize();
         NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Start, Size);
@@ -339,7 +379,7 @@ public class SaveGameManager : GameService
         return Start + Size;
     }
 
-    private static int LoadSizeOfSaveable(NativeArray<byte> Bytes, int Start, ISaveable Saveable)
+    private static int LoadSizeOfSaveable(NativeArray<byte> Bytes, int Start, ISaveableData Saveable)
     {
         // ignore reading of the size attribute, still start reading from the chunk origin
         GetInt(Bytes, Start, out int Size);

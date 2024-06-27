@@ -5,7 +5,7 @@ using UnityEngine;
 using static CardUpgradeScreen;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
-public class BuildingData : ScriptableObject, ISaveable, IPreviewable
+public class BuildingData : ScriptableObject, ISaveableData, IPreviewable
 {
     public Location Location;
     public WorkerData[] AssignedWorkers;

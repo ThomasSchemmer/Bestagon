@@ -11,12 +11,12 @@ public class CardHand : CardCollection
 
             base.StartServiceInternal();
 
-            // cards will be loaded instead of newly generated
-            if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
-                return;
-
             Game.RunAfterServicesInit((CardFactory CardFactory, CardDeck Deck) =>
             {
+                // cards will be loaded instead of newly generated
+                if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
+                    return;
+
                 Cards = new List<Card>();
                 HandleDelayedFilling();
                 _OnInit?.Invoke();

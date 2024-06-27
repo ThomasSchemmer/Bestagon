@@ -2,7 +2,7 @@
 using Unity.Collections;
 using static Stockpile;
 
-public class Stockpile : GameService, ISaveable
+public class Stockpile : GameService, ISaveableService
 {
 
     public bool Pay(Production Costs) {
@@ -95,21 +95,16 @@ public class Stockpile : GameService, ISaveable
         if (!Game.TryGetService(out SaveGameManager Manager))
             return;
 
-        if (!Manager.HasDataFor(ISaveable.SaveGameType.Stockpile)){
-            ResetResources();
+        if (!Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile)){
+            Reset();
+            // does not reset upgrade points!
+            AddResources(StartingResources);
         }
 
         _OnInit?.Invoke();
     }
 
     protected override void StopServiceInternal() {}
-
-    public void ResetResources()
-    {
-        Resources = new();
-        // does not reset upgrade points!
-        AddResources(StartingResources);
-    }
 
     public int GetSize()
     {
@@ -133,6 +128,11 @@ public class Stockpile : GameService, ISaveable
         Resources = new Production();
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Resources);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradePoints);
+    }
+
+    public void Reset()
+    {
+        Resources = new();
     }
 
     public Production Resources;

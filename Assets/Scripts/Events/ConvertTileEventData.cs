@@ -77,11 +77,11 @@ public class ConvertTileEventData : EventData
 
         if (!MapGenerator.TrySetHexagonData(Hex.Location, HexagonConfig.HexagonHeight.Flat, TargetType))
             return;
-
-        if (!MapGenerator.TryGetChunkData(Hex.Location, out ChunkData Chunk))
+        
+        if (!MapGenerator.TryGetChunkVis(Hex.Location, out ChunkVisualization ChunkVis))
             return;
 
-        Chunk.Visualization?.RefreshTokens();
+        ChunkVis?.RefreshTokens();
         Hex.UpdateMesh();
         Hex.VisualizeSelection();
 

@@ -7,7 +7,7 @@ using UnityEngine;
  * Base class for anything providing access to a certain type of units
  * Mainly useful for saving and loading the data
  */
-public class UnitProvider<T> : GameService, ISaveable where T : UnitData
+public class UnitProvider<T> : GameService, ISaveableService where T : UnitData
 {
     public List<T> Units = new();
 
@@ -72,6 +72,11 @@ public class UnitProvider<T> : GameService, ISaveable where T : UnitData
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, Unit);
             Units.Add(Unit as T);
         }
+    }
+
+    public void Reset()
+    {
+        Units = new();
     }
 
     public bool ShouldLoadWithLoadedSize() { return true; }

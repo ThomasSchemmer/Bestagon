@@ -264,12 +264,13 @@ public class Selector<T> : Selector where T : ISelectable
             return false;
 
         HexagonConfig.GlobalTileToChunkAndTileSpace(TileSpace, out Location Location);
-        bool hasHit = MapGenerator.TryGetHexagon(Location, out HexagonVisualization Hex);
-        bool bIsValid = hasHit && Hex.Location != null;
+        bool bHasHit = MapGenerator.TryGetHexagon(Location, out HexagonVisualization Hex);
+        bool bIsVisible = bHasHit && Hex.Data != null && Hex.Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted;
+        bool bIsValid = bHasHit && Hex.Location != null && bIsVisible;
 
         Hit = bIsValid ? Hex.gameObject : null;
 
-        return hasHit;
+        return bIsValid;
     }
 
     private bool RayCastUI(out GameObject Hit)

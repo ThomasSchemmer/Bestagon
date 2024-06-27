@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class Unlockables : GameService, ISaveable
+public class Unlockables : GameService, ISaveableService
 {
     public BuildingConfig.Type[] LockedTypesPerCategory;
 
@@ -232,11 +232,16 @@ public class Unlockables : GameService, ISaveable
         }
     }
 
+    public void Reset()
+    {
+        InitializeCategories();
+    }
+
     protected override void StartServiceInternal() {
         if (!Game.TryGetService(out SaveGameManager SaveGameManager))
             return;
 
-        if (!SaveGameManager.HasDataFor(ISaveable.SaveGameType.Unlockables))
+        if (!SaveGameManager.HasDataFor(ISaveableService.SaveGameType.Unlockables))
         {
             InitializeCategories();
         }

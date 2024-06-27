@@ -17,7 +17,7 @@ public class GameOverScreen : ScreenUI
         if (!Game.TryGetServices(out SaveGameManager SaveGameManager, out Statistics Statistics))
             return;
 
-        UpdateResources();
+        ResetResources();
         UpdateCards();
 
         Statistics.ResetCurrentStats();
@@ -44,12 +44,12 @@ public class GameOverScreen : ScreenUI
         BestRun.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = Statistics.BestHighscore + "";
     }
 
-    private void UpdateResources()
+    private void ResetResources()
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        Stockpile.ResetResources();
+        Stockpile.Reset();
     }
 
     private void UpdateCards()

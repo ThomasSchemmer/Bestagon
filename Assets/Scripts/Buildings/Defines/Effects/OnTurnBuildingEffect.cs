@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
-public class OnTurnBuildingEffect : BuildingEffect, ISaveable
+public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 {
     public enum Type
     {

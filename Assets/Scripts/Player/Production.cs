@@ -7,7 +7,7 @@ using UnityEngine;
 /**
  * Wrapper to have defined access to production data
  */ 
-public class Production : ISaveable
+public class Production : ISaveableData
 {
     [Serializable]
     public enum Type : uint

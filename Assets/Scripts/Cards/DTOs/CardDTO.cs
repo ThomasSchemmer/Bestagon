@@ -4,7 +4,7 @@ using UnityEngine;
 /** Helper class to transfer the cards between scenes. Only contains actually important data 
  * aka no visuals (as this is unnecessary to save and will be regenerated anyway) 
  */
-public abstract class CardDTO : ISaveable
+public abstract class CardDTO : ISaveableData
 {      
     public enum Type
     {

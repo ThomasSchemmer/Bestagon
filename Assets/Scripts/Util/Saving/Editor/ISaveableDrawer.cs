@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-[CustomPropertyDrawer(typeof(ISaveable))]
+[CustomPropertyDrawer(typeof(ISaveableData))]
 public class ISaveableDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect Position, SerializedProperty ServiceProperty, GUIContent Label)

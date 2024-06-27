@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Worker", menuName = "ScriptableObjects/Worker", order = 5)]
-public class WorkerData : StarvableUnitData, ISaveable
+public class WorkerData : StarvableUnitData, ISaveableData
 {
     private BuildingData AssignedBuilding = null;
     private int AssignedBuildingSlot = -1;

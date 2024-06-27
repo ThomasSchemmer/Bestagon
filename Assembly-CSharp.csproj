@@ -81,7 +81,6 @@
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ConfirmScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\MalaiseData.cs" />
-    <Compile Include="Assets\Scripts\Util\Saving\ISaveable.cs" />
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
@@ -141,6 +140,7 @@
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
@@ -188,6 +188,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorComponent.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\TileInfoScreenFeature.cs" />

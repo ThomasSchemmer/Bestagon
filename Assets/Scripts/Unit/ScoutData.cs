@@ -112,6 +112,15 @@ public class ScoutData : TokenizedUnitData
             return false;
         }
 
+        if (Hex.Data.IsMalaised())
+        {
+            if (!bIsPreview)
+            {
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on corrupted tiles");
+            }
+            return false;
+        }
+
         if (Hex.Data.HexHeight < HexagonConfig.HexagonHeight.Flat || Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Hill)
         {
             if (!bIsPreview)

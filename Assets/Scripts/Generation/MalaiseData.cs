@@ -3,16 +3,17 @@ using Unity.Collections;
 using UnityEngine;
 
 /** 
- * Info containing all malaised data for each chunk. For now has its own visualization but that is going to change
- * with shaders later.
+ * Info containing all malaised data for each chunk. Visualized in @CloudRenderer
  * General idea: Malaise spreads from up to 3 random infected tiles to a random neighbour each. 
  * These will get marked for visual clarity and then become infected the next round
  * Will propagate to other chunks (through turns), increasing infection speed 
+ * Note: Doesn't actually store which hexes are malaised, thats in the @HexagonData
  */
-public class MalaiseData : ISaveable
+public class MalaiseData : ISaveableData
 {
     public void Init(ChunkData InData) {
         Chunk = InData;
+        ID = CURRENT_MAX_ID++;
     }
 
     public void Spread()
@@ -21,6 +22,7 @@ public class MalaiseData : ISaveable
         {
             SpreadTo(Location);
         }
+        LocationsToMalaise.Clear();
         MarkRandomToMalaise();
     }
 
@@ -33,10 +35,9 @@ public class MalaiseData : ISaveable
         Hex.MalaisedState = HexagonData.MalaiseState.Malaised;
 
         Chunk.DestroyTokensAt(Location);
-        if (Chunk.Visualization != null)
-        {
-            Chunk.Visualization.RefreshTokens();
-        }
+        if (!MapGenerator.TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
+            return;
+        ChunkVis.RefreshTokens();
 
         if (!MapGenerator.TryGetHexagon(Location, out HexagonVisualization HexVis))
             return;
@@ -50,10 +51,16 @@ public class MalaiseData : ISaveable
 
         bIsActive = true;
 
-        if (!Game.TryGetService(out Turn Turn))
+        Register();
+    }
+
+    private void Register()
+    {
+        if (!Game.TryGetService(out CloudRenderer CloudRenderer))
             return;
 
-        Turn.ActiveMalaises.Add(this);
+        CloudRenderer.ActiveMalaises.Add(this.Chunk.Location.ChunkLocation, this);
+        CloudRenderer.PassMaterialBuffer();
     }
 
     public void MarkRandomToMalaise()
@@ -74,26 +81,31 @@ public class MalaiseData : ISaveable
             {
                 int SelectedNeighbourIndex = (RandomNeighbourIndex + SearchCount) % Neighbours.Count;
                 HexagonData Neighbour = Neighbours[SelectedNeighbourIndex];
-                if (Neighbour.MalaisedState != HexagonData.MalaiseState.None)
-                    continue;
-
-                Neighbour.MalaisedState = HexagonData.MalaiseState.PreMalaise;
-
-                //now we have to break asap to ensure only one neighbour gets infected
-                if (!MapGenerator.TryGetChunkData(Neighbour.Location, out ChunkData NeighbourChunk))
-                    break;
-
-                NeighbourChunk.Malaise.LocationsToMalaise.Add(Neighbour.Location);
-                NeighbourChunk.Malaise.Infect();
-
-                if (!MapGenerator.TryGetHexagon(Neighbour.Location, out HexagonVisualization HexVis))
-                    break;
-
-                HexVis.VisualizeSelection();
-                break;
+                if (MarkToMalaise(Neighbour))
+                    break;  
             }
-
         }
+    }
+
+    private bool MarkToMalaise(HexagonData Hex)
+    {
+        if (Hex.MalaisedState != HexagonData.MalaiseState.None)
+            return false;
+
+        Hex.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+
+        //now we have to break asap to ensure only one neighbour gets infected
+        Chunk.Malaise.LocationsToMalaise.Add(Hex.Location);
+        Chunk.Malaise.Infect();
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return true;
+
+        if (!MapGenerator.TryGetHexagon(Hex.Location, out HexagonVisualization HexVis))
+            return true;
+
+        HexVis.VisualizeSelection();
+        return true;
     }
 
     private List<Location> GetRandomMalaised()
@@ -172,26 +184,57 @@ public class MalaiseData : ISaveable
 
     public int GetSize()
     {
-        return sizeof(int);
+        // overall size, location count and active flag + ID
+        return sizeof(int) * 3 + sizeof(byte) + LocationsToMalaise.Count * Location.GetStaticSize();
     }
 
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
+        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
+        Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsActive);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, LocationsToMalaise.Count);
+        for (int i = 0; i <  LocationsToMalaise.Count; i++)
+        {
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, LocationsToMalaise[i]);
+        }
 
         return Bytes.ToArray();
     }
 
     public void SetData(NativeArray<byte> Bytes)
     {
-        int Pos = 0;
+        // the only way this can be called is for temporary chunks created for map writing 
+        // do not register these! They will be deleted
+        int Pos = sizeof(int);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsActive);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int Count);
+        for (int i = 0; i < Count; i++)
+        {
+            Location Location = new();
+            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+            HexagonData TargetHex = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
+            if (TargetHex == null)
+                continue;
+
+            MarkToMalaise(TargetHex);
+        }
+        // remove pointer
+        Chunk = null;
+    }
+
+    public bool ShouldLoadWithLoadedSize()
+    {
+        return true;
     }
 
     public ChunkData Chunk;
     public bool bIsActive = false;
+    public int ID = -1;
+    public static int CURRENT_MAX_ID = 0;
 
     public List<Location> LocationsToMalaise = new();
 

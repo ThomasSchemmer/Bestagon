@@ -2,7 +2,7 @@ using static HexagonConfig;
 using Unity.Collections;
 
 /** Includes all data necessary to display and update a hexagon */
-public class HexagonData : ISaveable
+public class HexagonData : ISaveableData
 {
     public enum DiscoveryState
     {

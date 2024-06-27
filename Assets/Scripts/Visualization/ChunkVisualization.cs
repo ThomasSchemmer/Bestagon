@@ -15,9 +15,7 @@ public class ChunkVisualization : MonoBehaviour
     public IEnumerator GenerateMeshesAsync(ChunkData Data, Material HexMat, Material MalaiseMat) 
     {
         this.name = "Chunk " + Data.Location.ChunkLocation;
-        this.Data.Visualization = null;
-        this.Data = Data;
-        Data.Visualization = this;
+        this.Location = Data.Location;
         FinishedVisualizationCount = 0;
         Location MaxDiscoveredLoc = new Location(0, 0, 0, 0);
 
@@ -27,7 +25,7 @@ public class ChunkVisualization : MonoBehaviour
             for (int x = 0; x < HexagonConfig.chunkSize; x++) {
                 // simply add the base position of the chunk as the bottom left corner
                 Location Location = Location.CreateHex(x, y) + Data.Location;
-                Hexes[x, y].Init(Data, Location, HexMat);
+                Hexes[x, y].Init(this, Data, Location, HexMat);
                 if (Hexes[x, y].Data.GetDiscoveryState() >= HexagonData.DiscoveryState.Scouted)
                 {
                     MaxDiscoveredLoc = Location.Max(MaxDiscoveredLoc, Hexes[x, y].Location);
@@ -55,9 +53,6 @@ public class ChunkVisualization : MonoBehaviour
             }
         }
 
-        GameObject MalaiseObj = new GameObject();
-        MalaiseObj.transform.parent = this.transform;
-
         BuildingVisualizations = new();
         UnitVisualizations = new();
     }
@@ -66,7 +61,7 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out BuildingService Buildings))
             return;
 
-        foreach (BuildingData BuildingData in Buildings.GetBuildingsInChunk(Data.Location.ChunkLocation)) {
+        foreach (BuildingData BuildingData in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
             BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
             Vis.transform.parent = transform;
             BuildingVisualizations.Add(Vis);
@@ -84,7 +79,7 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsInChunk(Data.Location, out List<TokenizedUnitData> Units))
+        if (!UnitService.TryGetUnitsInChunk(Location, out List<TokenizedUnitData> Units))
             return;
 
         foreach (TokenizedUnitData Unit in Units)
@@ -140,7 +135,7 @@ public class ChunkVisualization : MonoBehaviour
     public HexagonVisualization[,] Hexes;
     public List<BuildingVisualization> BuildingVisualizations;
     public List<UnitVisualization> UnitVisualizations;
-    public ChunkData Data;
+    public Location Location;
     public Coroutine Generator;
 
     private int FinishedVisualizationCount = 0;

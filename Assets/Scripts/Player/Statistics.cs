@@ -1,7 +1,7 @@
 using System;
 using Unity.Collections;
 
-public class Statistics : GameService, ISaveable
+public class Statistics : GameService, ISaveableService
 {
     // how many are counting towards the next upgrade
     // gets reset after each upgrade point
@@ -10,15 +10,15 @@ public class Statistics : GameService, ISaveable
     private int UnitsCreated = 0;
     private int ResourcesCollected = 0;
 
-    private int BuildingsNeeded = 3;
-    private int MovesNeeded = 10;
-    private int UnitsNeeded = 2;
-    private int ResourcesNeeded = 20;
+    private int BuildingsNeeded = 0;
+    private int MovesNeeded = 0;
+    private int UnitsNeeded = 0;
+    private int ResourcesNeeded = 0;
 
-    private int BuildingsIncrease = 2;
-    private int MovesIncrease = 5;
-    private int UnitsIncrease = 2;
-    private int ResourcesIncrease = 10;
+    private int BuildingsIncrease = 0;
+    private int MovesIncrease = 0;
+    private int UnitsIncrease = 0;
+    private int ResourcesIncrease = 0;
 
     public int BestHighscore = 0;
     public int BestBuildings = 0;
@@ -208,6 +208,45 @@ public class Statistics : GameService, ISaveable
         TokenizedUnitData._OnMovement += CountMoves;
         BuildingData._OnBuildingBuilt += CountBuilding;
 
+        SaveGameManager.RunIfNotInSavegame(() =>
+        {
+            ResetAllStats();
+            _OnInit?.Invoke();
+        }, ISaveableService.SaveGameType.Statistics);
+    }
+
+    public void Reset()
+    {
+        ResetAllStats();
+    }
+
+    private void ResetAllStats()
+    {
+        BuildingsBuilt = 0;
+        HexesMoved = 0;
+        UnitsCreated = 0;
+        ResourcesCollected = 0;
+
+        BuildingsNeeded = BASE_BUILDINGSNEEDED;
+        MovesNeeded = BASE_MOVESNEEDED;
+        UnitsNeeded = BASE_UNITSNEEDED;
+        ResourcesNeeded = BASE_RESOURCESNEEDED;
+
+        BuildingsIncrease = BASE_BUILDINGSINCREASE;
+        MovesIncrease = BASE_MOVESINCREASE;
+        UnitsIncrease = BASE_UNITSINCREASE;
+        ResourcesIncrease = BASE_RESOURCESINCREASE;
+
+        BestHighscore = 0;
+        BestBuildings = 0;
+        BestMoves = 0;
+        BestUnits = 0;
+        BestResources = 0;
+
+        CurrentBuildings = 0;
+        CurrentMoves = 0;
+        CurrentUnits = 0;
+        CurrentResources = 0;
     }
 
     public void ResetCurrentStats()
@@ -232,4 +271,13 @@ public class Statistics : GameService, ISaveable
     private static int POINTS_UNITS = 3;
     private static int POINTS_HEXES = 2;
     private static int POINTS_RESOURCES = 1;
+
+    private static int BASE_BUILDINGSNEEDED = 3;
+    private static int BASE_MOVESNEEDED = 10;
+    private static int BASE_UNITSNEEDED = 2;
+    private static int BASE_RESOURCESNEEDED = 20;
+    private static int BASE_BUILDINGSINCREASE = 2;
+    private static int BASE_MOVESINCREASE = 5;
+    private static int BASE_UNITSINCREASE = 2;
+    private static int BASE_RESOURCESINCREASE = 10;
 }

@@ -28,10 +28,6 @@ public class Selectors : GameService
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            Debug.Log(" ");
-        }
         if (!bIsEnabled)
             return;
 

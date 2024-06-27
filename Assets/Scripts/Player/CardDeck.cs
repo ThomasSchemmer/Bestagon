@@ -15,7 +15,7 @@ public class CardDeck : CardCollection
             return;
 
         // will be loaded instead of generated
-        if (Manager.HasDataFor(ISaveable.SaveGameType.CardHand))
+        if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
             return;
 
         Game.RunAfterServiceInit((CardFactory Factory) =>

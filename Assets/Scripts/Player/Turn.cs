@@ -42,8 +42,7 @@ public class Turn : GameService
         TurnNr++;
         Units.RefreshUnits();
         MoveCard();
-        SpreadMalaise();
-        UpdateMalaiseVisualization();
+        CloudRenderer.SpreadMalaise();
 
         UpdateSelection();
 
@@ -52,13 +51,6 @@ public class Turn : GameService
         _OnTurnEnd?.Invoke();
     }
 
-    private void SpreadMalaise() {
-        int Count = ActiveMalaises.Count;
-        for (int i = 0; i < Count; i++) {
-            MalaiseData Data = ActiveMalaises[i];
-            Data.Spread();
-        }
-    }
 
     private void OnPause()
     {
@@ -68,15 +60,6 @@ public class Turn : GameService
     private void OnResume()
     {
         IsEnabled = true;
-    }
-
-    private void UpdateMalaiseVisualization() {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return;
-
-        MapGenerator.bAreMalaiseDTOsDirty = true;
-
-        CloudRenderer.PassMaterialBuffer();
     }
 
     private void MoveCard() {
@@ -145,7 +128,6 @@ public class Turn : GameService
     private Selectors Selectors;
 
     public int TurnNr = 1;
-    public List<MalaiseData> ActiveMalaises = new List<MalaiseData>();
     public GameObject TurnUI;
 
     public delegate void OnTurnEnd();

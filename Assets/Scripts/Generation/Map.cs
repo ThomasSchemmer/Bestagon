@@ -61,7 +61,7 @@ public class Map : GameService
         {
             // the savegame will fil the map data on its own, no need to generate new 
             // we still need to query the manager object to ensure its already loaded at that point!
-            if (!Manager.HasDataFor(ISaveable.SaveGameType.MapGenerator))
+            if (!Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
             {
                 MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
                 AddDelayedDecorations();

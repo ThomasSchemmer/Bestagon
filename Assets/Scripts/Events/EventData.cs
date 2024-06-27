@@ -7,7 +7,7 @@ using UnityEngine;
 /** 
  * Wrapper for all event related info. Also used to create a random event 
  */
-public abstract class EventData : ScriptableObject, ISaveable, IPreviewable
+public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
 {
     public enum EventType
     {

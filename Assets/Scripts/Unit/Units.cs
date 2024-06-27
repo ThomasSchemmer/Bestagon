@@ -52,13 +52,10 @@ public class Units : UnitProvider<TokenizedUnitData>
         Units.Add(Unit);
         _OnUnitCountChanged?.Invoke();
 
-        if (!MapGenerator.TryGetChunkData(Unit.Location, out ChunkData Chunk))
+        if (!MapGenerator.TryGetChunkVis(Unit.Location, out ChunkVisualization ChunkVis))
             return;
 
-        if (!Chunk.Visualization)
-            return;
-
-        Chunk.Visualization.RefreshTokens();
+        ChunkVis.RefreshTokens();
     }
 
     public override void KillUnit(TokenizedUnitData Unit)

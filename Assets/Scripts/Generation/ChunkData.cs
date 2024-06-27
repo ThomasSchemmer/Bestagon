@@ -8,14 +8,14 @@ using UnityEngine;
  * Should be a fixed size and should never get overwritten
  */
 [System.Serializable]
-public class ChunkData : ISaveable
+public class ChunkData : ISaveableData
 {
 
     public void GenerateData(Location Location)
     {
         this.Location = Location;
         Malaise = new MalaiseData();
-        Malaise.Chunk = this;
+        Malaise.Init(this);
 
         if (!Game.TryGetService(out Map Map))
             return;
@@ -29,10 +29,11 @@ public class ChunkData : ISaveable
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
                 HexDatas[x, y].Location = HexLocation;
 
-                // todo: debug remove
-                if (x == 3 && y == 3)
+                // needs to be done here as malaise will never be permanently loaded directly from savefile
+                if (HexDatas[x, y].IsPreMalaised())
                 {
-                    HexDatas[x, y].Decoration = HexagonConfig.HexagonDecoration.Tribe;
+                    Malaise.LocationsToMalaise.Add(HexLocation);
+                    Malaise.Infect();
                 }
             }
         }
@@ -105,7 +106,7 @@ public class ChunkData : ISaveable
 
     public void DestroyTokensAt(Location Location)
     {
-        if (!Game.TryGetService(out BuildingService Buildings))
+        if (!Game.TryGetServices(out BuildingService Buildings, out MapGenerator MapGenerator))
             return;
 
         DestroyWorkersAt(Location);
@@ -113,10 +114,10 @@ public class ChunkData : ISaveable
 
         Buildings.DestroyBuildingAt(Location);
 
-        if (!Visualization)
+        if (!MapGenerator.TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
             return;
 
-        Visualization.RefreshTokens();
+        ChunkVis.RefreshTokens();
     }
 
     public int GetSize()
@@ -135,45 +136,49 @@ public class ChunkData : ISaveable
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, HexDatas.Length);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
 
-        // save the lists
         foreach (HexagonData Hexagon in HexDatas)
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, Hexagon);
         }
+
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
 
         return Bytes.ToArray();
     }
 
     public void SetData(NativeArray<byte> Bytes)
     {
+        // this can only be called for temporary chunks from map loading
+        // will be destroyed!
         Location = Location.Zero;
         Malaise = new();
+        Malaise.Init(this);
 
         // skip overall size info at the beginning
         int Pos = sizeof(int);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int HexLength);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Malaise);
 
         int SqrtLength = (int)Mathf.Sqrt(HexLength);
 
         HexDatas = new HexagonData[SqrtLength, SqrtLength];
-        for (int y = 0; y < SqrtLength; y++)
+        for (int x = 0; x < SqrtLength; x++)
         {
-            for (int x = 0; x < SqrtLength; x++)
+            for (int y = 0; y < SqrtLength; y++)
             {
                 HexDatas[x, y] = new HexagonData();
                 Pos = SaveGameManager.SetSaveable(Bytes, Pos, HexDatas[x, y]);
             }
         }
+
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Malaise);
+        Malaise = null;
     }
 
     public bool ShouldLoadWithLoadedSize() {  return true; }
 
     public HexagonData[,] HexDatas;
     public Location Location;
-    public ChunkVisualization Visualization;
     public MalaiseData Malaise;
 }

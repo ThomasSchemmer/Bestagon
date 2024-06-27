@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 
-public abstract class CardCollection : GameService, ISaveable
+public abstract class CardCollection : GameService, ISaveableService
 {
     public virtual void AddCard(Card Card) {
         Cards.Add(Card);
@@ -52,7 +52,7 @@ public abstract class CardCollection : GameService, ISaveable
             if (Check(Card))
             {
                 RemoveCard(Card);
-                Destroy(Card.gameObject);
+                DestroyImmediate(Card.gameObject);
             }
         }
     }
@@ -165,6 +165,14 @@ public abstract class CardCollection : GameService, ISaveable
     public virtual void Load() { }
 
     public bool ShouldLoadWithLoadedSize() { return true; }
+
+    public void Reset()
+    {
+        DeleteAllCardsConditionally((Card) =>
+        {
+            return true;
+        });
+    }
 
     public List<Card> Cards = new List<Card>();
     public TMPro.TextMeshProUGUI Text;

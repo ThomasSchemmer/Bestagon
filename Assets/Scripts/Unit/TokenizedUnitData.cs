@@ -38,15 +38,15 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
         NewHex.UpdateDiscoveryState(VisitingRange, ScoutingRange);
 
-        if (MapGenerator.TryGetChunkData(OldLocation, out ChunkData OldChunk) && OldChunk.Visualization)
-        {
-            OldChunk.Visualization.RefreshTokens();
-        }
+        if (!MapGenerator.TryGetChunkVis(OldLocation, out ChunkVisualization OldVis))
+            return;
+        
+        OldVis.RefreshTokens();
 
-        if (MapGenerator.TryGetChunkData(Location, out ChunkData Chunk) && Chunk.Visualization)
-        {
-            Chunk.Visualization.RefreshTokens();
-        }
+        if (!MapGenerator.TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
+            return;
+
+        ChunkVis.RefreshTokens();
     }
 
     public virtual Production GetMovementRequirements()
