@@ -16,12 +16,16 @@ public abstract class GameServiceDelegate
         OnInit
     }
 
-    public Dictionary<GameService, bool> RequiredServices = new();
-    public DelegateType Type;
+    protected Dictionary<GameService, bool> RequiredServices = new();
+    protected DelegateType Type;
+    protected bool bHasRun = false;
 
     public abstract void ExecuteAction();
+    public abstract void ResetAction();
 
-    protected List<GameService> GetRequiredServices()
+    public abstract bool TryGetActionTarget(out GameService Target);
+
+    public List<GameService> GetRequiredServices()
     {
         List<GameService> StartedServices = new();
         foreach (var Tuple in RequiredServices)
@@ -49,7 +53,33 @@ public abstract class GameServiceDelegate
             return;
 
         ExecuteAction();
+        bHasRun = true;
+        Reset();
+    }
+
+    protected virtual void Reset()
+    {
+        // reset everything to avoid multiple triggers
+        foreach (GameService Service in GetRequiredServices())
+        {
+            switch (Type)
+            {
+                case DelegateType.OnStart:
+                    Service._OnStartup -= MarkAsReady;
+                    break;
+                case DelegateType.OnInit:
+                    Service._OnInit -= MarkAsReady;
+                    break;
+            }
+        }
         Game.RemoveServiceDelegate(this);
+        ResetAction();
+
+    }
+
+    public bool HasRun()
+    {
+        return bHasRun;
     }
 
     private bool AllServicesReady()
@@ -69,8 +99,26 @@ public class GameServiceDelegate<T> : GameServiceDelegate where T : GameService
 
     public override void ExecuteAction()
     {
+        if (Action == null)
+            return;
+
         List<GameService> StartedServices = GetRequiredServices();
         Action((T)StartedServices[0]);
+    }
+
+    public override void ResetAction()
+    {
+        Action = null;
+    }
+
+    public override bool TryGetActionTarget(out GameService Target)
+    {
+        Target = null;
+        if (Action.Target is not GameService)
+            return false;
+
+        Target = (GameService)Action.Target;
+        return true;
     }
 
     public GameServiceDelegate(T RequiredService, Action<T> Callback, DelegateType Type = DelegateType.OnStart)
@@ -78,20 +126,14 @@ public class GameServiceDelegate<T> : GameServiceDelegate where T : GameService
         bool bIsReady = Type == DelegateType.OnStart ? RequiredService.IsRunning : RequiredService.IsInit;
         RequiredServices.Add(RequiredService, bIsReady);
         this.Action = Callback;
+        this.Type = Type;
         switch (Type)
         {
             case DelegateType.OnStart:
-                RequiredService._OnStartup += () =>
-                {
-                    MarkAsReady(RequiredService);
-                };
+                RequiredService._OnStartup += MarkAsReady;
                 break;
             case DelegateType.OnInit:
-
-                RequiredService._OnInit += () =>
-                {
-                    MarkAsReady(RequiredService);
-                };
+                RequiredService._OnInit += MarkAsReady;
                 break;
         }
         RunIfReady();
@@ -104,40 +146,54 @@ public class GameServiceDelegate<X, Y> : GameServiceDelegate where X : GameServi
 
     public override void ExecuteAction()
     {
+        if (Action == null)
+            return;
+
         List<GameService> StartedServices = GetRequiredServices();
         Action((X)StartedServices[0], (Y)StartedServices[1]);
     }
 
+    public override void ResetAction()
+    {
+        Action = null;
+    }
+
+    public override bool TryGetActionTarget(out GameService Target)
+    {
+        Target = null;
+        if (Action == null || Action.Target is not GameService)
+            return false;
+
+        Target = (GameService)Action.Target;
+        return true;
+    }
+
     public GameServiceDelegate(X RequiredServiceX, Y RequiredServiceY, Action<X, Y> Callback, DelegateType Type = DelegateType.OnStart)
     {
-
         bool bIsReadyX = Type == DelegateType.OnStart ? RequiredServiceX.IsRunning : RequiredServiceX.IsInit;
         bool bIsReadyY = Type == DelegateType.OnStart ? RequiredServiceY.IsRunning : RequiredServiceY.IsInit;
         RequiredServices.Add(RequiredServiceX, bIsReadyX);
         RequiredServices.Add(RequiredServiceY, bIsReadyY);
         this.Action = Callback;
-        switch (Type)
+        this.Type = Type;
+
+
+        List<GameService> Services = new()
         {
-            case DelegateType.OnStart:
-                RequiredServiceX._OnStartup += () =>
-                {
-                    MarkAsReady(RequiredServiceX);
-                };
-                RequiredServiceY._OnStartup += () =>
-                {
-                    MarkAsReady(RequiredServiceY);
-                };
-                break;
-            case DelegateType.OnInit:
-                RequiredServiceX._OnInit += () =>
-                {
-                    MarkAsReady(RequiredServiceX);
-                };
-                RequiredServiceY._OnInit += () =>
-                {
-                    MarkAsReady(RequiredServiceY);
-                };
-                break;
+            RequiredServiceX,
+            RequiredServiceY
+        };
+        foreach (GameService Service in Services)
+        {
+            switch (Type)
+            {
+                case DelegateType.OnStart:
+                    Service._OnStartup += MarkAsReady;
+                    break;
+                case DelegateType.OnInit:
+                    Service._OnInit += MarkAsReady;
+                    break;
+            }
         }
         RunIfReady();
     }

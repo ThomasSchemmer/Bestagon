@@ -7,7 +7,7 @@ public class BuildingService : GameService, ISaveableService
 {
     protected override void StartServiceInternal()
     {
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() { }

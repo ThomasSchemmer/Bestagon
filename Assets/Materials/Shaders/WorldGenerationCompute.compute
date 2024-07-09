@@ -27,7 +27,6 @@ struct HexagonInfo
     float Humidity;
     uint HexagonType;
     uint HexagonHeight;
-    uint Decoration;
 };
 
 static int2 FloodFillDirs[] =
@@ -60,7 +59,6 @@ int DecorationsCount;
 RWStructuredBuffer<BiomeStruct> ClimateMap;
 RWStructuredBuffer<RangeStruct> HeightOverrideMap;
 RWStructuredBuffer<RangeStruct> HeightMap;
-RWStructuredBuffer<RangeStruct> DecorationsMap;
 Texture2D<float4> BiomeColors;
 // Equalizing variables
 RWStructuredBuffer<uint> HistogramInput; // contains CdfMin at max index
@@ -274,18 +272,7 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
         }
     }
 
-    int DecorationIndex = 0;
-    float randomDecorationChance = abs(hash3(float3(NormalizedHeight, NormalizedTemperature, NormalizedHeight)).x);
-    for (i = 0; i < DecorationsCount; i++)
-    {
-        if (DecorationsMap[i].Range.x < randomDecorationChance && DecorationsMap[i].Range.y > randomDecorationChance)
-        {
-            DecorationIndex = DecorationsMap[i].Index;
-        }
-    }
-
     HexagonInfos[Pos].HexagonHeight = HeightIndex;
     HexagonInfos[Pos].HexagonType = TypeIndex;   
-    HexagonInfos[Pos].Decoration = DecorationIndex;
     OutputImage[ID.xy] = float4(Temperature, 0, 0, 1);
 }

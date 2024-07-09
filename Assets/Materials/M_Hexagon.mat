@@ -99,13 +99,13 @@ Material:
     - _BrushVoronoiMix: 0
     - _BrushVoronoiOffset: 0.312
     - _BumpScale: 1
-    - _CenterBlendFactor: 0.147
+    - _CenterBlendFactor: 0.1
     - _Cull: 2
     - _Cutoff: 0.5
     - _Desaturation: 0.1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EdgeBlendFactor: 0.111
+    - _EdgeBlendFactor: 0.1
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
@@ -118,8 +118,8 @@ Material:
     - _NoiseMix: 0.086
     - _NoiseScale: 1.97
     - _NormalCutoff: 0.369
-    - _NormalNoiseEffect: 0.07
-    - _NormalNoiseScale: 40
+    - _NormalNoiseEffect: 0.1
+    - _NormalNoiseScale: 20
     - _NormalOffset: 0
     - _ObjectMaxSize: 20
     - _OcclusionStrength: 1
@@ -139,7 +139,7 @@ Material:
     - _V0Scale: 0
     - _V1Scale: 0
     - _Value: 0
-    - _VoronoiScale: 5
+    - _VoronoiScale: 6
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

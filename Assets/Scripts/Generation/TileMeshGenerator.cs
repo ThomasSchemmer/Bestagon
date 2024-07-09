@@ -21,6 +21,7 @@ public class TileMeshGenerator : MonoBehaviour
         Profiler.BeginSample("CreateMesh_Base");
         if (!TryCreateBaseData(Data))
             return false;
+
         Profiler.EndSample();
         Profiler.BeginSample("CreateMesh_AddTile");
         if (!TryAddTile(Data))

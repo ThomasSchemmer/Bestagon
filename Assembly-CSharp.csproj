@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\CollectChoiceScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\IPreviewable.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
+    <Compile Include="Assets\Scripts\Quests\Quest.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="Assets\Scripts\Generation\Map.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\ScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Quests\QuestService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\MerchantScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\MeshFactory.cs" />
   </ItemGroup>
@@ -210,6 +212,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
     <None Include="Assets\Materials\Shaders\TectonicPlateCompute.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\Materials\Shaders\ProgressShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
     <None Include="Assets\Materials\Shaders\UnitShader.shader" />

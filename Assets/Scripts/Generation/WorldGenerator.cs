@@ -26,27 +26,25 @@ public class WorldGenerator : GameService
         public float Humidity;
         public uint TypeIndex;
         public uint HexHeightIndex;
-        public uint DecorationIndex;
 
-        public HexagonInfo(float a, float b, float c, uint d, uint e, uint f)
+        public HexagonInfo(float a, float b, float c, uint d, uint e)
         {
             Height = a;
             Temperature = b;
             Humidity = c;
             TypeIndex = d;
             HexHeightIndex = e;
-            DecorationIndex = f;
         }
 
         public static int GetSize()
         {
-            return sizeof(float) * 3 + sizeof(uint) * 3;
+            return sizeof(float) * 3 + sizeof(uint) * 2;
         }
     }
 
     protected override void StartServiceInternal() {
         Init();
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() { }
@@ -60,7 +58,7 @@ public class WorldGenerator : GameService
         // set to water, cant use array.copy as it apparently doesnt clone
         for (int i = 0; i < LandData.Length; i++)
         {
-            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0, 0));
+            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
             EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
             LandData[i] = EmptyTile;
         }    
@@ -111,8 +109,6 @@ public class WorldGenerator : GameService
             HeightOverrideBuffer.Release();
         if (HeightBuffer != null)
             HeightBuffer.Release();
-        if (DecorationsBuffer != null)
-            DecorationsBuffer.Release();
         if (HistogramInputBuffer != null)
             HistogramInputBuffer.Release();
         if (HistogramResultBuffer != null)
@@ -143,7 +139,6 @@ public class WorldGenerator : GameService
         ClimateBuffer = new ComputeBuffer(BiomeMap.ClimateMap.Count, sizeof(float) * 4 + sizeof(uint));
         HeightOverrideBuffer = new ComputeBuffer(BiomeMap.HeightOverrideMap.Count, sizeof(float) * 2 + sizeof(uint));
         HeightBuffer = new ComputeBuffer(BiomeMap.HeightMap.Count, sizeof(float) * 2 + sizeof(int));
-        DecorationsBuffer = new ComputeBuffer(BiomeMap.DecorationsMap.Count, sizeof(float) * 2 + sizeof(int));
         HistogramInputBuffer = new ComputeBuffer(HistogramResolution * 3 + 3, sizeof(uint));
         HistogramResultBuffer = new ComputeBuffer(HistogramResolution * 3, sizeof(uint));
     }
@@ -174,7 +169,6 @@ public class WorldGenerator : GameService
     {
         MapShader.SetInt("ClimateCount", BiomeMap.ClimateMap.Count);
         MapShader.SetInt("HeightCount", BiomeMap.HeightMap.Count);
-        MapShader.SetInt("DecorationsCount", BiomeMap.DecorationsMap.Count);
         MapShader.SetInt("HeightOverrideCount", BiomeMap.HeightOverrideMap.Count);
         SetBuffersForKernel(TypeKernel);
     }
@@ -196,7 +190,6 @@ public class WorldGenerator : GameService
         MapShader.SetBuffer(Kernel, "ClimateMap", ClimateBuffer);
         MapShader.SetBuffer(Kernel, "HeightOverrideMap", HeightOverrideBuffer);
         MapShader.SetBuffer(Kernel, "HeightMap", HeightBuffer);
-        MapShader.SetBuffer(Kernel, "DecorationsMap", DecorationsBuffer);
         MapShader.SetBuffer(Kernel, "HexagonInfos", HexagonInfoBuffer);
         MapShader.SetBuffer(Kernel, "HistogramInput", HistogramInputBuffer);
         MapShader.SetBuffer(Kernel, "HistogramResult", HistogramResultBuffer);
@@ -227,7 +220,6 @@ public class WorldGenerator : GameService
         List<BiomeStruct> Climates = new();
         List<RangeStruct> HeightOverrides = new();
         List<RangeStruct> Heights = new();
-        List<RangeStruct> Decorations = new();
         foreach (Biome Biome in BiomeMap.ClimateMap)
         {
             Climates.Add(new BiomeStruct()
@@ -258,20 +250,11 @@ public class WorldGenerator : GameService
                 Index = (uint)Tuple.Value
             });
         }
-        foreach (var Tuple in BiomeMap.DecorationsMap)
-        {
-            Decorations.Add(new()
-            {
-                Range = new Vector2(Tuple.Key.Min, Tuple.Key.Max),
-                Index = (uint)Tuple.Value   
-            });
-        }
 
         ClimateBuffer.SetData(Climates);
         HeightOverrideBuffer.SetData(HeightOverrides);
         HeightBuffer.SetData(Heights);
         HexagonInfoBuffer.SetData(Map);
-        DecorationsBuffer.SetData(Decorations);
 
         // write a uint max for each CdfMin
         int Max = -1;
@@ -336,7 +319,6 @@ public class WorldGenerator : GameService
     private ComputeBuffer ClimateBuffer;
     private ComputeBuffer HeightOverrideBuffer;
     private ComputeBuffer HeightBuffer;
-    private ComputeBuffer DecorationsBuffer;
     private ComputeBuffer HistogramInputBuffer;
     private ComputeBuffer HistogramResultBuffer;
 

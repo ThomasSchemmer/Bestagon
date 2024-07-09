@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Transactions;
 using UnityEngine;
 
 public class MiniMap : GameService, UIElement
@@ -15,7 +14,7 @@ public class MiniMap : GameService, UIElement
             HexagonBuffer.SetData(DTOs);
             MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
             MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
             FillBuffer();
         });
     }

@@ -10,7 +10,6 @@ public class BiomeMap : ScriptableObject
 
     public SerializedDictionary<HexagonHeight, HexagonType> HeightOverrideMap;
     public SerializedDictionary<FloatRange, HexagonHeight> HeightMap;
-    public SerializedDictionary<FloatRange, HexagonDecoration> DecorationsMap;
 
     public BiomeMap()
     {

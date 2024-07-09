@@ -21,13 +21,12 @@ public class CardDeck : CardCollection
         Game.RunAfterServiceInit((CardFactory Factory) =>
         {
             Cards = new();
-            Factory.CreateCard(EventData.EventType.ConvertTile, 0, transform, AddCard);
             Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         });
 
     }
@@ -80,7 +79,7 @@ public class CardDeck : CardCollection
 
         CheckForScout();
         UpdateText();
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
 

@@ -24,7 +24,7 @@ public class Turn : GameService
 
         gameObject.SetActive(true);
         TurnUI.SetActive(true);
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {

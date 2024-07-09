@@ -59,17 +59,21 @@ struct painterlyInfo{
     float _CenterBlendFactor;
 };
 
-float3 painterly(painterlyInfo i, sampler2D _Tex)
-{ 
-    // in general: make sure that the values do not go out of range too much, so that clamping them 
-    // is not affecting them too much. Depends mostly on object size, adapt with NormalNoiseEffect
-
+float3 painterlyNormal(painterlyInfo i){
     // offset normals by world coordinates to avoid having flat surfaces (would lead to uniform outcome)
     float3 normal = clamp(i.normal, -1, 1);
     float worldSpaceNoise = snoise(i.vertexWS.xz / _NormalNoiseScale);
 
     float3 randomNormal = (1 - _NormalNoiseEffect) * normal + i.vertexOS * worldSpaceNoise * _NormalNoiseEffect;
     randomNormal = clamp(randomNormal, -1, 1);
+    return randomNormal;
+}
+
+float2 painterlyUV(painterlyInfo i){
+    // in general: make sure that the values do not go out of range too much, so that clamping them 
+    // is not affecting them too much. Depends mostly on object size, adapt with NormalNoiseEffect
+
+    float3 randomNormal = painterlyNormal(i);
 
     // map normal to a close-by voronoi to fake centers
     // cant use regular triangle centers as they would be too regular for round surfaces
@@ -80,6 +84,13 @@ float3 painterly(painterlyInfo i, sampler2D _Tex)
     float2 UV = GetUVForVoronoi(vor, randomNormal) * _VoronoiScale;
     UV = (UV / 2.0) + 0.5;
     UV = clamp(UV, 0, 1);
+    return UV;
+}
+
+float3 painterly(painterlyInfo i, sampler2D _Tex)
+{ 
+    float2 UV = painterlyUV(i);
+    float3 randomNormal = painterlyNormal(i);
                     
     float4 texData = tex2D(_Tex, UV);
     float3 brushNormal = texData.xyz;

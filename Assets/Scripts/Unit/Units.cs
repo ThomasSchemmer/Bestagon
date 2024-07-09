@@ -116,7 +116,7 @@ public class Units : UnitProvider<TokenizedUnitData>
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         });
     }
 

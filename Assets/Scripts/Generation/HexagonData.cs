@@ -26,7 +26,9 @@ public class HexagonData : ISaveableData
     private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
+    public delegate void OnDiscoveryState(HexagonData Data, DiscoveryState State);
     public OnDiscovery _OnDiscovery;
+    public static OnDiscoveryState _OnDiscoveryState;
 
     // copied from HexagonInfo struct
     public float Temperature;
@@ -70,10 +72,13 @@ public class HexagonData : ISaveableData
 
     public void UpdateDiscoveryState(DiscoveryState NewState)
     {
-        if (NewState < Discovery)
+        if (NewState <= Discovery)
             return;
 
         Discovery = NewState;
+
+        // needs to be called before OnDiscovery to update HexData before mesh creation
+        _OnDiscoveryState?.Invoke(this, Discovery);
         _OnDiscovery?.Invoke();
     }
 
@@ -102,7 +107,12 @@ public class HexagonData : ISaveableData
     {
         return MalaisedState == MalaiseState.PreMalaise;
     }
-
+    
+    public bool CanDecorationSpawn()
+    {
+        return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain;
+    }
+    
     public string GetDecorationText()
     {
         switch (Decoration)
@@ -123,7 +133,7 @@ public class HexagonData : ISaveableData
             Humidity = Info.Humidity,
             Temperature = Info.Temperature,
             HexHeight = (HexagonHeight)Info.HexHeightIndex,
-            Decoration = (HexagonDecoration)Info.DecorationIndex,
+            Decoration = HexagonDecoration.None,
             Type = TempType,
         };
     }

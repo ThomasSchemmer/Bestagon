@@ -29,7 +29,7 @@ public class MeshFactory : GameService
     protected override void StartServiceInternal()
     {
         Refresh();
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {}

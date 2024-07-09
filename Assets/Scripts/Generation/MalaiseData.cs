@@ -184,8 +184,8 @@ public class MalaiseData : ISaveableData
 
     public int GetSize()
     {
-        // overall size, location count and active flag + ID
-        return sizeof(int) * 3 + sizeof(byte) + LocationsToMalaise.Count * Location.GetStaticSize();
+        // overall size, location count and active flag + ID, spread count and increase
+        return sizeof(int) * 5 + sizeof(byte) + LocationsToMalaise.Count * Location.GetStaticSize();
     }
 
     public byte[] GetData()
@@ -200,6 +200,8 @@ public class MalaiseData : ISaveableData
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, LocationsToMalaise[i]);
         }
+        Pos = SaveGameManager.AddInt(Bytes, Pos, SpreadCountPerRound);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, SpreadCountIncrease);
 
         return Bytes.ToArray();
     }
@@ -222,6 +224,9 @@ public class MalaiseData : ISaveableData
 
             MarkToMalaise(TargetHex);
         }
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountPerRound);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountIncrease);
+
         // remove pointer
         Chunk = null;
     }
@@ -244,5 +249,6 @@ public class MalaiseData : ISaveableData
     };
     public static bool bHasStarted = false;
     public static int SpreadCountPerRound = 5;
+    public static int SpreadCountIncrease = 1;
     public static int GlobalMaxSearchCount = 6;
 }

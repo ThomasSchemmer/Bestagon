@@ -826,6 +826,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  BestHighscore: 0
+  BestBuildings: 0
+  BestMoves: 0
+  BestUnits: 0
+  BestResources: 0
+  CurrentBuildings: 0
+  CurrentMoves: 0
+  CurrentUnits: 0
+  CurrentResources: 0
 --- !u!1 &236990919
 GameObject:
   m_ObjectHideFlags: 0
@@ -2202,6 +2211,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 553314660}
   m_CullTransparentMesh: 1
+--- !u!1 &626326040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 626326042}
+  - component: {fileID: 626326041}
+  m_Layer: 0
+  m_Name: Spawning
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &626326041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626326040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc06149e008af354b8482536d2b30bfc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  StartLocation: {x: 0, y: 0, z: 0, w: 0}
+  StartVisibilityRange: 2
+  StartScoutingRange: 1
+--- !u!4 &626326042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626326040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1745459820}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &696115998
 GameObject:
   m_ObjectHideFlags: 0
@@ -3356,6 +3414,8 @@ MonoBehaviour:
       Value: {fileID: 2100521094}
     - Key: 5
       Value: {fileID: 258449590}
+    - Key: 12
+      Value: {fileID: 626326041}
   bLoadLastFile: 1
 --- !u!1 &1050591515
 GameObject:
@@ -3618,7 +3678,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TextRect: {fileID: 780431953}
   BackgroundRect: {fileID: 2110201796}
-  ContainerRect: {fileID: 705861818}
   SelfRect: {fileID: 1363294349}
   Text: {fileID: 780431954}
 --- !u!1 &1395935124
@@ -4231,6 +4290,7 @@ Transform:
   - {fileID: 1137995694}
   - {fileID: 223016190}
   - {fileID: 258449589}
+  - {fileID: 626326042}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1813704121

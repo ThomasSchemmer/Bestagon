@@ -21,7 +21,7 @@ public class Selectors : GameService
         Game.Instance._OnResume += OnResume;
         Game.Instance._OnPopup += OnPopup;
 
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() { }

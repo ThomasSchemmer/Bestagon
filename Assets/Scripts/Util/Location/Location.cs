@@ -10,9 +10,11 @@ public class Location : ISaveableData
         _HexLocation = new (HexLocation.x, HexLocation.y);
     }
 
-    public Location(int v1, int v2, int v3, int v4) : 
-        this(new Vector2Int(v1, v2), new Vector2Int(v3, v4)) 
-        { }
+    public Location(int v1, int v2, int v3, int v4)
+    {
+        _ChunkLocation = new(v1, v2);
+        _HexLocation = new(v3, v4);
+    }
 
     public Location() : this(0, 0, 0, 0) {}
 

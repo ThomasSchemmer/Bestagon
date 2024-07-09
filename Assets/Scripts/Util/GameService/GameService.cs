@@ -17,17 +17,17 @@ public abstract class GameService : MonoBehaviour
     {
         IsRunning = true;
         StartServiceInternal();
-        _OnStartup?.Invoke();
+        _OnStartup?.Invoke(this);
     }
 
     public void StopService()
     {
         IsRunning = false;
         StopServiceInternal();
-        _OnShutdown?.Invoke();
+        _OnShutdown?.Invoke(this);
     }
 
-    private void BaseInit()
+    private void BaseInit(GameService Service)
     {
         IsInit = true;
     }
@@ -35,9 +35,9 @@ public abstract class GameService : MonoBehaviour
     protected abstract void StartServiceInternal();
     protected abstract void StopServiceInternal();
 
-    public delegate void OnStartup();
-    public delegate void OnShutdown();
-    public delegate void OnInit();
+    public delegate void OnStartup(GameService Service);
+    public delegate void OnShutdown(GameService Service);
+    public delegate void OnInit(GameService Service);
     public OnStartup _OnStartup;
     public OnShutdown _OnShutdown;
     /** Needs to be manually called whenever the service is fully initialized - not all services will call it*/

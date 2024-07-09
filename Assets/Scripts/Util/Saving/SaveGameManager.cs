@@ -26,7 +26,7 @@ public class SaveGameManager : GameService
             {
                 HandleDelayedLoading();
 
-                _OnInit?.Invoke();
+                _OnInit?.Invoke(this);
             });
         });
     }

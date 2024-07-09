@@ -114,7 +114,7 @@ public class Workers : UnitProvider<StarvableUnitData>
         {
             CreateNewWorker();
             CreateNewWorker();
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         });
     }
 

@@ -5858,6 +5858,9 @@ MonoBehaviour:
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 1369940363}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1504442746}
 --- !u!4 &785273178
 Transform:
   m_ObjectHideFlags: 0
@@ -5911,6 +5914,8 @@ MonoBehaviour:
       Value: {fileID: 2106233178}
     - Key: 11
       Value: {fileID: 1288013424}
+    - Key: 12
+      Value: {fileID: 1717196397}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -6772,7 +6777,6 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   HexMat: {fileID: 2100000, guid: f39c1608bef32fa489c762d147707c55, type: 2}
-  MalaiseMat: {fileID: 2100000, guid: 87604a60ccd63f346acbac89bf10c3ce, type: 2}
   bAreMalaiseDTOsDirty: 0
 --- !u!114 &914190668
 MonoBehaviour:
@@ -8389,31 +8393,7 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   AdditionalDecorations:
-    Tuples:
-    - Key:
-        _ChunkLocation:
-          x: 0
-          y: 0
-        _HexLocation:
-          x: 2
-          y: 2
-      Value: 1
-    - Key:
-        _ChunkLocation:
-          x: 0
-          y: 0
-        _HexLocation:
-          x: 3
-          y: 2
-      Value: 1
-    - Key:
-        _ChunkLocation:
-          x: 0
-          y: 0
-        _HexLocation:
-          x: 2
-          y: 1
-      Value: 1
+    Tuples: []
 --- !u!1 &1168638404
 GameObject:
   m_ObjectHideFlags: 0
@@ -10031,6 +10011,58 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   Units: []
+--- !u!1 &1504442744
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1504442745}
+  - component: {fileID: 1504442746}
+  m_Layer: 0
+  m_Name: QuestService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1504442745
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1504442744}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1942246720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 300, y: 500}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1504442746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1504442744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8678eefa04f93594388e4212dd13fb8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  QuestPrefab: {fileID: 437925112352163288, guid: ebd94edcfae27ae4980ddfa79249973c,
+    type: 3}
 --- !u!1 &1504592662
 GameObject:
   m_ObjectHideFlags: 0
@@ -12369,7 +12401,7 @@ LightingSettings:
   m_Name: Settings.lighting
   serializedVersion: 6
   m_GIWorkflowMode: 0
-  m_EnableBakedLightmaps: 1
+  m_EnableBakedLightmaps: 0
   m_EnableRealtimeLightmaps: 0
   m_RealtimeEnvironmentLighting: 0
   m_BounceScale: 1
@@ -12398,7 +12430,7 @@ LightingSettings:
   m_FinalGather: 0
   m_FinalGatherRayCount: 256
   m_FinalGatherFiltering: 1
-  m_PVRCulling: 1
+  m_PVRCulling: 0
   m_PVRSampling: 1
   m_PVRDirectSampleCount: 32
   m_PVRSampleCount: 256
@@ -14388,7 +14420,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1369940362}
   - {fileID: 1174939603}
   - {fileID: 2064623025}
   - {fileID: 188131502}
@@ -14406,6 +14437,8 @@ RectTransform:
   - {fileID: 951963507}
   - {fileID: 1168638405}
   - {fileID: 747463888}
+  - {fileID: 1504442745}
+  - {fileID: 1369940362}
   - {fileID: 548361788}
   - {fileID: 953041232}
   m_Father: {fileID: 0}

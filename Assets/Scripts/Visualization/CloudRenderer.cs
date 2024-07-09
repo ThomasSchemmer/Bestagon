@@ -89,6 +89,7 @@ public class CloudRenderer : GameService, ISaveableService
             MalaiseData Data = Tuple.Value;
             Data.Spread();
         }
+        MalaiseData.SpreadCountPerRound += MalaiseData.SpreadCountIncrease;
 
         MapGen.bAreMalaiseDTOsDirty = true;
         PassMaterialBuffer();
@@ -98,7 +99,7 @@ public class CloudRenderer : GameService, ISaveableService
     {
         CreateWhorleyNoise();
         InitializeVertexShader();
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     private void InitializeVertexShader()

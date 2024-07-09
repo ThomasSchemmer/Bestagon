@@ -205,8 +205,10 @@ public class Game : MonoBehaviour
             return;
 
         GameServiceDelegate<T> Delegate = new(Service, Callback, GameServiceDelegate.DelegateType.OnInit);
-        Instance.Delegates.Add(Delegate);
+        if (Delegate.HasRun())
+            return;
 
+        Instance.Delegates.Add(Delegate);
         Instance.RegisterCallback(Callback.Target, Service);
     }
 
@@ -245,6 +247,17 @@ public class Game : MonoBehaviour
         CallbackMap[A].Add(B);
     }
 
+    private void RemoveCallback(GameService A, GameService B)
+    {
+        if (!CallbackMap.ContainsKey(A))
+            return;
+
+        if (!CallbackMap[A].Contains(B))
+            return;
+
+        CallbackMap[A].Remove(B);
+    }
+
     private bool CheckForAnyLoopBetween(GameService A, GameService B, out List<GameService> Chain)
     {
         Chain = new();
@@ -272,6 +285,13 @@ public class Game : MonoBehaviour
 
     public static void RemoveServiceDelegate(GameServiceDelegate Delegate) { 
         Instance.Delegates.Remove(Delegate);
+        if (!Delegate.TryGetActionTarget(out GameService A))
+            return;
+
+        foreach (var OtherService in Delegate.GetRequiredServices())
+        {
+            Instance.RemoveCallback(A, OtherService);
+        }
     }
 
     /** Marks the given save as to be loaded and transitions to the provided scene

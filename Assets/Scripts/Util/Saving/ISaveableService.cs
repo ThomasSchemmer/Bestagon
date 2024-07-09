@@ -21,7 +21,8 @@ public interface ISaveableService : ISaveableData
         Buildings = 8,
         Workers = 9,
         Units = 10,
-        Malaise = 11
+        Malaise = 11,
+        Spawning = 12
     }
 
     /** Deletes all internal data so that it can be loaded from the save or initialized safely*/

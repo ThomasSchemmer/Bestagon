@@ -13,7 +13,7 @@ public class HexagonConfig {
     public static float TileBorderHeightMultiplier = 0.9f;
 
     /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr */
-    public static int chunkSize = 8;
+    public static int chunkSize = 3;
 
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
     public static int loadedChunkVisualizations = 3;
@@ -110,14 +110,32 @@ public class HexagonConfig {
         float y = offsetY * TilePos.y;
         return new Vector3(x, 0, y);
     }
+
+    /** Conversion functions from RedBlobGames */
+    static Vector2Int RoundToAxial(float x, float y)
+    {
+        int xgrid = Mathf.RoundToInt(x);
+        int ygrid = Mathf.RoundToInt(y);
+        x -= xgrid;
+        y -= ygrid;
+        int bx = x * x >= y * y ? 1 : 0;
+        int dx = Mathf.RoundToInt(x + 0.5f * y) * bx;
+        int dy = Mathf.RoundToInt(y + 0.5f * x) * (1 - bx);
+        return new Vector2Int(xgrid + dx, ygrid + dy);
+    }
+
+    static Vector2Int AxialToOffset(Vector2Int hex)
+    {
+        int col = (int)(hex.x + (hex.y - (hex.y & 1)) / 2.0);
+        int row = hex.y;
+        return new Vector2Int(col, row);
+    }
+
     public static Vector2Int WorldSpaceToTileSpace(Vector3 WorldSpace)
     {
-        WorldSpace += new Vector3(0.5f * offsetX, 0, 0.5f * offsetY);
-        Vector2Int TilePos = new();
-        TilePos.y = (int)((WorldSpace.z)/ offsetY);
-        float Offset = (TilePos.y % 2) * 0.5f * offsetX;
-        TilePos.x = (int)((WorldSpace.x - Offset) / offsetX);
-        return TilePos;
+        float q = (Mathf.Sqrt(3) / 3.0f * WorldSpace.x - 1.0f / 3 * WorldSpace.z) / 10;
+        float r = (2.0f / 3 * WorldSpace.z) / 10;
+        return AxialToOffset(RoundToAxial(q, r));
     }
 
     public static Vector2Int TileSpaceToChunkSpace(Vector2Int TilePos)
@@ -125,6 +143,76 @@ public class HexagonConfig {
         int x = Mathf.FloorToInt(TilePos.x / chunkSize);
         int y = Mathf.FloorToInt(TilePos.y / chunkSize);
         return new Vector2Int(x, y);
+    }
+
+
+    public static Vector3 GetHexMappedWorldPosition(Camera Cam, Vector3 WorldPos)
+    {
+        Vector2 Box = RayBoxDist(WorldPos, Cam.transform.forward);
+        Vector3 BoxStart = WorldPos + Cam.transform.forward * Box.x;
+        Vector3 BoxEnd = BoxStart + Cam.transform.forward * Box.y;
+        Vector3 MappedWorldPos = (BoxStart + BoxEnd) / 2.0f;
+        return MappedWorldPos;
+    }
+
+    public static Vector3 GetWorldPosFromMousePosition(Camera Cam)
+    {
+        float WidthToHeight = (float)Screen.width / Screen.height;
+        Vector2 MouseUV = new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height);
+        MouseUV = (MouseUV - Vector2.one * 0.5f) * 2;
+
+        float Size = Cam.orthographicSize;
+        Vector3 Offset =
+            MouseUV.x * Cam.transform.right * Size * WidthToHeight +
+            MouseUV.y * Cam.transform.up * Size +
+            10 * -Cam.transform.forward;
+        Vector3 WorldPos = Cam.transform.position + Offset;
+        return WorldPos;
+    }
+
+    static Vector3 GetCloudsMin()
+    {
+        return new(
+            -TileSize.x,
+            TileSize.y + 0.5f,
+            -TileSize.z
+        );
+    }
+
+    static Vector3 GetCloudsMax()
+    {
+        Location MaxLocation = GetMaxLocation();
+        Vector2Int MaxTileLocation = MaxLocation.GlobalTileLocation;
+        return new(
+            MaxTileLocation.x * TileSize.x * 2 + TileSize.x,
+            TileSize.y + 0.6f,
+            MaxTileLocation.y * TileSize.z * 2 + TileSize.z
+        );
+    }
+
+    static Vector3 Div(Vector3 A, Vector3 B)
+    {
+        return new Vector3(A.x / B.x, A.y / B.y, A.z / B.z);
+    }
+
+    static Vector2 RayBoxDist(Vector3 RayOrigin, Vector3 RayDir)
+    {
+        // adapted from sebastian lague
+        // slightly extend the box since the hexagons are center positioned
+        Vector3 BoundsMin = GetCloudsMin();
+        Vector3 BoundsMax = GetCloudsMax();
+
+        Vector3 T0 = Div((BoundsMin - RayOrigin), RayDir);
+        Vector3 T1 = Div((BoundsMax - RayOrigin), RayDir);
+        Vector3 TMin = Vector3.Min(T0, T1);
+        Vector3 TMax = Vector3.Max(T0, T1);
+
+        float DistA = Mathf.Max(Mathf.Max(TMin.x, TMin.y), TMin.z); ;
+        float DistB = Mathf.Min(TMax.x, Mathf.Min(TMax.y, TMax.z));
+
+        float DistToBox = Mathf.Max(0, DistA);
+        float DistInsideBox = Mathf.Max(0, DistB - DistToBox);
+        return new Vector3(DistToBox, DistInsideBox);
     }
 
     /** returns the bottom left tile of a chunk, aka (0, 0) */
@@ -155,27 +243,6 @@ public class HexagonConfig {
     {
         float Angle = 60.0f * i * Mathf.Deg2Rad;
         return new Vector3(TileSize.x * Mathf.Sin(Angle), 0, TileSize.z * Mathf.Cos(Angle));
-    }
-
-    public static Location GetHexLocationFromScreenPos(Vector3 ScreenPos, float PlaneHeight)
-    {
-        Ray Ray = Camera.main.ScreenPointToRay(ScreenPos);
-        Vector3 Intersection = GetPointOnPlane(
-            new Vector3(0, PlaneHeight, 0), 
-            Vector3.up, 
-            Ray.origin, 
-            Ray.direction
-        );
-
-        Vector2 GlobalTileCoords = WorldSpaceToTileSpace(Intersection);
-
-        int ChunkX = (int)(GlobalTileCoords.x / chunkSize);
-        int ChunkY = (int)(GlobalTileCoords.y / chunkSize);
-        int HexX = (int)(GlobalTileCoords.x - ChunkX * chunkSize);
-        int HexY = (int)(GlobalTileCoords.y - ChunkY * chunkSize);
-
-        Location HexLocation = new Location(ChunkX, ChunkY, HexX, HexY);
-        return HexLocation;
     }
 
     public static Vector3 GetPointOnPlane(Vector3 PlaneOrigin, Vector3 PlaneNormal, Vector3 Origin, Vector3 Direction)

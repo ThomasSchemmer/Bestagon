@@ -201,7 +201,7 @@ public class CardFactory : GameService
         Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory TileFactory) =>
         {
             CreateDelayedCards();
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         });
     }
 

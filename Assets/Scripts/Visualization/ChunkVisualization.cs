@@ -12,7 +12,7 @@ using UnityEngine.Profiling;
  */
 public class ChunkVisualization : MonoBehaviour
 {
-    public IEnumerator GenerateMeshesAsync(ChunkData Data, Material HexMat, Material MalaiseMat) 
+    public IEnumerator GenerateMeshesAsync(ChunkData Data, Material HexMat) 
     {
         this.name = "Chunk " + Data.Location.ChunkLocation;
         this.Location = Data.Location;

@@ -2,6 +2,7 @@
 using System.Threading;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class MapGenerator : GameService, ISaveableService
 {
@@ -25,10 +26,7 @@ public class MapGenerator : GameService, ISaveableService
 
     public static Location[] GetDirections(Location Location)
     {
-        Location[] EvenDirection = (Location.ChunkLocation.y % 2) == 0 ? DirectionA : DirectionB;
-        Location[] OddDirection = (Location.ChunkLocation.y % 2) == 0 ? DirectionB : DirectionA;
-
-        return (Location.HexLocation.y % 2) == 0 ? EvenDirection : OddDirection;
+        return (Location.GlobalTileLocation.y % 2) == 0 ? DirectionA : DirectionB;
     }
 
     protected override void StartServiceInternal() {
@@ -97,28 +95,29 @@ public class MapGenerator : GameService, ISaveableService
         NecessaryChunks.ExceptWith(UsedChunks);
         UnusedChunks.ExceptWith(UnNecessaryChunks);
 
-        if (NecessaryChunks.Count != UnusedChunks.Count)
-        {
-            return;
-        }
+        Assert.IsTrue(NecessaryChunks.Count <= UnusedChunks.Count);
 
         // take an unused chunk and update it to its new position
         var Enumerator = NecessaryChunks.GetEnumerator();
-        foreach (Location Location in UnusedChunks) {
+        foreach (Location UnusedLocation in UnusedChunks) {
             Enumerator.MoveNext();
-            Location TargetLocation = Enumerator.Current;
-            if (!TryGetChunkData(Location, out ChunkData UnusedChunkData))
-                return;
-            if (!TryGetChunkData(TargetLocation, out ChunkData NecessaryChunkData))
-                return;
+            Location NecessaryLocation = Enumerator.Current;
+            // none more needed, we still have some unused vis but thats ok
+            if (NecessaryLocation == null)
+                continue;
 
-            if (!TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
-                return;
+            if (!TryGetChunkData(NecessaryLocation, out ChunkData NecessaryChunkData))
+                continue;
 
-            StopCoroutine(ChunkVis.Generator);
-            ChunkVis.Reset();
+            if (!TryGetChunkVis(UnusedLocation, out ChunkVisualization OldVis))
+                continue;
 
-            ChunkVis.Generator = StartCoroutine(ChunkVis.GenerateMeshesAsync(NecessaryChunkData, HexMat, MalaiseMat));
+            StopCoroutine(OldVis.Generator);
+            OldVis.Reset();
+
+            OldVis.Generator = StartCoroutine(OldVis.GenerateMeshesAsync(NecessaryChunkData, HexMat));
+            ChunkVis.Remove(UnusedLocation.ChunkLocation);
+            ChunkVis.Add(NecessaryLocation.ChunkLocation, OldVis);
         }
         Enumerator.Dispose();
     }
@@ -152,19 +151,16 @@ public class MapGenerator : GameService, ISaveableService
             Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y] = ChunkData;
         }
 
-        HashSet<Location> NecessaryChunks = GetNecessaryChunkIndices(Location.CreateChunk(0, 0));
-        var NecChunkEnumerator = NecessaryChunks.GetEnumerator();
+        Assert.IsTrue(HexagonConfig.loadedChunkVisualizations <= HexagonConfig.mapMaxChunk);
         for (int x = 0; x < HexagonConfig.loadedChunkVisualizations; x++) {
             for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++) {
-                NecChunkEnumerator.MoveNext();
-                Location TargetChunkIndx = NecChunkEnumerator.Current;
-                ChunkData ChunkData = Chunks[TargetChunkIndx.ChunkLocation.x, TargetChunkIndx.ChunkLocation.y]; 
+                ChunkData ChunkData = Chunks[x, y]; 
 
                 GameObject ChunkVisObj = new GameObject();
                 ChunkVisualization Vis = ChunkVisObj.AddComponent<ChunkVisualization>();
                 Vis.transform.parent = Map.transform;
                 Vis.Initialize();
-                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(ChunkData, HexMat, MalaiseMat));
+                Vis.Generator = StartCoroutine(Vis.GenerateMeshesAsync(ChunkData, HexMat));
                 ChunkVis.Add(new(x, y), Vis);
             }
         }
@@ -174,9 +170,12 @@ public class MapGenerator : GameService, ISaveableService
     {
         HashSet<Location> set = new HashSet<Location>();
 
-        for(int x = 0; x < HexagonConfig.loadedChunkVisualizations; x++)
+        int Bounds = (HexagonConfig.loadedChunkVisualizations - 1) / 2;
+        Assert.AreEqual(Bounds * 2 + 1, HexagonConfig.loadedChunkVisualizations);
+
+        for(int x = -Bounds; x <= Bounds; x++)
         {
-            for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++)
+            for (int y = -Bounds; y <= Bounds; y++)
             {
                 Location Location = CenterChunk + Location.CreateChunk(x, y);
                 if (!HexagonConfig.IsValidChunkIndex(Location.ChunkLocation))
@@ -204,8 +203,9 @@ public class MapGenerator : GameService, ISaveableService
     private HashSet<Location> GetAllVisualizedChunkIndices() {
         HashSet<Location> Set = new();
 
-        foreach (ChunkVisualization Vis in ChunkVis.Values) {
-            Set.Add(Vis.Location);
+        foreach (var Tuple in ChunkVis) {
+            Assert.AreEqual(Tuple.Key, Tuple.Value.Location.ChunkLocation);
+            Set.Add(Tuple.Value.Location);
         }
         return Set;
     }
@@ -376,17 +376,10 @@ public class MapGenerator : GameService, ISaveableService
 
     private Location GetCameraPosChunkSpace()
     {
-        // shoot a ray into the middle of the screen
-        Plane Plane = new Plane(Vector3.up, Vector3.zero);
-        Ray ViewRay = new Ray(MainCam.transform.position, MainCam.transform.forward);
-        if (!Plane.Raycast(ViewRay, out float t))
-            return Location.Zero;
-
-        //transform this into the (offset) hit chunk, thats the new center
-        Vector3 ScreenCenterWorldSpace = ViewRay.GetPoint(t);
-        Location CenterLocation = Location.CreateChunk(1, 1);
-        Location ChunkLocation = Location.CreateChunk(HexagonConfig.WorldSpaceToChunkSpace(ScreenCenterWorldSpace));
-        return ChunkLocation - CenterLocation;
+        Vector3 HexWorldPos = HexagonConfig.GetHexMappedWorldPosition(MainCam, MainCam.transform.position);
+        Vector2Int TileSpace = HexagonConfig.WorldSpaceToTileSpace(HexWorldPos);
+        Vector2Int ChunkSpace = HexagonConfig.TileSpaceToChunkSpace(TileSpace);
+        return new Location(ChunkSpace, new(0, 0));
     }
 
     public bool TryGetChunkData(Location Location, out ChunkData Chunk) {
@@ -437,9 +430,9 @@ public class MapGenerator : GameService, ISaveableService
     public void FinishChunkVisualization()
     {
         Interlocked.Increment(ref FinishedVisualizationCount);
-        if (FinishedVisualizationCount >= ChunkVis.Count)
+        if (FinishedVisualizationCount >= ChunkVis.Count && !IsInit)
         {
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         }
     }
 
@@ -620,7 +613,6 @@ public class MapGenerator : GameService, ISaveableService
     public Dictionary<Vector2Int, ChunkVisualization> ChunkVis;
 
     public Material HexMat;
-    public Material MalaiseMat;
 
     private Camera MainCam;
     private Location LastCenterChunk = Location.MinValue;

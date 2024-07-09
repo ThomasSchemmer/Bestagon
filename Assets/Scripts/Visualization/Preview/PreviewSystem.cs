@@ -98,7 +98,7 @@ public class PreviewSystem : GameService
 
     protected override void StartServiceInternal()
     {
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     public T GetPreviewableAs<T>() where T : IPreviewable

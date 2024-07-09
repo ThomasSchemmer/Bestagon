@@ -324,6 +324,9 @@ Shader"Custom/HexagonShader"
 
             half4 frag(g2f i) : SV_Target
             {
+                painterlyInfo info = getPainterlyInfo(i);
+                float2 UV = painterlyUV(info);
+
                 float4 baseColor = getColorByType(i);
                 float3 painterlyNormal = painterly(getPainterlyInfo(i), _BrushNormalTex);
                 float4 painterlyLight = max(0, dot(painterlyNormal, _MainLightPosition.xyz)) * _MainLightColor;

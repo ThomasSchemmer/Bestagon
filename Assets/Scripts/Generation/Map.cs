@@ -67,7 +67,7 @@ public class Map : GameService
                 AddDelayedDecorations();
             }
 
-            _OnInit?.Invoke();
+            _OnInit?.Invoke(this);
         });
     }
 

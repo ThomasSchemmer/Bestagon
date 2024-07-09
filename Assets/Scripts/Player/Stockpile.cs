@@ -101,7 +101,7 @@ public class Stockpile : GameService, ISaveableService
             AddResources(StartingResources);
         }
 
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {}

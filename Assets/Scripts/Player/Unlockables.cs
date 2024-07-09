@@ -246,7 +246,7 @@ public class Unlockables : GameService, ISaveableService
             InitializeCategories();
         }
 
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {}

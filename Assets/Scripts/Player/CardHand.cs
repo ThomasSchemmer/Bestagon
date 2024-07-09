@@ -19,7 +19,7 @@ public class CardHand : CardCollection
 
                 Cards = new List<Card>();
                 HandleDelayedFilling();
-                _OnInit?.Invoke();
+                _OnInit?.Invoke(this);
             });
             
         });
@@ -80,7 +80,7 @@ public class CardHand : CardCollection
         HandleDelayedFilling();
         
 
-        _OnInit?.Invoke();
+        _OnInit?.Invoke(this);
     }
 
     private void HandleDelayedFilling()
