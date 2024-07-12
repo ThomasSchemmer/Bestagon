@@ -10,7 +10,7 @@ public class Statistics : GameService, ISaveableService
     // how many are counting towards the next upgrade
     // gets reset after each upgrade point
     private int BuildingsBuilt = 0;
-    private int HexesMoved = 0;
+    private int MovesDone = 0;
     private int UnitsCreated = 0;
     private int ResourcesCollected = 0;
 
@@ -50,16 +50,18 @@ public class Statistics : GameService, ISaveableService
         return Highscore;
     }
 
-    private void CountResources(Production Production)
+    private int CountResources(Production Production)
     {
+        int Collected = 0;
         foreach (var Tuple in Production.GetTuples())
         {
-            CurrentResources += Tuple.Value;
+            Collected += Tuple.Value;
             ResourcesCollected += Tuple.Value;
         }
-
+        CurrentResources += Collected;
         BestResources = Math.Max(CurrentResources, BestResources);
 
+        return Collected;
     }
 
     private int CountUnit(UnitData UnitData)
@@ -71,19 +73,23 @@ public class Statistics : GameService, ISaveableService
         return 1;
     }
 
-    private void CountMoves(int Moves)
+    private int CountMoves(HexagonData.DiscoveryState NewState)
     {
-        HexesMoved += Moves;
-        CurrentMoves += Moves;
-        BestMoves = Math.Max(CurrentMoves, BestMoves);
+        if (NewState < HexagonData.DiscoveryState.Visited)
+            return 0;
 
+        MovesDone += 1;
+        CurrentMoves += 1;
+        BestMoves = Math.Max(CurrentMoves, BestMoves);
+        return 1;
     }
 
-    private void CountBuilding(BuildingData BuildingData)
+    private int CountBuilding(BuildingData BuildingData)
     {
         BuildingsBuilt++;
         CurrentBuildings++;
         BestBuildings = Math.Max(CurrentBuildings, BestBuildings);
+        return 1;
     }
 
     private void IncreaseTarget(ref int Earned, ref int Goal, int GoalIncrease)
@@ -100,13 +106,28 @@ public class Statistics : GameService, ISaveableService
         IncreaseTarget(ref UnitsCreated, ref UnitsNeeded, UnitsIncrease);
     }
 
+    private void IncreaseResources()
+    {
+        IncreaseTarget(ref ResourcesCollected, ref ResourcesNeeded, ResourcesIncrease);
+    }
+
+    private void IncreaseMoves()
+    {
+        IncreaseTarget(ref MovesDone, ref MovesNeeded, MovesIncrease);
+    }
+
+    private void IncreaseBuildings()
+    {
+        IncreaseTarget(ref BuildingsBuilt, ref BuildingsNeeded, BuildingsIncrease);
+    }
+
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
         Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingsBuilt);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, HexesMoved);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, MovesDone);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UnitsCreated);
         Pos = SaveGameManager.AddInt(Bytes, Pos, ResourcesCollected);
 
@@ -149,7 +170,7 @@ public class Statistics : GameService, ISaveableService
     {
         int Pos = 0;
         Pos = SaveGameManager.GetInt(Bytes, Pos, out BuildingsBuilt);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out HexesMoved);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out MovesDone);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UnitsCreated);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out ResourcesCollected);
 
@@ -181,26 +202,62 @@ public class Statistics : GameService, ISaveableService
         if (!Game.TryGetServices(out QuestService QuestService, out IconFactory IconFactory))
             return;
 
-        UnitData._OnUnitCreated += QuestService.AddQuest<UnitData>(
+        QuestService.AddQuest<UnitData>(
+            UnitData.RegisterQuest,
+            UnitData.DeregisterQuest,
             UnitsCreated,
             UnitsNeeded,
             IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Worker),
             CountUnit,
-            IncreaseUnits
-        ).OnQuestProgress;
+            IncreaseUnits,
+            "Create additional units",
+            Quest.Type.Positive
+        );
+
+        QuestService.AddQuest<Production>(
+            Stockpile.RegisterQuest,
+            Stockpile.DeregisterQuest,
+            ResourcesCollected,
+            ResourcesNeeded,
+            IconFactory.GetIconForProductionType(Production.GoodsType.BuildingMaterials),
+            CountResources,
+            IncreaseResources,
+            "Collect additional resources",
+            Quest.Type.Positive
+        );
+
+        QuestService.AddQuest<HexagonData.DiscoveryState>(
+            HexagonData.RegisterQuest,
+            HexagonData.DeregisterQuest,
+            MovesDone,
+            MovesNeeded,
+            IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Scoutings),
+            CountMoves,
+            IncreaseMoves,
+            "Reveal additional tiles",
+            Quest.Type.Positive
+        );
+
+        QuestService.AddQuest<BuildingData>(
+            BuildingData.RegisterQuest, 
+            BuildingData.DeregisterQuest,
+            BuildingsBuilt,
+            BuildingsNeeded,
+            IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Buildings),
+            CountBuilding,
+            IncreaseBuildings,
+            "Build additional buildings",
+            Quest.Type.Positive
+        );
     }
 
     protected override void StartServiceInternal()
     {
-        Stockpile._OnResourcesCollected += CountResources;
-        TokenizedUnitData._OnMovement += CountMoves;
-        BuildingData._OnBuildingBuilt += CountBuilding;
-
         SaveGameManager.RunIfNotInSavegame(() =>
         {
             ResetAllStats();
 
-            Game.RunAfterServiceInit((QuestService QuestService) =>
+            Game.RunAfterServicesInit((QuestService QuestService, MapGenerator MapGenerator) =>
             {
                 CreateQuests();
             });
@@ -225,7 +282,7 @@ public class Statistics : GameService, ISaveableService
     private void ResetAllStats()
     {
         BuildingsBuilt = 0;
-        HexesMoved = 0;
+        MovesDone = 0;
         UnitsCreated = 0;
         ResourcesCollected = 0;
 
@@ -260,13 +317,6 @@ public class Statistics : GameService, ISaveableService
     }
 
     protected override void StopServiceInternal() {}
-
-    private void OnDestroy()
-    {
-        Stockpile._OnResourcesCollected -= CountResources;
-        TokenizedUnitData._OnMovement -= CountMoves;
-        BuildingData._OnBuildingBuilt -= CountBuilding;
-    }
 
     private static int POINTS_BUILDINGS = 5;
     private static int POINTS_UNITS = 3;

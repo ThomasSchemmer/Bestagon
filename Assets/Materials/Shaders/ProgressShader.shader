@@ -2,7 +2,6 @@ Shader "Custom/ProgressShader"
 {
     Properties
     {
-        _TypeTex ("Type", 2D) = "white" {}
         _MinSize ("Minimum Size", Float) = 0.1
         _MaxSize ("Maximum Size", Float) = 1
         _Division("Division", Range(0, 0.1)) = 0.05
@@ -19,10 +18,6 @@ Shader "Custom/ProgressShader"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 	
     CBUFFER_START(UnityPerMaterial)
-    
-        float4 _TypeTex_ST;
-        float4 _TypeTex_TexelSize;
-
         float _MinSize;
         float _MaxSize;
         float _CurrentProgress;
@@ -65,9 +60,7 @@ Shader "Custom/ProgressShader"
                 float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
-
-            SAMPLER(_TypeTex);
-            
+                        
             UNITY_INSTANCING_BUFFER_START(Props)
                 //UNITY_DEFINE_INSTANCED_PROP(float, _MaxProgress)
                 //UNITY_DEFINE_INSTANCED_PROP(float, _CurrentProgress)
@@ -85,7 +78,7 @@ Shader "Custom/ProgressShader"
 
                 o.vertex = VertexInputs.positionCS;
                 o.vertexOS = v.vertex;
-                o.uv = TRANSFORM_TEX(v.uv, _TypeTex);
+                o.uv = v.uv;
                 return o;
             }
 
@@ -106,28 +99,20 @@ Shader "Custom/ProgressShader"
                 float size = length(uv);
 
                 bool bIsInRange = size < _MaxSize && size > _MinSize;
-                if (bIsInRange)
-                {
-                    float angle = getAngle(uv);
-                    float progress = angle * _MaxProgress;
-                    int uprogress = progress;
-                    float fprogress = frac(progress);
+                if (!bIsInRange)
+                    return 0;
 
-                    bool bIsInCount = uprogress <= _CurrentProgress - 1;
-                    bool bIsntDivision = fprogress > _Division && fprogress < 1 - _Division;
+                float angle = getAngle(uv);
+                float progress = angle * _MaxProgress;
+                int uprogress = progress;
+                float fprogress = frac(progress);
 
-                    bool bIsColored = bIsInRange && bIsInCount && bIsntDivision;
-                    color = _IsPositive ? _PositiveColor : _NegativeColor;
-                    color = bIsColored ? color : 0;
+                bool bIsInCount = uprogress <= _CurrentProgress - 1;
+                bool bIsntDivision = fprogress > _Division && fprogress < 1 - _Division;
 
-                }
-                else
-                {
-                    // rescale and recenter
-                    float2 picUV = i.uv / _MinSize;
-                    picUV += 0.5 - 1 / _MinSize / 2;
-                    color = tex2D(_TypeTex, picUV);
-                }
+                bool bIsColored = bIsInRange && bIsInCount && bIsntDivision;
+                color = _IsPositive ? _PositiveColor : _NegativeColor;
+                color = bIsColored ? color : 0;
 
                 return color;
             }

@@ -141,7 +141,7 @@ Material:
     - _ColorB: {r: 0.8941177, g: 0.7568628, b: 0.6156863, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _WorldMax: {r: 276.2371, g: 232.5, b: 0, a: 0}
+    - _WorldMax: {r: 717.91003, g: 607.5, b: 0, a: 0}
     - _WorldMin: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &4416568832925484546

@@ -1,11 +1,12 @@
+using System;
 using Unity.Collections;
 using UnityEngine;
-
 /** 
  * Base class for any unit. Is extended (with middle classes) for worker and scouts 
  * Any unit class only contains data.
  */
-public abstract class UnitData : ScriptableObject, ISaveableData
+[Serializable]
+public abstract class UnitData : ScriptableObject, ISaveableData, IQuestCompleter<UnitData>
 {
     public enum UnitType
     {
@@ -40,6 +41,16 @@ public abstract class UnitData : ScriptableObject, ISaveableData
         UnitType Type = (UnitType)bType;
 
         return MeshFactory.CreateDataFromType(Type);
+    }
+
+    public static void DeregisterQuest(Quest<UnitData> Quest)
+    {
+        _OnUnitCreated -= Quest.OnQuestProgress;
+    }
+
+    public static void RegisterQuest(Quest<UnitData> Quest)
+    {
+        _OnUnitCreated += Quest.OnQuestProgress;
     }
 
     public delegate void OnUnitCreated(UnitData Unit);

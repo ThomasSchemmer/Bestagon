@@ -198,4 +198,15 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         }
         return "";
     }
+
+    public float GetContainerHeight()
+    {
+        RectTransform ContainerRect = Container.GetComponent<RectTransform>();
+        return ContainerRect.sizeDelta.y;
+    }
+
+    public static StockpileGroupScreen GetSelectedInstance()
+    {
+        return SelectedInstance;
+    }
 }

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
+using static BuildingData;
+using static HexagonData;
 using static Stockpile;
 
-public class Stockpile : GameService, ISaveableService
+public class Stockpile : GameService, ISaveableService, IQuestCompleter<Production>
 {
 
     public bool Pay(Production Costs) {
@@ -133,6 +135,16 @@ public class Stockpile : GameService, ISaveableService
     public void Reset()
     {
         Resources = new();
+    }
+
+    public static void DeregisterQuest(Quest<Production> Quest)
+    {
+        _OnResourcesCollected -= Quest.OnQuestProgress;
+    }
+
+    public static void RegisterQuest(Quest<Production> Quest)
+    {
+        _OnResourcesCollected += Quest.OnQuestProgress;
     }
 
     public Production Resources;

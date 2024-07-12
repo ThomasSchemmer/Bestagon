@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
     <Compile Include="Assets\Scripts\Quests\Quest.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
+    <Compile Include="Assets\Scripts\Quests\IQuestCompleter.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
+    <Compile Include="Assets\Scripts\Quests\UnityEvents.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\Statistics.cs" />

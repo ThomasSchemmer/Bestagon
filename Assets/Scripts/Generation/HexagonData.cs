@@ -1,8 +1,9 @@
 using static HexagonConfig;
 using Unity.Collections;
+using static HexagonData;
 
 /** Includes all data necessary to display and update a hexagon */
-public class HexagonData : ISaveableData
+public class HexagonData : ISaveableData, IQuestCompleter<DiscoveryState>
 {
     public enum DiscoveryState
     {
@@ -26,8 +27,10 @@ public class HexagonData : ISaveableData
     private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
-    public delegate void OnDiscoveryState(HexagonData Data, DiscoveryState State);
+    public delegate void OnDiscoveryStateHex(HexagonData Data, DiscoveryState State);
+    public delegate void OnDiscoveryState(DiscoveryState State);
     public OnDiscovery _OnDiscovery;
+    public static OnDiscoveryStateHex _OnDiscoveryStateHex;
     public static OnDiscoveryState _OnDiscoveryState;
 
     // copied from HexagonInfo struct
@@ -78,7 +81,8 @@ public class HexagonData : ISaveableData
         Discovery = NewState;
 
         // needs to be called before OnDiscovery to update HexData before mesh creation
-        _OnDiscoveryState?.Invoke(this, Discovery);
+        _OnDiscoveryStateHex?.Invoke(this, Discovery);
+        _OnDiscoveryState?.Invoke(Discovery);
         _OnDiscovery?.Invoke();
     }
 
@@ -122,6 +126,17 @@ public class HexagonData : ISaveableData
             default: return "";
         }
     }
+    
+    public static void DeregisterQuest(Quest<DiscoveryState> Quest)
+    {
+        _OnDiscoveryState -= Quest.OnQuestProgress;
+    }
+
+    public static void RegisterQuest(Quest<DiscoveryState> Quest)
+    {
+        _OnDiscoveryState += Quest.OnQuestProgress;
+    }
+
 
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {

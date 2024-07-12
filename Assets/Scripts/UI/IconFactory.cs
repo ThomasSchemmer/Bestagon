@@ -7,7 +7,9 @@ using UnityEngine.UI;
 public class IconFactory : GameService
 {
     public SerializedDictionary<Production.Type, Sprite> AvailableResources = new();
+    public SerializedDictionary<Production.GoodsType, Sprite> AvailableResourceTypes = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Sprite> AvailableTiles = new();
+    public SerializedDictionary<BuildingConfig.Type, Sprite> AvailableBuildingTypes = new();
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
     private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
@@ -24,13 +26,17 @@ public class IconFactory : GameService
         Usages,
         RemoveMalaise,
         WorkerIndicator,
-        NoWorkerIndicator
+        NoWorkerIndicator,
+        Buildings,
+        Scoutings
     }
 
     public void Refresh()
     {
         LoadResources();
+        LoadResourceTypes();
         LoadTiles();
+        LoadBuildingTypes();
         LoadMiscellaneous();
         LoadPrefabs();
     }
@@ -48,7 +54,6 @@ public class IconFactory : GameService
         ProduceConsumeEffectPrefab = Resources.Load("UI/Cards/ProduceConsumeEffect") as GameObject;
         UpgradeButtonPrefab = Resources.Load("UI/UpgradeButton") as GameObject;
     }
-
     private void LoadResources()
     {
         AvailableResources.Clear();
@@ -67,6 +72,43 @@ public class IconFactory : GameService
         }
     }
 
+    private void LoadResourceTypes()
+    {
+        AvailableResourceTypes.Clear();
+        var ResourceTypes = Enum.GetValues(typeof(Production.GoodsType));
+        foreach (var ResourceType in ResourceTypes)
+        {
+            GameObject MeshObject = Resources.Load("Icons/" + ResourceType) as GameObject;
+            if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
+                continue;
+
+            Sprite Sprite = MeshObject.GetComponent<SpriteRenderer>().sprite;
+            if (!Sprite)
+                continue;
+
+            AvailableResourceTypes.Add((Production.GoodsType)ResourceType, Sprite);
+        }
+    }
+
+    private void LoadBuildingTypes()
+    {
+        AvailableBuildingTypes.Clear();
+        var BuildingTypes = Enum.GetValues(typeof(BuildingConfig.Type));
+        foreach (var BuildingType in BuildingTypes)
+        {
+            GameObject MeshObject = Resources.Load("Icons/" + BuildingType) as GameObject;
+            if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
+                continue;
+
+            Sprite Sprite = MeshObject.GetComponent<SpriteRenderer>().sprite;
+            if (!Sprite)
+                continue;
+
+            AvailableBuildingTypes.Add((BuildingConfig.Type)BuildingType, Sprite);
+        }
+    }
+
+    
     private void LoadTiles()
     {
         AvailableTiles.Clear();
@@ -103,6 +145,15 @@ public class IconFactory : GameService
         }
     }
 
+
+    public Sprite GetIconForProductionType(Production.GoodsType Type)
+    {
+        if (!AvailableResourceTypes.ContainsKey(Type))
+            return null;
+
+        return AvailableResourceTypes[Type];
+
+    }
     public Sprite GetIconForProduction(Production.Type Type)
     {
         if (!AvailableResources.ContainsKey(Type))
@@ -335,6 +386,14 @@ public class IconFactory : GameService
             return null;
 
         return AvailableMiscellaneous[Type];
+    }
+
+    public Sprite GetIconForBuildingType(BuildingConfig.Type Type)
+    {
+        if (!AvailableBuildingTypes.ContainsKey(Type))
+            return null;
+
+        return AvailableBuildingTypes[Type];
     }
 
     protected override void StartServiceInternal()

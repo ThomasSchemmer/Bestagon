@@ -12,8 +12,10 @@ public class HexagonConfig {
     /** How high should the inner border of a tile be of TileSize.y? */
     public static float TileBorderHeightMultiplier = 0.9f;
 
-    /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr */
-    public static int chunkSize = 3;
+    /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr 
+     * WARNING: if updated fix cloud shader first! bitstuffing doesnt work with arbitrary size!
+     */
+    public static int chunkSize = 8;
 
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
     public static int loadedChunkVisualizations = 3;

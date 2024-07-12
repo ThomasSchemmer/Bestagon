@@ -1348,6 +1348,43 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 134338587}
   m_CullTransparentMesh: 1
+--- !u!1 &134842435
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 134842436}
+  m_Layer: 5
+  m_Name: Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &134842436
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134842435}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1375078346}
+  - {fileID: 1246377385}
+  m_Father: {fileID: 1504442745}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 335, y: 500}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &136479507
 GameObject:
   m_ObjectHideFlags: 0
@@ -8393,7 +8430,23 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   AdditionalDecorations:
-    Tuples: []
+    Tuples:
+    - Key:
+        _ChunkLocation:
+          x: 0
+          y: 0
+        _HexLocation:
+          x: 2
+          y: 2
+      Value: 1
+    - Key:
+        _ChunkLocation:
+          x: 0
+          y: 0
+        _HexLocation:
+          x: 3
+          y: 2
+      Value: 1
 --- !u!1 &1168638404
 GameObject:
   m_ObjectHideFlags: 0
@@ -8658,6 +8711,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1229365466}
   m_CullTransparentMesh: 1
+--- !u!1 &1246377384
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1246377385}
+  m_Layer: 5
+  m_Name: QuestContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1246377385
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246377384}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 134842436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -30}
+  m_SizeDelta: {x: 335, y: 400}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1277725708
 GameObject:
   m_ObjectHideFlags: 0
@@ -9446,6 +9534,41 @@ MonoBehaviour:
     type: 3}
   IndicatorContainerPrefab: {fileID: 6594987263394821832, guid: af82c0c860c072f479cd00aa018c91ec,
     type: 3}
+--- !u!1 &1375078345
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1375078346}
+  m_Layer: 5
+  m_Name: MainQuestContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1375078346
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1375078345}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 134842436}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 210}
+  m_SizeDelta: {x: 335, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1415347040
 GameObject:
   m_ObjectHideFlags: 0
@@ -9583,7 +9706,11 @@ MonoBehaviour:
   IsInit: 0
   AvailableResources:
     Tuples: []
+  AvailableResourceTypes:
+    Tuples: []
   AvailableTiles:
+    Tuples: []
+  AvailableBuildingTypes:
     Tuples: []
   AvailableMiscellaneous:
     Tuples: []
@@ -10021,7 +10148,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1504442745}
   - component: {fileID: 1504442746}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: QuestService
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10039,13 +10166,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 134842436}
   m_Father: {fileID: 1942246720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 300, y: 500}
+  m_AnchoredPosition: {x: -100, y: 150}
+  m_SizeDelta: {x: 335, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1504442746
 MonoBehaviour:
@@ -10063,6 +10191,9 @@ MonoBehaviour:
   IsInit: 0
   QuestPrefab: {fileID: 437925112352163288, guid: ebd94edcfae27ae4980ddfa79249973c,
     type: 3}
+  MainQuestContainer: {fileID: 1375078346}
+  QuestContainer: {fileID: 1246377385}
+  RevealSpeed: 20
 --- !u!1 &1504592662
 GameObject:
   m_ObjectHideFlags: 0
@@ -14433,12 +14564,12 @@ RectTransform:
   - {fileID: 1152186755}
   - {fileID: 908851251}
   - {fileID: 257611873}
+  - {fileID: 1369940362}
   - {fileID: 918303576}
   - {fileID: 951963507}
   - {fileID: 1168638405}
   - {fileID: 747463888}
   - {fileID: 1504442745}
-  - {fileID: 1369940362}
   - {fileID: 548361788}
   - {fileID: 953041232}
   m_Father: {fileID: 0}

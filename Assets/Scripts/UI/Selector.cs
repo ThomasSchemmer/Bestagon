@@ -64,6 +64,13 @@ public class Selector<T> : Selector where T : ISelectable
         bool bIsRightClick = Input.GetMouseButtonDown(1) && !bIsLeftClick;
         bool bIsEscapeClick = Input.GetKeyDown(KeyCode.Escape);
 
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("");
+        }
+#endif
+
         if (bIsEscapeClick || !RayCast(out GameObject Hit))
         {
             DeSelect(bIsLeftClick);

@@ -18,13 +18,13 @@ public class SpawnSystem : GameService, ISaveableService
 
             Hex.UpdateDiscoveryState(StartVisibilityRange, StartScoutingRange);
             Controller.TeleportTo(TargetLocation.WorldLocation);
-            HexagonData._OnDiscoveryState += OnDiscoveredHex;
+            HexagonData._OnDiscoveryStateHex += OnDiscoveredHex;
         });
     }
 
     private void OnDestroy()
     {
-        HexagonData._OnDiscoveryState -= OnDiscoveredHex;
+        HexagonData._OnDiscoveryStateHex -= OnDiscoveredHex;
     }
 
     private void OnDiscoveredHex(HexagonData Data, HexagonData.DiscoveryState State)

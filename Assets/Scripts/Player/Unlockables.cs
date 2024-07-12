@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static HexagonData;
 
-public class Unlockables : GameService, ISaveableService
+public class Unlockables : GameService, ISaveableService, IQuestCompleter<BuildingConfig.Type>
 {
     public BuildingConfig.Type[] LockedTypesPerCategory;
 
@@ -43,7 +44,14 @@ public class Unlockables : GameService, ISaveableService
 
     private void MarkAsUnlocked(BuildingConfig.Type Type, int CategoryIndex) 
     {
+        BuildingConfig.Type OldMask = LockedTypesPerCategory[CategoryIndex];
         LockedTypesPerCategory[CategoryIndex] = (BuildingConfig.Type)((int)LockedTypesPerCategory[CategoryIndex] & (~(int)Type));
+
+        BuildingConfig.Type NewMask = LockedTypesPerCategory[CategoryIndex];
+        if (OldMask == NewMask)
+            return;
+
+        _OnUnlock?.Invoke(Type);
     }
 
     private bool IsIndexInCategory(int Category, int Index)
@@ -201,6 +209,16 @@ public class Unlockables : GameService, ISaveableService
         UnlockSpecificBuildingType(BuildingConfig.UnlockOnStart);
     }
 
+    public static void DeregisterQuest(Quest<BuildingConfig.Type> Quest)
+    {
+        _OnUnlock -= Quest.OnQuestProgress;
+    }
+
+    public static void RegisterQuest(Quest<BuildingConfig.Type> Quest)
+    {
+        _OnUnlock += Quest.OnQuestProgress;
+    }
+
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
@@ -250,4 +268,7 @@ public class Unlockables : GameService, ISaveableService
     }
 
     protected override void StopServiceInternal() {}
+
+    public delegate void OnUnlock(BuildingConfig.Type Type);
+    public static event OnUnlock _OnUnlock;
 }
