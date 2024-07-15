@@ -5,7 +5,7 @@ using Unity.Collections;
  * Tracks how many things were created / moved etc during each playphase as well as overall
  * Also creates quests for those things tracked
  */
-public class Statistics : GameService, ISaveableService
+public class Statistics : GameService, ISaveableService, IQuestCallback
 {
     // how many are counting towards the next upgrade
     // gets reset after each upgrade point
@@ -50,6 +50,7 @@ public class Statistics : GameService, ISaveableService
         return Highscore;
     }
 
+    [Questable]
     private int CountResources(Production Production)
     {
         int Collected = 0;
@@ -64,6 +65,7 @@ public class Statistics : GameService, ISaveableService
         return Collected;
     }
 
+    [Questable]
     private int CountUnit(UnitData UnitData)
     {
         UnitsCreated++;
@@ -101,11 +103,13 @@ public class Statistics : GameService, ISaveableService
         }
     }
 
+    [Questable]
     private void IncreaseUnits()
     {
         IncreaseTarget(ref UnitsCreated, ref UnitsNeeded, UnitsIncrease);
     }
 
+    [Questable]
     private void IncreaseResources()
     {
         IncreaseTarget(ref ResourcesCollected, ref ResourcesNeeded, ResourcesIncrease);
@@ -197,60 +201,6 @@ public class Statistics : GameService, ISaveableService
         Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentResources);
     }
 
-    public void CreateQuests()
-    {
-        if (!Game.TryGetServices(out QuestService QuestService, out IconFactory IconFactory))
-            return;
-
-        QuestService.AddQuest<UnitData>(
-            UnitData.RegisterQuest,
-            UnitData.DeregisterQuest,
-            UnitsCreated,
-            UnitsNeeded,
-            IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Worker),
-            CountUnit,
-            IncreaseUnits,
-            "Create additional units",
-            Quest.Type.Positive
-        );
-
-        QuestService.AddQuest<Production>(
-            Stockpile.RegisterQuest,
-            Stockpile.DeregisterQuest,
-            ResourcesCollected,
-            ResourcesNeeded,
-            IconFactory.GetIconForProductionType(Production.GoodsType.BuildingMaterials),
-            CountResources,
-            IncreaseResources,
-            "Collect additional resources",
-            Quest.Type.Positive
-        );
-
-        QuestService.AddQuest<HexagonData.DiscoveryState>(
-            HexagonData.RegisterQuest,
-            HexagonData.DeregisterQuest,
-            MovesDone,
-            MovesNeeded,
-            IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Scoutings),
-            CountMoves,
-            IncreaseMoves,
-            "Reveal additional tiles",
-            Quest.Type.Positive
-        );
-
-        QuestService.AddQuest<BuildingData>(
-            BuildingData.RegisterQuest, 
-            BuildingData.DeregisterQuest,
-            BuildingsBuilt,
-            BuildingsNeeded,
-            IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Buildings),
-            CountBuilding,
-            IncreaseBuildings,
-            "Build additional buildings",
-            Quest.Type.Positive
-        );
-    }
-
     protected override void StartServiceInternal()
     {
         SaveGameManager.RunIfNotInSavegame(() =>
@@ -259,19 +209,11 @@ public class Statistics : GameService, ISaveableService
 
             Game.RunAfterServicesInit((QuestService QuestService, MapGenerator MapGenerator) =>
             {
-                CreateQuests();
+                //CreateQuests();
             });
 
             _OnInit?.Invoke(this);
         }, ISaveableService.SaveGameType.Statistics);
-    }
-
-    public void Load()
-    {
-        Game.RunAfterServiceInit((QuestService QuestService) =>
-        {
-            CreateQuests();
-        });
     }
 
     public void Reset()

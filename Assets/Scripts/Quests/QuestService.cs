@@ -2,67 +2,29 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
 public class QuestService : GameService
 { 
-    public Quest<T> CreateQuest<T>(
-        Action<Quest<T>> RegisterAction,
-        Action<Quest<T>> DeRegisterAction,
-        int CurrentProgress,
-        int MaxProgress,
-        Sprite Sprite,
-        Func<T, int> CheckSuccess,
-        Action AfterCompletionCallback,
-        string Message,
-        Quest.Type Type
-        )
-    {
+    public Quest AddQuest(Questable Original) {
+
         GameObject QuestObj = Instantiate(QuestPrefab);
 
+        Questable Copy = Instantiate(Original);
+        Copy.Init();
+
         Quest Quest = QuestObj.AddComponent<Quest>();
-        Quest.CurrentProgress = CurrentProgress;
-        Quest.MaxProgress = MaxProgress;
-        Quest.Sprite = Sprite;
-        Quest.Message = Message;
-        Quest.QuestType = Type;
+        Quest.CurrentProgress = Copy.StartProgress;
+        Quest.MaxProgress = Copy.MaxProgress;
+        Quest.Message = Copy.Description;
+        Quest.Sprite = Copy.Sprite;
+        Quest.QuestType = Copy.QuestType;
+        Copy.AddGenerics(Quest);
 
-        Quest<T> QuestT = new(Quest);
-        QuestT.CheckSuccess = CheckSuccess;
-        QuestT.AddCompletionCallback(AfterCompletionCallback);
-        QuestT.DeRegisterAction = DeRegisterAction;
-        RegisterAction.Invoke(QuestT);
-
-        Quest.Add(QuestT);
+        Quests.Add(Quest);
         DisplayQuests(true);
 
-        return QuestT;
-    }
-
-    public Quest<T> AddQuest<T>(
-        Action<Quest<T>> RegisterAction,
-        Action<Quest<T>> DeRegisterAction,
-        int CurrentProgress, 
-        int MaxProgress, 
-        Sprite Sprite, 
-        Func<T, int> CheckSuccess,
-        Action AfterCompletionCallback,
-        string Message,
-        Quest.Type Type
-    )
-    {
-        Quest<T> QuestT = CreateQuest(
-            RegisterAction,
-            DeRegisterAction,
-            CurrentProgress,
-            MaxProgress,
-            Sprite,
-            CheckSuccess,
-            AfterCompletionCallback,
-            Message,
-            Type);
-        Quest Quest = QuestT.GetParent();
-        Quests.Add(Quest);
-        return QuestT;
+        return Quest;
     }
 
     public void RemoveQuest(Quest Quest)
@@ -102,30 +64,6 @@ public class QuestService : GameService
         QuestTransform.localScale = Vector3.one * GetHoverModifier(Quest);
     }
 
-
-    private void CreateMainQuest()
-    {
-        if (!Game.TryGetService(out IconFactory IconFactory))
-            return;
-
-        MainQuest = CreateQuest<BuildingConfig.Type>(
-            Unlockables.RegisterQuest,
-            Unlockables.DeregisterQuest,
-            0,
-            1,
-            IconFactory.GetIconForBuildingType(BuildingConfig.Type.Well),
-            CheckForWellUnlock,
-            CreateNextQuest,
-            "Unlock the well to cross the desert",
-            Quest.Type.Main
-        ).GetParent();
-    }
-
-    private void CreateNextQuest()
-    {
-
-    }
-
     private int CheckForWellUnlock(BuildingConfig.Type Type) {
         if (Type != BuildingConfig.Type.Well)
             return 0;
@@ -159,17 +97,28 @@ public class QuestService : GameService
         return Quest.IsHovered() ? HoverScaleModifier : 1;
     }
 
+    private void CreateQuestables()
+    {
+        foreach (Questable Questable in Questables)
+        {
+            AddQuest(Questable);
+        }
+    }
+
 
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((IconFactory IconFactory) =>
         {
-            CreateMainQuest();
+            CreateQuestables();
+
             _OnInit?.Invoke(this);
         });
     }
 
     protected override void StopServiceInternal() { }
+
+    public List<Questable> Questables = new();
 
 
     public GameObject QuestPrefab;

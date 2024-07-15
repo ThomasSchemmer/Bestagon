@@ -144,6 +144,22 @@ public class Game : MonoBehaviour
         return Instance.ServicesInternal[typeof(T)].TargetScript as T;
     }
 
+    public static bool TryGetServiceByType(Type Type, out GameService Service)
+    {
+        Service = default;
+        if (Type == null)
+            return false;
+
+        if (!Instance)
+            return false;
+
+        if (!Instance.ServicesInternal.ContainsKey(Type))
+            return false;
+
+        Service = Instance.ServicesInternal[Type].TargetScript;
+        return true;
+    }
+
     public static bool TryGetService<T>(out T Service, bool ForceLoad = false) where T: GameService
     {
         Service = GetService<T>();

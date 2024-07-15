@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
-using static BuildingData;
-using static HexagonData;
-using static Stockpile;
 
-public class Stockpile : GameService, ISaveableService, IQuestCompleter<Production>
+public class Stockpile : GameService, ISaveableService, IQuestTrigger<Production>
 {
 
     public bool Pay(Production Costs) {

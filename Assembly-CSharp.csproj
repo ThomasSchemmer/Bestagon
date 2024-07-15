@@ -65,7 +65,6 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
     <Compile Include="Assets\Scripts\Quests\Quest.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
-    <Compile Include="Assets\Scripts\Quests\IQuestCompleter.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
@@ -76,6 +75,7 @@
     <Compile Include="Assets\Scripts\Events\EventData.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
+    <Compile Include="Assets\Scripts\Quests\QuestableAttribute.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
     <Compile Include="Assets\Scripts\Events\RemoveMalaiseEventData.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
@@ -123,6 +123,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
+    <Compile Include="Assets\Scripts\Quests\IQuestCallback.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Tutorial\Tip.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
@@ -132,6 +133,8 @@
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
     <Compile Include="Assets\Scripts\Buildings\BuildingService.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\ProductionQuestable.cs" />
+    <Compile Include="Assets\Scripts\Quests\Questable.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\UnitDataQuestable.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\BuildingPreview.cs" />
@@ -152,8 +156,8 @@
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
+    <Compile Include="Assets\Scripts\Quests\IQuestTrigger.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
-    <Compile Include="Assets\Scripts\Quests\UnityEvents.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\Statistics.cs" />

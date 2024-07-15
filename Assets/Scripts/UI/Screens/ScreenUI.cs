@@ -28,11 +28,17 @@ public abstract class ScreenUI : MonoBehaviour
 
     public virtual void Show()
     {
+        if (Container == null)
+            return;
+
         Container.SetActive(true);
     }
 
     public virtual void Hide()
     {
+        if (Container == null)
+            return;
+
         Container.SetActive(false);
     }
 }

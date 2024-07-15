@@ -10189,6 +10189,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  Questables:
+  - {fileID: 11400000, guid: 9472c690c254653488abe553d3cf3040, type: 2}
   QuestPrefab: {fileID: 437925112352163288, guid: ebd94edcfae27ae4980ddfa79249973c,
     type: 3}
   MainQuestContainer: {fileID: 1375078346}
@@ -14562,14 +14564,14 @@ RectTransform:
   - {fileID: 1229365467}
   - {fileID: 1592335316}
   - {fileID: 1152186755}
-  - {fileID: 908851251}
   - {fileID: 257611873}
   - {fileID: 1369940362}
+  - {fileID: 1504442745}
+  - {fileID: 747463888}
+  - {fileID: 1168638405}
+  - {fileID: 908851251}
   - {fileID: 918303576}
   - {fileID: 951963507}
-  - {fileID: 1168638405}
-  - {fileID: 747463888}
-  - {fileID: 1504442745}
   - {fileID: 548361788}
   - {fileID: 953041232}
   m_Father: {fileID: 0}

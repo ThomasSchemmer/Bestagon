@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 /** 
  * Provides unified access to all of the different quest conditions.
@@ -8,9 +9,12 @@ using System;
  * layer of indirection
  * Does not need to be contained in the class T, see @Stockpile, which uses it for @Production
  */
-public interface IQuestCompleter<T> 
+public interface IQuestTrigger {}
+
+public interface IQuestTrigger<T> : IQuestTrigger
 {
     public static void RegisterQuest(Quest<T> Quest) => throw new NotImplementedException();
 
     public static void DeregisterQuest(Quest<T> Quest) => throw new NotImplementedException();
+
 }

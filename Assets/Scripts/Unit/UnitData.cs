@@ -6,7 +6,7 @@ using UnityEngine;
  * Any unit class only contains data.
  */
 [Serializable]
-public abstract class UnitData : ScriptableObject, ISaveableData, IQuestCompleter<UnitData>
+public abstract class UnitData : ScriptableObject, ISaveableData
 {
     public enum UnitType
     {
@@ -16,10 +16,7 @@ public abstract class UnitData : ScriptableObject, ISaveableData, IQuestComplete
 
     public UnitType Type;
 
-    public virtual void Init()
-    {
-        _OnUnitCreated?.Invoke(this);
-    }
+    public virtual void Init(){}
 
 
     public virtual void Refresh() {}
@@ -43,16 +40,4 @@ public abstract class UnitData : ScriptableObject, ISaveableData, IQuestComplete
         return MeshFactory.CreateDataFromType(Type);
     }
 
-    public static void DeregisterQuest(Quest<UnitData> Quest)
-    {
-        _OnUnitCreated -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<UnitData> Quest)
-    {
-        _OnUnitCreated += Quest.OnQuestProgress;
-    }
-
-    public delegate void OnUnitCreated(UnitData Unit);
-    public static event OnUnitCreated _OnUnitCreated;
 }

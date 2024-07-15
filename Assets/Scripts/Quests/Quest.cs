@@ -25,11 +25,15 @@ public class Quest : MonoBehaviour, UIElement
     public Type QuestType = Type.Positive;
 
     protected SVGImage TypeImageSVG;
+    protected SVGImage DiscoveryImage;
     protected Image TypeImage;
     protected Image BackgroundImage;
     protected Material Material;
     protected TMPro.TextMeshProUGUI Text;
+    protected Button AcceptButton;
+
     protected bool bIsHovered = false;
+    protected bool bIsDiscovered = false;
 
     // actual templated data (stored as abstract class to fascilate calling of functions)
     protected QuestTemplate QuestObject;
@@ -40,6 +44,13 @@ public class Quest : MonoBehaviour, UIElement
         TypeImageSVG = transform.GetChild(1).GetComponent<SVGImage>();
         TypeImage = transform.GetChild(2).GetComponent<Image>();
         Text = transform.GetChild(3).GetComponent<TMPro.TextMeshProUGUI>();
+        DiscoveryImage = transform.GetChild(4).GetComponent<SVGImage>();
+        AcceptButton = transform.GetChild(5).GetComponent<Button>();
+        AcceptButton.onClick.RemoveAllListeners();
+        AcceptButton.onClick.AddListener(() => {
+            QuestObject.OnAccept();
+        });
+        AcceptButton.gameObject.layer = 0;
 
         // create a new one cause instanciation doesnt work on UI for some reason,
         // no access to MaterialBlock
@@ -84,6 +95,10 @@ public class Quest : MonoBehaviour, UIElement
         }
         Text.text = Message + " (" + CurrentProgress + "/" +MaxProgress + ")";
         BackgroundImage.color = QuestType == Type.Main ? MainQuestColor : NormalQuestColor;
+        DiscoveryImage.gameObject.SetActive(!IsDiscovered());
+        AcceptButton.gameObject.SetActive(IsCompleted());
+        TypeImageSVG.gameObject.SetActive(!IsCompleted());
+        TypeImage.gameObject.SetActive(!IsCompleted());
     }
 
     public void SetSelected(bool Selected) { }
@@ -91,11 +106,28 @@ public class Quest : MonoBehaviour, UIElement
     public void SetHovered(bool Hovered)
     {
         bIsHovered = Hovered;
+        bIsDiscovered = true;
+
+        // can happen after being destroyed and dehover call triggers it
+        if (DiscoveryImage == null)
+            return;
+
+        DiscoveryImage.enabled = !IsDiscovered();
     }
 
     public bool IsHovered()
     {
-        return bIsHovered;
+        return bIsHovered || !IsDiscovered();
+    }
+
+    public bool IsDiscovered()
+    {
+        return bIsDiscovered;
+    }
+
+    public bool IsCompleted()
+    {
+        return CurrentProgress >= MaxProgress;
     }
 
     public void ClickOn(Vector2 PixelPos) { }
@@ -121,6 +153,7 @@ public class Quest : MonoBehaviour, UIElement
 /** 
  * Actual templated quest, including different callbacks
  * Only has a weak ref to the monobehaviour parent, but should still have same lifetime!
+ * Do not generate directly (except from savegame) - should be created from questable!
  */
 public class Quest<T> : QuestTemplate
 {
@@ -130,17 +163,18 @@ public class Quest<T> : QuestTemplate
         GameObject.DestroyImmediate(Parent.gameObject);
     }
 
-    public void OnQuestProgress(T Var)
+    public override void OnAccept()
     {
-        Parent.CurrentProgress += CheckSuccess(Var);
-        Parent.Visualize();
-        if (Parent.CurrentProgress < Parent.MaxProgress)
-            return;
-
         CompleteQuest();
         RemoveQuest();
 
         Destroy();
+    }
+
+    public void OnQuestProgress(T Var)
+    {
+        Parent.CurrentProgress += CheckSuccess(Var);
+        Parent.Visualize();
     }
 
     public Quest(Quest Parent){
@@ -183,10 +217,16 @@ public class Quest<T> : QuestTemplate
             return;
 
         QuestService.RemoveQuest(Parent);
+
+        if (FollowUpQuest == null)
+            return;
+
+        QuestService.AddQuest(FollowUpQuest);
     }
 
     public Func<T, int> CheckSuccess;
     public Action<Quest<T>> DeRegisterAction;
+    public Questable FollowUpQuest;
 
     protected Quest Parent;
 
@@ -200,4 +240,5 @@ public class Quest<T> : QuestTemplate
 public abstract class QuestTemplate
 {
     public abstract void RemoveQuestCallback();
+    public abstract void OnAccept();
 }

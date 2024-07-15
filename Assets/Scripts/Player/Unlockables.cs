@@ -5,7 +5,7 @@ using Unity.Collections;
 using UnityEngine;
 using static HexagonData;
 
-public class Unlockables : GameService, ISaveableService, IQuestCompleter<BuildingConfig.Type>
+public class Unlockables : GameService, ISaveableService, IQuestTrigger<BuildingConfig.Type>
 {
     public BuildingConfig.Type[] LockedTypesPerCategory;
 

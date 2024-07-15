@@ -62,10 +62,13 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Util\BiomeMap\Editor\BiomeInspectorWindow.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Editor\ISaveableDrawer.cs" />
+    <Compile Include="Assets\Scripts\Quests\Editor\UnitDataQuestableEditor.cs" />
+    <Compile Include="Assets\Scripts\Quests\Editor\QuestableEditor.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Editor\BuildingEffectDrawer.cs" />
     <Compile Include="Assets\Scripts\Player\Editor\ProductionDrawer.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Editor\BuildingFactoryEditor.cs" />
     <Compile Include="Assets\Scripts\UI\Editor\HoverableButtonEditor.cs" />
+    <Compile Include="Assets\Scripts\Quests\Editor\ProductionQuestableEditor.cs" />
     <Compile Include="Assets\Scripts\Visualization\Editor\CloudRendererEditor.cs" />
     <Compile Include="Assets\Scripts\Generation\Editor\WorldGenerationInspector.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Editor\LocationDrawer.cs" />

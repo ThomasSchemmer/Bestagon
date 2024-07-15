@@ -3,7 +3,7 @@ using Unity.Collections;
 using static HexagonData;
 
 /** Includes all data necessary to display and update a hexagon */
-public class HexagonData : ISaveableData, IQuestCompleter<DiscoveryState>
+public class HexagonData : ISaveableData, IQuestTrigger<DiscoveryState>
 {
     public enum DiscoveryState
     {
