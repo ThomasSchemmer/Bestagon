@@ -1,13 +1,40 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
-using static UnityEngine.UI.Image;
+using static UnityEditor.PlayerSettings;
+using UnityEngine.XR;
 
-public class QuestService : GameService
+public class QuestService : GameService, ISaveableService
 { 
     public Quest AddQuest(Questable Original) {
 
+        Quest Quest = CreateQuest(Original);
+        AddQuest(Quest);    
+        return Quest;
+    }
+
+    private Quest AddQuest(Quest Quest)
+    {
+        if (Quest.QuestType == Quest.Type.Main)
+        {
+            if (MainQuest != null)
+            {
+                throw new Exception("Cannot add main quest while the old one is still valid!");
+            }
+            MainQuest = Quest;
+        }
+        else
+        {
+            Quests.Add(Quest);
+        }
+        DisplayQuests(true);
+        return Quest;
+    }
+
+    public Quest CreateQuest(Questable Original)
+    {
         GameObject QuestObj = Instantiate(QuestPrefab);
 
         Questable Copy = Instantiate(Original);
@@ -20,10 +47,6 @@ public class QuestService : GameService
         Quest.Sprite = Copy.Sprite;
         Quest.QuestType = Copy.QuestType;
         Copy.AddGenerics(Quest);
-
-        Quests.Add(Quest);
-        DisplayQuests(true);
-
         return Quest;
     }
 
@@ -97,7 +120,7 @@ public class QuestService : GameService
         return Quest.IsHovered() ? HoverScaleModifier : 1;
     }
 
-    private void CreateQuestables()
+    private void LoadQuestables()
     {
         foreach (Questable Questable in Questables)
         {
@@ -110,7 +133,10 @@ public class QuestService : GameService
     {
         Game.RunAfterServiceInit((IconFactory IconFactory) =>
         {
-            CreateQuestables();
+            if (!Game.IsIn(Game.GameState.CardSelection))
+            {
+                LoadQuestables();
+            }
 
             _OnInit?.Invoke(this);
         });
@@ -118,14 +144,112 @@ public class QuestService : GameService
 
     protected override void StopServiceInternal() { }
 
+    public void Reset()
+    {
+        if (MainQuest != null)
+        {
+            MainQuest.InvokeDestroy();
+            MainQuest = null;
+        }
+        foreach (Quest Quest in Quests)
+        {
+            Quest.InvokeDestroy();
+        }
+        Quests.Clear();
+    }
+
+    public int GetSize()
+    {
+        // add count and overall size
+        return QuestTemplateDTO.GetStaticSize() * GetQuestCount() + sizeof(int) * 2; 
+    }
+
+    private int GetQuestCount()
+    {
+        // count main quest as well
+        return Quests.Count + 1;
+    }
+
+    public byte[] GetData()
+    {
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        int Pos = 0;
+        // save the size to make reading it easier
+        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
+        Pos = SaveGameManager.AddInt(Bytes, Pos, GetQuestCount());
+
+        foreach (Quest Quest in Quests)
+        {
+            QuestTemplateDTO DTO = QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject());
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
+        }
+        QuestTemplateDTO MainDTO = QuestTemplateDTO.CreateFromQuest(MainQuest.GetQuestObject());
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, MainDTO);
+
+        return Bytes.ToArray();
+    }
+
+    public bool ShouldLoadWithLoadedSize() { return true; }
+
+    public void SetData(NativeArray<byte> Bytes)
+    {
+        CreateQuestableLookup();
+
+        // skip overall size info at the beginning
+        int Pos = sizeof(int);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out int QuestLength);
+
+        Quests = new();
+        for (int i = 0; i < QuestLength - 1; i++)
+        {
+            Pos = LoadQuestFromSavegame(Bytes, Pos, out Quest Quest);
+            AddQuest(Quest);
+        }
+        Pos = LoadQuestFromSavegame(Bytes, Pos, out Quest MainQuest);
+        AddQuest(MainQuest);
+    }
+    private int LoadQuestFromSavegame(NativeArray<byte> Bytes, int Pos, out Quest Quest)
+    {
+        Quest = default;
+        QuestTemplateDTO DTO = new();
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
+
+        float CurrentProgress = DTO.CurrentProgress;
+        if (!QuestableLookup.ContainsKey(DTO.QuestableID))
+            return Pos;
+
+        Questable Questable = QuestableLookup[DTO.QuestableID];
+        Quest = CreateQuest(Questable);
+        Quest.CurrentProgress = CurrentProgress;
+        return Pos;
+    }
+
+    private void CreateQuestableLookup()
+    {
+        QuestableLookup = new();
+        var QuestableObjects = Resources.LoadAll("Quests", typeof(Questable));
+        foreach (var QuestableObject in QuestableObjects)
+        {
+            Questable Questable = QuestableObject as Questable;
+            if (QuestableLookup.ContainsKey(Questable.ID))
+            {
+                throw new Exception("Questables must have unique IDs! See conflict for ID "+Questable.ID+" between " +
+                    Questable.name + " and " + QuestableLookup[Questable.ID].name);
+            }
+            QuestableLookup.Add(Questable.ID, Questable);
+        }
+    }
+
     public List<Questable> Questables = new();
+    public Quest MainQuest;
+
+    protected Dictionary<int, Questable> QuestableLookup = new();
 
 
     public GameObject QuestPrefab;
     public RectTransform MainQuestContainer, QuestContainer;
     public float RevealSpeed = 10;
     private List<Quest> Quests = new();
-    private Quest MainQuest;
 
     private static float HoverScaleModifier = 1.15f;
     private static Vector3 Origin = new(-100, 50, 0);

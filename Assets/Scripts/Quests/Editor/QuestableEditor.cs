@@ -43,6 +43,7 @@ public class QuestableEditor : Editor
         SerializedProperty MaxProgressProp = serializedObject.FindProperty("MaxProgress");
         SerializedProperty DescriptionProp = serializedObject.FindProperty("Description");
         SerializedProperty QuestTypeProp = serializedObject.FindProperty("QuestType");
+        SerializedProperty IDProp = serializedObject.FindProperty("ID");
 
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Start Progress: ");
@@ -63,6 +64,11 @@ public class QuestableEditor : Editor
         EditorGUILayout.PrefixLabel("Type: ");
         string[] QuestTypes = Enum.GetNames(typeof(Quest.Type));
         QuestTypeProp.intValue = EditorGUILayout.Popup(QuestTypeProp.intValue, QuestTypes, GUILayout.MaxWidth(MAX_WIDTH));
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("ID: ");
+        IDProp.intValue = EditorGUILayout.DelayedIntField(IDProp.intValue, GUILayout.MaxWidth(MAX_WIDTH));
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal();

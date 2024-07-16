@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using Unity.VectorGraphics;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine;
@@ -67,6 +68,11 @@ public class Quest : MonoBehaviour, UIElement
 
         QuestObject.RemoveQuestCallback();
         QuestObject = null;
+    }
+
+    public void InvokeDestroy()
+    {
+        QuestObject.Destroy();
     }
 
     public void Add(QuestTemplate QuestObject)
@@ -144,101 +150,12 @@ public class Quest : MonoBehaviour, UIElement
         return false;
     }
 
+    public QuestTemplate GetQuestObject()
+    {
+        return QuestObject;
+    }
+
     private static Color NormalQuestColor = new(1, 1, 1, 1);
     private static Color MainQuestColor = new(0.52f, 0.68f, 0.85f, 1);
 
-}
-
-
-/** 
- * Actual templated quest, including different callbacks
- * Only has a weak ref to the monobehaviour parent, but should still have same lifetime!
- * Do not generate directly (except from savegame) - should be created from questable!
- */
-public class Quest<T> : QuestTemplate
-{
-    private void Destroy()
-    {
-        _OnQuestCompleted = null;
-        GameObject.DestroyImmediate(Parent.gameObject);
-    }
-
-    public override void OnAccept()
-    {
-        CompleteQuest();
-        RemoveQuest();
-
-        Destroy();
-    }
-
-    public void OnQuestProgress(T Var)
-    {
-        Parent.CurrentProgress += CheckSuccess(Var);
-        Parent.Visualize();
-    }
-
-    public Quest(Quest Parent){
-        this.Parent = Parent;
-    }
-
-    ~Quest()
-    {
-        RemoveQuestCallback();
-    }
-
-    public void CompleteQuest()
-    {
-        RemoveQuestCallback();
-        _OnQuestCompleted?.Invoke();
-        _OnQuestCompleted = null;
-    }
-
-    public void AddCompletionCallback(Action Callback)
-    {
-        _OnQuestCompleted += () =>
-        {
-            Callback();
-        };
-    }
-
-    public Quest GetParent()
-    {
-        return Parent;
-    }
-
-    public override void RemoveQuestCallback()
-    {
-        DeRegisterAction.Invoke(this);
-    }
-
-    public void RemoveQuest()
-    {
-        if (!Game.TryGetService(out QuestService QuestService))
-            return;
-
-        QuestService.RemoveQuest(Parent);
-
-        if (FollowUpQuest == null)
-            return;
-
-        QuestService.AddQuest(FollowUpQuest);
-    }
-
-    public Func<T, int> CheckSuccess;
-    public Action<Quest<T>> DeRegisterAction;
-    public Questable FollowUpQuest;
-
-    protected Quest Parent;
-
-    public delegate void OnQuestCompleted();
-    public event OnQuestCompleted _OnQuestCompleted;
-}
-
-/**
- * We cant easily directly store and access a templated object, so use an abstract interface instead
- */
-public abstract class QuestTemplate
-{
-    public abstract void RemoveQuestCallback();
-    public abstract void OnAccept();
 }

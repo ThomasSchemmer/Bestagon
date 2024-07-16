@@ -5953,6 +5953,8 @@ MonoBehaviour:
       Value: {fileID: 1288013424}
     - Key: 12
       Value: {fileID: 1717196397}
+    - Key: 13
+      Value: {fileID: 1504442746}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -10191,6 +10193,7 @@ MonoBehaviour:
   IsInit: 0
   Questables:
   - {fileID: 11400000, guid: 9472c690c254653488abe553d3cf3040, type: 2}
+  MainQuest: {fileID: 0}
   QuestPrefab: {fileID: 437925112352163288, guid: ebd94edcfae27ae4980ddfa79249973c,
     type: 3}
   MainQuestContainer: {fileID: 1375078346}

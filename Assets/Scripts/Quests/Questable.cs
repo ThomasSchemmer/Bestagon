@@ -1,14 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using static UnityEditor.Progress;
-using static UnityEngine.Rendering.DebugUI;
 
 /** Stores quests in scriptable objects for better management
  * Will be converted on loading into an actual quest
@@ -22,6 +17,7 @@ public abstract class Questable : ScriptableObject
     public string Description;
     public Quest.Type QuestType;
     public Sprite Sprite;
+    public int ID;
 
     /** Will be created once this quest is completed*/
     public Questable FollowUpQuest;
@@ -142,6 +138,7 @@ public abstract class Questable<T> : Questable
         QuestT.AddCompletionCallback(GetCompletionCallback());
         QuestT.DeRegisterAction = GetRegisterCallback(false);
         QuestT.FollowUpQuest = FollowUpQuest;
+        QuestT.QuestableID = ID;
         Quest.Add(QuestT);
         GetRegisterCallback(true).Invoke(QuestT);
     }

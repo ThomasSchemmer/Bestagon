@@ -168,6 +168,7 @@
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
+    <Compile Include="Assets\Scripts\Quests\QuestTemplate.cs" />
     <Compile Include="Assets\Scripts\Util\ChunkTest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />

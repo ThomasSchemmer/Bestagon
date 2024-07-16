@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartProgress: 0
   MaxProgress: 1
-  Description: Build another unit for the lolz
-  QuestType: 0
+  Description: Build a unit
+  QuestType: 2
   Sprite: {fileID: 3286163911610860551, guid: 0e79f57259ac651419d7b62aa66e06d6, type: 3}
+  ID: 1
   FollowUpQuest: {fileID: 0}
   TriggerRegisterScript: {fileID: 11500000, guid: 43c16522ab0420e40b48b12f9d5e5d6f,
     type: 3}

@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: MainQuest_1
   m_EditorClassIdentifier: 
   StartProgress: 0
-  MaxProgress: 3
-  Description: Gather some resources
-  QuestType: 0
+  MaxProgress: 5
+  Description: Gather resources
+  QuestType: 2
   Sprite: {fileID: 21300000, guid: 0f031c90a4be1614ab3bff06b8f12339, type: 3}
+  ID: 0
   FollowUpQuest: {fileID: 11400000, guid: 53b54e759f8fcec4e9b85a945cf6dcc3, type: 2}
   TriggerRegisterScript: {fileID: 11500000, guid: b2c00b5647c885942b2aa16ddfc9d66e,
     type: 3}

@@ -22,7 +22,8 @@ public interface ISaveableService : ISaveableData
         Workers = 9,
         Units = 10,
         Malaise = 11,
-        Spawning = 12
+        Spawning = 12,
+        Quests = 13
     }
 
     /** Deletes all internal data so that it can be loaded from the save or initialized safely*/
