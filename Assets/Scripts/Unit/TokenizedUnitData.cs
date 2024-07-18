@@ -30,6 +30,10 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         _OnMovementTo?.Invoke(Location);
         _OnMovement?.Invoke(Path.Count);
 
+        if (!Game.TryGetService(out Units Units))
+            return;
+        Units.InvokeUnitMoved(this);
+
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 

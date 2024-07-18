@@ -25,31 +25,43 @@ public abstract class Questable : ScriptableObject
     /** Script that allows the quest to register to events, must be a service!
      * Automatically uses the functions declared in @IQuestCompleter
      */
-    public MonoScript TriggerRegisterScript;
+    public MonoScript RegisterScript;
     /** Script that will be called on certain quest events, eg check for fulfillment */
     public MonoScript CallbackScript;
+    /** Script that triggers the unlocking of the quest (and its subsequently adding to the system)*/
+    public MonoScript UnlockScript;
 
-    public Type TriggerRegisterType;
+    public Type RegisterType;
     public Type CallbackType;
+    public Type UnlockType;
     public string CheckSuccessName;
     public string OnCompletionName;
+    public string UnlockName;
 
-    public abstract bool TrySetTriggerRegister();
+    public abstract bool TrySetRegister();
     public abstract bool TrySetCallbacks();
+    public abstract bool TrySetOnUnlock();
     public abstract void Init();
     public abstract void AddGenerics(Quest Quest);
     protected abstract bool IsValidCheckSuccess(MethodInfo Info);
 
+    public enum ScriptType
+    {
+        Trigger,
+        CallbackCheckSuccess,
+        CallbackCompletion, 
+        Unlock
+    }
 
-    public string[] GetQuestableMethods(bool bIsForCheckSuccess)
+    public string[] GetQuestableMethods(ScriptType Type)
     {
         string[] List = new string[0];
-        Type TargetType = CallbackType;
+        Type TargetType = GetTargetType(Type);
         if (TargetType == null)
             return List;
 
         var Infos = TargetType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.NonPublic)
-                    .Where(_ => IsValidInfo(_, bIsForCheckSuccess));
+                    .Where(_ => IsValidInfo(_, Type));
         List = new string[Infos.Count()];
         for (int i = 0; i < Infos.Count(); i++)
         {
@@ -58,18 +70,42 @@ public abstract class Questable : ScriptableObject
         return List;
     }
 
-    public MethodInfo GetInfoForCallback(bool bIsForCheckSuccess)
+    private Type GetTargetType(ScriptType Type)
     {
-        Type TargetType = CallbackType;
+        switch (Type)
+        {
+            case ScriptType.Trigger: return RegisterType;
+            case ScriptType.CallbackCheckSuccess: return CallbackType;
+            case ScriptType.CallbackCompletion: return CallbackType;
+            case ScriptType.Unlock: return UnlockType;
+        }
+        return default;
+    }
+
+    private string GetFunctionName(ScriptType Type)
+    {
+        switch (Type)
+        {
+            case ScriptType.Trigger: return "";
+            case ScriptType.CallbackCheckSuccess: return CheckSuccessName;
+            case ScriptType.CallbackCompletion: return OnCompletionName;
+            case ScriptType.Unlock: return UnlockName;
+            default: return "";
+        }
+    }
+
+    public MethodInfo GetInfoForCallback(ScriptType Type)
+    {
+        Type TargetType = GetTargetType(Type);
         if (TargetType == null)
             return null;
 
-        string Name = bIsForCheckSuccess ? CheckSuccessName : OnCompletionName;
+        string Name = GetFunctionName(Type);
         if (Name.Equals(string.Empty))
             return null;
 
         var Infos = TargetType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.NonPublic)
-                    .Where(_ => IsValidInfo(_, bIsForCheckSuccess));
+                    .Where(_ => IsValidInfo(_, Type));
 
         foreach (var Info in Infos)
         {
@@ -84,7 +120,7 @@ public abstract class Questable : ScriptableObject
 
     public MethodInfo GetStaticInfoForTrigger(bool bIsForRegister)
     {
-        Type TargetType = TriggerRegisterType;
+        Type TargetType = RegisterType;
         if (TargetType == null)
             return null;
 
@@ -105,16 +141,28 @@ public abstract class Questable : ScriptableObject
         return null;
     }
 
-    private bool IsValidInfo(MethodInfo Info, bool bIsForCheckSuccess)
+    private bool IsValidInfo(MethodInfo Info, ScriptType Type)
     {
-        return Info.IsDefined(typeof(QuestableAttribute)) &&
-            (bIsForCheckSuccess ? IsValidCheckSuccess(Info) : IsValidOnCompletion(Info));
+        bool bIsValid = false;
+        switch (Type)
+        {
+            case ScriptType.Unlock: bIsValid = IsValidOnUnlock(Info); break;
+            case ScriptType.CallbackCheckSuccess: bIsValid = IsValidCheckSuccess(Info); break;
+            case ScriptType.CallbackCompletion: bIsValid = IsValidOnCompletion(Info); break;
+            default: bIsValid = true; break;
+        }
+        return bIsValid && Info.IsDefined(typeof(QuestableAttribute));
     }
 
 
     private bool IsValidOnCompletion(MethodInfo Info)
     {
         return Info.ReturnType == typeof(void) && Info.GetParameters().Length == 0;
+    }
+
+    private bool IsValidOnUnlock(MethodInfo Info)
+    {
+        return Info.ReturnType == typeof(bool) && Info.GetParameters().Length == 0;
     }
 
 
@@ -127,8 +175,9 @@ public abstract class Questable<T> : Questable
 {
     public override void Init()
     {
-        TrySetTriggerRegister();
+        TrySetRegister();
         TrySetCallbacks();
+        TrySetOnUnlock();
     }
 
     public override void AddGenerics(Quest Quest)
@@ -137,6 +186,7 @@ public abstract class Questable<T> : Questable
         QuestT.CheckSuccess = GetCheckSuccessFunction();
         QuestT.AddCompletionCallback(GetCompletionCallback());
         QuestT.DeRegisterAction = GetRegisterCallback(false);
+        QuestT.Unlock = GetUnlockCallback();
         QuestT.FollowUpQuest = FollowUpQuest;
         QuestT.QuestableID = ID;
         Quest.Add(QuestT);
@@ -162,14 +212,19 @@ public abstract class Questable<T> : Questable
         return false;
     }
 
-    public override bool TrySetTriggerRegister()
+    public override bool TrySetRegister()
     {
-        return TryGetScriptType<IQuestTrigger<T>>(TriggerRegisterScript, out TriggerRegisterType);
+        return TryGetScriptType<IQuestTrigger<T>>(RegisterScript, out RegisterType);
     }
 
     public override bool TrySetCallbacks()
     {
         return TryGetScriptType<IQuestCallback>(CallbackScript, out CallbackType);
+    }
+
+    public override bool TrySetOnUnlock()
+    {
+        return TryGetScriptType<IQuestUnlock>(UnlockScript, out UnlockType);
     }
 
     protected override bool IsValidCheckSuccess(MethodInfo Info)
@@ -194,7 +249,7 @@ public abstract class Questable<T> : Questable
         if (!Game.TryGetServiceByType(CallbackType, out GameService Service))
             return null;
 
-        MethodInfo Info = GetInfoForCallback(true);
+        MethodInfo Info = GetInfoForCallback(ScriptType.CallbackCheckSuccess);
         if (Info == null)
             return null;
 
@@ -208,7 +263,7 @@ public abstract class Questable<T> : Questable
 
     public Action GetCompletionCallback()
     {
-        MethodInfo Info = GetInfoForCallback(false);
+        MethodInfo Info = GetInfoForCallback(ScriptType.CallbackCompletion);
         if (!Game.TryGetServiceByType(CallbackType, out GameService Service))
             return null;
 
@@ -227,6 +282,18 @@ public abstract class Questable<T> : Questable
         var Data = Expression.Parameter(typeof(Quest<T>), "Data");
         Action<Quest<T>> Result = Expression.Lambda<Action<Quest<T>>>(
          Expression.Call(Info, Data), Data).Compile();
+        return Result;
+    }
+
+    public Func<bool> GetUnlockCallback()
+    {
+        MethodInfo Info = GetInfoForCallback(ScriptType.Unlock);
+        if (!Game.TryGetServiceByType(UnlockType, out GameService Service))
+            return null;
+
+        Func<bool> Result = Expression.Lambda<Func<bool>>(
+         Expression.Call(Expression.Constant(Service), Info)).Compile();
+
         return Result;
     }
 }

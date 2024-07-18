@@ -70,6 +70,20 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
         CheckForGameOver();
     }
 
+    public bool HasAnyUnit(UnitData.UnitType UnitType, out TokenizedUnitData FoundUnit)
+    {
+        foreach (TokenizedUnitData Unit in Units)
+        {
+            if (Unit.Type != UnitType)
+                continue;
+
+            FoundUnit = Unit;
+            return true;
+        }
+        FoundUnit = default;
+        return false;
+    }
+
     private void CheckForGameOver()
     {
         if (Units.Count != 0)
@@ -82,6 +96,11 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
             return;
 
         Game.Instance.GameOver("Your tribe has died out!");
+    }
+
+    public void InvokeUnitMoved(TokenizedUnitData Unit)
+    {
+        _OnUnitMoved?.Invoke(Unit);
     }
 
     public int GetIdleScoutCount()
@@ -137,6 +156,8 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
 
     public delegate void OnUnitCountChanged();
     public delegate void OnUnitCreated(UnitData Unit);
+    public delegate void OnUnitMoved(UnitData Unit);
     public static event OnUnitCountChanged _OnUnitCountChanged;
     public static event OnUnitCreated _OnUnitCreated;
+    public static event OnUnitMoved _OnUnitMoved;
 }

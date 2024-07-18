@@ -100,7 +100,7 @@ public class Quest : MonoBehaviour, UIElement
             TypeImageSVG.color = new(1, 1, 1, 1);
         }
         Text.text = Message + " (" + CurrentProgress + "/" +MaxProgress + ")";
-        BackgroundImage.color = QuestType == Type.Main ? MainQuestColor : NormalQuestColor;
+        BackgroundImage.color = GetBackgroundColor();
         DiscoveryImage.gameObject.SetActive(!IsDiscovered());
         AcceptButton.gameObject.SetActive(IsCompleted());
         TypeImageSVG.gameObject.SetActive(!IsCompleted());
@@ -150,6 +150,16 @@ public class Quest : MonoBehaviour, UIElement
         return false;
     }
 
+    private Color GetBackgroundColor()
+    {
+        switch (QuestType)
+        {
+            case Type.Main: return MainQuestColor;
+            case Type.Negative: return NegativeQuestColor;
+            default: return NormalQuestColor;
+        }
+    }
+
     public QuestTemplate GetQuestObject()
     {
         return QuestObject;
@@ -157,5 +167,6 @@ public class Quest : MonoBehaviour, UIElement
 
     private static Color NormalQuestColor = new(1, 1, 1, 1);
     private static Color MainQuestColor = new(0.52f, 0.68f, 0.85f, 1);
+    private static Color NegativeQuestColor = new(0.85f, 0.52f, 0.52f, 1);
 
 }

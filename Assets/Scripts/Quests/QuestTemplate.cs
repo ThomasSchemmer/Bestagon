@@ -31,6 +31,11 @@ public class Quest<T> : QuestTemplate
     {
         Parent.CurrentProgress += CheckSuccess(Var);
         Parent.Visualize();
+
+        if (Parent.QuestType != Quest.Type.Negative || !Parent.IsCompleted())
+            return;
+
+        OnAccept();
     }
 
     public Quest(Quest Parent)
@@ -99,6 +104,8 @@ public abstract class QuestTemplate
     public Quest Parent;
     /** used for save only, references the Questable to load */
     public int QuestableID;
+    /** Function ptr which returns true if it should be unlocked */
+    public Func<bool> Unlock;
 
     public abstract void RemoveQuestCallback();
     public abstract void OnAccept();

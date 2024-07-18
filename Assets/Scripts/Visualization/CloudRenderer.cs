@@ -8,7 +8,7 @@ using UnityEngine;
  * - WhorleyCompute: calculates 4 different noises (1 simplex, 3 WhorleyCompute) and compresses them into a single int
  * - CloudShader: Takes the noise data and screen space position to render clouds as a post-processing effect
  */
-public class CloudRenderer : GameService, ISaveableService
+public class CloudRenderer : GameService, ISaveableService, IQuestCallback, IQuestUnlock
 {
     public Dictionary<Vector2Int, MalaiseData> ActiveMalaises = new();
 
@@ -256,6 +256,60 @@ public class CloudRenderer : GameService, ISaveableService
         PointBuffer?.Release();
         DirectionsBuffer?.Release();
         MinMaxBuffer?.Release();
+    }
+
+    [Questable]
+    private int OnBuildingMalaised(BuildingData Building)
+    {
+        return 1;
+    }
+
+    [Questable]
+    private void SpawnMalaiseQuest()
+    {
+        if (!Game.TryGetServices(out Units Units, out MapGenerator MapGen))
+            return;
+
+        if (!Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData Scout))
+            return;
+
+        int Distance = 6;
+        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.Location, Distance);
+        HexagonData Target = null;
+        foreach (Location Location in Locations)
+        {
+            var Path = Pathfinding.FindPathFromTo(Scout.Location, Location);
+            if (Path.Count < Distance - 1)
+                continue;
+
+            if (!MapGen.TryGetHexagonData(Location, out HexagonData Hex))
+                continue;
+
+            if (Hex.IsMalaised())
+                continue;
+
+            Target = Hex;
+            break;
+        }
+        if (Target == null)
+            return;
+
+        var Neighbours = MapGen.GetNeighboursData(Target.Location, true);
+        foreach (var Neighbour in Neighbours)
+        {
+            Neighbour.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+        }
+
+        //make a quest to move there in x rounds
+    }
+
+    [Questable]
+    public bool ShouldUnlock()
+    {
+        if (!Game.TryGetService(out Units Units))
+            return false;
+
+        return Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData _);
     }
 
     public void Reset()

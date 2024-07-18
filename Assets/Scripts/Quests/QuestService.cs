@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using UnityEngine.XR;
 
 public class QuestService : GameService, ISaveableService
 { 
@@ -17,20 +15,34 @@ public class QuestService : GameService, ISaveableService
 
     private Quest AddQuest(Quest Quest)
     {
-        if (Quest.QuestType == Quest.Type.Main)
-        {
-            if (MainQuest != null)
-            {
-                throw new Exception("Cannot add main quest while the old one is still valid!");
-            }
-            MainQuest = Quest;
-        }
-        else
-        {
-            Quests.Add(Quest);
-        }
+        AddMainQuest(Quest);
+        AddRegularQuest(Quest);
         DisplayQuests(true);
         return Quest;
+    }
+
+    private void AddMainQuest(Quest Quest)
+    {
+        if (Quest.QuestType != Quest.Type.Main)
+            return;
+
+        if (MainQuest != null)
+        {
+            throw new Exception("Cannot add main quest while the old one is still valid!");
+        }
+        MainQuest = Quest;
+    }
+
+    private void AddRegularQuest(Quest Quest)
+    {
+        if (Quest.QuestType == Quest.Type.Main)
+            return;
+
+        QuestTemplate Q = Quest.GetQuestObject();
+        bool bShouldBeUnlocked = Q.Unlock == null || Q.Unlock.Invoke();
+        List<Quest> Target = bShouldBeUnlocked ? Quests : QuestsToUnlock;
+
+        Target.Add(Quest);
     }
 
     public Quest CreateQuest(Questable Original)
@@ -87,11 +99,23 @@ public class QuestService : GameService, ISaveableService
         QuestTransform.localScale = Vector3.one * GetHoverModifier(Quest);
     }
 
-    private int CheckForWellUnlock(BuildingConfig.Type Type) {
-        if (Type != BuildingConfig.Type.Well)
-            return 0;
+    public void CheckForQuestsToUnlock()
+    {
+        List<Quest> QuestsToActivate = new();
+        foreach (var Quest in QuestsToUnlock)
+        {
+            if (!Quest.GetQuestObject().Unlock.Invoke())
+                continue;
 
-        return 1;
+            QuestsToActivate.Add(Quest);
+        }
+
+        foreach (Quest Quest in QuestsToActivate)
+        {
+            Quests.Add(Quest);
+            QuestsToUnlock.Remove(Quest);
+        }
+        QuestsToActivate.Clear();
     }
 
     private Vector2 GetQuestOffset(Quest Quest, int i, RectTransform TargetTransform)
@@ -122,12 +146,16 @@ public class QuestService : GameService, ISaveableService
 
     private void LoadQuestables()
     {
-        foreach (Questable Questable in Questables)
+        CreateQuestableLookup(true);
+        foreach (var Tuple in QuestableLookup)
         {
-            AddQuest(Questable);
+            // already removed follow-up quests
+            if (Tuple.Value == null)
+                continue;
+
+            AddQuest(Tuple.Value);
         }
     }
-
 
     protected override void StartServiceInternal()
     {
@@ -224,7 +252,7 @@ public class QuestService : GameService, ISaveableService
         return Pos;
     }
 
-    private void CreateQuestableLookup()
+    private void CreateQuestableLookup(bool bShouldRemoveFollowUps = false)
     {
         QuestableLookup = new();
         var QuestableObjects = Resources.LoadAll("Quests", typeof(Questable));
@@ -238,18 +266,33 @@ public class QuestService : GameService, ISaveableService
             }
             QuestableLookup.Add(Questable.ID, Questable);
         }
-    }
+        if (!bShouldRemoveFollowUps)
+            return;
 
-    public List<Questable> Questables = new();
+        List<int> IDsToRemove = new();
+        foreach (var Tuple in QuestableLookup)
+        {
+            if (Tuple.Value.FollowUpQuest == null)
+                continue;
+
+            int ID = Tuple.Value.FollowUpQuest.ID;
+            IDsToRemove.Add(ID);
+        }
+        foreach (int ID in IDsToRemove)
+        {
+            QuestableLookup.Remove(ID);
+        }
+    }
+    
     public Quest MainQuest;
+    public List<Quest> Quests = new();
+    public List<Quest> QuestsToUnlock = new();
 
     protected Dictionary<int, Questable> QuestableLookup = new();
-
 
     public GameObject QuestPrefab;
     public RectTransform MainQuestContainer, QuestContainer;
     public float RevealSpeed = 10;
-    private List<Quest> Quests = new();
 
     private static float HoverScaleModifier = 1.15f;
     private static Vector3 Origin = new(-100, 50, 0);

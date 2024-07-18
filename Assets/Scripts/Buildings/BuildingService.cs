@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class BuildingService : GameService, ISaveableService
+public class BuildingService : GameService, ISaveableService, IQuestTrigger<BuildingData>
 {
     protected override void StartServiceInternal()
     {
@@ -61,6 +61,9 @@ public class BuildingService : GameService, ISaveableService
 
         string Text = Building.BuildingType.ToString() + " has been destroyed by the malaise";
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
+
+        _OnBuildingDestroyed?.Invoke(Building);
+        Destroy(Building);
     }
 
     private int GetBuildingsSize()
@@ -119,6 +122,19 @@ public class BuildingService : GameService, ISaveableService
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 
+    public static void DeregisterQuest(Quest<BuildingData> Quest)
+    {
+        _OnBuildingDestroyed -= Quest.OnQuestProgress;
+    }
+
+    public static void RegisterQuest(Quest<BuildingData> Quest)
+    {
+        _OnBuildingDestroyed += Quest.OnQuestProgress;
+    }
+
     // todo: save spatially effient, either chunks or quadtree etc
     public List<BuildingData> Buildings = new();
+
+    public delegate void OnBuildingDestroyed(BuildingData Building);
+    public static OnBuildingDestroyed _OnBuildingDestroyed;
 }

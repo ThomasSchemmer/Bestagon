@@ -17,20 +17,25 @@ public class QuestableEditor : Editor
     override public void OnInspectorGUI()
     {
         Questable Questable = target as Questable;
-        EditorGUI.BeginChangeCheck();
 
         DrawRegularProperties();
         GUILayout.Space(10);
-
-        bool bIsDisabled = !Verify(Questable);
-
+        
         DrawTriggerRegisterField();
         GUILayout.Space(10);
+
+        bool bIsDisabled = !Verify(Questable);
 
         EditorGUILayout.BeginVertical();
         DrawCallbackField();
         DrawCheckSuccess(Questable, bIsDisabled);
         DrawOnCompletion(Questable, bIsDisabled);
+        EditorGUILayout.EndVertical();
+        GUILayout.Space(10);
+
+        EditorGUILayout.BeginVertical();
+        DrawUnlockField();
+        DrawOnUnlock(Questable);
         EditorGUILayout.EndVertical();
 
         serializedObject.ApplyModifiedProperties();
@@ -84,7 +89,7 @@ public class QuestableEditor : Editor
 
     private void DrawTriggerRegisterField()
     {
-        SerializedProperty RegisterProp = serializedObject.FindProperty("TriggerRegisterScript");
+        SerializedProperty RegisterProp = serializedObject.FindProperty("RegisterScript");
         EditorGUILayout.ObjectField(RegisterProp, typeof(MonoScript));
     }
     private void DrawCallbackField()
@@ -93,13 +98,18 @@ public class QuestableEditor : Editor
         EditorGUILayout.ObjectField(RegisterProp, typeof(MonoScript));
     }
 
+    private void DrawUnlockField()
+    {
+        SerializedProperty UnlockProp = serializedObject.FindProperty("UnlockScript");
+        EditorGUILayout.ObjectField(UnlockProp, typeof(MonoScript));
+    }
+
     private void DrawCheckSuccess(Questable Questable, bool bIsDisabled)
     {
-
         EditorGUI.BeginDisabledGroup(bIsDisabled);
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.PrefixLabel("OnSuccess: ");
-        string[] AvailableMethods = Questable.GetQuestableMethods(true);
+        EditorGUILayout.PrefixLabel("CheckSuccess: ");
+        string[] AvailableMethods = Questable.GetQuestableMethods(Questable.ScriptType.CallbackCheckSuccess);
         SerializedProperty CheckSuccessProperty = serializedObject.FindProperty("CheckSuccessName");
         int Selected = AvailableMethods.ToList().IndexOf(CheckSuccessProperty.stringValue);
         Selected = EditorGUILayout.Popup(Selected, AvailableMethods, GUILayout.MaxWidth(MAX_WIDTH));
@@ -113,7 +123,7 @@ public class QuestableEditor : Editor
         EditorGUI.BeginDisabledGroup(bIsDisabled);
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("OnCompletion: ");
-        string[] AvailableMethods = Questable.GetQuestableMethods(false);
+        string[] AvailableMethods = Questable.GetQuestableMethods(Questable.ScriptType.CallbackCompletion);
         SerializedProperty OnCompletionProperty = serializedObject.FindProperty("OnCompletionName");
         int Selected = AvailableMethods.ToList().IndexOf(OnCompletionProperty.stringValue);
         Selected = EditorGUILayout.Popup(Selected, AvailableMethods, GUILayout.MaxWidth(MAX_WIDTH));
@@ -122,21 +132,41 @@ public class QuestableEditor : Editor
         EditorGUI.EndDisabledGroup();
     }
 
+    private void DrawOnUnlock(Questable Questable)
+    {
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Unlocks with: ");
+        string[] AvailableMethods = Questable.GetQuestableMethods(Questable.ScriptType.Unlock);
+        SerializedProperty UnlockProperty = serializedObject.FindProperty("UnlockName");
+        int Selected = AvailableMethods.ToList().IndexOf(UnlockProperty.stringValue);
+        Selected = EditorGUILayout.Popup(Selected, AvailableMethods, GUILayout.MaxWidth(MAX_WIDTH));
+        UnlockProperty.stringValue = Selected < 0 ? "" : AvailableMethods[Selected];
+        EditorGUILayout.EndHorizontal();
+    }
+
     private bool Verify(Questable Questable)
     {
-        if (!Questable.TrySetTriggerRegister())
+        if (!Questable.TrySetRegister())
         {
-            Debug.LogError("Script has to inherit from IQuestTrigger!");
-            Questable.TriggerRegisterScript = null;
+            Debug.LogError("Register Script has to inherit from IQuestTrigger!");
+            Questable.RegisterScript = null;
             return false;
         }
 
         if (!Questable.TrySetCallbacks())
         {
-            Debug.LogError("Script has to inherit from IQuestCallback!");
+            Debug.LogError("Callback Script has to inherit from IQuestCallback!");
             Questable.CallbackScript = null;
             return false;
         }
+
+        if (Questable.UnlockScript != null && !Questable.TrySetOnUnlock())
+        {
+            Debug.LogError("Unlock Script has to inherit from IQuestUnlock!");
+            Questable.UnlockScript = null;
+            return false;
+        }
+
 
         return true;
     }

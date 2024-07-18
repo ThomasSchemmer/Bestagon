@@ -21,6 +21,7 @@ public class Turn : GameService
         Units = Game.GetService<Units>();
         CloudRenderer = Game.GetService<CloudRenderer>();
         Selectors = Game.GetService<Selectors>();
+        Quests = Game.GetService<QuestService>();
 
         gameObject.SetActive(true);
         TurnUI.SetActive(true);
@@ -48,6 +49,8 @@ public class Turn : GameService
 
         MiniMap.FillBuffer();
         Selectors.DeselectCard();
+        Quests.CheckForQuestsToUnlock();
+
         _OnTurnEnd?.Invoke();
     }
 
@@ -126,6 +129,7 @@ public class Turn : GameService
     private Units Units;
     private CloudRenderer CloudRenderer;
     private Selectors Selectors;
+    private QuestService Quests;
 
     public int TurnNr = 1;
     public GameObject TurnUI;
