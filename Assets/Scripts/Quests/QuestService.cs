@@ -1,29 +1,43 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Unity.Collections;
 using UnityEngine;
 
 public class QuestService : GameService, ISaveableService
 { 
-    public Quest AddQuest(Questable Original) {
+    public QuestUIElement AddQuest(Type Type) {
 
-        Quest Quest = CreateQuest(Original);
-        AddQuest(Quest);    
+        QuestUIElement Quest = CreateQuest(Type);
+        ActivateQuest(Quest);    
         return Quest;
     }
 
-    private Quest AddQuest(Quest Quest)
+    private void ActivateQuest(QuestUIElement QuestUI)
     {
-        AddMainQuest(Quest);
-        AddRegularQuest(Quest);
+        QuestTemplate QuestT = QuestUI.GetQuestObject();
+        if (!QuestT.ShouldUnlock())
+        {
+            QuestsToUnlock.Add(QuestUI);
+            return;
+        }
+
+        QuestT.Register();
+        switch (QuestT.QuestType)
+        {
+            case QuestTemplate.Type.Positive: AddPositiveQuest(QuestUI); break;
+            case QuestTemplate.Type.Negative: AddNegativeQuest(QuestUI); break;
+            case QuestTemplate.Type.Main: AddMainQuest(QuestUI); break;
+        }
+        QuestUI.Visualize();
         DisplayQuests(true);
-        return Quest;
     }
 
-    private void AddMainQuest(Quest Quest)
+    private void AddMainQuest(QuestUIElement Quest)
     {
-        if (Quest.QuestType != Quest.Type.Main)
+        if (Quest.GetQuestType() != QuestTemplate.Type.Main)
             return;
 
         if (MainQuest != null)
@@ -33,38 +47,46 @@ public class QuestService : GameService, ISaveableService
         MainQuest = Quest;
     }
 
-    private void AddRegularQuest(Quest Quest)
+    private void AddNegativeQuest(QuestUIElement Quest)
     {
-        if (Quest.QuestType == Quest.Type.Main)
+        if (Quest.GetQuestType() != QuestTemplate.Type.Negative)
             return;
 
-        QuestTemplate Q = Quest.GetQuestObject();
-        bool bShouldBeUnlocked = Q.Unlock == null || Q.Unlock.Invoke();
-        List<Quest> Target = bShouldBeUnlocked ? Quests : QuestsToUnlock;
-
-        Target.Add(Quest);
+        if (NegativeQuest != null)
+        {
+            throw new Exception("Cannot add negative quest while the old one is still valid!");
+        }
+        NegativeQuest = Quest;
     }
 
-    public Quest CreateQuest(Questable Original)
+    private void AddPositiveQuest(QuestUIElement Quest)
+    {
+        if (Quest.GetQuestType() != QuestTemplate.Type.Positive)
+            return;
+
+        PositiveQuests.Insert(0, Quest);
+    }
+
+    public QuestUIElement CreateQuest(Type Type)
     {
         GameObject QuestObj = Instantiate(QuestPrefab);
 
-        Questable Copy = Instantiate(Original);
-        Copy.Init();
+        QuestUIElement QuestElement = QuestObj.AddComponent<QuestUIElement>();
 
-        Quest Quest = QuestObj.AddComponent<Quest>();
-        Quest.CurrentProgress = Copy.StartProgress;
-        Quest.MaxProgress = Copy.MaxProgress;
-        Quest.Message = Copy.Description;
-        Quest.Sprite = Copy.Sprite;
-        Quest.QuestType = Copy.QuestType;
-        Copy.AddGenerics(Quest);
-        return Quest;
+        QuestTemplate Quest = Activator.CreateInstance(Type) as QuestTemplate;
+        Quest.Init(QuestElement);
+
+        QuestElement.Init(Quest);
+        return QuestElement;
     }
 
-    public void RemoveQuest(Quest Quest)
+    public void RemoveQuest(QuestUIElement Quest)
     {
-        Quests.Remove(Quest);
+        PositiveQuests.Remove(Quest);
+        if (Quest.GetQuestObject().TryGetNextType(out Type Type))
+        {
+            QuestsToUnlock.Add(CreateQuest(Type));
+        }
         DisplayQuests();
     }
 
@@ -75,20 +97,22 @@ public class QuestService : GameService, ISaveableService
 
     public void DisplayQuests(bool bForceInstant = false)
     {
-        DisplayQuest(MainQuest, 0, true, bForceInstant);
+        DisplayQuest(MainQuest, 0, MainQuestContainer, bForceInstant);
 
-        for (int i = 0; i < Quests.Count; i++) {
-            DisplayQuest(Quests[i], i, false, bForceInstant);
+        DisplayQuest(NegativeQuest, 0, NegativeQuestContainer, bForceInstant);
+
+        int Offset = NegativeQuest == null ? 1 : 0;
+        for (int i = 0; i < PositiveQuests.Count; i++) {
+            DisplayQuest(PositiveQuests[i], i - Offset, QuestContainer, bForceInstant);
         }
     }
 
-    private void DisplayQuest(Quest Quest, int i, bool bIsMainQuest, bool bForceInstant = false)
+    private void DisplayQuest(QuestUIElement Quest, int i, RectTransform TargetTransform, bool bForceInstant = false)
     {
         if (Quest == null)
             return;
 
         RectTransform QuestTransform = Quest.GetComponent<RectTransform>();
-        RectTransform TargetTransform = bIsMainQuest ? MainQuestContainer : QuestContainer;
         QuestTransform.SetParent(TargetTransform, false);
 
         Vector3 Offset = GetQuestOffset(Quest, i, TargetTransform);
@@ -101,24 +125,24 @@ public class QuestService : GameService, ISaveableService
 
     public void CheckForQuestsToUnlock()
     {
-        List<Quest> QuestsToActivate = new();
+        List<QuestUIElement> QuestsToActivate = new();
         foreach (var Quest in QuestsToUnlock)
         {
-            if (!Quest.GetQuestObject().Unlock.Invoke())
+            if (!Quest.GetQuestObject().ShouldUnlock())
                 continue;
 
             QuestsToActivate.Add(Quest);
         }
 
-        foreach (Quest Quest in QuestsToActivate)
+        foreach (QuestUIElement Quest in QuestsToActivate)
         {
-            Quests.Add(Quest);
+            ActivateQuest(Quest);
             QuestsToUnlock.Remove(Quest);
         }
         QuestsToActivate.Clear();
     }
 
-    private Vector2 GetQuestOffset(Quest Quest, int i, RectTransform TargetTransform)
+    private Vector2 GetQuestOffset(QuestUIElement Quest, int i, RectTransform TargetTransform)
     {
         float Scale = GetHoverModifier(Quest);
         float HalfScale = 1 + (Scale - 1) / 2f;
@@ -139,31 +163,28 @@ public class QuestService : GameService, ISaveableService
         return -Offset + ElementOffset;
     }
 
-    private float GetHoverModifier(Quest Quest)
+    private float GetHoverModifier(QuestUIElement Quest)
     {
         return Quest.IsHovered() ? HoverScaleModifier : 1;
     }
 
-    private void LoadQuestables()
+    private void Loadtemplates()
     {
-        CreateQuestableLookup(true);
-        foreach (var Tuple in QuestableLookup)
+        LoadQuestTemplates(true);
+        // already removed follow-up quests
+        foreach (var Type in QuestTypes)
         {
-            // already removed follow-up quests
-            if (Tuple.Value == null)
-                continue;
-
-            AddQuest(Tuple.Value);
+            AddQuest(Type);
         }
     }
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((IconFactory IconFactory) =>
+        Game.RunAfterServicesInit((IconFactory IconFactory, SaveGameManager Manager) =>
         {
-            if (!Game.IsIn(Game.GameState.CardSelection))
+            if (!Game.IsIn(Game.GameState.CardSelection) && !Manager.HasDataFor(ISaveableService.SaveGameType.Quests))
             {
-                LoadQuestables();
+                Loadtemplates();
             }
 
             _OnInit?.Invoke(this);
@@ -179,40 +200,59 @@ public class QuestService : GameService, ISaveableService
             MainQuest.InvokeDestroy();
             MainQuest = null;
         }
-        foreach (Quest Quest in Quests)
+        if (NegativeQuest != null)
+        {
+            NegativeQuest.InvokeDestroy();
+            NegativeQuest = null;
+        }
+        foreach (QuestUIElement Quest in PositiveQuests)
         {
             Quest.InvokeDestroy();
         }
-        Quests.Clear();
+        PositiveQuests.Clear();
     }
 
     public int GetSize()
     {
-        // add count and overall size
-        return QuestTemplateDTO.GetStaticSize() * GetQuestCount() + sizeof(int) * 2; 
+        // add count and overall size and main/negative flag
+        return QuestTemplateDTO.GetStaticSize() * GetQuestCount() + sizeof(int) * 2 + sizeof(byte); 
     }
 
     private int GetQuestCount()
     {
         // count main quest as well
-        return Quests.Count + 1;
+        return PositiveQuests.Count + (MainQuest != null ? 1 : 0) + (NegativeQuest != null ? 1 : 0);
     }
 
     public byte[] GetData()
     {
+        bool bHasMain = MainQuest != null;
+        bool bHasNegative = NegativeQuest != null;
+        byte QuestFlag = (byte)((bHasMain ? 2 : 0) + (bHasNegative ? 1 : 0));
+
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         // save the size to make reading it easier
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetQuestCount());
+        Pos = SaveGameManager.AddByte(Bytes, Pos, QuestFlag);
 
-        foreach (Quest Quest in Quests)
+        foreach (QuestUIElement Quest in PositiveQuests)
         {
             QuestTemplateDTO DTO = QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject());
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
         }
-        QuestTemplateDTO MainDTO = QuestTemplateDTO.CreateFromQuest(MainQuest.GetQuestObject());
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, MainDTO);
+        if (bHasMain)
+        {
+            QuestTemplateDTO MainDTO = QuestTemplateDTO.CreateFromQuest(MainQuest.GetQuestObject());
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, MainDTO);
+        }
+
+        if (bHasNegative)
+        {
+            QuestTemplateDTO NegativeDTO = QuestTemplateDTO.CreateFromQuest(NegativeQuest.GetQuestObject());
+            Pos = SaveGameManager.AddSaveable(Bytes, Pos, NegativeDTO);
+        }
 
         return Bytes.ToArray();
     }
@@ -221,77 +261,110 @@ public class QuestService : GameService, ISaveableService
 
     public void SetData(NativeArray<byte> Bytes)
     {
-        CreateQuestableLookup();
+        LoadQuestTemplates(false);
 
         // skip overall size info at the beginning
         int Pos = sizeof(int);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int QuestLength);
+        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte QuestFlag);
 
-        Quests = new();
-        for (int i = 0; i < QuestLength - 1; i++)
+        bool bHasMain = ((QuestFlag >> 1) & 0x1) == 1;
+        bool bHasNegative = ((QuestFlag >> 0) & 0x1) == 1;
+        int Offset = (bHasMain ? 1 : 0) + (bHasNegative ? 1 : 0);
+
+        PositiveQuests = new();
+        for (int i = 0; i < QuestLength - Offset; i++)
         {
-            Pos = LoadQuestFromSavegame(Bytes, Pos, out Quest Quest);
-            AddQuest(Quest);
+            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement Quest);
+            ActivateQuest(Quest);
         }
-        Pos = LoadQuestFromSavegame(Bytes, Pos, out Quest MainQuest);
-        AddQuest(MainQuest);
+        if (bHasMain)
+        {
+            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement MainQuest);
+            ActivateQuest(MainQuest);
+        }
+        if (bHasNegative)
+        {
+            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement NegativeQuest);
+            ActivateQuest(NegativeQuest);
+        }
     }
-    private int LoadQuestFromSavegame(NativeArray<byte> Bytes, int Pos, out Quest Quest)
+
+    private int LoadQuestFromSavegame(NativeArray<byte> Bytes, int Pos, out QuestUIElement Quest)
     {
         Quest = default;
         QuestTemplateDTO DTO = new();
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
 
         float CurrentProgress = DTO.CurrentProgress;
-        if (!QuestableLookup.ContainsKey(DTO.QuestableID))
+        if (!TryGetQuestType(DTO, out Type FoundType))
             return Pos;
 
-        Questable Questable = QuestableLookup[DTO.QuestableID];
-        Quest = CreateQuest(Questable);
-        Quest.CurrentProgress = CurrentProgress;
+        Quest = CreateQuest(FoundType);
+        Quest.SetCurrentProgress(CurrentProgress);
         return Pos;
     }
 
-    private void CreateQuestableLookup(bool bShouldRemoveFollowUps = false)
+    private bool TryGetQuestType(QuestTemplateDTO DTO, out Type FoundType)
     {
-        QuestableLookup = new();
-        var QuestableObjects = Resources.LoadAll("Quests", typeof(Questable));
-        foreach (var QuestableObject in QuestableObjects)
+        FoundType = default;
+        foreach (var Type in QuestTypes)
         {
-            Questable Questable = QuestableObject as Questable;
-            if (QuestableLookup.ContainsKey(Questable.ID))
-            {
-                throw new Exception("Questables must have unique IDs! See conflict for ID "+Questable.ID+" between " +
-                    Questable.name + " and " + QuestableLookup[Questable.ID].name);
-            }
-            QuestableLookup.Add(Questable.ID, Questable);
-        }
-        if (!bShouldRemoveFollowUps)
-            return;
-
-        List<int> IDsToRemove = new();
-        foreach (var Tuple in QuestableLookup)
-        {
-            if (Tuple.Value.FollowUpQuest == null)
+            if (!QuestTemplateDTO.GetCutName(Type).Equals(DTO.TypeName))
                 continue;
 
-            int ID = Tuple.Value.FollowUpQuest.ID;
-            IDsToRemove.Add(ID);
+            FoundType = Type;
+            return true;
         }
-        foreach (int ID in IDsToRemove)
+
+        return false;
+    }
+
+    private void LoadQuestTemplates(bool bRemoveFollowUps)
+    {
+        QuestTypes = new();
+
+        Type BaseType = typeof(QuestTemplate);
+        Type[] Types = Assembly.GetAssembly(typeof(QuestTemplate)).GetTypes();
+        Types = Types.Where(type => type.IsSubclassOf(BaseType) && !type.IsAbstract).ToArray();
+
+        foreach (var Type in Types)
         {
-            QuestableLookup.Remove(ID);
+            QuestTemplate Template = Activator.CreateInstance(Type) as QuestTemplate;
+            QuestTypes.Add(Type);
         }
+        if (!bRemoveFollowUps)
+            return;
+
+        List<Type> TypesToRemove = new();
+        foreach (var Type in QuestTypes)
+        {
+            QuestTemplate Template = Activator.CreateInstance(Type) as QuestTemplate;
+            if (!Template.TryGetNextType(out Type NextType))
+                continue;
+
+            // repeated quest should stay
+            if (NextType == Type)
+                continue;
+
+            TypesToRemove.Add(NextType);
+        }
+        foreach (Type Type in TypesToRemove)
+        {
+            QuestTypes.Remove(Type);
+        }
+
     }
     
-    public Quest MainQuest;
-    public List<Quest> Quests = new();
-    public List<Quest> QuestsToUnlock = new();
+    public QuestUIElement MainQuest;
+    public QuestUIElement NegativeQuest;
+    public List<QuestUIElement> PositiveQuests = new();
+    public List<QuestUIElement> QuestsToUnlock = new();
 
-    protected Dictionary<int, Questable> QuestableLookup = new();
+    protected HashSet<Type> QuestTypes = new();
 
     public GameObject QuestPrefab;
-    public RectTransform MainQuestContainer, QuestContainer;
+    public RectTransform MainQuestContainer, NegativeQuestContainer, QuestContainer;
     public float RevealSpeed = 10;
 
     private static float HoverScaleModifier = 1.15f;

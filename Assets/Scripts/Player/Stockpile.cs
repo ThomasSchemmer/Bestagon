@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 
-public class Stockpile : GameService, ISaveableService, IQuestTrigger<Production>
+public class Stockpile : GameService, ISaveableService, IQuestRegister<Production>
 {
 
     public bool Pay(Production Costs) {
@@ -45,7 +46,7 @@ public class Stockpile : GameService, ISaveableService, IQuestTrigger<Production
         Resources += ProducedThisRound;
         HandleStarvation(WorkerService, UnitService);
 
-        _OnResourcesCollected?.Invoke(ProducedThisRound);
+        _OnResourcesCollected.ForEach(_ => _.Invoke(ProducedThisRound));
         _OnResourcesChanged?.Invoke();
     }
 
@@ -134,22 +135,12 @@ public class Stockpile : GameService, ISaveableService, IQuestTrigger<Production
         Resources = new();
     }
 
-    public static void DeregisterQuest(Quest<Production> Quest)
-    {
-        _OnResourcesCollected -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<Production> Quest)
-    {
-        _OnResourcesCollected += Quest.OnQuestProgress;
-    }
-
     public Production Resources;
     public Production StartingResources;
     public int UpgradePoints = 0;
 
     public delegate void OnResourcesChanged();
-    public delegate void OnResourcesCollected(Production Production);
     public static OnResourcesChanged _OnResourcesChanged;
-    public static OnResourcesCollected _OnResourcesCollected;
+
+    public static List<Action<Production>> _OnResourcesCollected = new();
 }

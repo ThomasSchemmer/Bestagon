@@ -3,7 +3,7 @@ using Unity.Collections;
 using static HexagonData;
 
 /** Includes all data necessary to display and update a hexagon */
-public class HexagonData : ISaveableData, IQuestTrigger<DiscoveryState>
+public class HexagonData : ISaveableData
 {
     public enum DiscoveryState
     {
@@ -28,10 +28,8 @@ public class HexagonData : ISaveableData, IQuestTrigger<DiscoveryState>
 
     public delegate void OnDiscovery();
     public delegate void OnDiscoveryStateHex(HexagonData Data, DiscoveryState State);
-    public delegate void OnDiscoveryState(DiscoveryState State);
     public OnDiscovery _OnDiscovery;
     public static OnDiscoveryStateHex _OnDiscoveryStateHex;
-    public static OnDiscoveryState _OnDiscoveryState;
 
     // copied from HexagonInfo struct
     public float Temperature;
@@ -82,8 +80,11 @@ public class HexagonData : ISaveableData, IQuestTrigger<DiscoveryState>
 
         // needs to be called before OnDiscovery to update HexData before mesh creation
         _OnDiscoveryStateHex?.Invoke(this, Discovery);
-        _OnDiscoveryState?.Invoke(Discovery);
         _OnDiscovery?.Invoke();
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+        MapGenerator.InvokeDiscovery(Discovery);
     }
 
     public int GetSize()
@@ -127,17 +128,6 @@ public class HexagonData : ISaveableData, IQuestTrigger<DiscoveryState>
         }
     }
     
-    public static void DeregisterQuest(Quest<DiscoveryState> Quest)
-    {
-        _OnDiscoveryState -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<DiscoveryState> Quest)
-    {
-        _OnDiscoveryState += Quest.OnQuestProgress;
-    }
-
-
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
         HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));

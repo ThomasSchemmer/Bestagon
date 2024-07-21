@@ -1,98 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
+using UnityEditor;
 using UnityEngine;
 
-
-
-/** 
- * Actual templated quest, including different callbacks
- * Only has a weak ref to the monobehaviour parent, but should still have same lifetime!
- * Do not generate directly (except from savegame) - should be created from questable!
- */
-public class Quest<T> : QuestTemplate
-{
-    public override void Destroy()
-    {
-        _OnQuestCompleted = null;
-        GameObject.DestroyImmediate(Parent.gameObject);
-    }
-
-    public override void OnAccept()
-    {
-        CompleteQuest();
-        RemoveQuest();
-
-        Destroy();
-    }
-
-    public void OnQuestProgress(T Var)
-    {
-        Parent.CurrentProgress += CheckSuccess(Var);
-        Parent.Visualize();
-
-        if (Parent.QuestType != Quest.Type.Negative || !Parent.IsCompleted())
-            return;
-
-        OnAccept();
-    }
-
-    public Quest(Quest Parent)
-    {
-        this.Parent = Parent;
-    }
-
-    ~Quest()
-    {
-        RemoveQuestCallback();
-    }
-
-    public void CompleteQuest()
-    {
-        RemoveQuestCallback();
-        _OnQuestCompleted?.Invoke();
-        _OnQuestCompleted = null;
-    }
-
-    public void AddCompletionCallback(Action Callback)
-    {
-        _OnQuestCompleted += () =>
-        {
-            Callback();
-        };
-    }
-
-    public Quest GetParent()
-    {
-        return Parent;
-    }
-
-    public override void RemoveQuestCallback()
-    {
-        DeRegisterAction.Invoke(this);
-    }
-
-    public void RemoveQuest()
-    {
-        if (!Game.TryGetService(out QuestService QuestService))
-            return;
-
-        QuestService.RemoveQuest(Parent);
-
-        if (FollowUpQuest == null)
-            return;
-
-        QuestService.AddQuest(FollowUpQuest);
-    }
-
-    public Func<T, int> CheckSuccess;
-    public Action<Quest<T>> DeRegisterAction;
-    public Questable FollowUpQuest;
-
-    public delegate void OnQuestCompleted();
-    public event OnQuestCompleted _OnQuestCompleted;
-}
 
 /**
  * We cant easily directly store and access a templated object, so use an abstract interface instead
@@ -100,27 +10,45 @@ public class Quest<T> : QuestTemplate
  */
 public abstract class QuestTemplate
 {
+    public enum Type
+    {
+        Positive,
+        Negative,
+        Main
+    }
+
     /** Set this to the actual parenting monobehaviour*/
-    public Quest Parent;
-    /** used for save only, references the Questable to load */
-    public int QuestableID;
-    /** Function ptr which returns true if it should be unlocked */
-    public Func<bool> Unlock;
+    public QuestUIElement Parent;
+
+    public int StartProgress;
+    public int MaxProgress;
+    public string Description;
+    public Type QuestType;
+    public Sprite Sprite;
+
+    protected bool bIsInit = false;
+    protected bool bIsRegistered = false;
 
     public abstract void RemoveQuestCallback();
     public abstract void OnAccept();
     public abstract void Destroy();
+    public abstract bool ShouldUnlock();
+    /** Can be self-type (repeating the quest) or a follow-up type */
+    public abstract bool TryGetNextType(out System.Type Type);
+    public abstract void Init(QuestUIElement Parent);
+    public abstract void Register();
 
+    public QuestTemplate() { }
 }
 
 /** 
  * We cannot store the actual templated quests as their generic typing interferes with object creation
- * Use this mini-class instead, should just contain the QuestableID for lookup and the current progress
- * Will be used to recreate the actual Quest from the found Questable
+ * Use this mini-class instead, should just contain the TemplateID for lookup and the current progress
+ * Will be used to recreate the actual Quest from the found template
  */
 public class QuestTemplateDTO : ISaveableData
 {
-    public int QuestableID;
+    public string TypeName;
     public float CurrentProgress;
 
     public int GetSize()
@@ -130,15 +58,15 @@ public class QuestTemplateDTO : ISaveableData
 
     public static int GetStaticSize()
     {
-        // id and current progress
-        return sizeof(int) + sizeof(double);
+        // name, name length and current progress
+        return sizeof(byte) * MAX_NAME_LENGTH + sizeof(double);
     }
 
     public byte[] GetData()
     {
-        NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
+        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, QuestableID);
+        Pos = SaveGameManager.AddString(Bytes, Pos, TypeName);
         Pos = SaveGameManager.AddDouble(Bytes, Pos, CurrentProgress);
 
         return Bytes.ToArray();
@@ -147,16 +75,33 @@ public class QuestTemplateDTO : ISaveableData
     public void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out QuestableID);
+        Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out TypeName);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dCurrentProgress);
         CurrentProgress = (float)dCurrentProgress;
+        TypeName = TypeName.Replace(NAME_PADDING_CHAR+ "", "");
     }
 
-    public static QuestTemplateDTO CreateFromQuest(QuestTemplate Quest)
+    public static QuestTemplateDTO CreateFromQuest(QuestTemplate QuestT)
     {
         QuestTemplateDTO DTO = new();
-        DTO.CurrentProgress = Quest.Parent.CurrentProgress;
-        DTO.QuestableID = Quest.QuestableID;
+        DTO.CurrentProgress = QuestT.Parent.GetCurrentProgress();
+        DTO.TypeName = GetReplacedName(QuestT.GetType());
         return DTO;
     }
+
+    private static string GetReplacedName(Type Type)
+    {
+        string TypeName = GetCutName(Type);
+        int Offset = Mathf.Max(TypeName.Length, MAX_NAME_LENGTH);
+        return TypeName.PadRight(Offset, NAME_PADDING_CHAR);
+    }
+
+    public static string GetCutName(Type Type)
+    {
+        int Offset = Mathf.Min(Type.Name.Length, MAX_NAME_LENGTH);
+        return Type.Name[..Offset];
+    }
+
+    public static int MAX_NAME_LENGTH = 20;
+    public static char NAME_PADDING_CHAR = '=';
 }

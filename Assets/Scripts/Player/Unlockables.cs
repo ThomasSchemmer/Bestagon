@@ -5,7 +5,7 @@ using Unity.Collections;
 using UnityEngine;
 using static HexagonData;
 
-public class Unlockables : GameService, ISaveableService, IQuestTrigger<BuildingConfig.Type>
+public class Unlockables : GameService, ISaveableService, IQuestRegister<BuildingConfig.Type>
 {
     public BuildingConfig.Type[] LockedTypesPerCategory;
 
@@ -51,7 +51,7 @@ public class Unlockables : GameService, ISaveableService, IQuestTrigger<Building
         if (OldMask == NewMask)
             return;
 
-        _OnUnlock?.Invoke(Type);
+        _OnUnlock.ForEach(_ => _.Invoke(Type));
     }
 
     private bool IsIndexInCategory(int Category, int Index)
@@ -209,16 +209,6 @@ public class Unlockables : GameService, ISaveableService, IQuestTrigger<Building
         UnlockSpecificBuildingType(BuildingConfig.UnlockOnStart);
     }
 
-    public static void DeregisterQuest(Quest<BuildingConfig.Type> Quest)
-    {
-        _OnUnlock -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<BuildingConfig.Type> Quest)
-    {
-        _OnUnlock += Quest.OnQuestProgress;
-    }
-
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
@@ -270,5 +260,5 @@ public class Unlockables : GameService, ISaveableService, IQuestTrigger<Building
     protected override void StopServiceInternal() {}
 
     public delegate void OnUnlock(BuildingConfig.Type Type);
-    public static event OnUnlock _OnUnlock;
+    public static List<Action<BuildingConfig.Type>> _OnUnlock = new();
 }

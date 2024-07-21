@@ -1,39 +1,40 @@
 using System;
 using Unity.Collections;
+using UnityEngine;
 
 /** 
  * Tracks how many things were created / moved etc during each playphase as well as overall
  * Also creates quests for those things tracked
  */
-public class Statistics : GameService, ISaveableService, IQuestCallback
+public class Statistics : GameService, ISaveableService
 {
     // how many are counting towards the next upgrade
     // gets reset after each upgrade point
-    private int BuildingsBuilt = 0;
-    private int MovesDone = 0;
-    private int UnitsCreated = 0;
-    private int ResourcesCollected = 0;
+    [HideInInspector]public int BuildingsBuilt = 0;
+    [HideInInspector]public int MovesDone = 0;
+    [HideInInspector]public int UnitsCreated = 0;
+    [HideInInspector]public int ResourcesCollected = 0;
 
-    private int BuildingsNeeded = 0;
-    private int MovesNeeded = 0;
-    private int UnitsNeeded = 0;
-    private int ResourcesNeeded = 0;
+    [HideInInspector]public int BuildingsNeeded = 0;
+    [HideInInspector]public int MovesNeeded = 0;
+    [HideInInspector]public int UnitsNeeded = 0;
+    [HideInInspector]public int ResourcesNeeded = 0;
 
-    private int BuildingsIncrease = 0;
-    private int MovesIncrease = 0;
-    private int UnitsIncrease = 0;
-    private int ResourcesIncrease = 0;
+    [HideInInspector]public int BuildingsIncrease = 0;
+    [HideInInspector]public int MovesIncrease = 0;
+    [HideInInspector]public int UnitsIncrease = 0;
+    [HideInInspector]public int ResourcesIncrease = 0;
 
-    public int BestHighscore = 0;
-    public int BestBuildings = 0;
-    public int BestMoves = 0;
-    public int BestUnits = 0;
-    public int BestResources = 0;
+    [HideInInspector]public int BestHighscore = 0;
+    [HideInInspector]public int BestBuildings = 0;
+    [HideInInspector]public int BestMoves = 0;
+    [HideInInspector]public int BestUnits = 0;
+    [HideInInspector]public int BestResources = 0;
 
-    public int CurrentBuildings = 0;
-    public int CurrentMoves = 0;
-    public int CurrentUnits = 0;
-    public int CurrentResources = 0;
+    [HideInInspector]public int CurrentBuildings = 0;
+    [HideInInspector]public int CurrentMoves = 0;
+    [HideInInspector]public int CurrentUnits = 0;
+    [HideInInspector]public int CurrentResources = 0;
 
     public int GetHighscore()
     {
@@ -50,51 +51,7 @@ public class Statistics : GameService, ISaveableService, IQuestCallback
         return Highscore;
     }
 
-    [Questable]
-    private int CountResources(Production Production)
-    {
-        int Collected = 0;
-        foreach (var Tuple in Production.GetTuples())
-        {
-            Collected += Tuple.Value;
-            ResourcesCollected += Tuple.Value;
-        }
-        CurrentResources += Collected;
-        BestResources = Math.Max(CurrentResources, BestResources);
-
-        return Collected;
-    }
-
-    [Questable]
-    private int CountUnit(UnitData UnitData)
-    {
-        UnitsCreated++;
-        CurrentUnits++;
-        BestUnits = Math.Max(CurrentUnits, BestUnits);
-
-        return 1;
-    }
-
-    private int CountMoves(HexagonData.DiscoveryState NewState)
-    {
-        if (NewState < HexagonData.DiscoveryState.Visited)
-            return 0;
-
-        MovesDone += 1;
-        CurrentMoves += 1;
-        BestMoves = Math.Max(CurrentMoves, BestMoves);
-        return 1;
-    }
-
-    private int CountBuilding(BuildingData BuildingData)
-    {
-        BuildingsBuilt++;
-        CurrentBuildings++;
-        BestBuildings = Math.Max(CurrentBuildings, BestBuildings);
-        return 1;
-    }
-
-    private void IncreaseTarget(ref int Earned, ref int Goal, int GoalIncrease)
+    public void IncreaseTarget(ref int Earned, ref int Goal, int GoalIncrease)
     {
         while (Earned >= Goal)
         {
@@ -103,26 +60,9 @@ public class Statistics : GameService, ISaveableService, IQuestCallback
         }
     }
 
-    [Questable]
-    private void IncreaseUnits()
-    {
-        IncreaseTarget(ref UnitsCreated, ref UnitsNeeded, UnitsIncrease);
-    }
-
-    [Questable]
-    private void IncreaseResources()
-    {
-        IncreaseTarget(ref ResourcesCollected, ref ResourcesNeeded, ResourcesIncrease);
-    }
-
     private void IncreaseMoves()
     {
         IncreaseTarget(ref MovesDone, ref MovesNeeded, MovesIncrease);
-    }
-
-    private void IncreaseBuildings()
-    {
-        IncreaseTarget(ref BuildingsBuilt, ref BuildingsNeeded, BuildingsIncrease);
     }
 
     public byte[] GetData()

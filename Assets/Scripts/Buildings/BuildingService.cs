@@ -1,9 +1,11 @@
 
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class BuildingService : GameService, ISaveableService, IQuestTrigger<BuildingData>
+// todo: save spatially effient, either chunks or quadtree etc
+public class BuildingService : GameService, ISaveableService, IQuestRegister<BuildingData>
 {
     protected override void StartServiceInternal()
     {
@@ -62,7 +64,7 @@ public class BuildingService : GameService, ISaveableService, IQuestTrigger<Buil
         string Text = Building.BuildingType.ToString() + " has been destroyed by the malaise";
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
 
-        _OnBuildingDestroyed?.Invoke(Building);
+        _OnBuildingDestroyed.ForEach(_ => _.Invoke(Building));
         Destroy(Building);
     }
 
@@ -120,21 +122,16 @@ public class BuildingService : GameService, ISaveableService, IQuestTrigger<Buil
         Buildings = new();
     }
 
+    public void AddBuilding(BuildingData Building)
+    {
+        Buildings.Add(Building);
+        _OnBuildingBuilt.ForEach(_ => _.Invoke(Building));
+    }
+
     public bool ShouldLoadWithLoadedSize() { return true; }
 
-    public static void DeregisterQuest(Quest<BuildingData> Quest)
-    {
-        _OnBuildingDestroyed -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<BuildingData> Quest)
-    {
-        _OnBuildingDestroyed += Quest.OnQuestProgress;
-    }
-
-    // todo: save spatially effient, either chunks or quadtree etc
     public List<BuildingData> Buildings = new();
 
-    public delegate void OnBuildingDestroyed(BuildingData Building);
-    public static OnBuildingDestroyed _OnBuildingDestroyed;
+    public static List<Action<BuildingData>> _OnBuildingDestroyed = new();
+    public static List<Action<BuildingData>> _OnBuildingBuilt = new();
 }

@@ -1,10 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
+using VSCodeEditor;
+using static HexagonData;
 
-public class MapGenerator : GameService, ISaveableService
+/** 
+ * Main service to generate and display @HexagonVisualizations.
+ * Creates @Chunk's out of the @Map data that then get displayed according to the camera position. 
+ * Also provides general access functions to get @HexagonData by @Location
+ */
+public class MapGenerator : GameService, ISaveableService, IQuestRegister<DiscoveryState>
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -356,7 +364,7 @@ public class MapGenerator : GameService, ISaveableService
         if (!TryGetChunkData(BuildingData.Location, out ChunkData Chunk))
             return;
 
-        Buildings.Buildings.Add(BuildingData);
+        Buildings.AddBuilding(BuildingData);
 
         // if the chunk is currently being shown, force create the building
         if (!TryGetChunkVis(BuildingData.Location, out ChunkVisualization ChunkVis))
@@ -434,6 +442,11 @@ public class MapGenerator : GameService, ISaveableService
         {
             _OnInit?.Invoke(this);
         }
+    }
+
+    public void InvokeDiscovery(DiscoveryState DiscoveryState)
+    {
+        _OnDiscoveredTile.ForEach(_ => _.Invoke(DiscoveryState));
     }
 
     public HexagonDTO[] GetDTOs() {
@@ -619,7 +632,10 @@ public class MapGenerator : GameService, ISaveableService
     private Location MinBottomLeft, MaxTopRight;
     private int FinishedVisualizationCount = 0;
 
+    public static List<Action<DiscoveryState>> _OnDiscoveredTile = new();
+
     // do not save anything below this line
     private uint[] MalaiseDTOs = null;
     public bool bAreMalaiseDTOsDirty = true;
+
 }

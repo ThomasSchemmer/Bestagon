@@ -1,172 +1,139 @@
 using System;
-using Unity.Collections;
-using Unity.VectorGraphics;
-using UnityEditor.PackageManager.Requests;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-/**
- * wrapper for templated subquest
- * Unity cannot add templated components, so we need to store the reference
- * Contains visual elements
+/** 
+ * Actual templated generics quest, including different callbacks
+ * Only has a weak ref to the monobehaviour parent, but should still have same lifetime!
+ * Only generate through QuestService!
+ * T is quest trigger type 
  */
-public class Quest : MonoBehaviour, UIElement
+public abstract class Quest<T> : QuestTemplate
 {
-    public enum Type
+    public IQuestRegister<T> QuestRegistrar;
+
+    public abstract int CheckSuccess(T Item);
+    public abstract void OnAfterCompletion();
+
+    public abstract int GetStartProgress();
+    public abstract int GetMaxProgress();
+    public abstract string GetDescription();
+    public abstract Type GetQuestType();
+    public abstract Sprite GetSprite();
+    public abstract IQuestRegister<T> GetRegistrar();
+    public abstract List<Action<T>> GetDelegates();
+    public abstract void GrantRewards();
+
+    public override void Destroy()
     {
-        Positive,
-        Negative,
-        Main
+        GameObject.DestroyImmediate(Parent.gameObject);
     }
 
-    public Sprite Sprite;
-    public float CurrentProgress = 0;
-    public float MaxProgress = 5;
-    public string Message = "";
-    public Type QuestType = Type.Positive;
+    public Quest() : base(){}
 
-    protected SVGImage TypeImageSVG;
-    protected SVGImage DiscoveryImage;
-    protected Image TypeImage;
-    protected Image BackgroundImage;
-    protected Material Material;
-    protected TMPro.TextMeshProUGUI Text;
-    protected Button AcceptButton;
-
-    protected bool bIsHovered = false;
-    protected bool bIsDiscovered = false;
-
-    // actual templated data (stored as abstract class to fascilate calling of functions)
-    protected QuestTemplate QuestObject;
-
-    public void Start()
+    public override void Init(QuestUIElement Parent)
     {
-        BackgroundImage = transform.GetChild(0).GetComponent<Image>();
-        TypeImageSVG = transform.GetChild(1).GetComponent<SVGImage>();
-        TypeImage = transform.GetChild(2).GetComponent<Image>();
-        Text = transform.GetChild(3).GetComponent<TMPro.TextMeshProUGUI>();
-        DiscoveryImage = transform.GetChild(4).GetComponent<SVGImage>();
-        AcceptButton = transform.GetChild(5).GetComponent<Button>();
-        AcceptButton.onClick.RemoveAllListeners();
-        AcceptButton.onClick.AddListener(() => {
-            QuestObject.OnAccept();
-        });
-        AcceptButton.gameObject.layer = 0;
-
-        // create a new one cause instanciation doesnt work on UI for some reason,
-        // no access to MaterialBlock
-        Material = Instantiate(TypeImage.material);
-        TypeImage.material = Material;
-        Visualize();
+        this.Parent = Parent;
+        StartProgress = GetStartProgress();
+        MaxProgress = GetMaxProgress();
+        Description = GetDescription();
+        QuestType = GetQuestType();
+        Sprite = GetSprite();
+        Register();
+        bIsInit = true;
     }
 
-    public void OnDestroy()
+    public override void Register()
     {
-        DestroyImmediate(Material);
-        if (QuestObject == null)
+        if (!ShouldUnlock() || bIsRegistered)
             return;
 
-        QuestObject.RemoveQuestCallback();
-        QuestObject = null;
+        QuestRegistrar = GetRegistrar();
+        QuestRegistrar.RegisterQuest(GetDelegates(), this);
+        bIsRegistered = true;
     }
 
-    public void InvokeDestroy()
+    public override void OnAccept()
     {
-        QuestObject.Destroy();
+        CompleteQuest();
+        RemoveQuest();
+
+        Destroy();
     }
 
-    public void Add(QuestTemplate QuestObject)
+    public void OnQuestProgress(T Var)
     {
-        this.QuestObject = QuestObject;
-    }
-
-    public void Visualize()
-    {
-        if (Material == null)
+        if (!bIsInit)
             return;
 
-        Material.SetFloat("_CurrentProgress", CurrentProgress);
-        Material.SetFloat("_MaxProgress", MaxProgress);
-        bool bIsPositive = QuestType != Type.Negative;
-        Material.SetFloat("_IsPositive", bIsPositive ? 1f : 0f);
+        Parent.AddCurrentProgress(CheckSuccess(Var));
+        Parent.Visualize();
 
-        if (Sprite == null)
-        {
-            TypeImageSVG.color = new(0, 0, 0, 0);
-        }
-        else
-        {
-            TypeImageSVG.sprite = Sprite;
-            TypeImageSVG.color = new(1, 1, 1, 1);
-        }
-        Text.text = Message + " (" + CurrentProgress + "/" +MaxProgress + ")";
-        BackgroundImage.color = GetBackgroundColor();
-        DiscoveryImage.gameObject.SetActive(!IsDiscovered());
-        AcceptButton.gameObject.SetActive(IsCompleted());
-        TypeImageSVG.gameObject.SetActive(!IsCompleted());
-        TypeImage.gameObject.SetActive(!IsCompleted());
-    }
-
-    public void SetSelected(bool Selected) { }
-
-    public void SetHovered(bool Hovered)
-    {
-        bIsHovered = Hovered;
-        bIsDiscovered = true;
-
-        // can happen after being destroyed and dehover call triggers it
-        if (DiscoveryImage == null)
+        if (Parent.GetQuestType() != Type.Negative || !Parent.IsCompleted())
             return;
 
-        DiscoveryImage.enabled = !IsDiscovered();
+        OnAccept();
     }
 
-    public bool IsHovered()
+    ~Quest()
     {
-        return bIsHovered || !IsDiscovered();
+        RemoveQuestCallback();
     }
 
-    public bool IsDiscovered()
+    public void CompleteQuest()
     {
-        return bIsDiscovered;
-    }
+        if (!bIsInit)
+            return;
 
-    public bool IsCompleted()
-    {
-        return CurrentProgress >= MaxProgress;
-    }
-
-    public void ClickOn(Vector2 PixelPos) { }
-
-    public void Interact() { }
-
-    public bool IsEqual(ISelectable other)
-    {
-        return other is QuestService;
-    }
-
-    public bool CanBeLongHovered()
-    {
-        return false;
-    }
-
-    private Color GetBackgroundColor()
-    {
-        switch (QuestType)
+        if (QuestType != Type.Negative)
         {
-            case Type.Main: return MainQuestColor;
-            case Type.Negative: return NegativeQuestColor;
-            default: return NormalQuestColor;
+            GrantRewards();
         }
+        OnAfterCompletion();
+        RemoveQuestCallback();
     }
 
-    public QuestTemplate GetQuestObject()
+    public QuestUIElement GetParent()
     {
-        return QuestObject;
+        return Parent;
     }
 
-    private static Color NormalQuestColor = new(1, 1, 1, 1);
-    private static Color MainQuestColor = new(0.52f, 0.68f, 0.85f, 1);
-    private static Color NegativeQuestColor = new(0.85f, 0.52f, 0.52f, 1);
+    public override void RemoveQuestCallback()
+    {
+        if (!bIsRegistered)
+            return;
 
+        QuestRegistrar.DeRegisterQuest(GetDelegates(), this);
+    }
+
+    public void RemoveQuest()
+    {
+        if (!Game.TryGetService(out QuestService QuestService))
+            return;
+
+        QuestService.RemoveQuest(Parent);
+    }
+
+    protected void GrantResources(Production Production)
+    {
+
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        Stockpile.AddResources(Production);
+
+        Production.Type Type = Production.GetTuples()[0].Key;
+        int Amount = Production.GetTuples()[0].Value;
+        MessageSystemScreen.CreateMessage(Message.Type.Success, "Completing the quest granted " +Amount+" "+ Type.ToString());
+    }
+
+    protected void GrantUpgradePoints(int Count)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        Stockpile.UpgradePoints += Count;
+        MessageSystemScreen.CreateMessage(Message.Type.Success, "Completing the quest granted " + Count+" upgrade points");
+    }
 }

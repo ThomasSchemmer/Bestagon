@@ -5,7 +5,7 @@ using UnityEngine;
 using static CardUpgradeScreen;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
-public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQuestTrigger<BuildingData>
+public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQuestRegister<BuildingData>
 {
     public Location Location;
     public WorkerData[] AssignedWorkers;
@@ -107,7 +107,6 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
 
         this.Location = Location.Copy();
         Generator.AddBuilding(this);
-        _OnBuildingBuilt?.Invoke(this);
     }
 
     public int GetMaximumWorkerCount() {
@@ -301,17 +300,4 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
 
         AssignedWorkers = new WorkerData[MaxWorker];
     }
-
-    public static void DeregisterQuest(Quest<BuildingData> Quest)
-    {
-        _OnBuildingBuilt -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<BuildingData> Quest)
-    {
-        _OnBuildingBuilt += Quest.OnQuestProgress;
-    }
-
-    public delegate void OnBuildingBuilt(BuildingData Building);
-    public static event OnBuildingBuilt _OnBuildingBuilt;
 }

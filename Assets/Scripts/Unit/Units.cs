@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
  * Since the unit data is independent of any chunk, while UnitVisualization is directly bound and managed by 
  * a chunk, there is no direct link from the UnitData to its visualization
  */
-public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
+public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUnitData>
 {
     public bool TryGetUnitAt(Location Location, out TokenizedUnitData Unit)
     {
@@ -51,7 +52,7 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
 
         Units.Add(Unit);
         _OnUnitCountChanged?.Invoke();
-        _OnUnitCreated?.Invoke(Unit);
+        _OnUnitCreated.ForEach(_ => _.Invoke(Unit));
 
         if (!MapGenerator.TryGetChunkVis(Unit.Location, out ChunkVisualization ChunkVis))
             return;
@@ -100,7 +101,7 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
 
     public void InvokeUnitMoved(TokenizedUnitData Unit)
     {
-        _OnUnitMoved?.Invoke(Unit);
+        _OnUnitMoved.ForEach(_ => _.Invoke(Unit));
     }
 
     public int GetIdleScoutCount()
@@ -132,17 +133,6 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
         return Count;
     }
 
-    public static void DeregisterQuest(Quest<UnitData> Quest)
-    {
-        _OnUnitCreated -= Quest.OnQuestProgress;
-    }
-
-    public static void RegisterQuest(Quest<UnitData> Quest)
-    {
-        _OnUnitCreated += Quest.OnQuestProgress;
-    }
-
-
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
@@ -155,9 +145,7 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestTrigger<UnitData>
     protected override void StopServiceInternal() { }
 
     public delegate void OnUnitCountChanged();
-    public delegate void OnUnitCreated(UnitData Unit);
-    public delegate void OnUnitMoved(UnitData Unit);
     public static event OnUnitCountChanged _OnUnitCountChanged;
-    public static event OnUnitCreated _OnUnitCreated;
-    public static event OnUnitMoved _OnUnitMoved;
+    public static List<Action<TokenizedUnitData>> _OnUnitCreated = new();
+    public static List<Action<TokenizedUnitData>> _OnUnitMoved = new();
 }
