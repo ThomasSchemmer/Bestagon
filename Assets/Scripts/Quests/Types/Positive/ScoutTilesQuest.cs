@@ -15,13 +15,7 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
 
     public override int CheckSuccess(DiscoveryState State)
     {
-        if (State < DiscoveryState.Visited)
-            return 0;
-
-        Statistics.MovesDone += 1;
-        Statistics.CurrentMoves += 1;
-        Statistics.BestMoves = Math.Max(Statistics.CurrentMoves, Statistics.BestMoves);
-        return 1;
+        return State < DiscoveryState.Visited ? 0 : 1;
     }
 
     public override string GetDescription()
@@ -59,12 +53,12 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
 
     public override int GetStartProgress()
     {
-        return Statistics.CurrentMoves;
+        return 0;
     }
 
     public override void OnAfterCompletion()
     {
-        Statistics.IncreaseTarget(ref Statistics.CurrentMoves, ref Statistics.MovesNeeded, Statistics.MovesIncrease);
+        Statistics.IncreaseTarget(ref Statistics.MovesNeeded, Statistics.MovesIncrease);
     }
 
     public override bool ShouldUnlock()

@@ -36,7 +36,7 @@ public abstract class QuestTemplate
     /** Can be self-type (repeating the quest) or a follow-up type */
     public abstract bool TryGetNextType(out System.Type Type);
     public abstract void Init(QuestUIElement Parent);
-    public abstract void Register();
+    public abstract void Register(bool bForceAfterLoad = false);
 
     public QuestTemplate() { }
 }

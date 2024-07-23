@@ -100,25 +100,23 @@ public class SaveGameManager : GameService
         return FileName;
     }
 
-    public static void RunIfNotInSavegame(Action Callback, SaveGameType Type)
-    {
-        Game.RunAfterServiceInit((SaveGameManager Manager) =>
-        {
-            if (Manager.HasDataFor(Type))
-                return;
-
-            Callback();
-        });
-    }
-
     public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
     {
         FileToLoad = FileName;
         ShouldCreateNewFile = bShouldCreateNewFile;
     }
 
+    /** Requires the Manager to be already initialized, 
+     * as only then the savegame mapping has been completed!
+     * Enforcing it through callbacks would have been to bloated
+     */    
     public bool HasDataFor(SaveGameType TargetType)
     {
+        if (!IsInit)
+        {
+            throw new Exception("Cannot check for savegamedata with an unitialized manager - did you call RunAfterServiceInit?");
+        }
+
         if (FoundSaveableServices == null)
             return false;
 

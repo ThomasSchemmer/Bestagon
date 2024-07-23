@@ -44,12 +44,15 @@ public abstract class Quest<T> : QuestTemplate
         bIsInit = true;
     }
 
-    public override void Register()
+    public override void Register(bool bForceAfterLoad = false)
     {
-        if (!ShouldUnlock() || bIsRegistered)
+        if ((!ShouldUnlock() && !bForceAfterLoad) || bIsRegistered)
             return;
 
         QuestRegistrar = GetRegistrar();
+        if (QuestRegistrar == null)
+            return;
+
         QuestRegistrar.RegisterQuest(GetDelegates(), this);
         bIsRegistered = true;
     }

@@ -150,7 +150,9 @@ public abstract class Card : Draggable, ISelectable
         return Index;
     }
 
-    public void SetIndex(int i) {
+    public void SetIndex(int i)
+    {
+        transform.SetSiblingIndex(i);
         Index = i;
     }
 

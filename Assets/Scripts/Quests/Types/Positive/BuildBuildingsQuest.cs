@@ -14,10 +14,6 @@ public class BuildBuildingsQuest : Quest<BuildingData>
 
     public override int CheckSuccess(BuildingData Building)
     {
-        Statistics.BuildingsBuilt++;
-        Statistics.CurrentBuildings++;
-        Statistics.BestBuildings = Mathf.Max(Statistics.BestBuildings, Statistics.CurrentBuildings);
-
         return 1;
     }
 
@@ -56,12 +52,12 @@ public class BuildBuildingsQuest : Quest<BuildingData>
 
     public override int GetStartProgress()
     {
-        return Statistics.CurrentBuildings;
+        return 0;
     }
 
     public override void OnAfterCompletion()
     {
-        Statistics.IncreaseTarget(ref Statistics.CurrentBuildings, ref Statistics.BuildingsNeeded, Statistics.BuildingsIncrease);
+        Statistics.IncreaseTarget(ref Statistics.BuildingsNeeded, Statistics.BuildingsIncrease);
     }
 
     public override bool ShouldUnlock()

@@ -9,6 +9,7 @@ public class MerchantBuyScreen : CollectChoiceScreen
 
     private void Start()
     {
+        Initialize();
         bCloseOnPick = false;
         bDestroyOnPick = false;
 

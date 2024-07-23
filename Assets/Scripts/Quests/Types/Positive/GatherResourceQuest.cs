@@ -18,10 +18,7 @@ public class GatherResourceQuest : Quest<Production>
         foreach (var Tuple in Production.GetTuples())
         {
             Collected += Tuple.Value;
-            Statistics.ResourcesCollected += Tuple.Value;
         }
-        Statistics.CurrentResources += Collected;
-        Statistics.BestResources = Math.Max(Statistics.CurrentResources, Statistics.BestResources);
 
         return Collected;
     }
@@ -61,12 +58,12 @@ public class GatherResourceQuest : Quest<Production>
 
     public override int GetStartProgress()
     {
-        return Statistics.CurrentResources;
+        return 0;
     }
 
     public override void OnAfterCompletion()
     {
-        Statistics.IncreaseTarget(ref Statistics.CurrentResources, ref Statistics.ResourcesNeeded, Statistics.ResourcesIncrease);
+        Statistics.IncreaseTarget(ref Statistics.ResourcesNeeded, Statistics.ResourcesIncrease);
     }
 
     public override bool ShouldUnlock()

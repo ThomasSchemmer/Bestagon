@@ -44,6 +44,16 @@ public abstract class CardCollection : GameService, ISaveableService
         }
     }
 
+    public void SetIndex(Card Card, int Index)
+    {
+        if (!Cards.Contains(Card))
+            return;
+
+        Cards.Remove(Card);
+        Cards.Insert(Index, Card);
+        Card.SetIndex(Index);
+    }
+
     public void DeleteAllCardsConditionally(Func<Card, bool> Check)
     {
         for (int i = Cards.Count - 1; i >= 0; i--)

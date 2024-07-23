@@ -14,10 +14,6 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
 
     public override int CheckSuccess(TokenizedUnitData Item)
     {
-        Statistics.UnitsCreated++;
-        Statistics.CurrentUnits++;
-        Statistics.BestUnits = Mathf.Max(Statistics.BestUnits, Statistics.CurrentUnits);
-
         return 1;
     }
 
@@ -55,12 +51,12 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
 
     public override int GetStartProgress()
     {
-        return Statistics.CurrentUnits;
+        return 0;
     }
 
     public override void OnAfterCompletion()
     {
-        Statistics.IncreaseTarget(ref Statistics.CurrentUnits, ref Statistics.UnitsNeeded, Statistics.UnitsIncrease);
+        Statistics.IncreaseTarget(ref Statistics.UnitsNeeded, Statistics.UnitsIncrease);
     }
 
     public override bool ShouldUnlock()

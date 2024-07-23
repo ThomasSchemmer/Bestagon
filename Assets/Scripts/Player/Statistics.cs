@@ -1,6 +1,8 @@
 using System;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.tvOS;
+using static HexagonData;
 
 /** 
  * Tracks how many things were created / moved etc during each playphase as well as overall
@@ -15,6 +17,7 @@ public class Statistics : GameService, ISaveableService
     [HideInInspector]public int UnitsCreated = 0;
     [HideInInspector]public int ResourcesCollected = 0;
 
+    // used by their respective quests as target values
     [HideInInspector]public int BuildingsNeeded = 0;
     [HideInInspector]public int MovesNeeded = 0;
     [HideInInspector]public int UnitsNeeded = 0;
@@ -51,18 +54,45 @@ public class Statistics : GameService, ISaveableService
         return Highscore;
     }
 
-    public void IncreaseTarget(ref int Earned, ref int Goal, int GoalIncrease)
+    public void IncreaseTarget(ref int Goal, int GoalIncrease)
     {
-        while (Earned >= Goal)
-        {
-            Earned -= Goal;
-            Goal += GoalIncrease;
-        }
+        Goal += GoalIncrease;
     }
 
-    private void IncreaseMoves()
+    public void CountBuilding(BuildingData Building)
     {
-        IncreaseTarget(ref MovesDone, ref MovesNeeded, MovesIncrease);
+        BuildingsBuilt++;
+        CurrentBuildings++;
+        BestBuildings = Mathf.Max(BestBuildings, CurrentBuildings);
+    }
+
+    public void CountUnit(TokenizedUnitData Unit)
+    {
+        UnitsCreated++;
+        CurrentUnits++;
+        BestUnits = Mathf.Max(BestUnits, CurrentUnits);
+    }
+
+    public void CountResources(Production Production)
+    {
+        int Collected = 0;
+        foreach (var Tuple in Production.GetTuples())
+        {
+            Collected += Tuple.Value;
+            ResourcesCollected += Tuple.Value;
+        }
+        CurrentResources += Collected;
+        BestResources = Math.Max(CurrentResources, BestResources);
+    }
+
+    public void CountMoves(DiscoveryState State)
+    {
+        if (State < DiscoveryState.Visited)
+            return;
+
+        MovesDone += 1;
+        CurrentMoves += 1;
+        BestMoves = Math.Max(CurrentMoves, BestMoves);
     }
 
     public byte[] GetData()
@@ -110,6 +140,24 @@ public class Statistics : GameService, ISaveableService
         return sizeof(int) * 21;
     }
 
+    private void Subscribe(bool bSubscribe)
+    {
+        if (bSubscribe)
+        {
+            Units._OnUnitCreated.Add(CountUnit);
+            MapGenerator._OnDiscoveredTile.Add(CountMoves);
+            Stockpile._OnResourcesCollected.Add(CountResources);
+            BuildingService._OnBuildingBuilt.Add(CountBuilding);
+        }
+        else
+        {
+            Units._OnUnitCreated.Remove(CountUnit);
+            MapGenerator._OnDiscoveredTile.Remove(CountMoves);
+            Stockpile._OnResourcesCollected.Remove(CountResources);
+            BuildingService._OnBuildingBuilt.Remove(CountBuilding);
+        }
+    }
+
     public void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
@@ -143,17 +191,15 @@ public class Statistics : GameService, ISaveableService
 
     protected override void StartServiceInternal()
     {
-        SaveGameManager.RunIfNotInSavegame(() =>
+        Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {
-            ResetAllStats();
-
-            Game.RunAfterServicesInit((QuestService QuestService, MapGenerator MapGenerator) =>
+            Subscribe(true);
+            if (!Manager.HasDataFor(ISaveableService.SaveGameType.Statistics))
             {
-                //CreateQuests();
-            });
-
+                ResetAllStats();
+            }
             _OnInit?.Invoke(this);
-        }, ISaveableService.SaveGameType.Statistics);
+        });
     }
 
     public void Reset()
@@ -198,7 +244,9 @@ public class Statistics : GameService, ISaveableService
         CurrentUnits = 0;
     }
 
-    protected override void StopServiceInternal() {}
+    protected override void StopServiceInternal() {
+        Subscribe(false);
+    }
 
     private static int POINTS_BUILDINGS = 5;
     private static int POINTS_UNITS = 3;

@@ -190,6 +190,7 @@
     <Compile Include="Assets\Scripts\Unit\UnitData.cs" />
     <Compile Include="Assets\Scripts\Cards\EventCard.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
+    <Compile Include="Assets\Scripts\Player\CheatService.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\WorkerIndicator.cs" />
     <Compile Include="Assets\Scripts\Generation\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\LoadMenuScreen.cs" />

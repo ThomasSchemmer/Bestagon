@@ -92,32 +92,34 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
 
     protected override void StartServiceInternal()
     {
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
+        Game.RunAfterServiceInit((SaveGameManager Manager) =>
+        {
+            if (Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile))
+                return;
 
-        if (!Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile)){
-            Reset();
-            // does not reset upgrade points!
-            AddResources(StartingResources);
-        }
-
-        _OnInit?.Invoke(this);
+            Refill();
+            _OnInit?.Invoke(this);
+        });
     }
 
     protected override void StopServiceInternal() {}
 
     public int GetSize()
     {
-        return Resources.GetSize() + sizeof(int); 
+        // flag for refreshing resources, upgrade points
+        return Resources.GetSize() + sizeof(int) + sizeof(byte); 
     }
 
     public byte[] GetData()
     {
+        bShouldReset = Game.IsIn(Game.GameState.CardSelection);
+
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Resources);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradePoints);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, bShouldReset);
 
         return Bytes.ToArray();
     }
@@ -128,6 +130,22 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         Resources = new Production();
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Resources);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradePoints);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bShouldReset);
+    }
+
+    public void Load()
+    {
+        Refill();
+        _OnInit?.Invoke(this);
+    }
+
+    public void Refill()
+    {
+        // does not reset upgrade points nor coins!
+        int CoinCount = Resources[Production.Type.Coins];
+        Reset();
+        AddResources(StartingResources);
+        AddResources(new Production(Production.Type.Coins, CoinCount));
     }
 
     public void Reset()
@@ -138,6 +156,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public Production Resources;
     public Production StartingResources;
     public int UpgradePoints = 0;
+
+    protected bool bShouldReset = false;
 
     public delegate void OnResourcesChanged();
     public static OnResourcesChanged _OnResourcesChanged;

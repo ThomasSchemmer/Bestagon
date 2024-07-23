@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.XR;
 
 public class CardHand : CardCollection
@@ -11,14 +12,14 @@ public class CardHand : CardCollection
 
             base.StartServiceInternal();
 
-            Game.RunAfterServicesInit((CardFactory CardFactory, CardDeck Deck) =>
-            {
-                // cards will be loaded instead of newly generated
-                if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
-                    return;
+            // cards will be loaded instead of newly generated
+            if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
+                return;
 
+            Game.RunAfterServiceInit((CardDeck Deck) =>
+            {
                 Cards = new List<Card>();
-                HandleDelayedFilling();
+                HandleDelayedFilling(Deck);
                 _OnInit?.Invoke(this);
             });
             
@@ -27,17 +28,36 @@ public class CardHand : CardCollection
         
     public void Sort(bool IsACardHovered) {
         transform.localPosition = IsACardHovered ? HoverPosition : NormalPosition;
-        int i = 0;
         int Count = Cards.Count;
+        int i = 0;
+
+        int AreaOffset = (int)(Area.x / (Count + 1));
+        float MaxXOffset = Mathf.Min(AreaOffset, CardOffset);
+        MaxXOffset *= Count / 2f;
+
         foreach(Card Card in Cards) {
-            Card.transform.SetSiblingIndex(Count - 1 - Card.GetIndex());
-            float offset = i - Cards.Count / 2.0f;
-            float SelectOffset = Card.IsSelected() ? Card.SelectOffset : 0;
-            Card.transform.localPosition = new Vector3(offset * 75, SelectOffset, 0);
+            Card.SetIndex(Count - 1 - Card.GetIndex());
+
+            float TempIndex = Count == 1 ? 0.5f : (float)i / (Count - 1);
+            float MappedIndex = Map(TempIndex, 0, 1, -1, 1);
+            float YIndex = 1 - Mathf.Abs(MappedIndex);
+
+            float YOffset = YIndex * Area.y;
+            float SelectYOffset = Card.IsSelected() ? Card.SelectOffset : 0;
+            float XOffset = MappedIndex * MaxXOffset;
+
+            Card.transform.localPosition = new Vector3(XOffset, YOffset + SelectYOffset, 0);
+            Card.transform.rotation = Quaternion.Euler(0, 0, MappedIndex * MaxAngle);
             Card.name = "Card " + i;
             i++;
         }
         Canvas.ForceUpdateCanvases();
+    }
+
+
+    private float Map(float value, float from1, float to1, float from2, float to2)
+    {
+        return (value - from1) / Mathf.Round(to1 - from1) * (to2 - from2) + from2;
     }
 
     public void DiscardCard(Card Card) {
@@ -77,33 +97,33 @@ public class CardHand : CardCollection
     public override void Load()
     {
         Sort(false);
-        HandleDelayedFilling();
-        
-
-        _OnInit?.Invoke(this);
-    }
-
-    private void HandleDelayedFilling()
-    {
-        if (!Game.IsIn(Game.GameState.Game) && !Game.IsIn(Game.GameState.GameMenu))
-            return;
-
-        Game.RunAfterServicesInit((CardDeck Deck, CardFactory CardFactory) =>
+        Game.RunAfterServiceInit((CardDeck Deck) =>
         {
-            int TargetAmount = AMOUNT_HANDCARDS_START;
-            int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
-            Amount = Mathf.Min(Amount, Deck.Cards.Count);
-
-            for (int i = 0; i < Amount; i++)
-            {
-                Card Card = Deck.RemoveCard();
-                AddCard(Card);
-            }
+            HandleDelayedFilling(Deck);
+            _OnInit?.Invoke(this);
         });
     }
 
+    private void HandleDelayedFilling(CardDeck Deck)
+    {
+        int TargetAmount = AMOUNT_HANDCARDS_START;
+        int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
+        Amount = Mathf.Min(Amount, Deck.Cards.Count);
+
+        for (int i = 0; i < Amount; i++)
+        {
+            Card Card = Deck.RemoveCard();
+            AddCard(Card);
+        }
+    }
+
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);
-    public static Vector3 HoverPosition = new Vector3(0, -350, 0);
+    public static Vector3 HoverPosition = new Vector3(0, -400, 0);
+    public static Vector3 Area = new Vector3(1200, 25, 0);
+    public static float MaxAngle = -10;
+    public static float CardOffset = 175;
+
     public static int AMOUNT_HANDCARDS_MAX = 5;
     public static int AMOUNT_HANDCARDS_START = 3;
+
 }

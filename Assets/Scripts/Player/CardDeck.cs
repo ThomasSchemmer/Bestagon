@@ -11,15 +11,11 @@ public class CardDeck : CardCollection
 
         UpdateText();
 
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
-
-        // will be loaded instead of generated
-        if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
-            return;
-
-        Game.RunAfterServiceInit((CardFactory Factory) =>
+        Game.RunAfterServicesInit((SaveGameManager Manager, CardFactory Factory) =>
         {
+            if (Manager.HasDataFor(ISaveableService.SaveGameType.CardDeck))
+                return;
+
             Cards = new();
             Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
@@ -28,7 +24,6 @@ public class CardDeck : CardCollection
             Factory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
             _OnInit?.Invoke(this);
         });
-
     }
 
     private void UpdateText()
@@ -67,7 +62,7 @@ public class CardDeck : CardCollection
     private void AddDelayedScout(Card Card)
     {
         AddCard(Card);
-        Card.SetIndex(0);
+        SetIndex(Card, 0);
     }
 
     public override void Load()

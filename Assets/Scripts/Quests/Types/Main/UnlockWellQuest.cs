@@ -48,7 +48,10 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
 
     public override int GetStartProgress()
     {
-        return 0;
+        if (!Game.TryGetService(out Unlockables Unlockables))
+            return 0;
+
+        return !Unlockables.IsLocked(BuildingConfig.Type.Well) ? 1 : 0;
     }
 
     public override void OnAfterCompletion()

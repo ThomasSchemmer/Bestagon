@@ -44,20 +44,20 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
 
         Game.RunAfterServicesInit((Map Map, MeshFactory Factory) =>
         {
-            if (!Game.TryGetService(out SaveGameManager Manager))
-                return;
-
-            // already loaded then
-            if (Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
-                return;
-
-            GenerateMap();
-
-            if (Game.Instance.Mode == Game.GameMode.Game)
+            Game.RunAfterServiceInit((SaveGameManager Manager) =>
             {
-                MalaiseData.bHasStarted = false;
-                MalaiseData.SpreadInitially();
-            }
+                // already loaded then - OnInit will be invoked through chunk visualization callbacks
+                if (Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
+                    return;
+
+                GenerateMap();
+
+                if (Game.Instance.Mode == Game.GameMode.Game)
+                {
+                    MalaiseData.bHasStarted = false;
+                    MalaiseData.SpreadInitially();
+                }
+            });
         });
     }
 

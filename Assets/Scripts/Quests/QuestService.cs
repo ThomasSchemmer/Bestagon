@@ -15,16 +15,20 @@ public class QuestService : GameService, ISaveableService
         return Quest;
     }
 
-    private void ActivateQuest(QuestUIElement QuestUI)
+    /** Forcing quests allows them to count as unlocked even though the current stats don't allow it
+     * Useful for making sure they are actually registered and then saved again correctly
+     */
+    private void ActivateQuest(QuestUIElement QuestUI, bool bForceAfterLoad = false)
     {
         QuestTemplate QuestT = QuestUI.GetQuestObject();
-        if (!QuestT.ShouldUnlock())
+        if (!QuestT.ShouldUnlock() && !bForceAfterLoad)
         {
+            QuestUI.transform.SetParent(InactiveQuestContainer, false);
             QuestsToUnlock.Add(QuestUI);
             return;
         }
 
-        QuestT.Register();
+        QuestT.Register(bForceAfterLoad);
         switch (QuestT.QuestType)
         {
             case QuestTemplate.Type.Positive: AddPositiveQuest(QuestUI); break;
@@ -276,17 +280,17 @@ public class QuestService : GameService, ISaveableService
         for (int i = 0; i < QuestLength - Offset; i++)
         {
             Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement Quest);
-            ActivateQuest(Quest);
+            ActivateQuest(Quest, true);
         }
         if (bHasMain)
         {
             Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement MainQuest);
-            ActivateQuest(MainQuest);
+            ActivateQuest(MainQuest, true);
         }
         if (bHasNegative)
         {
             Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement NegativeQuest);
-            ActivateQuest(NegativeQuest);
+            ActivateQuest(NegativeQuest, true);
         }
     }
 
@@ -364,7 +368,7 @@ public class QuestService : GameService, ISaveableService
     protected HashSet<Type> QuestTypes = new();
 
     public GameObject QuestPrefab;
-    public RectTransform MainQuestContainer, NegativeQuestContainer, QuestContainer;
+    public RectTransform MainQuestContainer, NegativeQuestContainer, QuestContainer, InactiveQuestContainer;
     public float RevealSpeed = 10;
 
     private static float HoverScaleModifier = 1.15f;

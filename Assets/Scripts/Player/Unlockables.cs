@@ -64,6 +64,20 @@ public class Unlockables : GameService, ISaveableService, IQuestRegister<Buildin
         return (((int)LockedTypesPerCategory[CategoryIndex] >> Index) & 0x1) == 1;
     }
 
+    public bool IsLocked(BuildingConfig.Type Type)
+    {
+        int Wanted = HexagonConfig.MaskToInt((int)Type, 32);
+        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
+        {
+            int Category = (int)BuildingConfig.Categories[i];
+            if (!IsIndexInCategory(Category, Wanted))
+                continue;
+
+            return IsIndexLockedInCategoryIndex(i, Wanted);
+        }
+        return false;
+    }
+
     public BuildingConfig.Type GetRandomUnlockedType()
     {
         // this implies that a category can only be unlocked if all previous things have been unlocked!
@@ -246,15 +260,15 @@ public class Unlockables : GameService, ISaveableService, IQuestRegister<Buildin
     }
 
     protected override void StartServiceInternal() {
-        if (!Game.TryGetService(out SaveGameManager SaveGameManager))
-            return;
-
-        if (!SaveGameManager.HasDataFor(ISaveableService.SaveGameType.Unlockables))
+        Game.RunAfterServiceInit((SaveGameManager SaveGameManager) =>
         {
-            InitializeCategories();
-        }
+            if (!SaveGameManager.HasDataFor(ISaveableService.SaveGameType.Unlockables))
+            {
+                InitializeCategories();
+            }
 
-        _OnInit?.Invoke(this);
+            _OnInit?.Invoke(this);
+        });
     }
 
     protected override void StopServiceInternal() {}
