@@ -44,7 +44,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
     public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         // ignore the preview parameter, as the error messages are only created in the BuildingCard
-        return CanBeBuildOn(Hex, true);
+        return CanBeBuildOn(Hex, true, out string _);
     }
 
     public Production GetCosts()
@@ -72,31 +72,68 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return Effect.TryGetAdjacencyBonus(out Bonus);
     }
 
-    public bool CanBeBuildOn(HexagonVisualization Hex, bool bShouldCheckCosts) {
+    public bool CanBeBuildOn(HexagonVisualization Hex, bool bShouldCheckCosts, out string Reason) {
         if (!Hex)
+        {
+            Reason = "Invalid Hex";
             return false;
+        }
 
         if (Hex.Data == null)
+        {
+            Reason = "Invalid Hex";
             return false;
+        }
 
         if (!BuildableOn.HasFlag(Hex.Data.Type))
+        {
+            Reason = "not buildable on " + Hex.Data.Type;
             return false;
+        }
 
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+        {
+            Reason = "only buildable on scouted hexes";
             return false;
+        }
+
+        if (!Game.TryGetService(out ReachVisualization ReachVisualization))
+        {
+            Reason = "Invalid Hex";
+            return false;
+        }
+
+        if (!ReachVisualization.CheckFor(Hex.Location))
+        {
+            Reason = "must be in reach of other buildings";
+            return false;
+        }
 
         if (!Game.TryGetServices(out Stockpile Stockpile, out BuildingService Buildings))
+        {
+            Reason = "Invalid Hex";
             return false;
+        }
 
         if (bShouldCheckCosts && !Stockpile.CanAfford(GetCosts()))
+        {
+            Reason = "insufficient resources";
             return false;
+        }
 
         if (Buildings.IsBuildingAt(Hex.Location))
+        {
+            Reason = "another building exists already";
             return false;
+        }
 
         if (Hex.IsMalaised())
+        {
+            Reason = "hex is malaised";
             return false;
+        }
 
+        Reason = string.Empty;
         return true;
     }
 

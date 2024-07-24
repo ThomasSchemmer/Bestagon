@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -144,6 +145,11 @@ public class WorldGenerator : GameService
     }
 
     private void SetDataHeightTemperature() {
+        if (Seed < 0)
+        {
+            UnityEngine.Random.InitState(DateTime.Now.Second);
+            Seed = UnityEngine.Random.Range(0, 100);
+        }
         MapShader.SetFloat("Seed", Seed);
         MapShader.SetFloat("Scale", Scale);
         MapShader.SetFloat("Factor", Factor);

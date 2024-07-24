@@ -107,6 +107,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitPathScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
+    <Compile Include="Assets\Scripts\Visualization\ReachVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\EventCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
@@ -231,6 +232,7 @@
     <None Include="Assets\Materials\Shaders\UnitShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Materials\Shaders\Util\Util.cginc" />
+    <None Include="Assets\Materials\Shaders\UnlitShader.shader" />
     <None Include="Assets\Scripts\Config\BiomeMapBack.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />

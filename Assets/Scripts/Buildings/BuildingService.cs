@@ -125,12 +125,14 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
     public void AddBuilding(BuildingData Building)
     {
         Buildings.Add(Building);
+
         _OnBuildingBuilt.ForEach(_ => _.Invoke(Building));
     }
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 
     public List<BuildingData> Buildings = new();
+
 
     public static List<Action<BuildingData>> _OnBuildingDestroyed = new();
     public static List<Action<BuildingData>> _OnBuildingBuilt = new();

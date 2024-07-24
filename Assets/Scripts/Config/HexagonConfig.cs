@@ -235,6 +235,11 @@ public class HexagonConfig {
                 Index.y >= 0 && Index.y < chunkSize;
     }
 
+    public static bool IsValidLocation(Location Location)
+    {
+        return IsValidChunkIndex(Location.ChunkLocation) && IsValidHexIndex(Location.HexLocation);
+    }
+
     public static Location GetMaxLocation()
     {
         return new Location(new Vector2Int(mapMaxChunk - 1, mapMaxChunk - 1), new Vector2Int(chunkSize - 1, chunkSize - 1));

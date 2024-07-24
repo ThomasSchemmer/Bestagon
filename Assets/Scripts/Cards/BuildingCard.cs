@@ -89,21 +89,22 @@ public class BuildingCard : Card
         if (!Game.TryGetServices(out BuildingService Buildings, out Stockpile Stockpile))
             return false;
 
+        string Reason = "Cannot create building here - ";
         if (Buildings.IsBuildingAt(Hex.Location))
         {
-            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - one already exists");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, Reason + "one already exists");
             return false;
         }
 
-        if (!BuildingData.CanBeBuildOn(Hex, false))
+        if (!BuildingData.CanBeBuildOn(Hex, false, out string Reason2))
         {
-            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - invalid placement");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, Reason + Reason2);
             return false;
         }
 
         if (!Stockpile.CanAfford(BuildingData.GetCosts()))
         {
-            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
+            MessageSystemScreen.CreateMessage(Message.Type.Error, Reason + "not enough resources");
             return false;
         }
         return true;
@@ -167,7 +168,7 @@ public class BuildingCard : Card
 
     public override bool ShouldShowAdjacency(HexagonVisualization Hex)
     {
-        return GetBuildingData().CanBeBuildOn(Hex, false);
+        return GetBuildingData().CanBeBuildOn(Hex, false, out string _);
     }
 
     public override bool IsCustomRuleApplying(Location NeighbourLocation)

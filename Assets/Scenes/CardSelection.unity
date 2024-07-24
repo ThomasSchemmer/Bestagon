@@ -3470,7 +3470,7 @@ MonoBehaviour:
       Value: {fileID: 626326041}
     - Key: 13
       Value: {fileID: 1161608406}
-  bLoadLastFile: 0
+  bLoadLastFile: 1
 --- !u!1 &1050591515
 GameObject:
   m_ObjectHideFlags: 0

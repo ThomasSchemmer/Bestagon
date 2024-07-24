@@ -55,6 +55,10 @@ public class DraggableManager : GameService
 
     public void EndDrag(Draggable Draggable, PointerEventData Event) 
     {
+        if (!DraggedObjects.Contains(Draggable))
+            return;
+
+        DraggedObjects.Remove(Draggable);
         Draggable.SetDragParent(GetTarget(Event));
         Draggable.transform.SetSiblingIndex(DraggingPreview.transform.GetSiblingIndex());
         DraggingPreview.SetActive(false);

@@ -20,7 +20,7 @@ public class PreviewSystem : GameService
 
     public void UpdatePreview()
     {
-        if (!Game.TryGetService(out Selectors Selector))
+        if (!Game.TryGetServices(out Selectors Selector, out ReachVisualization ReachVisualization))
             return;
 
         Card SelectedCard = Selector.GetSelectedCard();
@@ -28,11 +28,13 @@ public class PreviewSystem : GameService
         if (!SelectedCard || !HoveredHex || !HoveredHex.IsHovered() || !SelectedCard.IsPreviewable())
         {
             Hide();
+            ReachVisualization.Hide();
             ShowAdjacencyBonusFor(null, HoveredHex);
             return;
         }
 
         Show(SelectedCard, HoveredHex);
+        ReachVisualization.CheckFor(HoveredHex.Location);
         ShowAdjacencyBonusFor(SelectedCard, HoveredHex);
     }
 
