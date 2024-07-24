@@ -15,8 +15,8 @@ public class StockpileScreen : MonoBehaviour
             Workers._OnWorkersChanged += UpdateWorkerVisuals;
             Units._OnUnitCountChanged += UpdateScoutVisuals;
             TokenizedUnitData._OnMovement += UpdateScoutVisuals;
-            // only update the +/- indicators every turn
             Turn._OnTurnEnd += UpdateIndicatorCount;
+            Stockpile._OnSimulatedGainsChanged += UpdateIndicatorCount;
 
             Initialize(Stockpile, IconFactory);
             UpdateVisuals();
@@ -31,6 +31,7 @@ public class StockpileScreen : MonoBehaviour
         Units._OnUnitCountChanged -= UpdateScoutVisuals;
         TokenizedUnitData._OnMovement -= UpdateScoutVisuals;
         Turn._OnTurnEnd -= UpdateIndicatorCount;
+        Stockpile._OnSimulatedGainsChanged -= UpdateIndicatorCount;
     }
 
     protected virtual void Initialize(Stockpile Stockpile, IconFactory IconFactory)
@@ -119,7 +120,7 @@ public class StockpileScreen : MonoBehaviour
     protected virtual Vector2 GetTargetOffset(int i)
     {
         return new Vector2(
-                (StockpileGroupScreen.WIDTH + StockpileGroupScreen.OFFSET) * i,
+                (StockpileGroupScreen.WIDTH + StockpileGroupScreen.OFFSET) * i + StockpileGroupScreen.INITIAL_OFFSET,
                 0
             );
     }

@@ -249,6 +249,17 @@ public class Production : ISaveableData
         return _Production.GetHashCode();
     }
 
+    public Production Copy()
+    {
+        Production Copy = new();
+        var Tuples = GetTuples();
+        foreach (var Tuple in Tuples)
+        {
+            Copy[Tuple.Key] = Tuple.Value;
+        }
+        return Copy;
+    }
+
     public static int GetHungerFromFood(Type FoodType)
     {
         switch (FoodType)

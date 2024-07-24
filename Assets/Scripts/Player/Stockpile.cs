@@ -35,17 +35,56 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         }
     }
     
-    public void ProduceResources() {
+    public Production CalculateResources(bool bIsSimulated)
+    {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return;
-
-        if (!Game.TryGetServices(out Workers WorkerService, out Units UnitService))
-            return;
+            return Production.Empty;
 
         Production ProducedThisRound = MapGenerator.GetProductionPerTurn();
-        Resources += ProducedThisRound;
-        HandleStarvation(WorkerService, UnitService);
 
+        if (bIsSimulated)
+        {
+            return SimulateStarvation(ProducedThisRound);
+        }
+        else
+        {
+            return CalculateStarvation(ProducedThisRound);
+        }
+    }
+
+    private Production CalculateStarvation(Production ProducedThisRound)
+    {
+        if (!Game.TryGetServices(out Workers WorkerService, out Units UnitService))
+            return Production.Empty;
+
+        Resources += ProducedThisRound;
+        Production PreStarvation = Resources.Copy();
+        HandleStarvation(WorkerService, UnitService, Resources, false);
+        Production AfterStarvation = Resources.Copy();
+
+        return AfterStarvation - PreStarvation;
+    }
+
+    private Production SimulateStarvation(Production ProducedThisRound)
+    {
+        if (!Game.TryGetServices(out Workers WorkerService, out Units UnitService))
+            return Production.Empty;
+
+        SimulatedResources = Resources.Copy();
+        Production PreProduction = SimulatedResources.Copy();
+        SimulatedResources += ProducedThisRound;
+        HandleStarvation(WorkerService, UnitService, SimulatedResources, true);
+        Production AfterStarvation = SimulatedResources.Copy();
+
+        SimulatedGains = AfterStarvation - PreProduction;
+        _OnSimulatedGainsChanged?.Invoke();
+
+        return SimulatedGains;
+    }
+
+    public void GenerateResources()
+    {
+        Production ProducedThisRound = CalculateResources(false);
         _OnResourcesCollected.ForEach(_ => _.Invoke(ProducedThisRound));
         _OnResourcesChanged?.Invoke();
     }
@@ -56,29 +95,31 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         _OnResourcesChanged?.Invoke();
     }
 
-    public int GetResourceGroupCount(int GroupIndex) 
+    public int GetResourceGroupCount(int GroupIndex, bool bIsSimulated) 
     {
         int Count = 0;
         int Min = Production.Indices[GroupIndex];
         int Max = Production.Indices[GroupIndex + 1];
+        Production Target = bIsSimulated ? SimulatedGains : Resources;
         for (int Index = Min; Index < Max; Index++)
         {
             Production.Type ResourceType = (Production.Type)Index;
-            Count += Resources[ResourceType];
+            Count += Target[ResourceType];
         }
         return Count;
     }
 
-    public int GetResourceCount(int ResourceTypeIndex)
+    public int GetResourceCount(int ResourceTypeIndex, bool bIsSimulated)
     {
+        Production Target = bIsSimulated ? SimulatedGains : Resources;
         Production.Type ResourceType = (Production.Type)ResourceTypeIndex;
-        return Resources[ResourceType];
+        return Target[ResourceType];
     }
 
-    private void HandleStarvation(Workers WorkerService, Units UnitService)
+    private void HandleStarvation(Workers WorkerService, Units UnitService, Production TargetResources, bool bIsSimulated)
     {
-        StarvableUnitData.HandleStarvationFor(WorkerService.Units, Resources, "Workers");
-        StarvableUnitData.HandleStarvationFor(UnitService.Units, Resources, "Units");
+        StarvableUnitData.HandleStarvationFor(WorkerService.Units, TargetResources, "Workers", bIsSimulated);
+        StarvableUnitData.HandleStarvationFor(UnitService.Units, TargetResources, "Units", bIsSimulated);
     }
 
     public bool CanAfford(Production Costs) {
@@ -90,10 +131,19 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         _OnResourcesChanged?.Invoke();
     }
 
+    private void OnSimulateResources()
+    {
+        CalculateResources(true);
+    }
+
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {
+            Workers._OnWorkersChanged += OnSimulateResources;
+            BuildingService._OnBuildingsChanged += OnSimulateResources;
+            _OnResourcesChanged += OnSimulateResources; 
+
             if (Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile))
                 return;
 
@@ -103,6 +153,13 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     }
 
     protected override void StopServiceInternal() {}
+
+    public void OnDestroy()
+    {
+        Workers._OnWorkersChanged -= OnSimulateResources;
+        BuildingService._OnBuildingsChanged -= OnSimulateResources;
+        _OnResourcesChanged -= OnSimulateResources;
+    }
 
     public int GetSize()
     {
@@ -154,6 +211,9 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     }
 
     public Production Resources;
+    public Production SimulatedResources;
+    public Production SimulatedGains;
+
     public Production StartingResources;
     public int UpgradePoints = 0;
 
@@ -161,6 +221,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
 
     public delegate void OnResourcesChanged();
     public static OnResourcesChanged _OnResourcesChanged;
+    public static OnResourcesChanged _OnSimulatedGainsChanged;
 
     public static ActionList<Production> _OnResourcesCollected = new();
 }

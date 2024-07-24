@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static BuildingService;
 
 // todo: save spatially effient, either chunks or quadtree etc
 public class BuildingService : GameService, ISaveableService, IQuestRegister<BuildingData>
@@ -65,6 +66,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
 
         _OnBuildingDestroyed.ForEach(_ => _.Invoke(Building));
+        _OnBuildingsChanged?.Invoke();
         Destroy(Building);
     }
 
@@ -127,11 +129,16 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         Buildings.Add(Building);
 
         _OnBuildingBuilt.ForEach(_ => _.Invoke(Building));
+        _OnBuildingsChanged?.Invoke();
     }
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 
     public List<BuildingData> Buildings = new();
+
+
+    public delegate void OnBuildingsChanged();
+    public static OnBuildingsChanged _OnBuildingsChanged;
 
 
     public static ActionList<BuildingData> _OnBuildingDestroyed = new();

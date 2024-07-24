@@ -32,6 +32,11 @@ public class NumberedIconScreen : SimpleIconScreen
         CountText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
     }
 
+    public void SetAmountAlignment(TMPro.TextAlignmentOptions Alignment)
+    {
+        CountText.alignment = Alignment;
+    }
+
     public void UpdateVisuals(int Count, int Max = -1)
     {
         string MaxText = Max >= 0 ? "/" + Max : "";

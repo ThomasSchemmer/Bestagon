@@ -19,8 +19,9 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
     protected StockpileScreen Parent;
     protected int ProductionGroupIndex;
 
-    public static int WIDTH = 76;
-    public static int OFFSET = 14;
+    public static int WIDTH = 85;
+    public static int OFFSET = 12;
+    public static int INITIAL_OFFSET = 10;
 
     public void Initialize(StockpileScreen Parent, int Index, GameObject ItemPrefab, Stockpile Stockpile, IconFactory IconFactory, bool bDisplayActiveOnly)
     {

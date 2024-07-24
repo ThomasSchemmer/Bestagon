@@ -38,7 +38,7 @@ public class Turn : GameService
             return;
 
         MessageSystemScreen.DeleteAllMessages();
-        Stockpile.ProduceResources();
+        Stockpile.GenerateResources();
         Stockpile.ProduceWorkers();
         TurnNr++;
         Units.RefreshUnits();

@@ -6,22 +6,30 @@ using UnityEngine;
 /** A unit that can be starved. If hungry will not work */
 public abstract class StarvableUnitData : UnitData
 {
-    public void HandleStarvation()
+    public void HandleStarvation(bool bIsSimulated)
     {
-        CurrentFoodCount = Mathf.Max(CurrentFoodCount - 1, 0);
+        if (bIsSimulated)
+        {
+            SimulatedFoodCount = CurrentFoodCount;
+            SimulatedFoodCount = Mathf.Max(SimulatedFoodCount - 1, 0);
+        }
+        else
+        {
+            CurrentFoodCount = Mathf.Max(CurrentFoodCount - 1, 0);
+        }
     }
 
-    public bool IsStarving()
+    public bool IsStarving(bool bIsSimulated)
     {
-        return CurrentFoodCount == 0;
+        return (bIsSimulated ? SimulatedFoodCount : CurrentFoodCount) == 0;
     }
 
-    public bool IsReadyToWork()
+    public bool IsReadyToWork(bool bIsSimulated)
     {
-        return !IsStarving() || IsInFoodProductionBuilding();
+        return !IsStarving(bIsSimulated) || IsInFoodProductionBuilding();
     }
 
-    public void HandleFeeding(Production Food)
+    public void HandleFeeding(Production Food, bool bIsSimulated)
     {
         int MinFoodIndex = (int)Production.GoodsType.Food;
         int MaxFoodIndex = (int)Production.GoodsType.LuxuryItems - 1;
@@ -32,22 +40,33 @@ public abstract class StarvableUnitData : UnitData
                 continue;
 
             Food[FoodType] -= 1;
-            CurrentFoodCount += Production.GetHungerFromFood(FoodType);
+            int GainedHunger = Production.GetHungerFromFood(FoodType);
+            if (bIsSimulated)
+            {
+                SimulatedFoodCount += GainedHunger;
+            }
+            else
+            {
+                CurrentFoodCount += GainedHunger;
+            }
         }
     }
 
-    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name) where T : StarvableUnitData
+    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name, bool bIsSimulated) where T : StarvableUnitData
     {
         int StarvingCount = 0;
         foreach (StarvableUnitData Unit in Units)
         {
-            Unit.HandleStarvation();
-            if (!Unit.IsStarving())
+            Unit.HandleStarvation(bIsSimulated);
+            if (!Unit.IsStarving(bIsSimulated))
                 continue;
 
-            Unit.HandleFeeding(Production);
-            StarvingCount += Unit.IsStarving() ? 1 : 0;
+            Unit.HandleFeeding(Production, bIsSimulated);
+            StarvingCount += Unit.IsStarving(bIsSimulated) ? 1 : 0;
         }
+
+        if (bIsSimulated)
+            return;
 
         if (StarvingCount == 0)
             return;
@@ -93,4 +112,6 @@ public abstract class StarvableUnitData : UnitData
 
     [HideInInspector]
     public int CurrentFoodCount = 1;
+    [HideInInspector]
+    public int SimulatedFoodCount = 1;
 }

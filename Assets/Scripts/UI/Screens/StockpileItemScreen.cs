@@ -10,51 +10,42 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     // either represents a group index (for coresponding ParentScreen), or an actual resource type index
     private int ProductionIndex = -1;
 
-    private SVGImage IndicatorRenderer;
+    private TMPro.TextMeshProUGUI IndicatorText;
     private NumberedIconScreen IconScreen;
-    private int[] PastCounts = new int[3];
     private Stockpile Stockpile;
-    private IconFactory IconFactory;
 
     public void Initialize(StockpileGroupScreen Screen, int Index, Stockpile Stockpile, IconFactory IconFactory)
     {
-        this.IconFactory = IconFactory;
         this.Stockpile = Stockpile;
         ParentScreen = Screen;
         ProductionIndex = Index;
-        IndicatorRenderer = transform.GetChild(0).GetComponent<SVGImage>();
+        IndicatorText = transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
         IconScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
         Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
         IconScreen.Initialize(Sprite, GetHoverTooltip(), this);
-
-        int Count = GetCount();
-        PastCounts[0] = Count;
-        PastCounts[1] = Count;
-        PastCounts[2] = Count;
+        IconScreen.SetAmountAlignment(TMPro.TextAlignmentOptions.Midline);
     }
 
     public void UpdateVisuals()
     {
-        int CountDifference = PastCounts[2] - PastCounts[0];
-        IconFactory.MiscellaneousType Trend = CountDifference > 0 ? IconFactory.MiscellaneousType.TrendUp : IconFactory.MiscellaneousType.TrendDown;
-        IndicatorRenderer.sprite = IconFactory.GetIconForMisc(Trend);
-        IndicatorRenderer.enabled = CountDifference != 0;
-
-        IconScreen.UpdateVisuals(GetCount());
+        UpdateIndicatorCount();
+        IconScreen.UpdateVisuals(GetCount(false));
     }
 
     public void SetSelectionEnabled(bool bEnabled)
     {
         IconScreen.SetSelectionEnabled(bEnabled);
-        IndicatorRenderer.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
+        IndicatorText.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
 
     public void UpdateIndicatorCount()
     {
-        PastCounts[0] = PastCounts[1];
-        PastCounts[1] = PastCounts[2];
-        PastCounts[2] = GetCount();
+        int Count = GetCount(true);
+
+        string Text = (Count > 0 ? "+" : "") + Count;
+        IndicatorText.text = Count == 0 ? string.Empty : Text;
+        IndicatorText.color = Count >= 0 ? OKColor : NegativeColor;
     }
 
     public void SetItemSubscription(Production.Type Type, int Amount)
@@ -62,11 +53,11 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         IconScreen.SetSubscription(Type, Amount);
     }
 
-    private int GetCount()
+    private int GetCount(bool bIsSimulated)
     {
         int Count = ParentScreen != null ?
-            Stockpile.GetResourceGroupCount(ProductionIndex) :
-            Stockpile.GetResourceCount(ProductionIndex);
+            Stockpile.GetResourceGroupCount(ProductionIndex, bIsSimulated) :
+            Stockpile.GetResourceCount(ProductionIndex, bIsSimulated);
         return Count;
     }
 
@@ -120,4 +111,8 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
 
         return ((Production.Type)ProductionIndex).ToString();
     }
+
+    private static float OKValue = 0.132f;
+    private static Color OKColor = new(OKValue, OKValue, OKValue);
+    private static Color NegativeColor = Color.red;
 }

@@ -163,7 +163,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (UnitService.TryGetUnitAt(this.Location, out TokenizedUnitData UnitAtTarget))
             return;
 
-        if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()) || UnitOnTile.IsStarving())
+        if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()) || UnitOnTile.IsStarving(false))
             return;
 
         List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
@@ -216,7 +216,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         // always query, just reset if null
         UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit);
 
-        bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements()) && !Unit.IsStarving();
+        bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements()) && !Unit.IsStarving(false);
 
         bool bIsVisible = Unit != null && bShow && bCanPay;
         int Range = Unit != null ? Unit.RemainingMovement : 0;

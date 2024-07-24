@@ -60,7 +60,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
 
     public override void Refresh()
     {
-        if (IsStarving())
+        if (IsStarving(false))
             return;
 
         base.Refresh();

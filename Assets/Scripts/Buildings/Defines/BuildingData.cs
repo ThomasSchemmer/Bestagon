@@ -155,7 +155,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         int WorkerCount = 0;
         for (int i = 0; i < AssignedWorkers.Length; i++)
         {
-            WorkerCount += AssignedWorkers[i] != null && AssignedWorkers[i].IsReadyToWork() ? 1 : 0;
+            WorkerCount += AssignedWorkers[i] != null && AssignedWorkers[i].IsReadyToWork(false) ? 1 : 0;
         }
         return WorkerCount;
     }
