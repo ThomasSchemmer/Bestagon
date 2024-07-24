@@ -4703,6 +4703,7 @@ MonoBehaviour:
   Factor: 1
   Offset: 0
   Seed: -1
+  NoiseScale: 15
 --- !u!4 &558157971
 Transform:
   m_ObjectHideFlags: 0

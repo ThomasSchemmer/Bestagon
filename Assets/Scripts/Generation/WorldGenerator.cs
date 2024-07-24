@@ -155,6 +155,7 @@ public class WorldGenerator : GameService
         MapShader.SetFloat("Factor", Factor);
         MapShader.SetFloat("Offset", Offset);
         MapShader.SetFloat("Amount", Amount);
+        MapShader.SetFloat("NoiseScale", NoiseScale);
         MapShader.SetFloat("WaterCutoff", GetWaterCutoff());
 
         SetBuffersForKernel(HeightTemperatureKernel);
@@ -319,6 +320,7 @@ public class WorldGenerator : GameService
     public float Factor = 1;
     public float Offset = 0;
     public float Seed = 0;
+    public float NoiseScale = 1;
 
     private int HeightTemperatureKernel, JumpFloodKernel, TypeKernel, HistogramNormalizationKernel;
     private ComputeBuffer HexagonInfoBuffer;

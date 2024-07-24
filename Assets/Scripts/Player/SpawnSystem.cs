@@ -39,9 +39,6 @@ public class SpawnSystem : GameService, ISaveableService
         if (!Data.CanDecorationSpawn())
             return;
 
-        if (Data.Decoration != HexagonConfig.HexagonDecoration.None)
-            return;
-
         DiscoveredCount -= CountToSpawnDecoration;
         CountToSpawnDecoration += CountToSpawnDecorationIncrease;
         float Chance = Random.Range(0f, 1f);
@@ -84,5 +81,5 @@ public class SpawnSystem : GameService, ISaveableService
     private int DiscoveredCount = 0;
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;
-    private float TribeChance = 0.75f;
+    private float TribeChance = 0.65f;
 }

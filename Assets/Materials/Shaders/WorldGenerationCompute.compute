@@ -45,6 +45,7 @@ float Factor;
 float Offset;
 float Amount;
 float WaterCutoff;
+float NoiseScale;
 // temporary output and debug variables
 RWTexture2D<float4> InputImage;
 RWTexture2D<float4> OutputImage;
@@ -188,6 +189,11 @@ void HistogramNormalization(uint ID : SV_GroupIndex, uint3 GroupID : SV_GroupID)
     HistogramResult[BufferStart + ID] = round(((float) A / B) * C);
 }
 
+float GetRandomNr(float2 UV)
+{
+    return (snoise(UV * NoiseScale) + 1.0) / 2;
+}
+
 int GetRandomBit(uint Index, float2 UV)
 {
     // count amount of set bits
@@ -201,7 +207,10 @@ int GetRandomBit(uint Index, float2 UV)
         return 0;
         
     // save set bits' position and pick a random one from them
-    int RandomIndex = round(((snoise(UV) + 1.0) / 2.0) * (BitAmount - 1));
+    // generate a random nr in range from 0..1
+    float RandomNr = GetRandomNr(UV);
+
+    int RandomIndex = round(RandomNr * (BitAmount - 1));
     
     int BitCount = -1;
     for (int i = 0; i < 32 && BitCount < BitAmount; i++)
@@ -239,14 +248,16 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
     HexagonInfos[Pos].Height = NormalizedHeight;
     HexagonInfos[Pos].Temperature = NormalizedTemperature;
     HexagonInfos[Pos].Humidity = NormalizedHumidity;
+    
+    float Bounds = GetRandomNr(uv) * 0.1;
         
     int TypeIndex = 0;
     for (int i = 0; i < ClimateCount; i++)
     {
-        float MinX = ClimateMap[i].Pos.x / 100.0;
-        float MinY = ClimateMap[i].Pos.y / 100.0;
-        float MaxX = (ClimateMap[i].Pos.x + ClimateMap[i].Size.x) / 100.0;
-        float MaxY = (ClimateMap[i].Pos.y + ClimateMap[i].Size.y) / 100.0;
+        float MinX = ClimateMap[i].Pos.x / 100.0 - Bounds;
+        float MinY = ClimateMap[i].Pos.y / 100.0 - Bounds;
+        float MaxX = (ClimateMap[i].Pos.x + ClimateMap[i].Size.x) / 100.0 + Bounds;
+        float MaxY = (ClimateMap[i].Pos.y + ClimateMap[i].Size.y) / 100.0 + Bounds;
         if (NormalizedTemperature >= MinX && NormalizedTemperature <= MaxX && NormalizedHumidity >= MinY && NormalizedHumidity <= MaxY) 
         {
             TypeIndex |= ClimateMap[i].Index;
@@ -262,6 +273,7 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
     }
     
     TypeIndex = GetRandomBit(TypeIndex, uv);
+
     
     int HeightIndex = -1;
     for (i = 0; i < HeightCount; i++)

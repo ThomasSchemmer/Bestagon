@@ -115,7 +115,7 @@ public class HexagonData : ISaveableData
     
     public bool CanDecorationSpawn()
     {
-        return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain;
+        return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain && Decoration == HexagonDecoration.None;
     }
     
     public string GetDecorationText()
