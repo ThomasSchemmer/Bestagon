@@ -14,12 +14,12 @@ public interface IQuestRegister {}
 
 public interface IQuestRegister<T> : IQuestRegister
 {
-    public void RegisterQuest(List<Action<T>> Delegates, Quest<T> Quest)
+    public void RegisterQuest(ActionList<T> Delegates, Quest<T> Quest)
     {
         Delegates.Add(Quest.OnQuestProgress);
     }
 
-    public void DeRegisterQuest(List<Action<T>> Delegates, Quest<T> Quest)
+    public void DeRegisterQuest(ActionList<T> Delegates, Quest<T> Quest)
     {
         Delegates.Remove(Quest.OnQuestProgress);
     }

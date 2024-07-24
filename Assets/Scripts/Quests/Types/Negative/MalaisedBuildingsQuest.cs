@@ -13,7 +13,7 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
         return 1;
     }
 
-    public override List<Action<BuildingData>> GetDelegates()
+    public override ActionList<BuildingData> GetDelegates()
     {
         return BuildingService._OnBuildingDestroyed;
     }

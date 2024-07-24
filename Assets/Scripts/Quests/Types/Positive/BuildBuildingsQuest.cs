@@ -37,7 +37,7 @@ public class BuildBuildingsQuest : Quest<BuildingData>
         return Game.GetService<BuildingService>();
     }
 
-    public override List<Action<BuildingData>> GetDelegates()
+    public override ActionList<BuildingData> GetDelegates()
     {
         return BuildingService._OnBuildingBuilt;
     }

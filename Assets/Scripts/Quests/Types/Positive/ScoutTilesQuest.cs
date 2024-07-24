@@ -38,7 +38,7 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
         return Game.GetService<MapGenerator>();
     }
 
-    public override List<Action<DiscoveryState>> GetDelegates()
+    public override ActionList<DiscoveryState> GetDelegates()
     {
         return MapGenerator._OnDiscoveredTile;
     }

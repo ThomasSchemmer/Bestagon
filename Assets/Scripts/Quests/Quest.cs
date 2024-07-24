@@ -22,7 +22,7 @@ public abstract class Quest<T> : QuestTemplate
     public abstract Type GetQuestType();
     public abstract Sprite GetSprite();
     public abstract IQuestRegister<T> GetRegistrar();
-    public abstract List<Action<T>> GetDelegates();
+    public abstract ActionList<T> GetDelegates();
     public abstract void GrantRewards();
 
     public override void Destroy()

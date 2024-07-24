@@ -36,7 +36,7 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
     {
         return Game.GetService<Units>();
     }
-    public override List<Action<TokenizedUnitData>> GetDelegates()
+    public override ActionList<TokenizedUnitData> GetDelegates()
     {
         return Units._OnUnitCreated;
     }

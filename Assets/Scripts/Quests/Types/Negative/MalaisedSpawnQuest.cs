@@ -12,7 +12,7 @@ public class MalaisedSpawnQuest : Quest<TokenizedUnitData>
         return 1;
     }
 
-    public override List<Action<TokenizedUnitData>> GetDelegates()
+    public override ActionList<TokenizedUnitData> GetDelegates()
     {
         return Units._OnUnitMoved;
     }

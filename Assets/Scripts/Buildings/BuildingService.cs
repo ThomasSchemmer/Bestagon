@@ -134,6 +134,6 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
     public List<BuildingData> Buildings = new();
 
 
-    public static List<Action<BuildingData>> _OnBuildingDestroyed = new();
-    public static List<Action<BuildingData>> _OnBuildingBuilt = new();
+    public static ActionList<BuildingData> _OnBuildingDestroyed = new();
+    public static ActionList<BuildingData> _OnBuildingBuilt = new();
 }

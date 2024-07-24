@@ -13,7 +13,7 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
         return UnlockedType == BuildingConfig.Type.Well ? 1 : 0;
     }
 
-    public override List<Action<BuildingConfig.Type>> GetDelegates()
+    public override ActionList<BuildingConfig.Type> GetDelegates()
     {
         return Unlockables._OnUnlock;
     }

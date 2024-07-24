@@ -43,7 +43,7 @@ public class GatherResourceQuest : Quest<Production>
         return Game.GetService<Stockpile>();
     }
 
-    public override List<Action<Production>> GetDelegates()
+    public override ActionList<Production> GetDelegates()
     {
         return Stockpile._OnResourcesCollected;
     }

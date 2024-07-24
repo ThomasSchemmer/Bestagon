@@ -25,7 +25,7 @@ public class PreviewSystem : GameService
 
         Card SelectedCard = Selector.GetSelectedCard();
         HexagonVisualization HoveredHex = Selector.GetHoveredHexagon();
-        if (!SelectedCard || !HoveredHex || !HoveredHex.IsHovered() || !SelectedCard.IsPreviewable())
+        if (!ShouldPreviewBeDisplayed())
         {
             Hide();
             ReachVisualization.Hide();
@@ -34,8 +34,21 @@ public class PreviewSystem : GameService
         }
 
         Show(SelectedCard, HoveredHex);
-        ReachVisualization.CheckFor(HoveredHex.Location);
+        if (SelectedCard is BuildingCard) {
+            ReachVisualization.CheckFor(HoveredHex.Location);
+        }
         ShowAdjacencyBonusFor(SelectedCard, HoveredHex);
+    }
+
+    private bool ShouldPreviewBeDisplayed()
+    {
+        if (!Game.TryGetServices(out Selectors Selector, out ReachVisualization ReachVisualization))
+            return false;
+
+        Card SelectedCard = Selector.GetSelectedCard();
+        HexagonVisualization HoveredHex = Selector.GetHoveredHexagon();
+
+        return SelectedCard && HoveredHex && HoveredHex.IsHovered() && SelectedCard.IsPreviewable();
     }
 
     private void ShowAdjacencyBonusFor(Card SelectedCard, HexagonVisualization SelectedHex)

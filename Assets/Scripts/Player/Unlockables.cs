@@ -274,5 +274,5 @@ public class Unlockables : GameService, ISaveableService, IQuestRegister<Buildin
     protected override void StopServiceInternal() {}
 
     public delegate void OnUnlock(BuildingConfig.Type Type);
-    public static List<Action<BuildingConfig.Type>> _OnUnlock = new();
+    public static ActionList<BuildingConfig.Type> _OnUnlock = new();
 }

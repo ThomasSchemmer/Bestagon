@@ -21,7 +21,7 @@ public class GatherWaterSkinsQuest : Quest<Production>
         return Count;
     }
 
-    public override List<Action<Production>> GetDelegates()
+    public override ActionList<Production> GetDelegates()
     {
         return Stockpile._OnResourcesCollected;
     }

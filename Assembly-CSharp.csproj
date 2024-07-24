@@ -181,6 +181,7 @@
     <Compile Include="Assets\Scripts\Quests\Types\Main\BuildScoutQuest.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedVector.cs" />
     <Compile Include="Assets\Scripts\Quests\QuestUIElement.cs" />
+    <Compile Include="Assets\Scripts\Util\ActionList.cs" />
     <Compile Include="Assets\Scripts\Unit\Workers.cs" />
     <Compile Include="Assets\Scripts\Unit\WorkerData.cs" />
     <Compile Include="Assets\Scripts\UI\HoverableButton.cs" />

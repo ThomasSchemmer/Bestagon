@@ -162,5 +162,5 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public delegate void OnResourcesChanged();
     public static OnResourcesChanged _OnResourcesChanged;
 
-    public static List<Action<Production>> _OnResourcesCollected = new();
+    public static ActionList<Production> _OnResourcesCollected = new();
 }

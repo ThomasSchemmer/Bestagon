@@ -12,7 +12,7 @@ public class BuildScoutQuest : Quest<TokenizedUnitData>
         return Unit.Type == UnitData.UnitType.Scout ? 1 : 0;
     }
 
-    public override List<Action<TokenizedUnitData>> GetDelegates()
+    public override ActionList<TokenizedUnitData> GetDelegates()
     {
         return Units._OnUnitCreated;
     }

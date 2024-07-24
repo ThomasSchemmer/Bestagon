@@ -632,7 +632,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     private Location MinBottomLeft, MaxTopRight;
     private int FinishedVisualizationCount = 0;
 
-    public static List<Action<DiscoveryState>> _OnDiscoveredTile = new();
+    public static ActionList<DiscoveryState> _OnDiscoveredTile = new();
 
     // do not save anything below this line
     private uint[] MalaiseDTOs = null;
