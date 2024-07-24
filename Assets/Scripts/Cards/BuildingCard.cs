@@ -173,10 +173,7 @@ public class BuildingCard : Card
 
     public override bool IsCustomRuleApplying(Location NeighbourLocation)
     {
-        if (!Game.TryGetService(out BuildingService Buildings))
-            return false;
-
-        return Buildings.IsBuildingAt(NeighbourLocation) && GetBuildingData().IsNeighbourBuildingBlocking();
+        return false;
     }
 
     protected BuildingData BuildingData;

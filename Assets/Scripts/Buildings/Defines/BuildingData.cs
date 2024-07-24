@@ -220,11 +220,6 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return Location.GetHashCode() + "Building".GetHashCode();
     }
 
-    public bool IsNeighbourBuildingBlocking()
-    {
-        return Effect.IsProductionBlockedByBuilding;
-    }
-
     public bool IsFoodProductionBuilding()
     {
         int FoodValue = 0;

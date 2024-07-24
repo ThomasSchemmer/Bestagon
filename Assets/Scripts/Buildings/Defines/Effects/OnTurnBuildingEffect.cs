@@ -21,7 +21,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
     public Production Production = new Production();
     public Production Consumption = new Production();
     public int Range = 0;
-    public bool IsProductionBlockedByBuilding = false;
 
     public HexagonConfig.HexagonType UpgradeTileType = 0;
     public Production UpgradeProduction = new Production();
@@ -54,9 +53,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
         foreach (HexagonData Data in NeighbourData)
         {
-            if (Buildings.IsBuildingAt(Data.Location) && IsProductionBlockedByBuilding)
-                continue;
-
             if (Bonus.TryGetValue(Data.Type, out Production AdjacentProduction))
             {
                 Production += AdjacentProduction;
@@ -146,7 +142,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
     public static int GetStaticSize()
     {
-        return 2 + sizeof(int) * 4 + Production.GetStaticSize() * 3;
+        return 1 + sizeof(int) * 4 + Production.GetStaticSize() * 3;
     }
 
     public byte[] GetData()
@@ -155,7 +151,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EffectType);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)TileType);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, IsProductionBlockedByBuilding);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
@@ -172,7 +167,6 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         int Pos = 0;
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEffectType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iTileType);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out IsProductionBlockedByBuilding);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);

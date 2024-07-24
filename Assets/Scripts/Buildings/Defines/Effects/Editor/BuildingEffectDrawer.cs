@@ -49,7 +49,6 @@ public class BuildingEffectDrawer : PropertyDrawer
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
         SerializedProperty UpgradeProductionProperty = Property.FindPropertyRelative("UpgradeProduction");
         SerializedProperty RangeProperty = Property.FindPropertyRelative("Range");
-        SerializedProperty BlockedByBuildingProperty = Property.FindPropertyRelative("IsProductionBlockedByBuilding");
 
         EditorGUILayout.BeginVertical("window");
         string[] Hexagons = Enum.GetNames(typeof(HexagonConfig.HexagonType));
@@ -60,7 +59,6 @@ public class BuildingEffectDrawer : PropertyDrawer
         );
         EditorGUILayout.PropertyField(ProductionProperty);
         EditorGUILayout.PropertyField(RangeProperty);
-        EditorGUILayout.PropertyField(BlockedByBuildingProperty);
         EditorGUILayout.PropertyField(UpgradeProductionProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
