@@ -21,7 +21,7 @@ public class QuestService : GameService, ISaveableService
     private void ActivateQuest(QuestUIElement QuestUI, bool bForceAfterLoad = false)
     {
         QuestTemplate QuestT = QuestUI.GetQuestObject();
-        if (!QuestT.ShouldUnlock() && !bForceAfterLoad)
+        if (!QuestT.AreRequirementsFulfilled() && !bForceAfterLoad)
         {
             QuestUI.transform.SetParent(InactiveQuestContainer, false);
             QuestsToUnlock.Add(QuestUI);
@@ -29,7 +29,7 @@ public class QuestService : GameService, ISaveableService
         }
 
         QuestT.Register(bForceAfterLoad);
-        switch (QuestT.QuestType)
+        switch (QuestT.GetQuestType())
         {
             case QuestTemplate.Type.Positive: AddPositiveQuest(QuestUI); break;
             case QuestTemplate.Type.Negative: AddNegativeQuest(QuestUI); break;
@@ -132,7 +132,7 @@ public class QuestService : GameService, ISaveableService
         List<QuestUIElement> QuestsToActivate = new();
         foreach (var Quest in QuestsToUnlock)
         {
-            if (!Quest.GetQuestObject().ShouldUnlock())
+            if (!Quest.GetQuestObject().AreRequirementsFulfilled())
                 continue;
 
             QuestsToActivate.Add(Quest);
@@ -300,12 +300,12 @@ public class QuestService : GameService, ISaveableService
         QuestTemplateDTO DTO = new();
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
 
-        float CurrentProgress = DTO.CurrentProgress;
+        int CurrentProgress = DTO.CurrentProgress;
         if (!TryGetQuestType(DTO, out Type FoundType))
             return Pos;
 
         Quest = CreateQuest(FoundType);
-        Quest.SetCurrentProgress(CurrentProgress);
+        Quest.GetQuestObject().SetCurrentProgress(CurrentProgress);
         return Pos;
     }
 
@@ -344,20 +344,32 @@ public class QuestService : GameService, ISaveableService
         foreach (var Type in QuestTypes)
         {
             QuestTemplate Template = Activator.CreateInstance(Type) as QuestTemplate;
-            if (!Template.TryGetNextType(out Type NextType))
-                continue;
+            List<Type> ToRemove = GetTypesToRemove(Template);
 
-            // repeated quest should stay
-            if (NextType == Type)
-                continue;
-
-            TypesToRemove.Add(NextType);
+            TypesToRemove.AddRange(ToRemove);
         }
         foreach (Type Type in TypesToRemove)
         {
             QuestTypes.Remove(Type);
         }
+    }
 
+    /** Filters out quests that are either follow-ups or part of multiquest */
+    private List<Type> GetTypesToRemove(QuestTemplate Template)
+    {
+        List<Type> TypesToRemove = new();
+
+        TypesToRemove.AddRange(Template.GetMultiQuestTypes());
+
+        if (!Template.TryGetNextType(out Type NextType))
+            return TypesToRemove;
+
+        // repeated quest should not be removed
+        if (NextType == Template.GetType())
+            return TypesToRemove;
+
+        TypesToRemove.Add(NextType);
+        return TypesToRemove;
     }
     
     public QuestUIElement MainQuest;

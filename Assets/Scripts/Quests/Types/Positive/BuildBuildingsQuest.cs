@@ -60,7 +60,7 @@ public class BuildBuildingsQuest : Quest<BuildingData>
         Statistics.IncreaseTarget(ref Statistics.BuildingsNeeded, Statistics.BuildingsIncrease);
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         return true;
     }

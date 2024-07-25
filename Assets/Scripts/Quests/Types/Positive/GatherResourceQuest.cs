@@ -66,12 +66,12 @@ public class GatherResourceQuest : Quest<Production>
         Statistics.IncreaseTarget(ref Statistics.ResourcesNeeded, Statistics.ResourcesIncrease);
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         if (!Game.TryGetService(out Turn Turn))
             return false;
 
-        return Turn.TurnNr > 1;
+        return Turn.TurnNr > 3;
     }
 
     public override bool TryGetNextType(out System.Type Type)

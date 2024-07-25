@@ -25,7 +25,7 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
 
     public override int GetMaxProgress()
     {
-        return 3;
+        return 1;
     }
 
     public override Type GetQuestType()
@@ -55,6 +55,9 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
     {
 
         if (!Game.TryGetServices(out Units Units, out MapGenerator MapGen))
+            return;
+
+        if (!Game.TryGetService(out Turn Turn))
             return;
 
         if (!Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData Scout))
@@ -88,9 +91,12 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
         }
 
         MalaisedSpawnQuest.TargetLocation = Target.Location;
+        MalaisedSpawnQuest.StartTurnNr = Turn.TurnNr;
+
+        MessageSystemScreen.CreateMessage(Message.Type.Error, "Your scouts learned of a new emerging malaise cloud! Reach it before it spreads");
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         if (!Game.TryGetService(out Units Units))
             return false;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using Unity.Collections;
 using UnityEngine;
 
@@ -161,25 +162,32 @@ public class MalaiseData : ISaveableData
 
         bHasStarted = true;
 
-        HashSet<ChunkData> ChunksToInfect = new();
         foreach (Location StartLocation in StartLocations)
         {
-            if (!Game.GetService<MapGenerator>().TryGetChunkData(StartLocation, out ChunkData ChunkData))
-                continue;
-
-            if (ChunkData.Malaise == null)
-                continue;
-
-            HexagonData HexData = ChunkData.GetHexAt(StartLocation.HexLocation);
-            HexData.MalaisedState = HexagonData.MalaiseState.PreMalaise;
-            ChunkData.Malaise.LocationsToMalaise.Add(StartLocation);
-            ChunksToInfect.Add(ChunkData);
+            SpreadInitially(StartLocation);
         }
+    }
 
-        foreach (ChunkData Chunk in ChunksToInfect)
-        {
-            Chunk.Malaise.Infect();
-        }
+    public static void SpreadInitially(Location Location)
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        if (!MapGenerator.TryGetChunkData(Location, out ChunkData ChunkData))
+            return;
+
+        if (ChunkData.Malaise == null)
+            return;
+
+        HexagonData HexData = ChunkData.GetHexAt(Location.HexLocation);
+        HexData.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+        ChunkData.Malaise.LocationsToMalaise.Add(Location);
+        ChunkData.Malaise.Infect();
+
+        if (!MapGenerator.TryGetHexagon(Location, out var HexVis))
+            return;
+
+        HexVis.VisualizeSelection();
     }
 
     public int GetSize()

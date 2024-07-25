@@ -55,7 +55,7 @@ public class BuildScoutQuest : Quest<TokenizedUnitData>
 
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         return true;
     }

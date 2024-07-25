@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
@@ -20,23 +21,28 @@ public abstract class QuestTemplate
     /** Set this to the actual parenting monobehaviour*/
     public QuestUIElement Parent;
 
-    public int StartProgress;
-    public int MaxProgress;
-    public string Description;
-    public Type QuestType;
-    public Sprite Sprite;
-
     protected bool bIsInit = false;
     protected bool bIsRegistered = false;
 
     public abstract void RemoveQuestCallback();
-    public abstract void OnAccept();
+    public abstract void OnAccept(bool bIsCanceled = false);
     public abstract void Destroy();
-    public abstract bool ShouldUnlock();
+    public abstract bool AreRequirementsFulfilled();
     /** Can be self-type (repeating the quest) or a follow-up type */
     public abstract bool TryGetNextType(out System.Type Type);
     public abstract void Init(QuestUIElement Parent);
     public abstract void Register(bool bForceAfterLoad = false);
+    public abstract int GetCurrentProgress();
+    public abstract int GetMaxProgress();
+    public abstract Type GetQuestType();
+    public abstract string GetDescription();
+    public abstract Sprite GetSprite();
+    
+    public virtual List<System.Type> GetMultiQuestTypes() { return new(); }
+
+    public abstract void SetCurrentProgress(int Progress);
+
+    public abstract bool IsCompleted();
 
     public QuestTemplate() { }
 }
@@ -49,7 +55,7 @@ public abstract class QuestTemplate
 public class QuestTemplateDTO : ISaveableData
 {
     public string TypeName;
-    public float CurrentProgress;
+    public int CurrentProgress;
 
     public int GetSize()
     {
@@ -59,7 +65,7 @@ public class QuestTemplateDTO : ISaveableData
     public static int GetStaticSize()
     {
         // name, name length and current progress
-        return sizeof(byte) * MAX_NAME_LENGTH + sizeof(double);
+        return sizeof(byte) * MAX_NAME_LENGTH + sizeof(int);
     }
 
     public byte[] GetData()
@@ -67,7 +73,7 @@ public class QuestTemplateDTO : ISaveableData
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddString(Bytes, Pos, TypeName);
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, CurrentProgress);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentProgress);
 
         return Bytes.ToArray();
     }
@@ -76,15 +82,14 @@ public class QuestTemplateDTO : ISaveableData
     {
         int Pos = 0;
         Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out TypeName);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dCurrentProgress);
-        CurrentProgress = (float)dCurrentProgress;
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentProgress);
         TypeName = TypeName.Replace(NAME_PADDING_CHAR+ "", "");
     }
 
     public static QuestTemplateDTO CreateFromQuest(QuestTemplate QuestT)
     {
         QuestTemplateDTO DTO = new();
-        DTO.CurrentProgress = QuestT.Parent.GetCurrentProgress();
+        DTO.CurrentProgress = QuestT.GetCurrentProgress();
         DTO.TypeName = GetReplacedName(QuestT.GetType());
         return DTO;
     }

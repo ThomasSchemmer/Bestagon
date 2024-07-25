@@ -59,7 +59,7 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
 
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         if (!Game.TryGetService(out Units Units))
             return false;

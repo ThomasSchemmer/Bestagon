@@ -13,10 +13,6 @@ public class QuestUIElement : MonoBehaviour, UIElement
 {
 
     protected Sprite Sprite;
-    protected float CurrentProgress = 0;
-    protected float MaxProgress = 5;
-    protected string Description = "";
-    protected QuestTemplate.Type QuestType = QuestTemplate.Type.Positive;
 
     protected SVGImage TypeImageSVG;
     protected SVGImage DiscoveryImage;
@@ -45,11 +41,7 @@ public class QuestUIElement : MonoBehaviour, UIElement
     private void InitVariables(QuestTemplate Template)
     {
         Add(Template);
-        CurrentProgress = Template.StartProgress;
-        MaxProgress = Template.MaxProgress;
-        Description = Template.Description;
-        QuestType = Template.QuestType;
-        Sprite = Template.Sprite;
+        Sprite = Template.GetSprite();
         gameObject.name = Template.GetType().Name;
     }
 
@@ -97,6 +89,11 @@ public class QuestUIElement : MonoBehaviour, UIElement
     {
         if (Material == null || !bIsInit)
             return;
+
+        int CurrentProgress = QuestObject.GetCurrentProgress();
+        int MaxProgress = QuestObject.GetMaxProgress();
+        string Description = QuestObject.GetDescription();
+        QuestTemplate.Type QuestType = QuestObject.GetQuestType();
 
         Material.SetFloat("_CurrentProgress", CurrentProgress);
         Material.SetFloat("_MaxProgress", MaxProgress);
@@ -146,7 +143,7 @@ public class QuestUIElement : MonoBehaviour, UIElement
 
     public bool IsCompleted()
     {
-        return CurrentProgress >= MaxProgress;
+        return QuestObject.IsCompleted();
     }
 
     public void ClickOn(Vector2 PixelPos) { }
@@ -165,7 +162,7 @@ public class QuestUIElement : MonoBehaviour, UIElement
 
     private Color GetBackgroundColor()
     {
-        switch (QuestType)
+        switch (QuestObject.GetQuestType())
         {
             case QuestTemplate.Type.Main: return MainQuestColor;
             case QuestTemplate.Type.Negative: return NegativeQuestColor;
@@ -184,39 +181,9 @@ public class QuestUIElement : MonoBehaviour, UIElement
         this.Sprite = Sprite;
     }
 
-    public void SetCurrentProgress(float Progess)
-    {
-        CurrentProgress = Progess;
-    }
-
-    public void AddCurrentProgress(float Progress)
-    {
-        CurrentProgress += Progress;
-    }
-
-    public float GetCurrentProgress()
-    {
-        return CurrentProgress;
-    }
-
-    public void SetMaxProgress(float Progess)
-    {
-        MaxProgress = Progess;
-    }
-
-    public void SetDescription(string Description)
-    {
-        this.Description = Description;
-    }
-
-    public void SetQuestType(QuestTemplate.Type Type)
-    {
-        QuestType = Type;
-    }
-
     public QuestTemplate.Type GetQuestType()
     {
-        return QuestType;
+        return QuestObject.GetQuestType();
     }
 
     private static Color NormalQuestColor = new(1, 1, 1, 1);

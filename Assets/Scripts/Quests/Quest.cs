@@ -12,18 +12,30 @@ using UnityEngine;
 public abstract class Quest<T> : QuestTemplate
 {
     public IQuestRegister<T> QuestRegistrar;
+    public bool bIsCancelQuest = false;
+
+    public int CurrentProgress;
+    public int MaxProgress;
+    public string Description;
+    public Type QuestType;
+    public Sprite Sprite;
 
     public abstract int CheckSuccess(T Item);
     public abstract void OnAfterCompletion();
 
     public abstract int GetStartProgress();
-    public abstract int GetMaxProgress();
-    public abstract string GetDescription();
-    public abstract Type GetQuestType();
-    public abstract Sprite GetSprite();
     public abstract IQuestRegister<T> GetRegistrar();
     public abstract ActionList<T> GetDelegates();
     public abstract void GrantRewards();
+    public override int GetCurrentProgress()
+    {
+        return CurrentProgress;
+    }
+
+    public override bool IsCompleted()
+    {
+        return CurrentProgress >= MaxProgress;
+    }
 
     public override void Destroy()
     {
@@ -35,7 +47,7 @@ public abstract class Quest<T> : QuestTemplate
     public override void Init(QuestUIElement Parent)
     {
         this.Parent = Parent;
-        StartProgress = GetStartProgress();
+        CurrentProgress = GetStartProgress();
         MaxProgress = GetMaxProgress();
         Description = GetDescription();
         QuestType = GetQuestType();
@@ -44,9 +56,9 @@ public abstract class Quest<T> : QuestTemplate
         bIsInit = true;
     }
 
-    public override void Register(bool bForceAfterLoad = false)
+    public override void Register(bool bForceRegister = false)
     {
-        if ((!ShouldUnlock() && !bForceAfterLoad) || bIsRegistered)
+        if (!ShouldRegister(bForceRegister))
             return;
 
         QuestRegistrar = GetRegistrar();
@@ -57,9 +69,24 @@ public abstract class Quest<T> : QuestTemplate
         bIsRegistered = true;
     }
 
-    public override void OnAccept()
+    private bool ShouldRegister(bool bForceRegister)
     {
-        CompleteQuest();
+        if (bIsRegistered)
+            return false;
+
+        // early exit
+        if (bForceRegister)
+            return true;
+
+        if (!AreRequirementsFulfilled())
+            return false;
+
+        return true;
+    }
+
+    public override void OnAccept(bool bIsCanceled = false)
+    {
+        CompleteQuest(bIsCanceled);
         RemoveQuest();
 
         Destroy();
@@ -70,13 +97,15 @@ public abstract class Quest<T> : QuestTemplate
         if (!bIsInit)
             return;
 
-        Parent.AddCurrentProgress(CheckSuccess(Var));
+        CurrentProgress += CheckSuccess(Var);
+
         Parent.Visualize();
 
-        if (Parent.GetQuestType() != Type.Negative || !Parent.IsCompleted())
+        // negative quests auto-complete
+        if (QuestType != Type.Negative || !IsCompleted())
             return;
 
-        OnAccept();
+        OnAccept(bIsCancelQuest);
     }
 
     ~Quest()
@@ -84,12 +113,12 @@ public abstract class Quest<T> : QuestTemplate
         RemoveQuestCallback();
     }
 
-    public void CompleteQuest()
+    public void CompleteQuest(bool bIsCanceled = false)
     {
         if (!bIsInit)
             return;
 
-        if (QuestType != Type.Negative)
+        if (!bIsCanceled)
         {
             GrantRewards();
         }
@@ -138,5 +167,10 @@ public abstract class Quest<T> : QuestTemplate
 
         Stockpile.UpgradePoints += Count;
         MessageSystemScreen.CreateMessage(Message.Type.Success, "Completing the quest granted " + Count+" upgrade points");
+    }
+
+    public override void SetCurrentProgress(int Progress)
+    {
+        CurrentProgress = Progress;
     }
 }

@@ -61,7 +61,7 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
         Statistics.IncreaseTarget(ref Statistics.MovesNeeded, Statistics.MovesIncrease);
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         if (!Game.TryGetServices(out Units Units, out Turn Turn))
             return false;

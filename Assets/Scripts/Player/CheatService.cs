@@ -85,6 +85,9 @@ public class CheatService : ScreenUI
         if (!Game.TryGetServices(out CardFactory CardFactory, out CardHand CardHand))
             return;
 
+        if (!Game.TryGetService(out Unlockables Unlockables))
+            return;
+
         string TargetName = GetTargetName(Cheats);
         int TargetIndex = GetTargetIndex(TargetName, typeof(BuildingConfig.Type));
         if (TargetIndex >= 0)
@@ -92,6 +95,7 @@ public class CheatService : ScreenUI
             // BuildingType is a flag system with default at index 0
             TargetIndex = HexagonConfig.IntToMask(TargetIndex - 1);
             BuildingConfig.Type TargetType = (BuildingConfig.Type)(TargetIndex);
+            Unlockables.UnlockSpecificBuildingType(TargetType);
             CardFactory.CreateCard(TargetType, 0, CardHand.transform, CardHand.AddCard);
             return;
         }

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static Turn;
 
-public class Turn : GameService
+public class Turn : GameService, IQuestRegister<int>
 {
     public void OnEnable()
     {
@@ -52,6 +51,7 @@ public class Turn : GameService
         Quests.CheckForQuestsToUnlock();
 
         _OnTurnEnd?.Invoke();
+        _OnTurnEnded.ForEach(_ => _.Invoke(TurnNr));
     }
 
 
@@ -136,4 +136,6 @@ public class Turn : GameService
 
     public delegate void OnTurnEnd();
     public static OnTurnEnd _OnTurnEnd;
+
+    public static ActionList<int> _OnTurnEnded = new();
 }

@@ -64,7 +64,7 @@ public class GatherWaterSkinsQuest : Quest<Production>
 
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         return true;
     }

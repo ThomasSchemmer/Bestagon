@@ -59,12 +59,12 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
         Statistics.IncreaseTarget(ref Statistics.UnitsNeeded, Statistics.UnitsIncrease);
     }
 
-    public override bool ShouldUnlock()
+    public override bool AreRequirementsFulfilled()
     {
         if (!Game.TryGetService(out Turn Turn))
             return false;
 
-        return Turn.TurnNr > 3;
+        return Turn.TurnNr > 5;
     }
 
     public override bool TryGetNextType(out System.Type Type)
