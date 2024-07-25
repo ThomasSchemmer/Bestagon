@@ -324,13 +324,18 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         return Hex != null;
     }
 
-    public bool TryGetHexagonData(Location Location, out HexagonData HexData) {
+    public bool TryGetHexagonData(Location Location, out HexagonData HexData, bool bTakeRawData = false) {
         HexData = null;
-
-        if (!TryGetChunkData(Location, out ChunkData ChunkData))
+        if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
             return false;
 
-        if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
+        if (bTakeRawData && Game.TryGetService(out Map Map))
+        {
+            HexData = Map.GetHexagonAtLocation(Location);
+            return true;
+        }
+
+        if (!TryGetChunkData(Location, out ChunkData ChunkData))
             return false;
 
         HexData = ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y];

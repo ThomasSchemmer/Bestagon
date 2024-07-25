@@ -260,15 +260,15 @@ public class HexagonConfig {
         return Origin + Direction * d;
     }
 
-    public static int GetCostsFromTo(Location locationA, Location locationB)
+    public static int GetCostsFromTo(Location locationA, Location locationB, bool bTakeRawData = false)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return -1;
 
-        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA))
+        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA, bTakeRawData))
             return -1;
 
-        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB))
+        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB, bTakeRawData))
             return -1;
 
         if (DataB.IsMalaised())

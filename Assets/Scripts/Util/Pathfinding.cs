@@ -27,11 +27,11 @@ public class Pathfinding
         return AffordablePath;
     }
 
-    public static HashSet<Location> FindReachableLocationsFrom(Location Start, int Range, bool bCheckReachable = true) {
+    public static HashSet<Location> FindReachableLocationsFrom(Location Start, int Range, bool bCheckReachable = true, bool bTakeRawData = false) {
 
         Dictionary<Location, int> LocationCosts;
 
-        SearchFor(Start, null, Range, out LocationCosts, out var _, bCheckReachable);
+        SearchFor(Start, null, Range, out LocationCosts, out var _, bCheckReachable, bTakeRawData);
 
         HashSet<Location> FoundLocations = new HashSet<Location>();
         foreach (Location FoundLocation in LocationCosts.Keys) {
@@ -78,7 +78,14 @@ public class Pathfinding
         return Costs;
     }
 
-    private static void SearchFor(Location Start, Location End, int Range, out Dictionary<Location, int> LocationCosts, out Dictionary<Location, Location> LocationComingFrom, bool bCheckReachable = true) {
+    /** 
+     * Iterates over the map data and returns all found locations in range
+     * Provides the total cost to reach each location, as well as its implicit best path
+     * @bCheckReachable: if set only counts locations that are standardly reachable (ie no mountains/water..)
+     * @bTakeRawData: if set only looks at the raw hexagon data for reachability (ie no malaise or transformed tiles)
+     * Useful, as it does not need the MapGenerator to be initialized
+     */
+    private static void SearchFor(Location Start, Location End, int Range, out Dictionary<Location, int> LocationCosts, out Dictionary<Location, Location> LocationComingFrom, bool bCheckReachable = true, bool bTakeRawData = false) {
         LocationCosts = new();
         LocationComingFrom = new();
         PriorityQueue<Location> LocationsToCheck = new();
@@ -98,7 +105,7 @@ public class Pathfinding
                 if (!HexagonConfig.IsValidLocation(Neighbour))
                     continue;
 
-                int NewCost = bCheckReachable ? HexagonConfig.GetCostsFromTo(Current, Neighbour) : 1;
+                int NewCost = bCheckReachable ? HexagonConfig.GetCostsFromTo(Current, Neighbour, bTakeRawData) : 1;
                 int NewTotalCost = LocationCosts[Current] + NewCost;
                 if (bCheckReachable && NewCost < 0)
                     continue;

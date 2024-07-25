@@ -1,4 +1,7 @@
 
+using System;
+using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using static HexagonConfig;
 
 /** 
@@ -14,6 +17,10 @@ public class Map : GameService
     public HexagonData[] MapData;
 
     public SerializedDictionary<Location, HexagonDecoration> AdditionalDecorations = new();
+
+    public int MaxSeedIterations = 20;
+    public int MaxRandomSeed = 1000;
+    public int MinimumReachableTiles = 5;
 
     public HexagonData GetHexagonAtLocation(Location Location)
     {
@@ -63,11 +70,58 @@ public class Map : GameService
         {
             if (!Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
             {
-                MapData = Game.Instance.Mode == Game.GameMode.Game ? WorldGenerator.NoiseLand(true) : WorldGenerator.EmptyLand();
-                AddDelayedDecorations();
+                FindValidStartingSeed(WorldGenerator);
             }
             _OnInit?.Invoke(this);
         });
+    }
+
+    protected void FindValidStartingSeed(WorldGenerator WorldGenerator)
+    {
+        if (!Game.TryGetService(out SpawnSystem SpawnSystem))
+            return;
+
+        if (Game.Instance.Mode == Game.GameMode.MapEditor)
+        {
+            MapData = WorldGenerator.EmptyLand();
+            return;
+        }
+
+        Location StartLocation = Location.CreateFromVector(SpawnSystem.StartLocation);
+        bool bHasValidSeed = false;
+        int Iteration = 0;
+
+        UnityEngine.Random.InitState(DateTime.Now.Second);
+        int Seed = 0;
+        int LocationsCount = 0;
+
+        PriorityQueue<int> Seeds = new();
+
+        while (!bHasValidSeed && Iteration < MaxSeedIterations)
+        {
+            Iteration++;
+            Seed = UnityEngine.Random.Range(0, MaxRandomSeed);
+            bHasValidSeed = EvaluateSeed(WorldGenerator, SpawnSystem, Seed, Seeds, out LocationsCount);
+        }
+        if (!bHasValidSeed)
+        {
+            var BestSeed = Seeds.Dequeue();
+            Seed = BestSeed.Value; 
+            EvaluateSeed(WorldGenerator, SpawnSystem, Seed, Seeds, out LocationsCount);
+        }
+        UnityEngine.Debug.Log("Found a seed/start after " + Iteration + " tries - seed: "+Seed+" reachable locations: "+LocationsCount);
+        
+        AddDelayedDecorations();
+    }
+
+    private bool EvaluateSeed(WorldGenerator WorldGenerator, SpawnSystem SpawnSystem, int Seed, PriorityQueue<int> Seeds, out int LocationsCount)
+    {
+        Location StartLocation = Location.CreateFromVector(SpawnSystem.StartLocation);
+        MapData = WorldGenerator.NoiseLand(true, Seed);
+        var ReachableLocations = Pathfinding.FindReachableLocationsFrom(StartLocation, SpawnSystem.StartScoutingRange + 2, true, true);
+        Seeds.Enqueue(ReachableLocations.Count, Seed);
+        LocationsCount = ReachableLocations.Count;
+        return LocationsCount >= MinimumReachableTiles;
     }
 
     protected override void StopServiceInternal() { }

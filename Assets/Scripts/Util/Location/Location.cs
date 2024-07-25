@@ -147,6 +147,11 @@ public class Location : ISaveableData
         );
     }
 
+    public static Location CreateFromVector(Vector4 Vec)
+    {
+        return new((int)Vec.x, (int)Vec.y, (int)Vec.z, (int)Vec.w);
+    }
+
     public int GetSize()
     {
         return GetStaticSize();

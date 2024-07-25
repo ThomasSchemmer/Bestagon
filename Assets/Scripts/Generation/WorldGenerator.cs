@@ -44,7 +44,7 @@ public class WorldGenerator : GameService
     }
 
     protected override void StartServiceInternal() {
-        Init();
+        //Init();
         _OnInit?.Invoke(this);
     }
 
@@ -66,8 +66,8 @@ public class WorldGenerator : GameService
         return LandData;
     }
 
-    public HexagonData[] NoiseLand(bool bIncludeHumidity) {
-        Init();
+    public HexagonData[] NoiseLand(bool bIncludeHumidity, int Seed) {
+        Init(Seed);
 
         MapShader.Dispatch(HeightTemperatureKernel, GroupCount, GroupCount, 1);
 
@@ -116,14 +116,14 @@ public class WorldGenerator : GameService
             HistogramResultBuffer.Release();
     }
 
-    private void Init() {
+    private void Init(int Seed) {
         Release();
 
         CreateTempRT();
         InitBuffers();
 
         SetDataGlobal();
-        SetDataHeightTemperature();
+        SetDataHeightTemperature(Seed);
         SetDataType();
         SetDataHistogram();
 
@@ -144,12 +144,7 @@ public class WorldGenerator : GameService
         HistogramResultBuffer = new ComputeBuffer(HistogramResolution * 3, sizeof(uint));
     }
 
-    private void SetDataHeightTemperature() {
-        if (Seed < 0)
-        {
-            UnityEngine.Random.InitState(DateTime.Now.Second);
-            Seed = UnityEngine.Random.Range(0, 100);
-        }
+    private void SetDataHeightTemperature(int Seed) {
         MapShader.SetFloat("Seed", Seed);
         MapShader.SetFloat("Scale", Scale);
         MapShader.SetFloat("Factor", Factor);
@@ -319,7 +314,7 @@ public class WorldGenerator : GameService
     // how strong the noise should be
     public float Factor = 1;
     public float Offset = 0;
-    public float Seed = 0;
+    public int Seed = 0;
     public float NoiseScale = 1;
 
     private int HeightTemperatureKernel, JumpFloodKernel, TypeKernel, HistogramNormalizationKernel;

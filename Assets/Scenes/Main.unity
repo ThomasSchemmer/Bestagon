@@ -4702,7 +4702,7 @@ MonoBehaviour:
   Scale: 3
   Factor: 1
   Offset: 0
-  Seed: -1
+  Seed: 0
   NoiseScale: 15
 --- !u!4 &558157971
 Transform:
@@ -8334,6 +8334,12 @@ MonoBehaviour:
   Resources:
     _Production:
       Tuples: []
+  SimulatedResources:
+    _Production:
+      Tuples: []
+  SimulatedGains:
+    _Production:
+      Tuples: []
   StartingResources:
     _Production:
       Tuples:
@@ -8930,6 +8936,9 @@ MonoBehaviour:
   IsInit: 0
   AdditionalDecorations:
     Tuples: []
+  MaxSeedIterations: 20
+  MaxRandomSeed: 1000
+  MinimumReachableTiles: 15
 --- !u!1 &1168638404
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,12 +14,12 @@ public class WorldGenerationInspector : Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button(new GUIContent("Land")))
         {
-            Generator.NoiseLand(false);
+            Generator.NoiseLand(false, Generator.Seed);
         }
 
         if (GUILayout.Button(new GUIContent("Humidity")))
         {
-            Generator.NoiseLand(true);
+            Generator.NoiseLand(true, Generator.Seed);
         }
         EditorGUILayout.EndHorizontal();
 
