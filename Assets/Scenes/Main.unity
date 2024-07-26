@@ -6109,6 +6109,12 @@ MonoBehaviour:
     TargetScript: {fileID: 542260989}
   - IsForEditor: 1
     IsForGame: 1
+    TargetScript: {fileID: 1431526772}
+  - IsForEditor: 1
+    IsForGame: 1
+    TargetScript: {fileID: 129596876}
+  - IsForEditor: 1
+    IsForGame: 1
     TargetScript: {fileID: 46426698}
   - IsForEditor: 1
     IsForGame: 1
@@ -6163,13 +6169,7 @@ MonoBehaviour:
     TargetScript: {fileID: 1288013424}
   - IsForEditor: 0
     IsForGame: 1
-    TargetScript: {fileID: 1431526772}
-  - IsForEditor: 0
-    IsForGame: 1
     TargetScript: {fileID: 1415347042}
-  - IsForEditor: 0
-    IsForGame: 1
-    TargetScript: {fileID: 129596876}
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 1601135172}

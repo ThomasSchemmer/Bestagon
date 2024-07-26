@@ -10,6 +10,7 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
     {
         Init();
         HideFeatures();
+
         Game.RunAfterServicesInit((IconFactory IconFactory, PreviewSystem Previews) =>
         {
             this.Previews = Previews;
@@ -37,5 +38,13 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
             return Location.Zero;
 
         return Previews.GetPreviewLocation();
+    }
+
+    public override bool HasFeatureObject()
+    {
+        if (Previews == null)
+            return false;
+
+        return Previews.HasPreviewableAs<BuildingData>();
     }
 }

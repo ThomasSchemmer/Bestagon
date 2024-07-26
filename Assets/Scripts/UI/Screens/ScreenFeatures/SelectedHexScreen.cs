@@ -66,6 +66,11 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
         return SelectedHexTile;
     }
 
+    public override bool HasFeatureObject()
+    {
+        return SelectedHexTile != null;
+    }
+
     public Selector<HexagonVisualization> Selector;
     public GameObject UnitPrefab;
 

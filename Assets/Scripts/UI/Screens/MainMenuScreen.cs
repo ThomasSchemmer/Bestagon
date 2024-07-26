@@ -14,6 +14,11 @@ public class MainMenuScreen : MonoBehaviour
         Game.LoadGame(null, Game.MainSceneName, true);
     }
 
+    public void OnSelectMapEditor()
+    {
+
+    }
+
     public void OnSelectExit()
     {
         Game.ExitGame();

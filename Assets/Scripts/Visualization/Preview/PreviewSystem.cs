@@ -116,6 +116,18 @@ public class PreviewSystem : GameService
         _OnInit?.Invoke(this);
     }
 
+    public bool HasPreviewableAs<T>() where T : IPreviewable
+    {
+        if (Preview == null)
+            return false;
+
+        IPreviewable Previewable = Preview.GetPreviewable();
+        if (Previewable == null)
+            return false;
+
+        return Previewable is T;
+    }
+
     public T GetPreviewableAs<T>() where T : IPreviewable
     {
         if (Preview == null)

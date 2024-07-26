@@ -5,6 +5,16 @@ using UnityEngine;
 
 public class AbandonScreen : ScreenUI
 {
+    protected override void Initialize()
+    {
+        base.Initialize();
+
+        if (Game.Instance.Mode != Game.GameMode.Game)
+        {
+            Hide();
+        }
+    }
+
     public void OnClick()
     {
         Action A = () =>

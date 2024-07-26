@@ -16,12 +16,11 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
             Selector = Selectors.HexagonSelector;
             Selector.OnItemSelected += Show;
             Selector.OnItemDeSelected += Hide;
+            Game.Instance._OnPause += Hide;
+
+            Init();
+            Hide();
         });
-
-        Init();
-        Hide();
-
-        Game.Instance._OnPause += Hide;
     }
 
     public void Show(HexagonVisualization Hex)
@@ -68,5 +67,10 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
     public override UnitData GetFeatureObject()
     {
         return SelectedUnit;
+    }
+
+    public override bool HasFeatureObject()
+    {
+        return SelectedUnit != null;
     }
 }

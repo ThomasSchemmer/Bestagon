@@ -44,7 +44,7 @@ public class WorldGenerator : GameService
     }
 
     protected override void StartServiceInternal() {
-        //Init();
+        Init(0);
         _OnInit?.Invoke(this);
     }
 

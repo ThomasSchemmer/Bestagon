@@ -38,6 +38,7 @@ public class Fotograph : GameService
 
         HexagonData Data = new HexagonData();
         Data.Type = Type;
+        Data.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
         if (!TileMeshGenerator.TryCreateMesh(Data, out Mesh Mesh))
         {
             Destroy(Target);

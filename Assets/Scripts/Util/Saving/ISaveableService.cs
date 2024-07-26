@@ -26,6 +26,19 @@ public interface ISaveableService : ISaveableData
         Quests = 13
     }
 
+    /** Convenience function, should be instead the same class */
+    public bool IsServiceInit()
+    {
+        if (this is not GameService)
+            return false;
+
+        GameService Service = this as GameService;
+        if (Service == null)
+            return false;
+
+        return Service.IsInit;
+    }
+
     /** Deletes all internal data so that it can be loaded from the save or initialized safely*/
     public void Reset();
 

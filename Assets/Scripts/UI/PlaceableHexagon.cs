@@ -62,6 +62,6 @@ public class PlaceableHexagon : MonoBehaviour, UIElement
     private static float SELECT_SIZE = 1;
     private static float UNSELECT_SIZE = 0.75f;
     private static float HOVER_SIZE = 0.85f;
-    public static int SIZE = 150;
-    public static int OFFSET = 25;
+    public static int SIZE = 125;
+    public static int OFFSET = 10;
 }

@@ -164,4 +164,6 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
     }
 
     public abstract T GetFeatureObject();
+
+    public abstract bool HasFeatureObject();
 }

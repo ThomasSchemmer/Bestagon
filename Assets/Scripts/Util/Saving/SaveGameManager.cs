@@ -83,13 +83,20 @@ public class SaveGameManager : GameService
         int i = 0;
         foreach (var Tuple in Saveables)
         {
-            ISaveableData Saveable = Tuple.Value as ISaveableData;
-            if (Saveable == null)
+            ISaveableService SaveableService = Tuple.Value as ISaveableService;
+            if (SaveableService == null)
+                continue;
+            if (!SaveableService.IsServiceInit())
                 continue;
 
             i = AddEnumAsByte(Bytes, i, (byte)Tuple.Key);
-            i = AddInt(Bytes, i, Saveable.GetSize());
-            i = AddSaveable(Bytes, i, Saveable);
+            i = AddInt(Bytes, i, SaveableService.GetSize());
+            i = AddSaveable(Bytes, i, SaveableService);
+        }
+
+        if (i != Bytes.Length)
+        {
+            throw new Exception("Error on saving: Did not fill savefile!");
         }
 
         string FileName = "Save.map";
@@ -238,8 +245,11 @@ public class SaveGameManager : GameService
         int Size = 0;
         foreach (var Tuple in Saveables)
         {
-            ISaveableData Saveable = Tuple.Value as ISaveableData;
+            ISaveableService Saveable = Tuple.Value as ISaveableService;
             if (Saveable == null)
+                continue;
+
+            if (!Saveable.IsServiceInit())
                 continue;
 
             // actual data + id field + size field

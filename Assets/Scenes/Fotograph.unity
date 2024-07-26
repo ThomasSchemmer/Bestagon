@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -276,50 +276,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!1 &185074210
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 185074212}
-  - component: {fileID: 185074211}
-  m_Layer: 0
-  m_Name: MainMenu
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &185074211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185074210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 614219c107da8604bb3e693a34b0d930, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &185074212
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 185074210}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &302640760
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,39 +302,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 302640760}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b4817a730a015a48bb8a8b466805bcc, type: 3}
+  m_Script: {fileID: 11500000, guid: bd67d6517d5f11146b0d01dab6223a3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
   AvailableBuildings:
-    Tuples:
-    - Key: 2
-    - Key: 4
-    - Key: 1
+    Tuples: []
   AvailableTiles:
-    Tuples:
-    - Key: 1
-      Value: {fileID: -4575734979276873811, guid: 25f9eb49fd100034ca028d7be4765c4f,
-        type: 3}
-    - Key: 2
-      Value: {fileID: -4575734979276873811, guid: aebac64476fd5a04687fe5c086ffbfdb,
-        type: 3}
-    - Key: 4
-      Value: {fileID: -4575734979276873811, guid: 8693db10365dc30438873d55f79c9828,
-        type: 3}
-    - Key: 8
-      Value: {fileID: -4575734979276873811, guid: 5f5132e25f62bfe4da42955ac1f164a0,
-        type: 3}
-    - Key: 16
-      Value: {fileID: 575384823701800123, guid: d41f5edbf5ae9e444b4d1aaef1a1b8ac,
-        type: 3}
-    - Key: 32
-      Value: {fileID: -1263389361266247623, guid: 70b5d9b005de8c04db49ebba1a26c5f3,
-        type: 3}
-    - Key: 64
-      Value: {fileID: -8215804180744794619, guid: a88dd01b339b16a4d810fadc8594be4e,
-        type: 3}
+    Tuples: []
+  AvailableDecorations:
+    Tuples: []
+  AvailableUnits:
+    Tuples: []
+  UnknownMesh: {fileID: 0}
+  BuildingPrefab: {fileID: 0}
+  UnitPrefab: {fileID: 0}
 --- !u!4 &302640762
 Transform:
   m_ObjectHideFlags: 0
@@ -542,7 +481,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   State: 1
-  Mode: 1
+  Mode: 0
+  bIsPaused: 0
+  TargetFramerate: 60
   Services:
   - IsForEditor: 0
     IsForGame: 1
@@ -573,4 +514,3 @@ SceneRoots:
   - {fileID: 1290417950}
   - {fileID: 302640762}
   - {fileID: 1494104506}
-  - {fileID: 185074212}

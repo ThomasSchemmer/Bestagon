@@ -4,8 +4,8 @@ using UnityEngine;
 public class MiniMap : GameService, UIElement
 {
     public void Init() {
-
-        Game.RunAfterServicesInit((MapGenerator Generator, Units UnitService) =>
+        
+        Game.RunAfterServiceInit((MapGenerator Generator) =>
         {
             MapGenerator = Generator;
             DTOs = Generator.GetDTOs();
