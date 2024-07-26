@@ -555,56 +555,6 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             }
         
         }
-
-
-
-
-
-
-
-
-        /*
-
-
-        int ByteIndex = 0;
-        int IntIndex = 0;
-        int OverallIndex = 0;
-        for (int y = 0; y < HexagonConfig.mapMaxChunk; y++)
-        {
-            for (int j = 0; j < HexagonConfig.chunkSize; j++)
-            {
-                for (int x = 0; x < HexagonConfig.mapMaxChunk; x++)
-                {
-                    ByteIndex = 0;
-                    for (int i = 0; i < HexagonConfig.chunkSize; i++)
-                    {
-                        // read part of the int into a byte, then check if the bit position should be set
-                        uint OldInt = MalaiseDTOs[OverallIndex];
-                        byte OldValue = (byte)((OldInt >> ((3 - IntIndex) * 8)) & 0xFF);
-
-                        HexagonData HexData = Chunks[x, y].HexDatas[i, j];
-                        bool bIsMalaised = HexData.IsMalaised() && HexData.IsScouted();
-                        byte NewValue = (byte)((bIsMalaised ? 1 : 0) << (7 - ByteIndex));
-
-                        // now write it back into the buffer
-                        NewValue = (byte)(OldValue | NewValue);
-                        uint NewInt = (uint)(NewValue << ((3 - IntIndex) * 8));
-                        MalaiseDTOs[OverallIndex] = OldInt | NewInt;
-
-                        ByteIndex++;
-                    }
-
-                    IntIndex++;
-                    if (IntIndex == 4)
-                    {
-                        IntIndex = 0;
-                        OverallIndex++;
-                    }
-
-                }
-            }
-        }
-        */
     }
 
     public int GetSize()
