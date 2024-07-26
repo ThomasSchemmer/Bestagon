@@ -15,7 +15,7 @@ public class HexagonConfig {
     /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr 
      * WARNING: if updated fix cloud shader first! bitstuffing doesnt work with arbitrary size!
      */
-    public static int chunkSize = 8;
+    public static int chunkSize = 2;
 
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
     public static int loadedChunkVisualizations = 3;
@@ -24,7 +24,7 @@ public class HexagonConfig {
     public static int mapMinChunk = 0;
 
     /** Highest index of a chunk in the world, describes the border location */
-    public static int mapMaxChunk = 5;
+    public static int mapMaxChunk = 3;
 
     /** Tile width for the complete map */
     public static int MapWidth

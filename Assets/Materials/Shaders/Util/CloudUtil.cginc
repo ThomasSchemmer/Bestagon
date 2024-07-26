@@ -97,7 +97,7 @@ int4 TileSpaceToHexSpace(int2 TileSpace){
 /** Checks the corresponding bit position in the buffer */
 uint IsHexAtLocationMalaised(int2 GlobalTileLocation){
     int HexIndex = GlobalTileLocation.y * _ChunkSize * _NumberOfChunks + GlobalTileLocation.x;
-                
+    
     int IntIndex = HexIndex / 32.0; 
     int IntRemainder = (HexIndex - IntIndex * 32); 
                
@@ -245,7 +245,14 @@ float4 GetCloudColorForPixel(float3 PositionWorld, float4 _NoiseTex_ST, float4 _
     float3 BoxDir = normalize(BoxEndWorld - BoxStartWorld);
     float BoxDistance = distance(BoxStartWorld, BoxEndWorld);
     float StepLength = BoxDistance / _StepAmount;
+
+    float3 Center = (BoxStartWorld + BoxEndWorld) / 2.0;
+    int2 GlobalTileLocation = WorldSpaceToTileSpace(Center);
+    int Debug = IsHexAtLocationMalaised(GlobalTileLocation);
+    int IsValid = IsValidLocation(GlobalTileLocation);
+    return float4(Debug, 0, 0, IsValid);
     
+
     float Transmittance = 1;
 
 #ifdef ENABLE_LIGHT_PASS

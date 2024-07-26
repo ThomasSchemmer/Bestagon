@@ -84,7 +84,13 @@ public class CloudRenderer : GameService, ISaveableService
 
     public void SpreadMalaise()
     {
+        // temp copy to allow modification of activemalaise in spread()
+        Dictionary<Vector2Int, MalaiseData> Copy = new();
         foreach (var Tuple in ActiveMalaises)
+        {
+            Copy.Add(Tuple.Key, Tuple.Value);
+        }
+        foreach (var Tuple in Copy)
         {
             MalaiseData Data = Tuple.Value;
             Data.Spread();

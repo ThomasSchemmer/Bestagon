@@ -495,8 +495,9 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     public int GetMalaiseDTOByteCount()
     {
         // since we pack every malaise info into a bit and the shader needs 32bit variables, we just write it into an uint
-        int ByteCount = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
-        int IntCount = Mathf.RoundToInt(ByteCount / 4.0f);
+        int BitCount = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
+        //force the round up to the next higher number
+        int IntCount = Mathf.RoundToInt(BitCount / 32.0f + 0.5f);
         return IntCount;
     }
 
@@ -517,6 +518,53 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         // one bit per hex, indicating malaise
         // requires the chunks to be multiple of 8 big, best exactly 8
         MalaiseDTOs = new uint[GetMalaiseDTOByteCount()];
+
+        int SizeOfInt = 32;
+        int TilesPerRow = HexagonConfig.MapWidth;
+        for (int IntIndex = 0; IntIndex < MalaiseDTOs.Length; IntIndex++) { 
+            for (int ByteIndex = 0; ByteIndex < SizeOfInt; ByteIndex++)
+            {
+                int GlobalIndex = IntIndex * SizeOfInt + ByteIndex;
+                // ranges from 0..8, which bit of the current byte
+                int IndexInByte = ByteIndex % 8;
+                // ranges from 0..4, which byte of the current int
+                int IndexInInt = ByteIndex / 8;
+
+                int RowIndex = GlobalIndex / TilesPerRow;
+                int ColumnIndex = GlobalIndex % TilesPerRow;
+                Vector2Int TileIndex = new(ColumnIndex, RowIndex);
+
+                HexagonConfig.GlobalTileToChunkAndTileSpace(TileIndex, out Location TileLocation);
+                if (!HexagonConfig.IsValidLocation(TileLocation))
+                    continue;
+
+                if (!TryGetHexagonData(TileLocation, out HexagonData Data))
+                    continue;
+
+                bool bIsMalaised = Data.IsMalaised() && Data.IsScouted();
+                byte NewValue = (byte)((bIsMalaised ? 1 : 0) << (7 - IndexInByte));
+
+                // read part of the int into a byte, then check if the bit position should be set
+                uint OldInt = MalaiseDTOs[IntIndex];
+                byte OldValue = (byte)((OldInt >> ((3 - IndexInInt) * 8)) & 0xFF);
+
+                // now write it back into the buffer
+                NewValue = (byte)(OldValue | NewValue);
+                uint NewInt = (uint)(NewValue << ((3 - IndexInInt) * 8));
+                MalaiseDTOs[IntIndex] = OldInt | NewInt;
+            }
+        
+        }
+
+
+
+
+
+
+
+
+        /*
+
 
         int ByteIndex = 0;
         int IntIndex = 0;
@@ -556,6 +604,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
                 }
             }
         }
+        */
     }
 
     public int GetSize()

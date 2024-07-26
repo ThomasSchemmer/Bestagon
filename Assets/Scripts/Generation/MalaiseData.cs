@@ -93,15 +93,17 @@ public class MalaiseData : ISaveableData
         if (Hex.MalaisedState != HexagonData.MalaiseState.None)
             return false;
 
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        if (!MapGenerator.TryGetChunkData(Hex.Location, out ChunkData TargetChunk))
+            return false;
+
         Hex.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+        TargetChunk.Malaise.LocationsToMalaise.Add(Hex.Location);
+        TargetChunk.Malaise.Infect();
 
         //now we have to break asap to ensure only one neighbour gets infected
-        Chunk.Malaise.LocationsToMalaise.Add(Hex.Location);
-        Chunk.Malaise.Infect();
-
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return true;
-
         if (!MapGenerator.TryGetHexagon(Hex.Location, out HexagonVisualization HexVis))
             return true;
 
