@@ -87,7 +87,7 @@ public abstract class Quest<T> : QuestTemplate
     public override void OnAccept(bool bIsCanceled = false)
     {
         CompleteQuest(bIsCanceled);
-        RemoveQuest();
+        RemoveQuest(!bIsCanceled);
 
         Destroy();
     }
@@ -133,18 +133,18 @@ public abstract class Quest<T> : QuestTemplate
 
     public override void RemoveQuestCallback()
     {
-        if (!bIsRegistered)
+        if (!bIsRegistered || QuestRegistrar == null)
             return;
 
         QuestRegistrar.DeRegisterQuest(GetDelegates(), this);
     }
 
-    public void RemoveQuest()
+    public void RemoveQuest(bool bAddFollowup = true)
     {
         if (!Game.TryGetService(out QuestService QuestService))
             return;
 
-        QuestService.RemoveQuest(Parent);
+        QuestService.RemoveQuest(Parent, bAddFollowup);
     }
 
     protected void GrantResources(Production Production)

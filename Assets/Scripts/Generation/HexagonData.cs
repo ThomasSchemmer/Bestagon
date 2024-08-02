@@ -143,6 +143,11 @@ public class HexagonData : ISaveableData
         };
     }
 
+    public static HexagonData Create(HexagonHeight Height, HexagonType Type)
+    {
+        return new(Height, Type);
+    }
+
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);

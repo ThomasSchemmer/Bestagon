@@ -23,10 +23,16 @@ public class IngameMenuScreen : ScreenUI
 
     public void OnSave()
     {
+        ConfirmScreen.Show("Please enter a savegame name", OnSaveConfirm, true);
+    }
+
+    private void OnSaveConfirm()
+    {
         if (!Game.TryGetService(out SaveGameManager Manager))
             return;
 
-        Manager.Save();
+        string FileName = SaveGameManager.GetCompleteSaveGameName(ConfirmScreen.GetInputText());
+        Manager.Save(FileName);
         MessageSystemScreen.CreateMessage(Message.Type.Success, "Saved successfully");
         Hide();
     }

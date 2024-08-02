@@ -27,6 +27,7 @@ public class GatherResourceQuest : Quest<Production>
     {
         return "Gather additional resources";
     }
+    public override void OnCreated() { }
 
     public override int GetMaxProgress()
     {

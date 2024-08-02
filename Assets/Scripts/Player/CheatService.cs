@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -50,7 +52,7 @@ public class CheatService : ScreenUI
     {
         string Cheat = CheatText.text;
         string[] Cheats = Cheat.Split(TOKEN_DIVIDER);
-        if (Cheats.Length < 2)
+        if (Cheats.Length == 0)
             return;
 
         if (Cheats[0].Equals(UNLOCK_CODE))
@@ -65,6 +67,92 @@ public class CheatService : ScreenUI
         {
             GiveResource(Cheats);
         }
+        if (Cheats[0].Equals(QUEST_CODE))
+        {
+            GiveQuest(Cheats);
+        }
+        if (Cheats[0].Equals(DESTROY_CARDS_CODE))
+        {
+            DestroyAllCards(Cheats);
+        }
+        if (Cheats[0].Equals(DESTROY_UNITS_CODE))
+        {
+            DestroyAllUnits(Cheats);
+        }
+        if (Cheats[0].Equals(DESTROY_QUESTS_CODE))
+        {
+            DestroyAllQuests(Cheats);
+        }
+        if (Cheats[0].Equals(DESTROY_RESOURCES_CODE))
+        {
+            DestroyAllResources(Cheats);
+        }
+        if (Cheats[0].Equals(VANISH_CODE))
+        {
+            DestroyAllCards(Cheats);
+            DestroyAllUnits(Cheats);
+            DestroyAllQuests(Cheats);
+            DestroyAllResources(Cheats);
+        }
+    }
+
+    private void GiveQuest(string[] Cheats)
+    {
+        if (!Game.TryGetService(out QuestService QuestService))
+            return;
+
+        string Name = GetTargetName(Cheats);
+        if (!TryGetTargetType(Name, typeof(QuestTemplate), out Type QuestType))
+            return;
+
+        QuestService.AddQuest(QuestType);
+    }
+
+    private void DestroyAllResources(string[] Cheats)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        Production InvertedResources = new();
+        var Tuples = Stockpile.Resources.GetTuples();
+        for (int i = 0; i < Tuples.Count; i++)
+        {
+            InvertedResources += new Production(Tuples[i].Key, -Tuples[i].Value);
+        }
+
+        Stockpile.AddResources(InvertedResources);
+    }
+
+    private void DestroyAllQuests(string[] Cheats)
+    {
+        if (!Game.TryGetService(out QuestService Quests))
+            return;
+
+        Quests.RemoveAllQuests();
+    }
+
+    private void DestroyAllCards(string[] Cheats)
+    {
+        if (!Game.TryGetServices(out CardHand CardHand, out CardDeck CardDeck))
+            return;
+
+        CardHand.DeleteAllCardsConditionally((Card Card) =>
+        {
+            return true;
+        });
+        CardDeck.DeleteAllCardsConditionally((Card Card) =>
+        {
+            return true;
+        });
+    }
+
+    private void DestroyAllUnits(string[] Cheats)
+    {
+        if (!Game.TryGetServices(out Units Units, out Workers Workers))
+            return;
+
+        Units.KillAllUnits();
+        Workers.KillAllUnits();
     }
 
     private void GiveResource(string[] Cheats) {
@@ -144,6 +232,23 @@ public class CheatService : ScreenUI
         return TargetIndex;
     }
 
+    private bool TryGetTargetType(string TargetName, Type RootType, out Type TargetType)
+    {
+        Type[] Types = Assembly.GetAssembly(RootType).GetTypes();
+        Types = Types.Where(type => type.IsSubclassOf(RootType) && !type.IsAbstract).ToArray();
+        foreach (Type Type in Types)
+        {
+            if (!Type.FullName.ToLower().Equals(TargetName.ToLower()))
+                continue;
+
+            TargetType = Type;
+            return true;
+        }
+
+        TargetType = default;
+        return false;
+    }
+
     private void Unlock(string[] Cheats)
     {
         string TargetName = GetTargetName(Cheats);
@@ -163,4 +268,10 @@ public class CheatService : ScreenUI
     private static string UNLOCK_CODE = "unlock";
     private static string CARD_CODE = "givecard";
     private static string RESOURCE_CODE = "giveresource";
+    private static string QUEST_CODE = "givequest";
+    private static string DESTROY_CARDS_CODE = "destroyallcards";
+    private static string DESTROY_UNITS_CODE = "destroyallunits";
+    private static string DESTROY_QUESTS_CODE = "destroyallquests";
+    private static string DESTROY_RESOURCES_CODE = "destroyallresources";
+    private static string VANISH_CODE = "vanish";
 }

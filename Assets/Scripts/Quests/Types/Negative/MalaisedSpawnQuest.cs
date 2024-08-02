@@ -25,6 +25,7 @@ public class MalaisedSpawnQuest : MultiQuest<int, TokenizedUnitData>
         Type = default;
         return false;
     }
+    public override void OnCreated() { }
 
     public static Location TargetLocation;
     public static int StartTurnNr;
@@ -43,6 +44,7 @@ public class MalaisedSpawnQuestTurn : Quest<int>
     {
         return Turn._OnTurnEnded;
     }
+    public override void OnCreated() { }
 
     public override string GetDescription()
     {
@@ -109,6 +111,7 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
     {
         return Units._OnUnitMoved;
     }
+    public override void OnCreated() { }
 
     public override string GetDescription()
     {

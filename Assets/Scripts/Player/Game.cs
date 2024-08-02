@@ -8,7 +8,13 @@ using UnityEngine.SceneManagement;
 public class Game : MonoBehaviour
 {
     public GameState State = GameState.GameMenu;
-    public GameMode Mode = GameMode.Game;
+    public GameMode Mode {
+        get
+        {
+            return _Mode;
+        }
+    }
+    private GameMode _Mode;
     public bool bIsPaused = false;
     public int TargetFramerate = 60;
     public List<GameServiceWrapper> Services = new();
@@ -32,6 +38,9 @@ public class Game : MonoBehaviour
     public static string MenuSceneName = "Menu";
     public static string MainSceneName = "Main";
     public static string CardSelectionSceneName = "CardSelection";
+    public static GameMode ModeToStart = GameMode.Game;
+    private static bool bLoadMainMenu = true;
+
 
     public enum GameState
     {
@@ -51,6 +60,17 @@ public class Game : MonoBehaviour
     {
         Instance = this;
     }
+
+    public void Start()
+    {
+        if (!bLoadMainMenu)
+            return;
+
+        bLoadMainMenu = false;
+        // this will trigger the MainMenu switch from SavegameManager
+        Init();
+    }
+
     public void OnPopupAction(bool bIsOpen)
     {
         _OnPopup?.Invoke(bIsOpen);
@@ -75,8 +95,10 @@ public class Game : MonoBehaviour
         _OnResume?.Invoke();
     }
 
-    public void Start()
+    public void Init()
     {
+        this._Mode = ModeToStart;
+
         Application.targetFrameRate = TargetFramerate;
         if (IngameMenuScreen.Instance)
         {
@@ -106,6 +128,7 @@ public class Game : MonoBehaviour
 
     private void ConvertToDictionary()
     {
+        ServicesInternal.Clear();
         foreach (GameServiceWrapper Wrapper in Services)
         {
             Type Type = Wrapper.TargetScript.GetType();
@@ -315,7 +338,7 @@ public class Game : MonoBehaviour
      * This is useful eg when transitioning to the card selection screen, as we dont save everything so no actual
      * savegame should be created
      */
-    public static void LoadGame(string SaveGameName, string SceneName, bool bCreateNewGame = false)
+    public static void LoadGame(string SaveGameName, string SceneName, bool bCreateNewGame = false, bool bLoadTutorial = false)
     {
         if (!TryGetService(out SaveGameManager Manager))
             return;
@@ -324,11 +347,22 @@ public class Game : MonoBehaviour
         {
             bCreateNewGame = false;
         }
+        if (bLoadTutorial && SaveGameName != null)
+        {
+            bLoadTutorial = false;
+        }
 
-        Manager.MarkSaveForLoading(SaveGameName, bCreateNewGame);
+        Manager.MarkSaveForLoading(SaveGameName, bCreateNewGame, bLoadTutorial);
         
         AsyncOperation Op = SceneManager.LoadSceneAsync(SceneName);
+        SceneManager.sceneLoaded += Instance.OnSceneLoaded;
         Op.allowSceneActivation = true;
+    }
+
+    public void OnSceneLoaded(Scene Scene, LoadSceneMode Mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        Instance.Init();
     }
 
     public static void ExitGame()

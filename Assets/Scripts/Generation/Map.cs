@@ -38,6 +38,8 @@ public class Map : GameService
     public void OverwriteSettings(int TileCount, int ChunkCount)
     {
         MapData = new HexagonData[TileCount];
+        int TilesPerSide = (int)MathF.Sqrt(TileCount);
+        HexagonConfig.chunkSize = TilesPerSide / ChunkCount;
         HexagonConfig.mapMaxChunk = ChunkCount;
     }
 

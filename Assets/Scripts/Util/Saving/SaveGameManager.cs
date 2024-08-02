@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using Unity.Collections;
 using UnityEngine;
@@ -16,7 +14,13 @@ public class SaveGameManager : GameService
     public bool bLoadLastFile = false;
     // static so that it can be shared between scenes and a delayed load can be executed
     private static string FileToLoad = null;
-    private static bool ShouldCreateNewFile = false;
+    // implicitly cancels loading savegame data
+    private static bool bCreateNewFile = false;
+    private static bool bLoadTutorial = false;
+
+    private const string DefaultSaveGameName = "Save"+FileExtension;
+    private const string FileExtension = ".map";
+    private const string TutorialSavegame = "tutorial1";
 
     protected override void StartServiceInternal()
     {
@@ -35,20 +39,37 @@ public class SaveGameManager : GameService
 
     private void HandleDelayedLoading()
     {
-       if (bLoadLastFile && FileToLoad == null)
+        if (bLoadTutorial && FileToLoad == null)
+        {
+            FileToLoad = GetTutorialSave();
+            bCreateNewFile = false;
+        }
+        if (bLoadLastFile && FileToLoad == null)
         {
             FileToLoad = GetMostRecentSave();
         }
+
         HandleSwitchToMenu();
+
+        if (FileToLoad != null && FileToLoad.Equals(string.Empty))
+        {
+            FileToLoad = null;
+        }
+        // do not load savegame data and do not register as "having data" for service X
+        // any service should simply start fresh
         if (FileToLoad == null)
             return;
 
         Load();
     }
 
+    /** Switches to the main menu when in any other scene in the editor*/
     private void HandleSwitchToMenu()
     {
-        if (FileToLoad != null || ShouldCreateNewFile)
+        #if !UNITY_EDITOR
+            return;
+        #endif
+        if (FileToLoad != null || bCreateNewFile || bLoadTutorial)
             return;
 
         if (SceneManager.GetActiveScene().name.Equals(Game.MenuSceneName))
@@ -64,7 +85,7 @@ public class SaveGameManager : GameService
 
     public void OnLoad()
     {
-        ShouldCreateNewFile = false;
+        bCreateNewFile = false;
         Load();
     }
 
@@ -75,7 +96,7 @@ public class SaveGameManager : GameService
         TryExecuteLoading();
     }
 
-    public string Save()
+    public string Save(string SaveGameName = DefaultSaveGameName)
     {
         int Size = GetSaveableSize();
         NativeArray<byte> Bytes = new(Size, Allocator.Temp);
@@ -99,7 +120,7 @@ public class SaveGameManager : GameService
             throw new Exception("Error on saving: Did not fill savefile!");
         }
 
-        string FileName = "Save.map";
+        string FileName = SaveGameName;
         string FullPath = GetSavegamePath() + FileName;
         File.WriteAllBytes(FullPath, Bytes.ToArray());
         FileInfo fileInfo = new FileInfo(FullPath);
@@ -107,10 +128,11 @@ public class SaveGameManager : GameService
         return FileName;
     }
 
-    public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false)
+    public void MarkSaveForLoading(string FileName = null, bool bShouldCreateNewFile = false, bool bShouldLoadTutorial = false)
     {
         FileToLoad = FileName;
-        ShouldCreateNewFile = bShouldCreateNewFile;
+        bCreateNewFile = bShouldCreateNewFile;
+        bLoadTutorial = bShouldLoadTutorial;
     }
 
     /** Requires the Manager to be already initialized, 
@@ -156,7 +178,26 @@ public class SaveGameManager : GameService
                 TargetIndex = i;
             }
         }
-        return TargetIndex >= 0 ? Saves[TargetIndex] : "";
+        return TargetIndex >= 0 ? Saves[TargetIndex] : string.Empty;
+    }
+
+    private string GetTutorialSave()
+    {
+        if (!Game.TryGetService(out TutorialSystem TutorialSystem))
+            return string.Empty;
+
+        string[] Saves = GetSavegameNames();
+        for (int i = 0; i < Saves.Length; i++)
+        {
+            if (!Saves[i].Equals(GetCompleteSaveGameName(TutorialSavegame)))
+                continue;
+
+            TutorialSystem.SetInTutorial(true);
+            return Saves[i];
+        }
+
+        TutorialSystem.SetInTutorial(false);
+        return string.Empty;
     }
 
     private void FindSaveables()
@@ -215,7 +256,7 @@ public class SaveGameManager : GameService
     /** Loads the save and returns true if successful*/
     private bool TryExecuteLoading()
     {
-        if (ShouldCreateNewFile)
+        if (bCreateNewFile)
             return false;
 
         if (FoundSaveableServices == null)
@@ -411,6 +452,25 @@ public class SaveGameManager : GameService
         Rect = new Rect((float)X, (float)Y, (float)Width, (float)Height);
 
         return Start;
+    }
+
+    public static string GetClearName(string SaveGameName)
+    {
+        int Index = SaveGameName.IndexOf(FileExtension);
+        if (Index == -1)
+        {
+            return SaveGameName;
+        }
+        return SaveGameName[..Index];
+    }
+
+    public static string GetCompleteSaveGameName(string SaveGameName)
+    {
+        int Index = SaveGameName.IndexOf(FileExtension);
+        if (Index == -1)
+            return SaveGameName + FileExtension;
+
+        return SaveGameName;
     }
 
     private static string GetSavegamePath()

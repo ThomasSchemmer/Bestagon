@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : GameService
+public class CameraController : GameService, IQuestRegister<Vector3>
 {
     protected override void StartServiceInternal()
     {
@@ -95,9 +95,15 @@ public class CameraController : GameService
         if (Input.GetKey(KeyCode.D))
             Movement += new Vector3(+1, 0, -1);
 
+        if (Movement.sqrMagnitude > 0)
+        {
+            _OnCameraMoved.ForEach(_ => _.Invoke(TargetPosition));
+        }
+
         Movement.Normalize();
 
         TargetPosition += Movement * Cam.orthographicSize * MovementSpeed;
+
 
         // Camera zoom
         float diff = Input.GetAxis("Mouse ScrollWheel");
@@ -107,6 +113,8 @@ public class CameraController : GameService
         diff = diff > 0 ? -ZoomSteps : +ZoomSteps;
         float NewSize = Mathf.Clamp(Cam.orthographicSize + diff, MinimumZoom, MaximumZoom);
         Cam.orthographicSize = NewSize;
+
+        _OnCameraZoomed.ForEach(_ => _.Invoke(new(NewSize, 0, 0)));
     }
 
     private void MoveToPosition() {
@@ -132,4 +140,7 @@ public class CameraController : GameService
     public float ZoomSteps = 5;
 
     public static Vector3 TargetPosition;
+
+    public static ActionList<Vector3> _OnCameraMoved = new();
+    public static ActionList<Vector3> _OnCameraZoomed = new();
 }

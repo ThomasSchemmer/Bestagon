@@ -23,6 +23,8 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
         return "Reveal additional tiles";
     }
 
+    public override void OnCreated() { }
+
     public override int GetMaxProgress()
     {
         return Statistics.MovesNeeded;

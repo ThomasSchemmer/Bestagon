@@ -125,8 +125,8 @@ Material:
     - _StepAmount: 10
     - _Surface: 0
     - _UVScale: 42
-    - _WindCrossMulti: 1
-    - _WindSpeed: 0.0018
+    - _WindCrossMulti: 5
+    - _WindSpeed: 0.02
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

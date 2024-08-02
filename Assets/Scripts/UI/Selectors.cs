@@ -28,7 +28,7 @@ public class Selectors : GameService
 
     public void Update()
     {
-        if (!bIsEnabled)
+        if (!bIsEnabled || !IsInit)
             return;
 
         if (UISelector.RayCast())

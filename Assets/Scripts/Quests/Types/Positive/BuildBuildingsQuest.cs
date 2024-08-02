@@ -16,6 +16,7 @@ public class BuildBuildingsQuest : Quest<BuildingData>
     {
         return 1;
     }
+    public override void OnCreated() { }
 
     public override string GetDescription()
     {

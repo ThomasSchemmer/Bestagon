@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainMenuScreen : MonoBehaviour
 {
@@ -11,12 +12,14 @@ public class MainMenuScreen : MonoBehaviour
 
     public void OnSelectNew()
     {
-        Game.LoadGame(null, Game.MainSceneName, true);
+        Game.ModeToStart = Game.GameMode.Game;
+        Game.LoadGame(null, Game.MainSceneName, true, TutorialToggle.isOn);
     }
 
     public void OnSelectMapEditor()
     {
-
+        Game.ModeToStart = Game.GameMode.MapEditor;
+        Game.LoadGame(null, Game.MainSceneName, true);
     }
 
     public void OnSelectExit()
@@ -41,4 +44,5 @@ public class MainMenuScreen : MonoBehaviour
     }
 
     public LoadMenuScreen LoadMenu;
+    public Toggle TutorialToggle;
 }

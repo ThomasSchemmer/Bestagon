@@ -19,6 +19,8 @@ public class SaveGameDisplayScreen : MonoBehaviour
             GameObject Slot = Instantiate(SlotPrefab, transform);
             Button Button = Slot.transform.GetChild(0).GetComponent<Button>();
             Button.onClick.AddListener(delegate { Game.LoadGame(GameName, Game.MainSceneName); });
+            TMPro.TextMeshProUGUI NameText = Slot.transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            NameText.text = SaveGameManager.GetClearName(GameName);
         }
     }
 

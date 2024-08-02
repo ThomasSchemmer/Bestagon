@@ -20,6 +20,7 @@ public class StockpileScreen : MonoBehaviour
 
             Initialize(Stockpile, IconFactory);
             UpdateVisuals();
+            Show(bShow);
         });
 
     }
@@ -196,10 +197,25 @@ public class StockpileScreen : MonoBehaviour
         ScoutScreen.UpdateVisuals(Units.GetIdleScoutCount(), Units.GetMaxScoutCount());
     }
 
+    public void Show(bool bShow)
+    {
+        this.bShow = bShow;
+        if (GroupScreens == null)
+            return;
+
+        foreach (StockpileGroupScreen GroupScreen in GroupScreens)
+        {
+            GroupScreen.Show(bShow);
+        }
+        WorkerScreen.Show(bShow);
+        ScoutScreen.Show(bShow);
+    }
+
     public GameObject GroupPrefab;
     public GameObject ItemPrefab;
 
     protected StockpileGroupScreen[] GroupScreens;
     protected NumberedIconScreen WorkerScreen;
     protected NumberedIconScreen ScoutScreen;
+    protected bool bShow = true;
 }

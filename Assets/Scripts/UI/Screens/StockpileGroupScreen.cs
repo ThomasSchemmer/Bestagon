@@ -130,17 +130,17 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
 
         if (SelectedInstance == this)
         {
-            Show(false);
+            ShowContainer(false);
             SelectedInstance = null;
         }
         else
         {
             if (SelectedInstance != null)
             {
-                SelectedInstance.Show(false);
+                SelectedInstance.ShowContainer(false);
             }
             SelectedInstance = this;
-            SelectedInstance.Show(true);
+            SelectedInstance.ShowContainer(true);
         }
     }
     
@@ -160,13 +160,18 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         return ProductionGroupIndex == OtherSGS.ProductionGroupIndex;
     }
 
-    public void Show(bool bIsVisible)
+    public void ShowContainer(bool bIsVisible)
     {
         if (!bDisplayActiveOnly)
             return;
 
         HighlightImage.color = bIsVisible ? SelectionColor : StandardColor;
         Container.gameObject.SetActive(bIsVisible);
+    }
+
+    public void Show(bool bIsVisible)
+    {
+        gameObject.SetActive(bIsVisible);
     }
 
     private bool IsSelected()

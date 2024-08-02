@@ -35,6 +35,7 @@ public class GatherWaterSkinsQuest : Quest<Production>
     {
         return 5;
     }
+    public override void OnCreated() { }
 
     public override Type GetQuestType()
     {

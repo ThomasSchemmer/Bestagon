@@ -33,6 +33,9 @@ public class CardDeck : CardCollection
 
     private void CheckForScout()
     {
+        if (!Game.TryGetService(out TutorialSystem TutorialSystem) || TutorialSystem.IsInTutorial())
+            return;
+
         bool bContainsScout = false;
         foreach (Card Card in Cards) {
             if (Card is not EventCard)

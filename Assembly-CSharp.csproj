@@ -77,18 +77,20 @@
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialSelectTileQuest.cs" />
     <Compile Include="Assets\Scripts\Events\RemoveMalaiseEventData.cs" />
-    <Compile Include="Assets\Scripts\Tutorial\TipSystem.cs" />
     <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ConfirmScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\MalaiseData.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\Tutorial.cs" />
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Main\GatherWaterSkinsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
+    <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedSpawnQuest.cs" />
@@ -129,7 +131,6 @@
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedBuildingsQuest.cs" />
-    <Compile Include="Assets\Scripts\Tutorial\Tip.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\EditorFeatures\MapSizeEditor.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
@@ -174,6 +176,7 @@
     <Compile Include="Assets\Scripts\Util\ChunkTest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCameraQuest.cs" />
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\LabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
@@ -187,6 +190,7 @@
     <Compile Include="Assets\Scripts\Unit\WorkerData.cs" />
     <Compile Include="Assets\Scripts\UI\HoverableButton.cs" />
     <Compile Include="Assets\Scripts\Player\Unlockables.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\MapEditorScreen.cs" />
     <Compile Include="Assets\Scripts\Player\CardHand.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\CardDTO.cs" />

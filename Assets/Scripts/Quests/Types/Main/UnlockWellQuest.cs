@@ -27,6 +27,7 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
     {
         return 1;
     }
+    public override void OnCreated() { }
 
     public override Type GetQuestType()
     {

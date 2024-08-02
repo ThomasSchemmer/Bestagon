@@ -76,11 +76,11 @@ public abstract class CardCollection : GameService, ISaveableService
 
     protected override void StartServiceInternal()
     {
-        gameObject.SetActive(true);
+        Show(true);
     }
 
-    protected override void StopServiceInternal() { 
-        gameObject.SetActive(false);
+    protected override void StopServiceInternal() {
+        Show(false);
     }
 
     public int GetSize()
@@ -170,6 +170,11 @@ public abstract class CardCollection : GameService, ISaveableService
         {
             Card.RefreshUsedUp();
         }
+    }
+
+    public void Show(bool bShow)
+    {
+        gameObject.SetActive(bShow);
     }
 
     public virtual void Load() { }

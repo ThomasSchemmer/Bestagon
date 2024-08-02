@@ -13,9 +13,10 @@ public class ConfirmScreen : ScreenUI
         Instance = this;
     }
 
-    public static void Show(string Message, Action Callback)
+    public static void Show(string Message, Action Callback, bool bShowInput = false)
     {
         Instance.Text.text = Message;
+        Instance.InputField.gameObject.SetActive(bShowInput);
         Instance.ConfirmButton.onClick.RemoveAllListeners();
         Instance.ConfirmButton.onClick.AddListener(() =>
         {
@@ -30,6 +31,15 @@ public class ConfirmScreen : ScreenUI
         Hide();
     }
 
+    public static string GetInputText()
+    {
+        if (!Instance)
+            return string.Empty;
+
+        return Instance.InputField.text;
+    }
+
+    public TMP_InputField InputField;
     public Button ConfirmButton;
     public TextMeshProUGUI Text;
     private static ConfirmScreen Instance;

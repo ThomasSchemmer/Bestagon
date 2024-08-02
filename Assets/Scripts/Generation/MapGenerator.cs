@@ -146,6 +146,8 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     private void CreateChunks()
     {
         FinishedVisualizationCount = 0;
+        HexagonConfig.loadedChunkVisualizations = Mathf.Min(HexagonConfig.mapMaxChunk, HexagonConfig.loadedChunkVisualizations);
+        HexagonConfig.loadedChunkVisualizations = Mathf.Max(HexagonConfig.loadedChunkVisualizations, 0);
         Chunks = new ChunkData[HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk];
         ChunkVis = new(HexagonConfig.loadedChunkVisualizations * HexagonConfig.loadedChunkVisualizations);
 

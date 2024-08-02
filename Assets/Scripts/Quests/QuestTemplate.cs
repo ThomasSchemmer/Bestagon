@@ -26,6 +26,7 @@ public abstract class QuestTemplate
 
     public abstract void RemoveQuestCallback();
     public abstract void OnAccept(bool bIsCanceled = false);
+    public abstract void OnCreated();
     public abstract void Destroy();
     public abstract bool AreRequirementsFulfilled();
     /** Can be self-type (repeating the quest) or a follow-up type */
@@ -45,6 +46,8 @@ public abstract class QuestTemplate
     public abstract bool IsCompleted();
 
     public QuestTemplate() { }
+
+    public virtual bool ShouldUnlockDirectly() { return false; }
 }
 
 /** 

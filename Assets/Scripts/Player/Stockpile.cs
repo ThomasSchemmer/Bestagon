@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEngine;
 
 public class Stockpile : GameService, ISaveableService, IQuestRegister<Production>
 {
@@ -140,6 +141,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     {
         Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {
+            StockpileScreen = GetComponent<StockpileScreen>();
             Workers._OnWorkersChanged += OnSimulateResources;
             BuildingService._OnBuildingsChanged += OnSimulateResources;
             _OnResourcesChanged += OnSimulateResources; 
@@ -198,6 +200,11 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
 
     public void Refill()
     {
+        if (!Game.TryGetService(out TutorialSystem TutorialSystem) || TutorialSystem.IsInTutorial())
+            return;
+        if (UpgradePoints != 0)
+            return;
+
         // does not reset upgrade points nor coins!
         int CoinCount = Resources[Production.Type.Coins];
         Reset();
@@ -210,12 +217,19 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         Resources = new();
     }
 
+    public void Show(bool bShow)
+    {
+        StockpileScreen.Show(bShow);
+    }
+
     public Production Resources;
     public Production SimulatedResources;
     public Production SimulatedGains;
 
     public Production StartingResources;
     public int UpgradePoints = 0;
+
+    private StockpileScreen StockpileScreen;
 
     protected bool bShouldReset = false;
 

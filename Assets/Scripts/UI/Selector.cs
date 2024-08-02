@@ -50,7 +50,7 @@ public abstract class Selector
  * Class that automates selecting gameobjects with the mouse easy. Checks by type if a hovered object is selectable
  * and calls the Selectable interface accordingly
  */
-public class Selector<T> : Selector where T : ISelectable
+public class Selector<T> : Selector, IQuestRegister<T> where T : ISelectable
 {
     public Selector(bool bIsUIOnly = false)
     {
@@ -129,10 +129,9 @@ public class Selector<T> : Selector where T : ISelectable
 
         Selected = (T)Target;
         Target.SetSelected(true);
-        if (OnItemSelected != null)
-        {
-            OnItemSelected(Selected);
-        }
+
+        OnItemSelected?.Invoke(Selected);
+        _OnSelected.ForEach(_ => _.Invoke(Selected));
     }
 
     public override void Hover(ISelectable Target)
@@ -330,4 +329,7 @@ public class Selector<T> : Selector where T : ISelectable
     public event _ItemNotInteracted OnItemDeSelected;
     public event _ItemInteracted OnItemHovered;
     public event _ItemNotInteracted OnItemDeHovered;
+
+
+    public ActionList<T> _OnSelected = new();
 }

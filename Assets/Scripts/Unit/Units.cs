@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static Units;
 
 /** 
  * Service to manage active units in the game, currently used for only tokenized units (Scouts).
@@ -67,7 +68,7 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
         if (Unit.Visualization != null){
             Destroy(Unit.Visualization);
         }
-
+        _OnUnitCountChanged?.Invoke();
         CheckForGameOver();
     }
 

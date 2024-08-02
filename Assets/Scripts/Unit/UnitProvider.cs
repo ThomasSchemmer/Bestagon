@@ -24,6 +24,15 @@ public class UnitProvider<T> : GameService, ISaveableService where T : UnitData
         Units.Remove(Unit);
     }
 
+    public void KillAllUnits()
+    {
+        int Count = Units.Count;
+        for (int i = Count - 1; i >= 0; i--)
+        {
+            KillUnit(Units[i]);
+        }
+    }
+
     public int GetSize()
     {
         // unit count + overall size

@@ -50,6 +50,8 @@ public class BuildScoutQuest : Quest<TokenizedUnitData>
         return 0;
     }
 
+    public override void OnCreated() { }
+
     public override void OnAfterCompletion()
     {
 

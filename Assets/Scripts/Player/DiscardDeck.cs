@@ -15,6 +15,7 @@ public class DiscardDeck : CardCollection {
     {
         base.StartServiceInternal();
         Text.text = "" + Cards.Count;
+        _OnInit?.Invoke(this);
     }
 
     public override void Load()

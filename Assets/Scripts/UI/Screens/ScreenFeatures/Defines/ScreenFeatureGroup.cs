@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.UI;
+
+
+/** Group of ScreenFeatures to automatically fill in a UI element
+ * Since most UI element's depend on other UI elements for position, it has to support callbacks
+ */
 
 public abstract class ScreenFeatureGroup : MonoBehaviour {
     public delegate void OnLayoutChanged();
@@ -9,6 +13,12 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
     public RectTransform PreviousTransform;
     public float Margin;
     public float Padding;
+
+    public List<ScreenFeature> ScreenFeatures;
+    public float OffsetBetweenElements = 10;
+
+    private RectTransform RectTransform;
+    private ScreenFeatureGroup PreviousGroup;
 
     protected float ConditionalPadding = 0;
 
@@ -23,19 +33,6 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
         _OnLayoutChanged?.Invoke();
     }
 
-}
-
-
-/** Group of ScreenFeatures to automatically fill in a UI element
- * Since most UI element's depend on other UI elements for position, it has to support callbacks
- */
-public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
-{
-    public List<ScreenFeature<T>> ScreenFeatures;
-    public float OffsetBetweenElements = 10;
-
-    private RectTransform RectTransform;
-    private ScreenFeatureGroup PreviousGroup;
 
     public void Init()
     {
@@ -46,15 +43,20 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
         }
 
         RectTransform = GetComponent<RectTransform>();
-        foreach (ScreenFeature<T> Feature in ScreenFeatures)
-        {
-            Feature.Init(this);
-        }
+        InitInternal();
 
         // otherwise the chain will trigger it anyway
         if (PreviousTransform == null)
         {
             UpdateLayout();
+        }
+    }
+
+    protected virtual void InitInternal()
+    {
+        foreach (ScreenFeature Feature in ScreenFeatures)
+        {
+            Feature.Init();
         }
     }
 
@@ -93,7 +95,7 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
             if (PrevGroup.gameObject.activeSelf)
                 return CurrentValue;
 
-            CurrentValue = bIsMargin? PrevGroup.Margin : PrevGroup.Padding;
+            CurrentValue = bIsMargin ? PrevGroup.Margin : PrevGroup.Padding;
             PrevTransform = PrevGroup.PreviousTransform;
             PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
         }
@@ -124,7 +126,7 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
 
         float YOffset = 0;
         float PrevHeight = 0;
-        foreach (ScreenFeature<T> Feature in ScreenFeatures)
+        foreach (ScreenFeature Feature in ScreenFeatures)
         {
             if (!Feature.ShouldBeDisplayed())
             {
@@ -142,7 +144,7 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
     private float GetOverallHeight()
     {
         float Height = 0;
-        foreach (ScreenFeature<T> Feature in ScreenFeatures)
+        foreach (ScreenFeature Feature in ScreenFeatures)
         {
             if (!Feature.ShouldBeDisplayed())
                 continue;
@@ -156,14 +158,25 @@ public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
 
     public void HideFeatures()
     {
-        foreach (ScreenFeature<T> Feature in ScreenFeatures)
+        foreach (ScreenFeature Feature in ScreenFeatures)
         {
             Feature.Hide();
         }
         gameObject.SetActive(false);
     }
 
+    public abstract bool HasFeatureObject();
+}
+
+public abstract class ScreenFeatureGroup<T> : ScreenFeatureGroup
+{
     public abstract T GetFeatureObject();
 
-    public abstract bool HasFeatureObject();
+    protected override void InitInternal()
+    {
+        foreach (ScreenFeature<T> Feature in ScreenFeatures)
+        {
+            Feature.Init(this);
+        }
+    }
 }

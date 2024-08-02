@@ -109,6 +109,7 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
         Type = typeof(MalaisedSpawnQuest);
         return true;
     }
+    public override void OnCreated() { }
 
     public override void GrantRewards(){}
 }

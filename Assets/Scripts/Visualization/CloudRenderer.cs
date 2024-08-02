@@ -72,7 +72,7 @@ public class CloudRenderer : GameService, ISaveableService
 
     public void PassMaterialBuffer(bool bForce = false)
     {
-        if (MapGen == null)
+        if (MapGen == null || !IsInit)
             return;
         if (!MapGen.bAreMalaiseDTOsDirty && !bForce)
             return;

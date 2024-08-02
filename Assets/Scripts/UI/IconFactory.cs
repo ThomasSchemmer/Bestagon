@@ -28,7 +28,9 @@ public class IconFactory : GameService
         WorkerIndicator,
         NoWorkerIndicator,
         Buildings,
-        Scoutings
+        Scoutings,
+        Camera,
+        Tile
     }
 
     public void Refresh()

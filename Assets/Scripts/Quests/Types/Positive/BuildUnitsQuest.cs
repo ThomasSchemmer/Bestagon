@@ -16,6 +16,7 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
     {
         return 1;
     }
+    public override void OnCreated() { }
 
     public override string GetDescription()
     {

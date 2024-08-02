@@ -23,4 +23,9 @@ public class AbandonScreen : ScreenUI
         };
         ConfirmScreen.Show("Are you sure you want to abandon your tribe?", A);
     }
+
+    public void Show(bool bShow)
+    {
+        gameObject.SetActive(bShow);
+    }
 }

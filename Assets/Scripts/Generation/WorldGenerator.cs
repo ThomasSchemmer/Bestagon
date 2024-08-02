@@ -59,7 +59,7 @@ public class WorldGenerator : GameService
         // set to water, cant use array.copy as it apparently doesnt clone
         for (int i = 0; i < LandData.Length; i++)
         {
-            HexagonData EmptyTile = HexagonData.CreateFromInfo(new HexagonInfo(0.1f, 0.6f, 0f, 3, 0));
+            HexagonData EmptyTile = HexagonData.Create(HexagonHeight.Flat, HexagonType.Meadow);
             EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
             LandData[i] = EmptyTile;
         }    

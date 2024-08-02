@@ -29,12 +29,14 @@ public class QuestService : GameService, ISaveableService
         }
 
         QuestT.Register(bForceAfterLoad);
+        QuestT.OnCreated();
         switch (QuestT.GetQuestType())
         {
             case QuestTemplate.Type.Positive: AddPositiveQuest(QuestUI); break;
             case QuestTemplate.Type.Negative: AddNegativeQuest(QuestUI); break;
             case QuestTemplate.Type.Main: AddMainQuest(QuestUI); break;
         }
+
         QuestUI.Visualize();
         DisplayQuests(true);
     }
@@ -84,12 +86,40 @@ public class QuestService : GameService, ISaveableService
         return QuestElement;
     }
 
-    public void RemoveQuest(QuestUIElement Quest)
+    public void RemoveAllQuests()
+    {
+        for (int i = PositiveQuests.Count - 1; i >= 0; i--)
+        {
+            PositiveQuests[i].GetQuestObject().OnAccept(true);
+        }
+        for (int i = QuestsToUnlock.Count - 1; i >= 0; i--)
+        {
+            QuestsToUnlock[i].GetQuestObject().OnAccept(true);
+        }
+        if (MainQuest != null)
+        {
+            MainQuest.GetQuestObject().OnAccept(true);
+        }
+        if (NegativeQuest != null)
+        {
+            NegativeQuest.GetQuestObject().OnAccept(true);
+        }
+    }
+
+    public void RemoveQuest(QuestUIElement Quest, bool bAddFollowups = true)
     {
         PositiveQuests.Remove(Quest);
-        if (Quest.GetQuestObject().TryGetNextType(out Type Type))
+        QuestTemplate QuestT = Quest.GetQuestObject();
+        if (bAddFollowups && QuestT.TryGetNextType(out Type Type))
         {
-            QuestsToUnlock.Add(CreateQuest(Type));
+            if (QuestT.ShouldUnlockDirectly())
+            {
+                ActivateQuest(CreateQuest(Type));
+            }
+            else
+            {
+                QuestsToUnlock.Add(CreateQuest(Type));
+            }
         }
         DisplayQuests();
     }
@@ -370,6 +400,11 @@ public class QuestService : GameService, ISaveableService
 
         TypesToRemove.Add(NextType);
         return TypesToRemove;
+    }
+
+    public void Show(bool bShow)
+    {
+        transform.GetChild(0).gameObject.SetActive(bShow);
     }
     
     public QuestUIElement MainQuest;

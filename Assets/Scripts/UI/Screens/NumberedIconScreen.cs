@@ -23,6 +23,11 @@ public class NumberedIconScreen : SimpleIconScreen
         Initialize();
     }
 
+    public void Show(bool bShow)
+    {
+        gameObject.SetActive(bShow);
+    }
+
     private void Initialize()
     {
         CountText = transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();

@@ -23,13 +23,13 @@ public class Turn : GameService, IQuestRegister<int>
         Quests = Game.GetService<QuestService>();
 
         gameObject.SetActive(true);
-        TurnUI.SetActive(true);
+        gameObject.SetActive(true);
         _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {
         gameObject.SetActive(false);
-        TurnUI.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void NextTurn() {
@@ -120,6 +120,15 @@ public class Turn : GameService, IQuestRegister<int>
         Selector.SelectHexagon(Hex);
     }
 
+    public void Show(bool bShow)
+    {
+        gameObject.SetActive(bShow);
+        if (AbandonScreen != null)
+        {
+            AbandonScreen.Show(bShow);
+        }
+    }
+
     private bool IsEnabled = true;
     private CardHand CardHand;
     private CardDeck CardDeck;
@@ -131,8 +140,9 @@ public class Turn : GameService, IQuestRegister<int>
     private Selectors Selectors;
     private QuestService Quests;
 
-    public int TurnNr = 1;
-    public GameObject TurnUI;
+    public int TurnNr = 0;
+
+    public AbandonScreen AbandonScreen;
 
     public delegate void OnTurnEnd();
     public static OnTurnEnd _OnTurnEnd;
