@@ -13,6 +13,7 @@ public class CardContainerUI : CardCollection
     public void Start()
     {
         PrevScrollValue = VerticalBar.value;
+        _OnInit?.Invoke(this);
     }
 
     public void OnScroll(Vector2 Position)

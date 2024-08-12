@@ -12,6 +12,7 @@ public class StockpileScreen : MonoBehaviour
         {
             // update visuals everytime something changes in the amounts
             Stockpile._OnResourcesChanged += UpdateVisuals;
+            Stockpile._OnUpgradesChanged += UpdateUpgradesVisuals;
             Workers._OnWorkersChanged += UpdateWorkerVisuals;
             Units._OnUnitCountChanged += UpdateScoutVisuals;
             TokenizedUnitData._OnMovement += UpdateScoutVisuals;
@@ -28,6 +29,7 @@ public class StockpileScreen : MonoBehaviour
     private void OnDestroy()
     {
         Stockpile._OnResourcesChanged -= UpdateVisuals;
+        Stockpile._OnUpgradesChanged -= UpdateUpgradesVisuals;
         Workers._OnWorkersChanged -= UpdateWorkerVisuals;
         Units._OnUnitCountChanged -= UpdateScoutVisuals;
         TokenizedUnitData._OnMovement -= UpdateScoutVisuals;
@@ -40,6 +42,7 @@ public class StockpileScreen : MonoBehaviour
         InitializeGroupScreens(Stockpile, IconFactory);
         InitializeWorkerVisuals(IconFactory);
         InitializeScoutVisuals(IconFactory);
+        InitializeUpgradesVisuals(IconFactory);
     }
 
     private void InitializeGroupScreens(Stockpile Stockpile, IconFactory IconFactory)
@@ -89,6 +92,21 @@ public class StockpileScreen : MonoBehaviour
         ScoutRect.anchoredPosition += GetTargetOffset(GroupCount + 2);
     }
 
+    private void InitializeUpgradesVisuals(IconFactory IconFactory)
+    {
+        if (!ShouldDisplayUpgrades())
+            return;
+
+        int GroupCount = Production.Indices.Length - 1;
+        GameObject UpgradesVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Upgrades, null, 0);
+        this.UpgradesScreen = UpgradesVisuals.GetComponent<NumberedIconScreen>();
+        this.UpgradesScreen.HoverTooltip = "Upgrade points";
+        RectTransform UpgradesScreen = UpgradesVisuals.GetComponent<RectTransform>();
+        UpgradesScreen.SetParent(GetTargetTransform(), false);
+        UpgradesScreen.anchoredPosition = GetTargetOrigin();
+        UpgradesScreen.anchoredPosition += GetTargetOffset(GroupCount + 3);
+    }
+
     private void UpdateIndicatorCount()
     {
         foreach (StockpileGroupScreen GroupScreen in GroupScreens) {
@@ -106,6 +124,7 @@ public class StockpileScreen : MonoBehaviour
 
         UpdateWorkerVisuals();
         UpdateScoutVisuals();
+        UpdateUpgradesVisuals();
     }
 
     protected virtual Transform GetTargetTransform()
@@ -161,6 +180,11 @@ public class StockpileScreen : MonoBehaviour
         return true;
     }
 
+    protected virtual bool ShouldDisplayUpgrades()
+    {
+        return true;
+    }
+
     protected virtual bool ShouldDisplayWorkers()
     {
         return true;
@@ -197,6 +221,17 @@ public class StockpileScreen : MonoBehaviour
         ScoutScreen.UpdateVisuals(Units.GetIdleScoutCount(), Units.GetMaxScoutCount());
     }
 
+    private void UpdateUpgradesVisuals()
+    {
+        if (!ShouldDisplayUpgrades())
+            return;
+
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        UpgradesScreen.UpdateVisuals(Stockpile.UpgradePoints);
+    }
+
     public void Show(bool bShow)
     {
         this.bShow = bShow;
@@ -207,8 +242,18 @@ public class StockpileScreen : MonoBehaviour
         {
             GroupScreen.Show(bShow);
         }
-        WorkerScreen.Show(bShow);
-        ScoutScreen.Show(bShow);
+        if (ShouldDisplayWorkers())
+        {
+            WorkerScreen.Show(bShow);
+        }
+        if (ShouldDisplayScouts())
+        {
+            ScoutScreen.Show(bShow);    
+        }
+        if (ShouldDisplayUpgrades())
+        {
+            UpgradesScreen.Show(bShow);
+        }
     }
 
     public GameObject GroupPrefab;
@@ -217,5 +262,6 @@ public class StockpileScreen : MonoBehaviour
     protected StockpileGroupScreen[] GroupScreens;
     protected NumberedIconScreen WorkerScreen;
     protected NumberedIconScreen ScoutScreen;
+    protected NumberedIconScreen UpgradesScreen;
     protected bool bShow = true;
 }

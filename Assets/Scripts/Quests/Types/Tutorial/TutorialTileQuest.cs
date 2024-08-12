@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static TutorialSystem;
 
-public class TutorialSelectTileQuest : Quest<HexagonVisualization>
+public class TutorialTileQuest : Quest<HexagonVisualization>
 {
-    public TutorialSelectTileQuest() : base()
+    public TutorialTileQuest() : base()
     {
     }
 
@@ -37,6 +37,9 @@ public class TutorialSelectTileQuest : Quest<HexagonVisualization>
     public override ActionList<HexagonVisualization> GetDelegates()
     {
         if (!Game.TryGetService(out Selectors Selectors))
+            return default;
+
+        if (Selectors.HexagonSelector == null)
             return default;
 
         return Selectors.HexagonSelector._OnSelected;
@@ -72,7 +75,12 @@ public class TutorialSelectTileQuest : Quest<HexagonVisualization>
 
     public override bool TryGetNextType(out System.Type Type)
     {
-        Type = GetType();
+        Type = typeof(TutorialResourceQuest);
+        return true;
+    }
+
+    public override bool ShouldUnlockDirectly()
+    {
         return true;
     }
 

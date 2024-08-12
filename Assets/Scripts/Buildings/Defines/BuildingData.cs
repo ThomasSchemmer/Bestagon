@@ -52,9 +52,20 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return Cost;
     }
 
-    public Production GetProduction()
+    public Production GetProduction(bool bIsSimulated)
     {
-        return Effect.GetProduction(GetWorkerMultiplier(), Location);
+        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Location);
+    }
+
+    public void SimulateCurrentFood()
+    {
+        foreach (var Worker in AssignedWorkers)
+        {
+            if (Worker == null)
+                continue;
+
+            Worker.SimulatedFoodCount = Worker.CurrentFoodCount;
+        }
     }
 
     public Production GetTheoreticalMaximumProduction()
@@ -150,12 +161,12 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return AssignedWorkers.Length;
     }
 
-    public int GetWorkingWorkerCount()
+    public int GetWorkingWorkerCount(bool bIsSimulated)
     {
         int WorkerCount = 0;
         for (int i = 0; i < AssignedWorkers.Length; i++)
         {
-            WorkerCount += AssignedWorkers[i] != null && AssignedWorkers[i].IsReadyToWork(false) ? 1 : 0;
+            WorkerCount += AssignedWorkers[i] != null && AssignedWorkers[i].IsReadyToWork(bIsSimulated) ? 1 : 0;
         }
         return WorkerCount;
     }
@@ -170,8 +181,8 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return WorkerCount;
     }
 
-    public int GetWorkerMultiplier() {
-        return GetWorkingWorkerCount();
+    public int GetWorkerMultiplier(bool bIsSimulated) {
+        return GetWorkingWorkerCount(bIsSimulated);
     }
 
     public void RequestAddWorkerAt(int i) {

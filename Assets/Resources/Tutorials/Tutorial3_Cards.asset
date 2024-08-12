@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial3_Cards
+  m_EditorClassIdentifier: 
+  Texts:
+  - 'The main element of this game is playing and managing cards. You start with
+    a small collection of cards (called your deck) which you will expand and upgrade
+    throughout the game. You have a select few in your hand, ready to play.\nPlayed
+    cards go to the discard deck, while you draw further cards from your deck over
+    time.\nOnce your deck is empty, all cards in the discard pile will be shuffled
+    and re-added. '
+  - 'Cards represent available buildings and events and stay in your hand until you
+    play them. While event cards usually cost nothing, buildings always have a construction
+    price.\nYou have been giving a new "Treasure" event card, which will give you
+    much needed wood.\nTo play a card first select it with [LEFT] from your hand
+    and then [RIGHT] click on any tile. Please do so now. '
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

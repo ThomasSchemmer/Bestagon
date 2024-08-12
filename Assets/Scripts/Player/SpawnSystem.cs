@@ -12,14 +12,33 @@ public class SpawnSystem : GameService, ISaveableService
             if (Game.Instance.State == Game.GameState.CardSelection)
                 return;
 
-            Location TargetLocation = new Location((int)StartLocation.x, (int)StartLocation.y, (int)StartLocation.z, (int)StartLocation.w);
-            if (!MapGenerator.TryGetHexagon(TargetLocation, out HexagonVisualization Hex))
-                return;
-
-            Hex.UpdateDiscoveryState(StartVisibilityRange, StartScoutingRange);
-            Controller.TeleportTo(TargetLocation.WorldLocation);
+            InitVisibility();
+            TeleportToStart();
             HexagonData._OnDiscoveryStateHex += OnDiscoveredHex;
         });
+    }
+
+    public void InitVisibility()
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        Location TargetLocation = new Location((int)StartLocation.x, (int)StartLocation.y, (int)StartLocation.z, (int)StartLocation.w);
+        if (!MapGenerator.TryGetHexagon(TargetLocation, out HexagonVisualization Hex))
+            return;
+
+        Hex.UpdateDiscoveryState(StartVisibilityRange, StartScoutingRange);
+    }
+
+    private void TeleportToStart()
+    {
+
+        if (!Game.TryGetService(out CameraController CameraController))
+            return;
+
+        Location TargetLocation = new Location((int)StartLocation.x, (int)StartLocation.y, (int)StartLocation.z, (int)StartLocation.w);
+
+        CameraController.TeleportTo(TargetLocation.WorldLocation);
     }
 
     private void OnDestroy()
@@ -29,6 +48,8 @@ public class SpawnSystem : GameService, ISaveableService
 
     private void OnDiscoveredHex(HexagonData Data, HexagonData.DiscoveryState State)
     {
+        if (Game.Instance.Mode == Game.GameMode.MapEditor)
+            return;
         if (State != HexagonData.DiscoveryState.Visited)
             return;
 

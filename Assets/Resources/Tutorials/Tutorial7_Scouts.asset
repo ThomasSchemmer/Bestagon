@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial7_Scouts
+  m_EditorClassIdentifier: 
+  Texts:
+  - Another unit available in the game is the scout. This unit can be placed onto
+    the game world and is represented as a moveable figurine. They can move 1 tile
+    per turn and most importantly will reveal new tiles surrounding them.
+  - 'Tiles have three different discovery stages: Hidden, scouted, visited.\nHidden
+    tiles are completely invisible. You can only guess that they are there because
+    of the map size indicated by the white border on the background.\nScouted tiles
+    have a visual representation, but are very basic: you cannot see the actual biome,
+    only its base color.\nVisited tiles are fully revealed and you can see all available
+    info for them. This is the only tile type you can build on!'
+  - 'You have been given a scout card. Once played, this scout is represented on
+    a tile and can be selected with [LEFT] as well as moved with [RIGHT] click.\nSimilar
+    to the worker, scouts need to eat too. Starving scouts will refuse to move! In
+    order to move your scout you will have to build a foragers hut, assign the worker
+    and go to the next turn. '
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

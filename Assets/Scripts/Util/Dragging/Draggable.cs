@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +25,11 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     public virtual bool CanBeDragged()
     {
         return false;
+    }
+
+    public virtual void SetIndex(int i)
+    {
+        transform.SetSiblingIndex(i);
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData)
@@ -55,7 +61,7 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         HandleHighlight();
     }
     
-    public virtual void SetDragParent(RectTransform NewParent)
+    public virtual void SetDragParent(RectTransform NewParent, int Index)
     {
         RectTransform Target;
         if (NewParent)

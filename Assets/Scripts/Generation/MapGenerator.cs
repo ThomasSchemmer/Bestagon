@@ -146,9 +146,9 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     private void CreateChunks()
     {
         FinishedVisualizationCount = 0;
-        HexagonConfig.loadedChunkVisualizations = Mathf.Min(HexagonConfig.mapMaxChunk, HexagonConfig.loadedChunkVisualizations);
+        HexagonConfig.loadedChunkVisualizations = Mathf.Min(HexagonConfig.MapMaxChunk, HexagonConfig.loadedChunkVisualizations);
         HexagonConfig.loadedChunkVisualizations = Mathf.Max(HexagonConfig.loadedChunkVisualizations, 0);
-        Chunks = new ChunkData[HexagonConfig.mapMaxChunk, HexagonConfig.mapMaxChunk];
+        Chunks = new ChunkData[HexagonConfig.MapMaxChunk, HexagonConfig.MapMaxChunk];
         ChunkVis = new(HexagonConfig.loadedChunkVisualizations * HexagonConfig.loadedChunkVisualizations);
 
         if (!Game.TryGetService(out Map Map))
@@ -161,7 +161,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y] = ChunkData;
         }
 
-        Assert.IsTrue(HexagonConfig.loadedChunkVisualizations <= HexagonConfig.mapMaxChunk);
+        Assert.IsTrue(HexagonConfig.loadedChunkVisualizations <= HexagonConfig.MapMaxChunk);
         for (int x = 0; x < HexagonConfig.loadedChunkVisualizations; x++) {
             for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++) {
                 ChunkData ChunkData = Chunks[x, y]; 
@@ -201,8 +201,8 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     private HashSet<Location> GetAllChunkIndices() {
         HashSet<Location> Set = new HashSet<Location>();
 
-        for (int x = HexagonConfig.mapMinChunk; x < HexagonConfig.mapMaxChunk; x++) {
-            for (int y = HexagonConfig.mapMinChunk; y < HexagonConfig.mapMaxChunk; y++) {
+        for (int x = HexagonConfig.mapMinChunk; x < HexagonConfig.MapMaxChunk; x++) {
+            for (int y = HexagonConfig.mapMinChunk; y < HexagonConfig.MapMaxChunk; y++) {
                 Set.Add(Location.CreateChunk(x, y));
             }
         }
@@ -380,10 +380,10 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         ChunkVis.CreateBuilding(BuildingData);
     }
 
-    public Production GetProductionPerTurn() {
+    public Production GetProductionPerTurn(bool bIsSimulated) {
         Production Production = new();
         foreach (ChunkData Data in Chunks) {
-            Production += Data.GetProductionPerTurn();
+            Production += Data.GetProductionPerTurn(bIsSimulated);
         }
 
         return Production;
@@ -451,13 +451,21 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         }
     }
 
+    public void ForEachChunk(Action<ChunkData> Action)
+    {
+        foreach (var Chunk in Chunks)
+        {
+            Action(Chunk);
+        }
+    }
+
     public void InvokeDiscovery(DiscoveryState DiscoveryState)
     {
         _OnDiscoveredTile.ForEach(_ => _.Invoke(DiscoveryState));
     }
 
     public HexagonDTO[] GetDTOs() {
-        int Count = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
+        int Count = HexagonConfig.ChunkSize * HexagonConfig.ChunkSize * HexagonConfig.MapMaxChunk * HexagonConfig.MapMaxChunk;
 
         HexagonDTO[] DTOs = new HexagonDTO[Count];
 
@@ -480,10 +488,10 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
          */
 
         int Index = 0;
-        for (int y = 0; y < HexagonConfig.mapMaxChunk; y++) {
-            for (int j = 0; j < HexagonConfig.chunkSize; j++) {
-                for (int x = 0; x < HexagonConfig.mapMaxChunk; x++) {
-                    for (int i = 0; i < HexagonConfig.chunkSize; i++) {
+        for (int y = 0; y < HexagonConfig.MapMaxChunk; y++) {
+            for (int j = 0; j < HexagonConfig.ChunkSize; j++) {
+                for (int x = 0; x < HexagonConfig.MapMaxChunk; x++) {
+                    for (int i = 0; i < HexagonConfig.ChunkSize; i++) {
                         DTOs[Index] = Chunks[x, y].HexDatas[i, j].GetDTO();
                         Index++;
                     }
@@ -497,7 +505,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     public int GetMalaiseDTOByteCount()
     {
         // since we pack every malaise info into a bit and the shader needs 32bit variables, we just write it into an uint
-        int BitCount = HexagonConfig.chunkSize * HexagonConfig.chunkSize * HexagonConfig.mapMaxChunk * HexagonConfig.mapMaxChunk;
+        int BitCount = HexagonConfig.ChunkSize * HexagonConfig.ChunkSize * HexagonConfig.MapMaxChunk * HexagonConfig.MapMaxChunk;
         //force the round up to the next higher number
         int IntCount = Mathf.RoundToInt(BitCount / 32.0f + 0.5f);
         return IntCount;

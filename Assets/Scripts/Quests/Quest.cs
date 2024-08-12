@@ -101,8 +101,7 @@ public abstract class Quest<T> : QuestTemplate
 
         Parent.Visualize();
 
-        // negative quests auto-complete
-        if (QuestType != Type.Negative || !IsCompleted())
+        if (!ShouldAutoComplete() || !IsCompleted())
             return;
 
         OnAccept(bIsCancelQuest);
@@ -133,10 +132,11 @@ public abstract class Quest<T> : QuestTemplate
 
     public override void RemoveQuestCallback()
     {
-        if (!bIsRegistered || QuestRegistrar == null)
+        ActionList<T> Delegates = GetDelegates(); 
+        if (!bIsRegistered || QuestRegistrar == null || !ActionList<T>.IsValid(Delegates))
             return;
 
-        QuestRegistrar.DeRegisterQuest(GetDelegates(), this);
+        QuestRegistrar.DeRegisterQuest(Delegates, this);
     }
 
     public void RemoveQuest(bool bAddFollowup = true)
@@ -165,12 +165,17 @@ public abstract class Quest<T> : QuestTemplate
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        Stockpile.UpgradePoints += Count;
+        Stockpile.AddUpgrades(Count);
         MessageSystemScreen.CreateMessage(Message.Type.Success, "Completing the quest granted " + Count+" upgrade points");
     }
 
     public override void SetCurrentProgress(int Progress)
     {
         CurrentProgress = Progress;
+    }
+
+    public override bool ShouldAutoComplete()
+    {
+        return QuestType == Type.Negative;
     }
 }

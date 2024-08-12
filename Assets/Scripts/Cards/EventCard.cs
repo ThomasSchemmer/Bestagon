@@ -37,6 +37,13 @@ public class EventCard : Card
         CostTransform.gameObject.SetActive(false);
     }
 
+    protected override void DeleteVisuals()
+    {
+        base.DeleteVisuals();
+        DeleteVisuals(EffectTransform);
+
+    }
+
     public GameObject GetEventVisuals()
     {
         return EventData.GetEventVisuals(this);

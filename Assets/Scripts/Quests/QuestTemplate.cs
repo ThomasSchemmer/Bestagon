@@ -48,6 +48,8 @@ public abstract class QuestTemplate
     public QuestTemplate() { }
 
     public virtual bool ShouldUnlockDirectly() { return false; }
+
+    public virtual bool ShouldAutoComplete() { return false; }
 }
 
 /** 

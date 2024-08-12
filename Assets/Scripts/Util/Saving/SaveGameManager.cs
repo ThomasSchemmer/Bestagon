@@ -7,7 +7,7 @@ using static ISaveableService;
 
 public class SaveGameManager : GameService
 {
-    public SerializedDictionary<SaveGameType, MonoBehaviour> Saveables;
+    public SerializedDictionary<SaveGameType, GameService> Saveables;
 
     private SerializedDictionary<SaveGameType, int> FoundSaveableServices;
 
@@ -22,22 +22,40 @@ public class SaveGameManager : GameService
     private const string FileExtension = ".map";
     private const string TutorialSavegame = "tutorial1";
 
+    protected enum ServiceState
+    {
+        StartFresh,
+        LoadFromSave,
+        SwitchToMenu
+    }
+
     protected override void StartServiceInternal()
     {
         Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
         {
             Game.RunAfterServiceInit((CardFactory CardFactory) =>
             {
-                HandleDelayedLoading();
-
-                _OnInit?.Invoke(this);
+                StartServices();
             });
         });
     }
 
+    private void StartServices()
+    {
+
+        ServiceState State = HandleDelayedLoading();
+
+        // the load menu scene has been triggered and will restart everything
+        // swallow this logic run to prohibit services starting fresh and getting canceled
+        if (State == ServiceState.SwitchToMenu)
+            return;
+
+        _OnInit?.Invoke(this);
+    }
+
     protected override void StopServiceInternal(){ }
 
-    private void HandleDelayedLoading()
+    private ServiceState HandleDelayedLoading()
     {
         if (bLoadTutorial && FileToLoad == null)
         {
@@ -49,7 +67,8 @@ public class SaveGameManager : GameService
             FileToLoad = GetMostRecentSave();
         }
 
-        HandleSwitchToMenu();
+        if (TryHandleSwitchToMenu(out ServiceState State))
+            return State;
 
         if (FileToLoad != null && FileToLoad.Equals(string.Empty))
         {
@@ -58,24 +77,28 @@ public class SaveGameManager : GameService
         // do not load savegame data and do not register as "having data" for service X
         // any service should simply start fresh
         if (FileToLoad == null)
-            return;
+            return ServiceState.StartFresh;
 
-        Load();
+        LoadServices();
+        return ServiceState.LoadFromSave;
     }
 
     /** Switches to the main menu when in any other scene in the editor*/
-    private void HandleSwitchToMenu()
+    private bool TryHandleSwitchToMenu(out ServiceState State)
     {
+        State = default;
         #if !UNITY_EDITOR
-            return;
+            return false;
         #endif
         if (FileToLoad != null || bCreateNewFile || bLoadTutorial)
-            return;
+            return false;
 
         if (SceneManager.GetActiveScene().name.Equals(Game.MenuSceneName))
-            return;
+            return false;
 
         Game.LoadGame(null, Game.MenuSceneName, false);
+        State = ServiceState.SwitchToMenu;
+        return true;
     }
 
     public void OnSave()
@@ -86,10 +109,10 @@ public class SaveGameManager : GameService
     public void OnLoad()
     {
         bCreateNewFile = false;
-        Load();
+        LoadServices();
     }
 
-    public void Load()
+    public void LoadServices()
     {
         FindSaveables();
         ResetFoundServices();
@@ -211,14 +234,7 @@ public class SaveGameManager : GameService
             i = GetEnumAsByte(Bytes, i, out byte Value);
             i = GetInt(Bytes, i, out int Size);
             SaveGameType Type = (SaveGameType)Value;
-            if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
-            {
-                i += Size;
-                continue;
-            }
-
-            ISaveableService Saveable = Behaviour as ISaveableService;
-            if (Saveable == null)
+            if (!Saveables.TryGetValue(Type, out GameService Saveable))
             {
                 i += Size;
                 continue;
@@ -239,16 +255,19 @@ public class SaveGameManager : GameService
 
     private void ResetFoundServices()
     {
+        if (!IsInit)
+            return;
+
         foreach (var Tuple in FoundSaveableServices)
         {
             SaveGameType Type = Tuple.Key;
-            if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
+            if (!Saveables.TryGetValue(Type, out GameService Service))
                 continue;
 
-            ISaveableService Saveable = Behaviour as ISaveableService;
-            if (Saveable == null)
+            if (Service is not ISaveableService)
                 continue;
 
+            ISaveableService Saveable = Service as ISaveableService;
             Saveable.Reset();
         }
     }
@@ -266,13 +285,13 @@ public class SaveGameManager : GameService
         foreach (var Tuple in FoundSaveableServices)
         {
             SaveGameType Type = Tuple.Key;
-            if (!Saveables.TryGetValue(Type, out MonoBehaviour Behaviour))
+            if (!Saveables.TryGetValue(Type, out GameService Service))
                 continue;
 
-            ISaveableService Saveable = Behaviour as ISaveableService;
-            if (Saveable == null)
+            if (Service is not ISaveableService)
                 continue;
 
+            ISaveableService Saveable = Service as ISaveableService;
             SetSaveable(Bytes, Tuple.Value, Saveable);
 
             Saveable.Load();

@@ -75,10 +75,6 @@ public class Turn : GameService, IQuestRegister<int>
             return;
 
         Card RemovedCard = CardDeck.RemoveCard();
-        if (CardHand.Cards.Count == 0 && RemovedCard == null)
-        {
-            Game.Instance.GameOver("You have run out of cards to play!");
-        }
         if (RemovedCard == null)
             return;
 
@@ -120,13 +116,19 @@ public class Turn : GameService, IQuestRegister<int>
         Selector.SelectHexagon(Hex);
     }
 
+    public void InvokeOnRunAbandoned()
+    {
+        _OnRunAbandoned.ForEach(_ => _.Invoke(0));
+    }
+
     public void Show(bool bShow)
     {
         gameObject.SetActive(bShow);
-        if (AbandonScreen != null)
-        {
-            AbandonScreen.Show(bShow);
-        }
+    }
+
+    public AbandonScreen GetAbandonScreen()
+    {
+        return AbandonScreen;
     }
 
     private bool IsEnabled = true;
@@ -148,4 +150,5 @@ public class Turn : GameService, IQuestRegister<int>
     public static OnTurnEnd _OnTurnEnd;
 
     public static ActionList<int> _OnTurnEnded = new();
+    public static ActionList<int> _OnRunAbandoned = new();
 }

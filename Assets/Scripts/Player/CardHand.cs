@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.XR;
 
-public class CardHand : CardCollection
+public class CardHand : CardCollection, IQuestRegister<Card>
 {
 
     protected override void StartServiceInternal()
@@ -79,6 +79,7 @@ public class CardHand : CardCollection
         Sort(false);
 
         Target.AddCard(Card);
+        _OnCardPlayed.ForEach(_ => _.Invoke(Card));
     }
 
     public override void AddCard(Card Card) {
@@ -122,6 +123,8 @@ public class CardHand : CardCollection
     public static Vector3 Area = new Vector3(1200, 25, 0);
     public static float MaxAngle = -10;
     public static float CardOffset = 175;
+
+    public static ActionList<Card> _OnCardPlayed = new();
 
     public static int AMOUNT_HANDCARDS_MAX = 5;
     public static int AMOUNT_HANDCARDS_START = 3;

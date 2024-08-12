@@ -22,7 +22,7 @@ public class MerchantScreenFeature : ScreenFeature<HexagonData>
         if (CurrentBuilding.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant)
             return false;
 
-        if (CurrentBuilding.GetWorkingWorkerCount() == 0)
+        if (CurrentBuilding.GetWorkingWorkerCount(true) == 0)
             return false;
 
         return true;

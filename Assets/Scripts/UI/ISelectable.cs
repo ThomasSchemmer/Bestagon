@@ -23,10 +23,15 @@ public interface ISelectable {
 
     public bool IsEqual(ISelectable other);
 
+    /** Returns true if the element should be selectable and hoverable
+     * If false still uses up input
+     */
     public bool CanBeInteracted()
     {
         return true;
     }
+
+    public virtual bool ShouldBeIgnored() { return false; }
 
     /** Invokes the hovering of the parent according to subclass overrides*/
     public void SetHoveredAsParent(bool Hovered) { }

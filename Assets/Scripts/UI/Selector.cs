@@ -191,7 +191,7 @@ public class Selector<T> : Selector, IQuestRegister<T> where T : ISelectable
     {
         T HitTarget = Hit.GetComponent<T>();
         if (HitTarget != null)
-            return HitTarget;
+            return HitTarget.ShouldBeIgnored() ? default : HitTarget;
 
         Transform HitTransform = Hit.transform;
         while (HitTransform.parent != null && HitTarget == null)
@@ -199,6 +199,9 @@ public class Selector<T> : Selector, IQuestRegister<T> where T : ISelectable
             HitTransform = HitTransform.parent;
             HitTarget = HitTransform.GetComponent<T>();
         }
+
+        if (HitTarget == null || HitTarget.ShouldBeIgnored())
+            return default;
 
         return HitTarget;
     }
@@ -299,7 +302,10 @@ public class Selector<T> : Selector, IQuestRegister<T> where T : ISelectable
             }
         }
 
-        return false;
+        // we return "hit with no object" to indicate that we are hovering over unity base-ui 
+        // and should swallow follup selectors
+        Hit = null;
+        return true;
     }
 
 

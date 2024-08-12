@@ -97,6 +97,14 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
         }
     }
 
+    public void AdaptItemScreens()
+    {
+        foreach (var ItemScreen in ItemScreens)
+        {
+            Parent.AdaptItemScreen(this, ItemScreen);
+        }
+    }
+
 
     public void UpdateIndicatorCount()
     {
@@ -141,6 +149,7 @@ public class StockpileGroupScreen : MonoBehaviour, UIElement
             }
             SelectedInstance = this;
             SelectedInstance.ShowContainer(true);
+            Stockpile._OnResourceCategorySelected.ForEach(_ => _.Invoke(ProductionGroupIndex));
         }
     }
     

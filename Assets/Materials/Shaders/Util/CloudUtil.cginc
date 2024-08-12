@@ -23,6 +23,7 @@ uniform float4 _CameraPos, _CameraForward, _CameraUp, _CameraRight, _CameraExten
 uniform int _bIsEnabled;
 // x and y contain max global tile location 
 uniform float4 _WorldSize;
+uniform float4 _CloudSize;
 uniform float4 _TileSize;
 uniform float _NumberOfChunks;
 uniform float _ResolutionXZ;
@@ -142,7 +143,7 @@ float3 GetCloudsMin(){
 }
 
 float3 GetCloudsMax(){
-    return float3(_WorldSize.x * _TileSize.x * 2 + _TileSize.x, _CloudHeightMax, _WorldSize.y * _TileSize.z * 2 + _TileSize.z);
+    return float3(_CloudSize.x * _TileSize.x * 2 + _TileSize.x, _CloudHeightMax, _CloudSize.y * _TileSize.z * 2 + _TileSize.z);
 }
 
 float GetCloudHeight(){

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial4_Buildings
+  m_EditorClassIdentifier: 
+  Texts:
+  - 'Once played, an event card is permanently destroyed and cannot be played again.\n\n
+    Now that you have the necessary resources you have been given your first building:
+    the claypit. You can build buildings similar to event cards by selecting them
+    and interacting with a tile. The difference here is that you need resources to
+    pay for construction and buildings can only be build on fitting tiles.'
+  - Buildings can either affect only the tile its placed on, or surrounding tiles
+    (which is indicated with a yellow highlight of the surrounding tiles). \nThe
+    claypit can only be build on Meadows, Plains and Shrubland and costs you 2 wood.
+    Its production is affected by surrounding tiles, so be careful where you place
+    them - there is no moving it later.\n You can see a preview of its production
+    on the bottom right.
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

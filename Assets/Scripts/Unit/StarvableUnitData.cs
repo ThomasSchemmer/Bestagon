@@ -10,7 +10,6 @@ public abstract class StarvableUnitData : UnitData
     {
         if (bIsSimulated)
         {
-            SimulatedFoodCount = CurrentFoodCount;
             SimulatedFoodCount = Mathf.Max(SimulatedFoodCount - 1, 0);
         }
         else

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Texts:
   - You can select tiles by clicking [LEFT] on them. This reveals more information
-    about the type of tile
+    about the type of tile, wich is displayed on the bottom right side of the screen
   Positions:
-  - {x: -0.5, y: 0}
-  Highlights: []
+  - {x: -0.75, y: 0}

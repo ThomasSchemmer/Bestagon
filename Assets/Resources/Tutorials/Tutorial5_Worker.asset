@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial5_Worker
+  m_EditorClassIdentifier: 
+  Texts:
+  - Congratulations on building your first claypit - this is the first of many buildings
+    your tribe will create.\n\nUnlike event cards, building cards can be played multiple
+    times.\nEach building card has usability and each playing reduces this by 1.
+    Once usability reaches 0 the card will be disabled for this game session, but
+    not deleted - you will still have access to the card in other sessions.
+  - 'You can check any buildings status by clicking on the tile its placed on. Its
+    information will be displayed on the bottom right.\nThere are no workers assigned
+    to the claypit, so it will not produce anything. '
+  - You as the leader are responsible for assigning workers and hopefully keeping
+    them alive. But first your tribe must have an idle worker. You have been given
+    a new "Create Unit" card that will provide such a worker, use it like before.\nYou
+    can see your current worker amount at the top, next to the resource list.
+  - 'After you have created your worker, you can assign it by selecting the target
+    building (your claypit) and clicking the icon displaying a simplified person
+    on the right. Clicking it again will unassign the worker, in case you would like
+    to assign it to some other building later. '
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

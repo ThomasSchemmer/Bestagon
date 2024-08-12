@@ -18,6 +18,22 @@ public class CardSelectionUI : MonoBehaviour
 
     public void OnConfirm()
     {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        if (Stockpile.UpgradePoints > 0)
+        {
+
+            ConfirmScreen.Show("You have unspend upgrade points. Are you sure you want to leave?", ConfirmLeave);
+        }
+        else
+        {
+            ConfirmLeave();
+        }
+    }
+
+    private void ConfirmLeave()
+    {
         if (!Game.TryGetService(out SaveGameManager Manager))
             return;
 
@@ -25,6 +41,7 @@ public class CardSelectionUI : MonoBehaviour
         string FileToLoad = Manager.Save();
         Game.LoadGame(FileToLoad, Game.MainSceneName);
     }
+
 
     public void UpdateText(int UpgradePoints)
     {

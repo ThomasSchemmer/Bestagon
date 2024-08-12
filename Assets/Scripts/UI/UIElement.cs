@@ -3,4 +3,5 @@
  * Used to distinguish between cards and everything else
  */
 public interface UIElement :  ISelectable {
+
 }

@@ -117,9 +117,10 @@ public class CloudRenderer : GameService, ISaveableService
         Location MaxLocation = HexagonConfig.GetMaxLocation();
         Vector2Int MaxTileLocation = MaxLocation.GlobalTileLocation;
         CloudMaterial.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
+        CloudMaterial.SetVector("_CloudSize", CloudSize);
         CloudMaterial.SetVector("_TileSize", HexagonConfig.TileSize);
-        CloudMaterial.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
-        CloudMaterial.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
+        CloudMaterial.SetFloat("_ChunkSize", HexagonConfig.ChunkSize);
+        CloudMaterial.SetFloat("_NumberOfChunks", HexagonConfig.MapMaxChunk);
         CloudMaterial.SetBuffer("MalaiseBuffer", MalaiseBuffer);
         CloudMaterial.SetTexture("_NoiseTex", TargetTexture);
         CloudMaterial.SetFloat("_ResolutionXZ", TargetTexture.width);
@@ -127,9 +128,10 @@ public class CloudRenderer : GameService, ISaveableService
 
 
         CloudShadowMaterial.SetVector("_WorldSize", new Vector4(MaxTileLocation.x, MaxTileLocation.y, 0, 0));
+        CloudShadowMaterial.SetVector("_CloudSize", CloudSize);
         CloudShadowMaterial.SetVector("_TileSize", HexagonConfig.TileSize);
-        CloudShadowMaterial.SetFloat("_ChunkSize", HexagonConfig.chunkSize);
-        CloudShadowMaterial.SetFloat("_NumberOfChunks", HexagonConfig.mapMaxChunk);
+        CloudShadowMaterial.SetFloat("_ChunkSize", HexagonConfig.ChunkSize);
+        CloudShadowMaterial.SetFloat("_NumberOfChunks", HexagonConfig.MapMaxChunk);
         CloudShadowMaterial.SetBuffer("MalaiseBuffer", MalaiseBuffer);
         CloudShadowMaterial.SetTexture("_NoiseTex", TargetTexture);
         CloudShadowMaterial.SetFloat("_ResolutionXZ", TargetTexture.width);
@@ -336,4 +338,5 @@ public class CloudRenderer : GameService, ISaveableService
     private static Vector3[] DIRECTIONS = DIRECTIONS3D;
     private static int THREAD_AMOUNT = 8;
     private static int THREAD_AMOUNT_Z = 4;
+    private static Vector4 CloudSize = Vector4.one * 25;
 }

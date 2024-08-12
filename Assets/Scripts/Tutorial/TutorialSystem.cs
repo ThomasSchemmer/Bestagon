@@ -12,8 +12,6 @@ public class TutorialSystem : GameService
     protected TutorialType CurrentTutorial;
     protected int CurrentIndex = 0;
 
-    protected RectTransform HighlightedRect;
-
     public SerializedDictionary<TutorialType, Tutorial> Tutorials = new();
     public Button ButtonNext, ButtonPrev, ButtonClose;
 
@@ -23,7 +21,14 @@ public class TutorialSystem : GameService
     {
         Camera = 1 << 0,
         Tile = 1 << 1,
-
+        Resources = 1 << 2,
+        Cards = 1 << 3,
+        Buildings = 1 << 4,
+        Workers = 1 << 5,
+        Turns = 1 << 6,
+        Scouts = 1 << 7,
+        Malaise = 1 << 8,
+        AbandonRun = 1 << 9,
 
     }
 
@@ -74,7 +79,6 @@ public class TutorialSystem : GameService
         Container = transform.GetChild(0).gameObject;
         Container.SetActive(false);
         TutorialText = Container.transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
-        HighlightedRect = transform.GetChild(1).GetComponent<RectTransform>();
 
         if (IsInTutorial())
         {
@@ -94,19 +98,32 @@ public class TutorialSystem : GameService
         });
         Game.RunAfterServiceInit((Turn Turn) =>
         {
-            Turn.Show(false);
+            bool bShouldShow = CurrentTutorial >= TutorialType.Turns;
+            Turn.Show(bShouldShow);
+
+            AbandonScreen Screen = Turn.GetAbandonScreen();
+            bool bShouldShowAbandon = CurrentTutorial >= TutorialType.AbandonRun;
+            Screen.Show(bShouldShowAbandon);
         });
         Game.RunAfterServiceInit((Stockpile Stockpile) =>
         {
-            Stockpile.Show(false);
+            bool bShouldShow = CurrentTutorial >= TutorialType.Resources;
+            Stockpile.Show(bShouldShow);
+        });
+        Game.RunAfterServiceInit((CardHand CardHand) =>
+        {
+            bool bShouldShow = CurrentTutorial >= TutorialType.Cards;
+            CardHand.Show(bShouldShow);
         });
         Game.RunAfterServiceInit((CardDeck CardDeck) =>
         {
-            CardDeck.Show(false);
+            bool bShouldShow = CurrentTutorial >= TutorialType.Turns;
+            CardDeck.Show(bShouldShow);
         });
         Game.RunAfterServiceInit((DiscardDeck DiscardDeck) =>
         {
-            DiscardDeck.Show(false);
+            bool bShouldShow = CurrentTutorial >= TutorialType.Turns;
+            DiscardDeck.Show(bShouldShow);
         });
 
         bool bShouldShow = CurrentTutorial > TutorialType.Camera ||
@@ -121,20 +138,9 @@ public class TutorialSystem : GameService
 
     public void Show(bool bShow)
     {
+        if (!IsInit)
+            return;
         Container.SetActive(bShow);
-    }
-
-    public void Highlight(RectTransform Rect)
-    {
-        if (Rect != null)
-        {
-            HighlightedRect.gameObject.SetActive(true);
-            HighlightedRect.position = Rect.position;
-            HighlightedRect.sizeDelta = Rect.sizeDelta;
-        }
-        else{
-            HighlightedRect.gameObject.SetActive(false);
-        }
     }
 
 

@@ -46,10 +46,11 @@ public abstract class CardCollection : GameService, ISaveableService
 
     public void SetIndex(Card Card, int Index)
     {
-        if (!Cards.Contains(Card))
-            return;
+        if (Cards.Contains(Card))
+        {
+            Cards.Remove(Card);
+        }
 
-        Cards.Remove(Card);
         Cards.Insert(Index, Card);
         Card.SetIndex(Index);
     }

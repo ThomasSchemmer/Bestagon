@@ -13,6 +13,7 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
     private TMPro.TextMeshProUGUI IndicatorText;
     private NumberedIconScreen IconScreen;
     private Stockpile Stockpile;
+    private Button ItemButton;
 
     public void Initialize(StockpileGroupScreen Screen, int Index, Stockpile Stockpile, IconFactory IconFactory)
     {
@@ -110,6 +111,16 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
             return ((Production.GoodsType)Production.Indices[ProductionIndex]).ToString();
 
         return ((Production.Type)ProductionIndex).ToString();
+    }
+
+    public Button GetItemButton(IconFactory IconFactory, Transform Parent)
+    {
+        if (ItemButton != null)
+            return ItemButton;
+
+        GameObject ButtonObject = IconFactory.ConvertVisualsToButton(Parent, GetComponent<RectTransform>());
+        ItemButton = ButtonObject.GetComponent<Button>();
+        return ItemButton;
     }
 
     private static float OKValue = 0.132f;

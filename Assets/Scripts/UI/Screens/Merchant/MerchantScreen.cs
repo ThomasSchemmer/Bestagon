@@ -42,6 +42,8 @@ public class MerchantScreen : ScreenUI
     public override void Hide()
     {
         base.Hide();
+        Game.Instance.OnCloseMenu();
+
         BuyTab.Hide();
         SellTab.Hide();
     }
@@ -49,6 +51,7 @@ public class MerchantScreen : ScreenUI
     public override void Show()
     {
         base.Show();
+        Game.Instance.OnOpenMenu();
         // force initialisation
         BuyTab.Show();
         SellTab.Show();

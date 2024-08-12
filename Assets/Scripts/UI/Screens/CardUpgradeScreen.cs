@@ -182,7 +182,7 @@ public class CardUpgradeScreen : GameService
         LastCard.SetBuildingData(UpgradedBuildingData);
         LastCard.GenerateCard();
         Hide();
-        Stockpile.UpgradePoints -= 1;
+        Stockpile.AddUpgrades(-1);
         CardSelectionUI.UpdateText();
     }
 

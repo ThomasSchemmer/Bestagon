@@ -36,7 +36,7 @@ public class ConvertTilePreview : IconPreview
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        return IconFactory.GetVisualsForHexTypes(GrantedType, null);
+        return IconFactory.GetVisualsForHexTypes(GrantedType, null, true);
     }
 
     protected HexagonConfig.HexagonType GrantedType;

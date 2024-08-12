@@ -20,15 +20,18 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     private bool ShouldProductionBeDisplayed()
     {
-        return
-            TryGetBuildingData(out BuildingData Building) &&
-            Building.GetWorkingWorkerCount() > 0;
+        if (!TryGetBuildingData(out BuildingData Building))
+            return false;
+
+        Building.SimulateCurrentFood();
+
+        return Building.GetWorkingWorkerCount(true) > 0;
     }
 
     private bool AreAssignedWorkersStarving()
     {
         return TryGetBuildingData(out BuildingData Building) &&
-            Building.GetWorkingWorkerCount() == 0 &&
+            Building.GetWorkingWorkerCount(true) == 0 &&
             Building.GetAssignedWorkerCount() > 0;
     }
 
@@ -67,7 +70,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         ProductionTransform.gameObject.SetActive(true);
         Cleanup();
 
-        Production Production = BuildingData.GetProduction();
+        Production Production = BuildingData.GetProduction(true);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
         Visuals.transform.SetParent(ProductionTransform, false);
     }

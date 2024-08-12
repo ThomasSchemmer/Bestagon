@@ -56,6 +56,11 @@ public class NumberedIconScreen : SimpleIconScreen
 
     public void SetSubscription(Production.Type Type, int Amount)
     {
+        if (Amount < 0)
+        {
+            SetSubscription(false);
+            return;
+        }
         this.Type = Type;
         this.Amount = Amount;
         SetSubscription(true);
@@ -85,6 +90,7 @@ public class NumberedIconScreen : SimpleIconScreen
         bool bCanAfford = Stockpile.CanAfford(new Production(Type, Amount));
         CountText.color = bCanAfford ? ALLOWED_COLOR : FORBIDDEN_COLOR;
     }
+
 
     private static Color ALLOWED_COLOR = new Color(0.2f, 0.4f, 0.2f);
     private static Color FORBIDDEN_COLOR = new Color(0.9f, 0.25f, 0.25f);

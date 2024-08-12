@@ -128,9 +128,9 @@ public class MalaiseData : ISaveableData
 
     public List<Location> GetMalaised() {
         List<Location> MalaisedHexes = new();
-        for (int y = 0; y < HexagonConfig.chunkSize; y++)
+        for (int y = 0; y < HexagonConfig.ChunkSize; y++)
         {
-            for (int x = 0; x < HexagonConfig.chunkSize; x++)
+            for (int x = 0; x < HexagonConfig.ChunkSize; x++)
             {
                 if (Chunk.HexDatas[x, y].MalaisedState != HexagonData.MalaiseState.Malaised)
                     continue;

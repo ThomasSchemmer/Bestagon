@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial9_Abandon
+  m_EditorClassIdentifier: 
+  Texts:
+  - 'Bestagon is divided into two parts: the game round itself and the card upgrade
+    screen. After each round you can spend available upgrade points on cards as well
+    as manage what loadout you would like to start the next round with.\nTo end your
+    turn and abandon your current tribe, click on the white flag icon above the minimap.'
+  - 'You will have to abandon a lot of runs. If you run out of cards, out of food,
+    or are cornered by the malaise you will not be able to progress further. You
+    will keep all building cards as well as not-played event cards for the next round,
+    but you will have to start again on a new map. '
+  - 'You have been given a few more cards, a worker and resources - play until you
+    feel ready to start the game. \nRemember: Try to find a way to stop the malaise,
+    or this world will be lost forever!\nYou can end this tutorial by abandoning
+    the run and going into the card selection'
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

@@ -13,7 +13,7 @@ public class MiniMap : GameService, UIElement
             HexagonBuffer = new ComputeBuffer(DTOs.Length, Marshal.SizeOf(DTOs[0]));
             HexagonBuffer.SetData(DTOs);
             MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
-            MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
+            MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.MapMaxChunk * HexagonConfig.ChunkSize);
             _OnInit?.Invoke(this);
             FillBuffer();
         });
@@ -47,7 +47,7 @@ public class MiniMap : GameService, UIElement
 
         MiniMapRT.material.SetVector("_HexDistance", TopRight - BottomLeft);
         MiniMapRT.material.SetBuffer("HexagonBuffer", HexagonBuffer);
-        MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.mapMaxChunk * HexagonConfig.chunkSize);
+        MiniMapRT.material.SetInt("_HexPerLine", HexagonConfig.MapMaxChunk * HexagonConfig.ChunkSize);
 
         Render();
     }

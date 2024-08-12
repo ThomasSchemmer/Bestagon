@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class Stockpile : GameService, ISaveableService, IQuestRegister<Production>
+public class Stockpile : GameService, ISaveableService, IQuestRegister<Production>, IQuestRegister<int>
 {
 
     public bool Pay(Production Costs) {
@@ -27,7 +27,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
             if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.ProduceUnit)
                 continue;
 
-            if (Building.GetWorkingWorkerCount() != 2)
+            if (Building.GetWorkingWorkerCount(false) != 2)
                 continue;
 
             Building.RequestRemoveWorkerAt(0);
@@ -41,7 +41,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return Production.Empty;
 
-        Production ProducedThisRound = MapGenerator.GetProductionPerTurn();
+        Production ProducedThisRound = MapGenerator.GetProductionPerTurn(bIsSimulated);
 
         if (bIsSimulated)
         {
@@ -94,6 +94,12 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     {
         Resources += Production;
         _OnResourcesChanged?.Invoke();
+    }
+
+    public void AddUpgrades(int Points)
+    {
+        UpgradePoints += Points;
+        _OnUpgradesChanged?.Invoke();
     }
 
     public int GetResourceGroupCount(int GroupIndex, bool bIsSimulated) 
@@ -236,6 +242,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public delegate void OnResourcesChanged();
     public static OnResourcesChanged _OnResourcesChanged;
     public static OnResourcesChanged _OnSimulatedGainsChanged;
+    public static OnResourcesChanged _OnUpgradesChanged;
 
     public static ActionList<Production> _OnResourcesCollected = new();
+    public static ActionList<int> _OnResourceCategorySelected = new();
 }

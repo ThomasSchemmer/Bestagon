@@ -11,6 +11,14 @@ public class MerchantSellScreen : StockpileScreen
     public void Show()
     {
         Container.SetActive(true);
+
+        if (GroupScreens == null)
+            return;
+
+        foreach (var GroupScreen in GroupScreens)
+        {
+            GroupScreen.AdaptItemScreens();
+        }
     }
 
     public void Hide()
@@ -24,6 +32,11 @@ public class MerchantSellScreen : StockpileScreen
     }
 
     protected override bool ShouldDisplayScouts()
+    {
+        return false;
+    }
+
+    protected override bool ShouldDisplayUpgrades()
     {
         return false;
     }
@@ -77,13 +90,14 @@ public class MerchantSellScreen : StockpileScreen
 
         Production.Type Type = (Production.Type)ItemScreen.GetProductionIndex();
         Production Costs = new(Type, COIN_COST);
-        GameObject ButtonObject = IconFactory.ConvertVisualsToButton(GroupScreen.GetContainer(), ItemScreen.GetComponent<RectTransform>());
-        Button Button = ButtonObject.GetComponent<Button>();
+        Button Button = ItemScreen.GetItemButton(IconFactory, GroupScreen.GetContainer());
         Button.onClick.RemoveAllListeners();
         Button.onClick.AddListener(() =>
         {
             OnClickSellItem(Button, Type);
         });
+        // reset subscription
+        ItemScreen.SetItemSubscription(Type, -1);
         ItemScreen.SetItemSubscription(Type, COIN_COST);
 
         if (!Game.TryGetService(out Stockpile Stockpile))

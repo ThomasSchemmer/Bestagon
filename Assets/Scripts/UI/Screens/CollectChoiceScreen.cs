@@ -222,7 +222,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        Stockpile.UpgradePoints += 2;
+        Stockpile.AddUpgrades(2);
     }
 
     private void Deselect()

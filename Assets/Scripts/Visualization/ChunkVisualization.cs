@@ -19,10 +19,10 @@ public class ChunkVisualization : MonoBehaviour
         FinishedVisualizationCount = 0;
         Location MaxDiscoveredLoc = new Location(0, 0, 0, 0);
 
-        for (int y = 0; y < HexagonConfig.chunkSize; y++)
+        for (int y = 0; y < HexagonConfig.ChunkSize; y++)
         {
             Profiler.BeginSample("ChunkVis");
-            for (int x = 0; x < HexagonConfig.chunkSize; x++) {
+            for (int x = 0; x < HexagonConfig.ChunkSize; x++) {
                 // simply add the base position of the chunk as the bottom left corner
                 Location Location = Location.CreateHex(x, y) + Data.Location;
                 Hexes[x, y].Init(this, Data, Location, HexMat);
@@ -43,10 +43,10 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     public void Initialize() {
-        Hexes = new HexagonVisualization[HexagonConfig.chunkSize, HexagonConfig.chunkSize];
+        Hexes = new HexagonVisualization[HexagonConfig.ChunkSize, HexagonConfig.ChunkSize];
 
-        for (int y = 0; y < HexagonConfig.chunkSize; y++) {
-            for (int x = 0; x < HexagonConfig.chunkSize; x++) {
+        for (int y = 0; y < HexagonConfig.ChunkSize; y++) {
+            for (int x = 0; x < HexagonConfig.ChunkSize; x++) {
                 GameObject HexObj = new GameObject();
                 HexObj.transform.parent = this.transform;
                 Hexes[x, y] = HexObj.AddComponent<HexagonVisualization>();

@@ -59,8 +59,8 @@ public class DraggableManager : GameService
             return;
 
         DraggedObjects.Remove(Draggable);
-        Draggable.SetDragParent(GetTarget(Event));
-        Draggable.transform.SetSiblingIndex(DraggingPreview.transform.GetSiblingIndex());
+        int Index = DraggingPreview.transform.GetSiblingIndex();
+        Draggable.SetDragParent(GetTarget(Event), Index);
         DraggingPreview.SetActive(false);
         DraggingPreview.transform.SetParent(transform, false);
 

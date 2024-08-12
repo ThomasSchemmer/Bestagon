@@ -16,6 +16,10 @@ MonoBehaviour:
   - Welcome to Bestagon\n\nThis window will contain useful hints to make playing
     the game easier.\nYou can always switch between hints with the arrows below.\nPlease
     go to the next tip now.
+  - You are the leader of a small tribe of people, trying to survive the harsh world.
+    There are rumors about a calamity in the south, but so far you have been spared.\nThis
+    does not mean an easy living, as starvation is an ever-looming thread in this
+    world - try to survive and thrive for as long as possible!
   - This is the game world - represented by hexagonal tiles\nEach tile has a different
     biome, providing different properties. \nThis world is rather small, but you
     can still get a better overview by moving the camera around. You can do so with
@@ -25,9 +29,6 @@ MonoBehaviour:
     do so now\n
   Positions:
   - {x: 0, y: 0}
-  - {x: -0.5, y: 0}
-  - {x: 0.2, y: 0}
-  Highlights:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 11500000, guid: 8678eefa04f93594388e4212dd13fb8f, type: 3}
+  - {x: 0, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

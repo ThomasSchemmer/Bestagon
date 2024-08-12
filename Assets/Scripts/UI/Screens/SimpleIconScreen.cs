@@ -14,6 +14,8 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
     protected ISelectable Parent;
     protected SVGImage IconRenderer;
 
+    protected bool bIsEnabled = true, bIsIgnored = false;
+
     public bool CanBeLongHovered()
     {
         return true;
@@ -81,6 +83,14 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
     }
     public virtual void SetSelectionEnabled(bool bEnabled)
     {
-        IconRenderer.gameObject.layer = bEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
+        bIsEnabled = bEnabled;
+        IconRenderer.gameObject.layer = bIsEnabled ? LayerMask.NameToLayer(Selectors.UILayerName) : 0;
     }
+
+    public void SetIgnored(bool bIgnored)
+    {
+        bIsIgnored = bIgnored;
+    }
+
+    public bool ShouldBeIgnored() { return bIsIgnored; }
 }

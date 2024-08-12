@@ -66,9 +66,11 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
     <Compile Include="Assets\Scripts\Quests\Quest.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCardsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialBuildingsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Pathfinding.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\AbandonScreen.cs" />
     <Compile Include="Assets\Scripts\Util\HexagonDTO.cs" />
@@ -77,9 +79,10 @@
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
-    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialSelectTileQuest.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorUIElement.cs" />
     <Compile Include="Assets\Scripts\Events\RemoveMalaiseEventData.cs" />
     <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialAbandonRunQuest.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ConfirmScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\MalaiseData.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Main\GatherWaterSkinsQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTurnsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
@@ -100,6 +104,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\Unit\TokenizedUnitData.cs" />
     <Compile Include="Assets\Scripts\UI\IndicatorService.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialResourceQuest.cs" />
     <Compile Include="Assets\Scripts\Unit\ScoutData.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\CardPreview.cs" />
@@ -160,8 +165,10 @@
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildUnitsQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\ScoutTilesQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTileQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\Statistics.cs" />
@@ -204,12 +211,14 @@
     <Compile Include="Assets\Scripts\Util\BackgroundRenderer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\RuinsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildBuildingsQuest.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialScoutQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnitsScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorComponent.cs" />
     <Compile Include="Assets\Scripts\Quests\Interfaces\IQuestRegister.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialMalaiseQuest.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\TileInfoScreenFeature.cs" />

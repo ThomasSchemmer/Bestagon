@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 /** Class to represent anything that cannot be represented by a mesh, eg resources gained */
 public abstract class IconPreview : CardPreview
@@ -17,13 +18,6 @@ public abstract class IconPreview : CardPreview
         Visuals.transform.SetParent(transform);
         RectTransform = Visuals.GetComponent<RectTransform>();
         MainCam = Camera.main;
-
-        // disable clicking on the icon
-        Visuals.layer = 0;
-        foreach (Transform Child in Visuals.transform)
-        {
-            Child.gameObject.layer = 0;
-        }
     }
 
     public void Update()

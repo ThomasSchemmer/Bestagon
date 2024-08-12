@@ -150,9 +150,9 @@ public abstract class Card : Draggable, ISelectable
         return Index;
     }
 
-    public void SetIndex(int i)
+    public override void SetIndex(int i)
     {
-        transform.SetSiblingIndex(i);
+        base.SetIndex(i);
         Index = i;
     }
 
@@ -203,13 +203,13 @@ public abstract class Card : Draggable, ISelectable
         bWasUsedUp = false;
     }
 
-    public override void SetDragParent(RectTransform NewParent)
+    public override void SetDragParent(RectTransform NewParent, int Index)
     {
-        base.SetDragParent(NewParent);
+        base.SetDragParent(NewParent, Index);
 
         CardCollection NewCollection = transform.parent.GetComponent<CardCollection>();
         OldCollection.RemoveCard(this);
-        NewCollection.AddCard(this);
+        NewCollection.SetIndex(this, Index);
     }
 
     public override void OnBeginDrag(PointerEventData eventData)

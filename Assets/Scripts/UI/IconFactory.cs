@@ -30,7 +30,9 @@ public class IconFactory : GameService
         Buildings,
         Scoutings,
         Camera,
-        Tile
+        Tile,
+        Abandon,
+        Upgrades
     }
 
     public void Refresh()
@@ -172,7 +174,7 @@ public class IconFactory : GameService
         return AvailableTiles[Type];
     }
 
-    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe)
+    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
@@ -192,6 +194,7 @@ public class IconFactory : GameService
             NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
 
             UnitScreen.Initialize(GetIconForProduction(Tuple.Key), Tuple.Key.ToString(), Parent);
+            UnitScreen.SetIgnored(bIgnoreClicks);
             UnitScreen.UpdateVisuals(Tuple.Value);
             if (bSubscribe)
             {
@@ -307,12 +310,13 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount)
+    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount, bool bIgnore = false)
     {
         GameObject MiscUnit = Instantiate(NumberedIconPrefab);
         NumberedIconScreen IconScreen = MiscUnit.GetComponent<NumberedIconScreen>();
 
         IconScreen.Initialize(GetIconForMisc(Type), Type.ToString(), Parent);
+        IconScreen.SetIgnored(bIgnore);
         IconScreen.UpdateVisuals(Amount);
         return MiscUnit;
     }
@@ -341,7 +345,7 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types, ISelectable Parent)
+    public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types, ISelectable Parent, bool bIgnore = false)
     {
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
@@ -361,6 +365,7 @@ public class IconFactory : GameService
             IconTransform.SetParent(GroupTransform, false);
             IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
             SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
+            IconScreen.SetIgnored(bIgnore);
 
             IconScreen.Initialize(GetIconForTile(Type), Type.ToString(), Parent);
             Index++;

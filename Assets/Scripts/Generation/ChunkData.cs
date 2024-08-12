@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
@@ -20,10 +21,10 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetService(out Map Map))
             return;
 
-        HexDatas = new HexagonData[HexagonConfig.chunkSize, HexagonConfig.chunkSize];
-        for (int y = 0; y < HexagonConfig.chunkSize; y++)
+        HexDatas = new HexagonData[HexagonConfig.ChunkSize, HexagonConfig.ChunkSize];
+        for (int y = 0; y < HexagonConfig.ChunkSize; y++)
         {
-            for (int x = 0; x < HexagonConfig.chunkSize; x++)
+            for (int x = 0; x < HexagonConfig.ChunkSize; x++)
             {
                 Location HexLocation = new Location(Location.ChunkLocation, new Vector2Int(x, y));
                 HexDatas[x, y] = Map.GetHexagonAtLocation(HexLocation);
@@ -47,13 +48,17 @@ public class ChunkData : ISaveableData
         return Location.Equals(Other.Location);
     }
 
-    public Production GetProductionPerTurn() {
+    public Production GetProductionPerTurn(bool bIsSimulated) {
         Production Production = new();
         if (!Game.TryGetService(out BuildingService Buildings))
             return Production;
 
         foreach (BuildingData Building in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
-            Production BuildingProduction = Building.GetProduction();
+            if (bIsSimulated)
+            {
+                Building.SimulateCurrentFood();
+            }
+            Production BuildingProduction = Building.GetProduction(bIsSimulated);
             Production += BuildingProduction;
         }
 
@@ -62,6 +67,14 @@ public class ChunkData : ISaveableData
 
     public override int GetHashCode() {
         return Location.GetHashCode();
+    }
+
+    public void ForEachHex(Action<HexagonData> Action)
+    {
+        foreach (var Hex in HexDatas)
+        {
+            Action(Hex);
+        }
     }
 
     public HexagonData GetHexAt(Vector2Int HexLocation)

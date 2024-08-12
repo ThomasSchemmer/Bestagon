@@ -39,8 +39,8 @@ public class Map : GameService
     {
         MapData = new HexagonData[TileCount];
         int TilesPerSide = (int)MathF.Sqrt(TileCount);
-        HexagonConfig.chunkSize = TilesPerSide / ChunkCount;
-        HexagonConfig.mapMaxChunk = ChunkCount;
+        HexagonConfig.ChunkSize = TilesPerSide / ChunkCount;
+        HexagonConfig.MapMaxChunk = ChunkCount;
     }
 
     public void SetDataFromChunk(ChunkData Chunk)

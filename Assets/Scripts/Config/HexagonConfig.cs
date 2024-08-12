@@ -15,28 +15,33 @@ public class HexagonConfig {
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
     public static int loadedChunkVisualizations = 3;
 
+    /** If set shows generated tiles in editor */
+    public static bool bShowGeneratedLand = false;
+
     /** Tile width for the complete map */
     public static int MapWidth
     {
-        get { return chunkSize * mapMaxChunk; }
+        get { return ChunkSize * MapMaxChunk; }
     }
 
     /** Lowest index of a chunk in the world, describes the border location */
     public static int mapMinChunk = 0;
 
     /** Highest index of a chunk in the world, describes the border location */
-    public static int mapMaxChunk = 3;
+    public static int MapMaxChunk = 5;
 
-    /** How many hexagons should be contained in a chunk in both x and y directions? Needs to be an odd nr 
-     * WARNING: if updated fix cloud shader first! bitstuffing doesnt work with arbitrary size!
+    /** How many hexagons should be contained in a chunk in both x and y directions?
      */
-    public static int chunkSize = 5;
+    public static int ChunkSize = 8;
 
     /** world space offset in x direction per hex*/
     public static float offsetX = Mathf.Sqrt(3) * TileSize.x;
 
     /** world space offset in y direction per hex*/
     public static float offsetY = 3.0f / 2.0f * TileSize.z;
+
+    public static int DefaultChunkSize = 8;
+    public static int DefaultMapMaxChunk = 5;
 
     public static int MaxTypeIndex = 15;
     public static int MaxDecorationIndex = 1;
@@ -95,8 +100,8 @@ public class HexagonConfig {
     {
         int y = Mathf.RoundToInt(WorldPos.z / offsetY);
         int x = Mathf.RoundToInt(WorldPos.x / offsetX);
-        int ChunkPosX = Mathf.RoundToInt(x / chunkSize);
-        int ChunkPosY = Mathf.RoundToInt(y / chunkSize);
+        int ChunkPosX = Mathf.RoundToInt(x / ChunkSize);
+        int ChunkPosY = Mathf.RoundToInt(y / ChunkSize);
         return new Vector2Int(ChunkPosX, ChunkPosY);
     }
 
@@ -142,8 +147,8 @@ public class HexagonConfig {
 
     public static Vector2Int TileSpaceToChunkSpace(Vector2Int TilePos)
     {
-        int x = Mathf.FloorToInt(TilePos.x / chunkSize);
-        int y = Mathf.FloorToInt(TilePos.y / chunkSize);
+        int x = Mathf.FloorToInt(TilePos.x / ChunkSize);
+        int y = Mathf.FloorToInt(TilePos.y / ChunkSize);
         return new Vector2Int(x, y);
     }
 
@@ -220,19 +225,19 @@ public class HexagonConfig {
     /** returns the bottom left tile of a chunk, aka (0, 0) */
     public static Vector2Int ChunkSpaceToTileSpace(Vector2Int ChunkPos)
     {
-        return new Vector2Int(ChunkPos.x * chunkSize, ChunkPos.y * chunkSize);
+        return new Vector2Int(ChunkPos.x * ChunkSize, ChunkPos.y * ChunkSize);
     }
 
     public static bool IsValidChunkIndex(Vector2Int Index)
     {
-        return Index.x >= mapMinChunk && Index.x < mapMaxChunk &&
-                Index.y >= mapMinChunk && Index.y < mapMaxChunk;
+        return Index.x >= mapMinChunk && Index.x < MapMaxChunk &&
+                Index.y >= mapMinChunk && Index.y < MapMaxChunk;
     }
 
     public static bool IsValidHexIndex(Vector2Int Index)
     {
-        return Index.x >= 0 && Index.x < chunkSize &&
-                Index.y >= 0 && Index.y < chunkSize;
+        return Index.x >= 0 && Index.x < ChunkSize &&
+                Index.y >= 0 && Index.y < ChunkSize;
     }
 
     public static bool IsValidLocation(Location Location)
@@ -242,7 +247,7 @@ public class HexagonConfig {
 
     public static Location GetMaxLocation()
     {
-        return new Location(new Vector2Int(mapMaxChunk - 1, mapMaxChunk - 1), new Vector2Int(chunkSize - 1, chunkSize - 1));
+        return new Location(new Vector2Int(MapMaxChunk - 1, MapMaxChunk - 1), new Vector2Int(ChunkSize - 1, ChunkSize - 1));
     }
 
 

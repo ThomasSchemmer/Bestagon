@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /** Tutorial to move the camera */
-public class TutorialOneQuest : Quest<Vector3>
+public class TutorialCameraQuest : Quest<Vector3>
 {
 
-    public TutorialOneQuest() : base()
+    public TutorialCameraQuest() : base()
     {
     }
 
@@ -68,16 +68,11 @@ public class TutorialOneQuest : Quest<Vector3>
 
     public override bool TryGetNextType(out System.Type Type)
     {
-        Type = typeof(TutorialSelectTileQuest);
+        Type = typeof(TutorialTileQuest);
         return true;
     }
 
     public override void GrantRewards()
     {
-    }
-
-    public override bool ShouldUnlockDirectly()
-    {
-        return true;
     }
 }

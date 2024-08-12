@@ -55,7 +55,7 @@ public class GrantMiscellaneousPreview : IconPreview
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        return IconFactory.GetVisualsForMiscalleneous(GrantedType, null, 1);
+        return IconFactory.GetVisualsForMiscalleneous(GrantedType, null, 1, true);
     }
 
     protected MiscellaneousType GrantedType;

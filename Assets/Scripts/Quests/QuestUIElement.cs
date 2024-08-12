@@ -122,7 +122,11 @@ public class QuestUIElement : MonoBehaviour, UIElement
     public void SetHovered(bool Hovered)
     {
         bIsHovered = Hovered;
-        bIsDiscovered = true;
+        //make sure the "i saw it" is only when moving away
+        if (!bIsDiscovered)
+        {
+            bIsDiscovered = true;
+        }
 
         // can happen after being destroyed and dehover call triggers it
         if (DiscoveryImage == null)

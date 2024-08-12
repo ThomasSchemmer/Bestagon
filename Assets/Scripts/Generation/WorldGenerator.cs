@@ -60,7 +60,10 @@ public class WorldGenerator : GameService
         for (int i = 0; i < LandData.Length; i++)
         {
             HexagonData EmptyTile = HexagonData.Create(HexagonHeight.Flat, HexagonType.Meadow);
-            EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+            if (bShowGeneratedLand)
+            {
+                EmptyTile.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+            }
             LandData[i] = EmptyTile;
         }    
         return LandData;

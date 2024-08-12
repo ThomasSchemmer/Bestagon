@@ -48,6 +48,9 @@ public class MalaisedSpawnQuestTurn : Quest<int>
 
     public override string GetDescription()
     {
+        if (MalaisedSpawnQuest.TargetLocation == null)
+            return "";
+
         return "Reach " + MalaisedSpawnQuest.TargetLocation.GlobalTileLocation.ToString() + " before the timer runs out!";
     }
 

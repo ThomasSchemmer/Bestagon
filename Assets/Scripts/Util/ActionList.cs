@@ -24,7 +24,18 @@ public class ActionList<T>
     public void ForEach(Action<Action<T>> Execution)
     {
         RemoveMarked();
-        Actions.ForEach(_ => { if (_ != null) Execution(_); });
+        Actions.ForEach(A => {
+            if (A == null)
+                return;
+
+            if (A.Target == null || A.Method == null)
+            {
+                Remove(A);
+                return;
+            }
+
+            Execution(A); 
+        });
         RemoveMarked();
     }
 
@@ -35,6 +46,14 @@ public class ActionList<T>
             Actions.Remove(Action);
         }
         ToRemove.Clear();
+    }
+
+    public static bool IsValid(ActionList<T> ActionList)
+    {
+        if (ActionList == null)
+            return false;
+
+        return ActionList.Actions.Count >= 0;
     }
 
 

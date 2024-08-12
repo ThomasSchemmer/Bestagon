@@ -78,7 +78,7 @@ public class Statistics : GameService, ISaveableService
         int Collected = 0;
         foreach (var Tuple in Production.GetTuples())
         {
-            Collected += Tuple.Value;
+            Collected += Mathf.Max(Tuple.Value, 0);
             ResourcesCollected += Tuple.Value;
         }
         CurrentResources += Collected;
@@ -205,6 +205,7 @@ public class Statistics : GameService, ISaveableService
     public void Reset()
     {
         ResetAllStats();
+        Subscribe(false);
     }
 
     private void ResetAllStats()

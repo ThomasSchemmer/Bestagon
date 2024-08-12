@@ -28,7 +28,7 @@ public class GrantResourcesPreview : IconPreview
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        return IconFactory.GetVisualsForProduction(Resources, null, false);
+        return IconFactory.GetVisualsForProduction(Resources, null, false, true);
     }
 
     protected Production Resources;

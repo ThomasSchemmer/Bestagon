@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 913ac6f680d4bf946868dd58c7379926, type: 3}
+  m_Name: Tutorial6_Turns
+  m_EditorClassIdentifier: 
+  Texts:
+  - This game is played in turns, each advancing the in-game time a small amount.
+    There is no defined maximum number of turns, though there is a downside in taking
+    too long, which will be explained later.\nYou can end your turn by clicking the
+    arrow button on the bottom right. This will reset all available movement for
+    units and grant resources according to production and consumption.
+  - Each unit (e.g. worker) uses one food value per turn. \nYou in the beginning
+    only have access to the most basic food resource Mushrooms, each providing only
+    one food value. The more advanced food sources provide more food value, with
+    the highest being Meat Pie.\nEach Meat Pie provides enough food for multiple
+    worker or multiple turns, but will only be unlocked in the late game.
+  - Any unit that is not working in a food production building can starve - starving
+    units do not work and therefore produce nothing! \nThough they do not die from
+    starvation, it is still recommended to always keep an eye on your food amount.\nPlease
+    advance to the next turn now.
+  Positions:
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}
+  - {x: -0.75, y: 0}

@@ -56,7 +56,7 @@ public class Location : ISaveableData
 
     public Location GetMaxLocationInChunk()
     {
-        return new Location(ChunkLocation.x, ChunkLocation.y, HexagonConfig.chunkSize - 1, HexagonConfig.chunkSize - 1);
+        return new Location(ChunkLocation.x, ChunkLocation.y, HexagonConfig.ChunkSize - 1, HexagonConfig.ChunkSize - 1);
     }
 
     public Location GetMinLocationInChunk()

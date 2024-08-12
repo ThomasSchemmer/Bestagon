@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Workers : UnitProvider<StarvableUnitData>
+public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerData>
 {
     public void RequestAddWorkerFor(BuildingData Building, int i) {
         if (!HasUnemployedWorkers())
@@ -20,6 +20,7 @@ public class Workers : UnitProvider<StarvableUnitData>
         Building.RemoveWorker(i);
         _OnWorkersChanged?.Invoke();
         _OnWorkersAssigned?.Invoke(Building.Location);
+        _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
     public void AssignWorkerTo(WorkerData Worker, BuildingData Building, int i)
@@ -28,6 +29,7 @@ public class Workers : UnitProvider<StarvableUnitData>
         Building.PutWorkerAt(Worker, i);
         _OnWorkersChanged?.Invoke();
         _OnWorkersAssigned?.Invoke(Building.Location);
+        _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
     public void KillWorker(WorkerData WorkerUnit)
@@ -124,4 +126,6 @@ public class Workers : UnitProvider<StarvableUnitData>
     public delegate void OnWorkersAssigned(Location Location);
     public static OnWorkersChanged _OnWorkersChanged;
     public static OnWorkersAssigned _OnWorkersAssigned;
+
+    public static ActionList<WorkerData> _OnWorkerAssignedList = new();
 }

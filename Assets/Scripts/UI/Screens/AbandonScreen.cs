@@ -17,11 +17,16 @@ public class AbandonScreen : ScreenUI
 
     public void OnClick()
     {
-        Action A = () =>
-        {
-            Game.Instance.GameOver("You have abandoned your current tribe!");
-        };
-        ConfirmScreen.Show("Are you sure you want to abandon your tribe?", A);
+        ConfirmScreen.Show("Are you sure you want to abandon your tribe?", OnAbandonRun);
+    }
+
+    private void OnAbandonRun()
+    {
+        if (!Game.TryGetService(out Turn Turn))
+            return;
+
+        Turn.InvokeOnRunAbandoned();
+        Game.Instance.GameOver("You have abandoned your current tribe!");
     }
 
     public void Show(bool bShow)
