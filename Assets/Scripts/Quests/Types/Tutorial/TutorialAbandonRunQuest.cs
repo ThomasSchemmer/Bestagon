@@ -35,14 +35,12 @@ public class TutorialAbandonRunQuest : Quest<int>
         return Type.Positive;
     }
 
-    public override IQuestRegister<int> GetRegistrar()
+    public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
-        return Game.GetService<Turn>();
-    }
-
-    public override ActionList<int> GetDelegates()
-    {
-        return Turn._OnRunAbandoned;
+        return new()
+        {
+            { Game.GetService<Turn>(), Turn._OnRunAbandoned }
+        };
     }
 
     public override Sprite GetSprite()
@@ -61,7 +59,8 @@ public class TutorialAbandonRunQuest : Quest<int>
     public override void OnAfterCompletion() {
         HexagonConfig.MapMaxChunk = HexagonConfig.DefaultMapMaxChunk;
         HexagonConfig.ChunkSize = HexagonConfig.DefaultChunkSize;
-        
+        HexagonConfig.LoadedChunkVisualizations = HexagonConfig.DefaultLoadedChunkVisualizations;
+
     }
 
     public override void OnCreated()
@@ -75,6 +74,7 @@ public class TutorialAbandonRunQuest : Quest<int>
 
         CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, null, AddCard);
         CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, null, AddCard);
+        CardFactory.CreateCard(EventData.EventType.GrantUnit, 0, null, AddCard);
 
         Stockpile.AddResources(new(Production.Type.Wood, 3));
         Workers.CreateNewWorker();
@@ -83,6 +83,17 @@ public class TutorialAbandonRunQuest : Quest<int>
     {
         if (!Game.TryGetService(out CardHand CardHand))
             return;
+
+        if (Card is EventCard)
+        {
+            EventCard ECard = Card as EventCard;
+            if (ECard.EventData is not GrantUnitEventData)
+                return;
+
+            GrantUnitEventData EventData = (GrantUnitEventData)ECard.EventData;
+            EventData.GrantedType = UnitData.UnitType.Worker;
+            Card.GenerateCard();
+        }
 
         CardHand.AddCard(Card);
     }

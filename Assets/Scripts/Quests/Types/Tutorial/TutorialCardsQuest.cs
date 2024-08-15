@@ -29,14 +29,12 @@ public class TutorialCardsQuest : Quest<Card>
         return Type.Positive;
     }
 
-    public override IQuestRegister<Card> GetRegistrar()
+    public override Dictionary<IQuestRegister<Card>, ActionList<Card>> GetRegisterMap()
     {
-        return Game.GetService<CardHand>();
-    }
-
-    public override ActionList<Card> GetDelegates()
-    {
-        return CardHand._OnCardPlayed;
+        return new()
+        {
+            { Game.GetService<CardHand>(), CardHand._OnCardPlayed }
+        };
     }
 
     public override Sprite GetSprite()

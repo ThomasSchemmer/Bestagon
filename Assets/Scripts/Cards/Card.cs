@@ -51,6 +51,8 @@ public abstract class Card : Draggable, ISelectable
 
     public abstract void InteractWith(HexagonVisualization Hex);
 
+    public abstract bool CanBeUpgraded();
+
     public string GetSymbol()
     {
         return GetName()[..1];
@@ -95,6 +97,11 @@ public abstract class Card : Draggable, ISelectable
 
     private void SetHoveredCardSelection(bool Hovered)
     {
+        if (!CanBeUpgraded())
+        {
+            Hovered = false;
+        }
+
         if (!Game.TryGetService(out CardUpgradeScreen CardScreen))
             return;
 

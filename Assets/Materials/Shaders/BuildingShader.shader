@@ -71,7 +71,7 @@ Shader "Custom/BuildingShader"
             half4 frag (v2f i) : SV_Target
             {
                 half4 color = tex2D(_MainTex, i.uv);
-                color.xyz *= i.diff;
+                color.xyz *= i.diff.xyz;
 
                 VertexPositionInputs vertexInput = (VertexPositionInputs)0;
                 vertexInput.positionWS = i.vertexWS;

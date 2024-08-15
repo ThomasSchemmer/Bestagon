@@ -11,7 +11,7 @@ using UnityEngine;
  */
 public abstract class Quest<T> : QuestTemplate
 {
-    public IQuestRegister<T> QuestRegistrar;
+    public Dictionary<IQuestRegister<T>, ActionList<T>> QuestRegisterMap;
     public bool bIsCancelQuest = false;
 
     public int CurrentProgress;
@@ -24,8 +24,7 @@ public abstract class Quest<T> : QuestTemplate
     public abstract void OnAfterCompletion();
 
     public abstract int GetStartProgress();
-    public abstract IQuestRegister<T> GetRegistrar();
-    public abstract ActionList<T> GetDelegates();
+    public abstract Dictionary<IQuestRegister<T>, ActionList<T>> GetRegisterMap();
     public abstract void GrantRewards();
     public override int GetCurrentProgress()
     {
@@ -61,11 +60,14 @@ public abstract class Quest<T> : QuestTemplate
         if (!ShouldRegister(bForceRegister))
             return;
 
-        QuestRegistrar = GetRegistrar();
-        if (QuestRegistrar == null)
+        QuestRegisterMap = GetRegisterMap();
+        if (QuestRegisterMap == null)
             return;
 
-        QuestRegistrar.RegisterQuest(GetDelegates(), this);
+        foreach (var Tuple in QuestRegisterMap)
+        {
+            Tuple.Key.RegisterQuest(Tuple.Value, this);
+        }
         bIsRegistered = true;
     }
 
@@ -132,11 +134,13 @@ public abstract class Quest<T> : QuestTemplate
 
     public override void RemoveQuestCallback()
     {
-        ActionList<T> Delegates = GetDelegates(); 
-        if (!bIsRegistered || QuestRegistrar == null || !ActionList<T>.IsValid(Delegates))
+        if (!bIsRegistered || QuestRegisterMap == null || QuestRegisterMap.Count == 0)
             return;
 
-        QuestRegistrar.DeRegisterQuest(Delegates, this);
+        foreach (var Tuple in QuestRegisterMap)
+        {
+            Tuple.Key.DeRegisterQuest(Tuple.Value, this);
+        }
     }
 
     public void RemoveQuest(bool bAddFollowup = true)

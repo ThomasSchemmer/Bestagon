@@ -274,8 +274,16 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         }
     }
 
+    public bool IsAnyUpgradePossible()
+    {
+        return IsUpgradePossible(UpgradeableAttributes.MaxUsages) ||
+            IsUpgradePossible(UpgradeableAttributes.MaxWorker) ||
+            IsUpgradePossible(UpgradeableAttributes.Production);
+    }
+
     public bool IsUpgradePossible(UpgradeableAttributes SelectedAttribute)
     {
+        // dont forget to update IsAnyUpgradePossible!
         switch (SelectedAttribute)
         {
             case UpgradeableAttributes.MaxUsages:

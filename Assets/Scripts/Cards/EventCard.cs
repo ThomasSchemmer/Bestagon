@@ -114,4 +114,9 @@ public class EventCard : Card
     {
         return false;
     }
+
+    public override bool CanBeUpgraded()
+    {
+        return false;
+    }
 }

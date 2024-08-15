@@ -267,7 +267,7 @@ Shader"Custom/HexagonShader"
                 // use OS vertex angle for dashed outline
                 if (_PreMalaised > 0){
                     float angle = degrees(acos(dot(normalize(i.vertexOS.xz), float2(1, 0))));
-                    int stepped = ((int)(angle / 15) % 2) == 0 ? 1 : 0;
+                    int stepped = ((uint)(angle / 15) % 2) == 0 ? 1 : 0;
                     return stepped * 4;
                 }
 

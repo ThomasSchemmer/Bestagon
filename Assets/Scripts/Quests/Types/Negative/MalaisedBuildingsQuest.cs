@@ -10,12 +10,15 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
 
     public override int CheckSuccess(BuildingData Item)
     {
-        return 1;
+        return 3;
     }
 
-    public override ActionList<BuildingData> GetDelegates()
+    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
     {
-        return BuildingService._OnBuildingDestroyed;
+        return new()
+        {
+            { Game.GetService<BuildingService>(), BuildingService._OnBuildingDestroyed }
+        };
     }
 
     public override string GetDescription()
@@ -31,11 +34,6 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
     public override Type GetQuestType()
     {
         return Type.Negative;
-    }
-
-    public override IQuestRegister<BuildingData> GetRegistrar()
-    {
-        return Game.GetService<BuildingService>();
     }
 
     public override Sprite GetSprite()

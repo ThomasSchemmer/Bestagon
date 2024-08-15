@@ -29,14 +29,12 @@ public class TutorialWorkerQuest : Quest<WorkerData>
         return Type.Positive;
     }
 
-    public override IQuestRegister<WorkerData> GetRegistrar()
+    public override Dictionary<IQuestRegister<WorkerData>, ActionList<WorkerData>> GetRegisterMap()
     {
-        return Game.GetService<Workers>();
-    }
-
-    public override ActionList<WorkerData> GetDelegates()
-    {
-        return Workers._OnWorkerAssignedList;
+        return new()
+        {
+            { Game.GetService<Workers>(), Workers._OnWorkerAssignedList }
+        };
     }
 
     public override Sprite GetSprite()

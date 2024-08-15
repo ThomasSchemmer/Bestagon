@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 /** Class to represent anything that cannot be represented by a mesh, eg resources gained */
 public abstract class IconPreview : CardPreview

@@ -155,6 +155,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
             if (Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile))
                 return;
 
+            bShouldReset = true;
             Refill();
             _OnInit?.Invoke(this);
         });
@@ -208,7 +209,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     {
         if (!Game.TryGetService(out TutorialSystem TutorialSystem) || TutorialSystem.IsInTutorial())
             return;
-        if (UpgradePoints != 0)
+        if (!bShouldReset)
             return;
 
         // does not reset upgrade points nor coins!
@@ -216,6 +217,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         Reset();
         AddResources(StartingResources);
         AddResources(new Production(Production.Type.Coins, CoinCount));
+        bShouldReset = false;
     }
 
     public void Reset()

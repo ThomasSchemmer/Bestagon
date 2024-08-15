@@ -59,8 +59,7 @@ public class SaveGameManager : GameService
     {
         if (bLoadTutorial && FileToLoad == null)
         {
-            FileToLoad = GetTutorialSave();
-            bCreateNewFile = false;
+            HandleTutorialLoading();
         }
         if (bLoadLastFile && FileToLoad == null)
         {
@@ -87,9 +86,9 @@ public class SaveGameManager : GameService
     private bool TryHandleSwitchToMenu(out ServiceState State)
     {
         State = default;
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             return false;
-        #endif
+#else
         if (FileToLoad != null || bCreateNewFile || bLoadTutorial)
             return false;
 
@@ -99,6 +98,7 @@ public class SaveGameManager : GameService
         Game.LoadGame(null, Game.MenuSceneName, false);
         State = ServiceState.SwitchToMenu;
         return true;
+#endif
     }
 
     public void OnSave()
@@ -175,7 +175,7 @@ public class SaveGameManager : GameService
         return FoundSaveableServices.ContainsKey(TargetType);
     }
 
-    public string[] GetSavegameNames()
+    public static string[] GetSavegameNames()
     {
         string[] Files = Directory.GetFiles(GetSavegamePath());
         string[] Names = new string[Files.Length];
@@ -204,23 +204,49 @@ public class SaveGameManager : GameService
         return TargetIndex >= 0 ? Saves[TargetIndex] : string.Empty;
     }
 
-    private string GetTutorialSave()
+    public static string GetTutorialSave()
     {
-        if (!Game.TryGetService(out TutorialSystem TutorialSystem))
-            return string.Empty;
-
         string[] Saves = GetSavegameNames();
         for (int i = 0; i < Saves.Length; i++)
         {
             if (!Saves[i].Equals(GetCompleteSaveGameName(TutorialSavegame)))
                 continue;
 
-            TutorialSystem.SetInTutorial(true);
             return Saves[i];
         }
 
-        TutorialSystem.SetInTutorial(false);
         return string.Empty;
+    }
+
+    private void HandleTutorialLoading()
+    {
+        if (!HasTutorialFile())
+        {
+            CopyTutorialFile();
+        }
+        FileToLoad = GetTutorialSave();
+        bCreateNewFile = false;
+
+        if (Game.TryGetService(out TutorialSystem TutorialSystem))
+        {
+            TutorialSystem.SetInTutorial(!FileToLoad.Equals(string.Empty));
+        }
+    }
+
+    private static bool HasTutorialFile()
+    {
+        return !GetTutorialSave().Equals(string.Empty);
+    }
+
+    private static void CopyTutorialFile()
+    {
+        MapContainer Container = Resources.Load("Maps/tutorial1") as MapContainer;
+
+        string FileName = GetCompleteSaveGameName(TutorialSavegame);
+        string Path = GetSavegamePath();
+        string FilePath = Path + FileName;
+
+        File.WriteAllBytes(FilePath, Container.MapData);
     }
 
     private void FindSaveables()
@@ -492,7 +518,7 @@ public class SaveGameManager : GameService
         return SaveGameName;
     }
 
-    private static string GetSavegamePath()
+    public static string GetSavegamePath()
     {
         string FilePath = Application.persistentDataPath + "/Maps/";
         if (!Directory.Exists(FilePath))

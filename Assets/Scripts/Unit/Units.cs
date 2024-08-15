@@ -147,6 +147,5 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
 
     public delegate void OnUnitCountChanged();
     public static event OnUnitCountChanged _OnUnitCountChanged;
-    public static ActionList<TokenizedUnitData> _OnUnitCreated = new();
     public static ActionList<TokenizedUnitData> _OnUnitMoved = new();
 }

@@ -7,7 +7,7 @@ using UnityEngine;
  * Base class for anything providing access to a certain type of units
  * Mainly useful for saving and loading the data
  */
-public class UnitProvider<T> : GameService, ISaveableService where T : UnitData
+public class UnitProvider<T> : GameService, IQuestRegister<UnitData>, ISaveableService where T : UnitData
 {
     public List<T> Units = new();
 
@@ -92,4 +92,6 @@ public class UnitProvider<T> : GameService, ISaveableService where T : UnitData
 
     protected override void StartServiceInternal() { }
     protected override void StopServiceInternal() { }
+
+    public static ActionList<UnitData> _OnUnitCreated = new();
 }

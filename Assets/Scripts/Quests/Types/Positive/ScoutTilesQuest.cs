@@ -35,14 +35,12 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
         return Type.Positive;
     }
 
-    public override IQuestRegister<DiscoveryState> GetRegistrar()
+    public override Dictionary<IQuestRegister<DiscoveryState>, ActionList<DiscoveryState>> GetRegisterMap()
     {
-        return Game.GetService<MapGenerator>();
-    }
-
-    public override ActionList<DiscoveryState> GetDelegates()
-    {
-        return MapGenerator._OnDiscoveredTile;
+        return new()
+        {
+            { Game.GetService<MapGenerator>(), MapGenerator._OnDiscoveredTile }
+        };
     }
 
     public override Sprite GetSprite()

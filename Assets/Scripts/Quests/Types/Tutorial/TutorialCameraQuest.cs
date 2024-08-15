@@ -29,15 +29,12 @@ public class TutorialCameraQuest : Quest<Vector3>
     {
         return Type.Positive;
     }
-
-    public override IQuestRegister<Vector3> GetRegistrar()
+    public override Dictionary<IQuestRegister<Vector3>, ActionList<Vector3>> GetRegisterMap()
     {
-        return Game.GetService<CameraController>();
-    }
-
-    public override ActionList<Vector3> GetDelegates()
-    {
-        return CameraController._OnCameraMoved;
+        return new()
+        {
+            { Game.GetService<CameraController>(), CameraController._OnCameraMoved }
+        };
     }
 
     public override Sprite GetSprite()

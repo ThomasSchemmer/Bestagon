@@ -29,12 +29,7 @@ public class TutorialTileQuest : Quest<HexagonVisualization>
         return Type.Positive;
     }
 
-    public override IQuestRegister<HexagonVisualization> GetRegistrar()
-    {
-        return Game.GetService<Selectors>().HexagonSelector;
-    }
-
-    public override ActionList<HexagonVisualization> GetDelegates()
+    public override Dictionary<IQuestRegister<HexagonVisualization>, ActionList<HexagonVisualization>> GetRegisterMap()
     {
         if (!Game.TryGetService(out Selectors Selectors))
             return default;
@@ -42,7 +37,10 @@ public class TutorialTileQuest : Quest<HexagonVisualization>
         if (Selectors.HexagonSelector == null)
             return default;
 
-        return Selectors.HexagonSelector._OnSelected;
+        return new()
+        {
+            { Selectors.HexagonSelector, Selectors.HexagonSelector._OnSelected }
+        };
     }
 
     public override Sprite GetSprite()

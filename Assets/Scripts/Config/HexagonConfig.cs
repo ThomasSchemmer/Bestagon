@@ -13,7 +13,7 @@ public class HexagonConfig {
     public static float TileBorderHeightMultiplier = 0.9f;
 
     /** Amount of chunk visualizations in both x and y directions that should be loaded during scrolling in the world, needs to be an odd nr*/
-    public static int loadedChunkVisualizations = 3;
+    public static int LoadedChunkVisualizations = 3;
 
     /** If set shows generated tiles in editor */
     public static bool bShowGeneratedLand = false;
@@ -42,6 +42,7 @@ public class HexagonConfig {
 
     public static int DefaultChunkSize = 8;
     public static int DefaultMapMaxChunk = 5;
+    public static int DefaultLoadedChunkVisualizations = 3;
 
     public static int MaxTypeIndex = 15;
     public static int MaxDecorationIndex = 1;

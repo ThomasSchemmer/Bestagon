@@ -21,9 +21,12 @@ public class GatherWaterSkinsQuest : Quest<Production>
         return Count;
     }
 
-    public override ActionList<Production> GetDelegates()
+    public override Dictionary<IQuestRegister<Production>, ActionList<Production>> GetRegisterMap()
     {
-        return Stockpile._OnResourcesCollected;
+        return new()
+        {
+            { Game.GetService<Stockpile>(), Stockpile._OnResourcesCollected }
+        };
     }
 
     public override string GetDescription()
@@ -40,11 +43,6 @@ public class GatherWaterSkinsQuest : Quest<Production>
     public override Type GetQuestType()
     {
         return Type.Main;
-    }
-
-    public override IQuestRegister<Production> GetRegistrar()
-    {
-        return Game.GetService<Stockpile>();
     }
 
     public override Sprite GetSprite()

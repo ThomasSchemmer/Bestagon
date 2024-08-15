@@ -29,14 +29,12 @@ public class TutorialScoutQuest : Quest<TokenizedUnitData>
         return Type.Positive;
     }
 
-    public override IQuestRegister<TokenizedUnitData> GetRegistrar()
+    public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
     {
-        return Game.GetService<Units>();
-    }
-
-    public override ActionList<TokenizedUnitData> GetDelegates()
-    {
-        return Units._OnUnitMoved;
+        return new()
+        {
+            { Game.GetService<Units>(), Units._OnUnitMoved }
+        };
     }
 
     public override Sprite GetSprite()

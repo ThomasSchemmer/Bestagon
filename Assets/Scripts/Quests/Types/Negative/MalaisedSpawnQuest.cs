@@ -40,10 +40,6 @@ public class MalaisedSpawnQuestTurn : Quest<int>
         return 1;
     }
 
-    public override ActionList<int> GetDelegates()
-    {
-        return Turn._OnTurnEnded;
-    }
     public override void OnCreated() { }
 
     public override string GetDescription()
@@ -64,9 +60,12 @@ public class MalaisedSpawnQuestTurn : Quest<int>
         return Type.Negative;
     }
 
-    public override IQuestRegister<int> GetRegistrar()
+    public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
-        return Game.GetService<Turn>();
+        return new()
+        {
+            { Game.GetService<Turn>(), Turn._OnTurnEnded }
+        };
     }
 
     public override Sprite GetSprite()
@@ -110,10 +109,6 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
         return Unit.Location.Equals(MalaisedSpawnQuest.TargetLocation) ? 1 : 0;
     }
 
-    public override ActionList<TokenizedUnitData> GetDelegates()
-    {
-        return Units._OnUnitMoved;
-    }
     public override void OnCreated() { }
 
     public override string GetDescription()
@@ -131,9 +126,12 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
         return Type.Negative;
     }
 
-    public override IQuestRegister<TokenizedUnitData> GetRegistrar()
+    public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
     {
-        return Game.GetService<Units>();
+        return new()
+        {
+            { Game.GetService<Units>(), Units._OnUnitMoved }
+        };
     }
 
     public override Sprite GetSprite()

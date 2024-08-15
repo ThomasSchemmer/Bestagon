@@ -176,6 +176,11 @@ public class BuildingCard : Card
         return false;
     }
 
+    public override bool CanBeUpgraded()
+    {
+        return BuildingData != null && BuildingData.IsAnyUpgradePossible();
+    }
+
     protected BuildingData BuildingData;
     protected RectTransform MaxWorkerTransform;
 }

@@ -35,20 +35,15 @@ MonoBehaviour:
     TileType: 4098
     Production:
       _Production:
-        Tuples:
-        - Key: 0
-          Value: 1
+        Tuples: []
     Consumption:
       _Production:
         Tuples: []
     Range: 1
-    IsProductionBlockedByBuilding: 1
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples:
-        - Key: 0
-          Value: 2
+        Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
   BuildableOn: 1027

@@ -29,14 +29,12 @@ public class TutorialMalaiseQuest : Quest<int>
         return Type.Positive;
     }
 
-    public override IQuestRegister<int> GetRegistrar()
+    public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
-        return Game.GetService<Turn>();
-    }
-
-    public override ActionList<int> GetDelegates()
-    {
-        return Turn._OnTurnEnded;
+        return new()
+        {
+            { Game.GetService<Turn>(), Turn._OnTurnEnded }
+        };
     }
 
     public override Sprite GetSprite()

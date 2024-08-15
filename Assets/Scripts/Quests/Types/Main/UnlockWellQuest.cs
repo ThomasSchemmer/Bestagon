@@ -13,9 +13,12 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
         return UnlockedType == BuildingConfig.Type.Well ? 1 : 0;
     }
 
-    public override ActionList<BuildingConfig.Type> GetDelegates()
+    public override Dictionary<IQuestRegister<BuildingConfig.Type>, ActionList<BuildingConfig.Type>> GetRegisterMap()
     {
-        return Unlockables._OnUnlock;
+        return new()
+        {
+            { Game.GetService<Unlockables>(), Unlockables._OnUnlock }
+        };
     }
 
     public override string GetDescription()
@@ -32,11 +35,6 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
     public override Type GetQuestType()
     {
         return Type.Main;
-    }
-
-    public override IQuestRegister<BuildingConfig.Type> GetRegistrar()
-    {
-        return Game.GetService<Unlockables>();
     }
 
     public override Sprite GetSprite()

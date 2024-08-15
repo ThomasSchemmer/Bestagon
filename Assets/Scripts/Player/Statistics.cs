@@ -1,7 +1,6 @@
 using System;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.tvOS;
 using static HexagonData;
 
 /** 
@@ -66,7 +65,7 @@ public class Statistics : GameService, ISaveableService
         BestBuildings = Mathf.Max(BestBuildings, CurrentBuildings);
     }
 
-    public void CountUnit(TokenizedUnitData Unit)
+    public void CountUnit(UnitData Unit)
     {
         UnitsCreated++;
         CurrentUnits++;
@@ -145,6 +144,7 @@ public class Statistics : GameService, ISaveableService
         if (bSubscribe)
         {
             Units._OnUnitCreated.Add(CountUnit);
+            Workers._OnUnitCreated.Add(CountUnit);
             MapGenerator._OnDiscoveredTile.Add(CountMoves);
             Stockpile._OnResourcesCollected.Add(CountResources);
             BuildingService._OnBuildingBuilt.Add(CountBuilding);
@@ -152,6 +152,7 @@ public class Statistics : GameService, ISaveableService
         else
         {
             Units._OnUnitCreated.Remove(CountUnit);
+            Workers._OnUnitCreated.Remove(CountUnit);
             MapGenerator._OnDiscoveredTile.Remove(CountMoves);
             Stockpile._OnResourcesCollected.Remove(CountResources);
             BuildingService._OnBuildingBuilt.Remove(CountBuilding);

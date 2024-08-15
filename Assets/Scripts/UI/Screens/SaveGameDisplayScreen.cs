@@ -6,14 +6,14 @@ using UnityEngine.UI;
 
 public class SaveGameDisplayScreen : MonoBehaviour
 {
-    public void CreateSavedGameSlots(SaveGameManager Manager)
+    public void CreateSavedGameSlots()
     {
         foreach (Transform Child in transform)
         {
             Destroy(Child.gameObject);
         }
 
-        string[] Savegames = Manager.GetSavegameNames();
+        string[] Savegames = SaveGameManager.GetSavegameNames();
         foreach (string GameName in Savegames)
         {
             GameObject Slot = Instantiate(SlotPrefab, transform);

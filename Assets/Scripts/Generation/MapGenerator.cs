@@ -4,7 +4,6 @@ using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
-using VSCodeEditor;
 using static HexagonData;
 
 /** 
@@ -146,10 +145,10 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     private void CreateChunks()
     {
         FinishedVisualizationCount = 0;
-        HexagonConfig.loadedChunkVisualizations = Mathf.Min(HexagonConfig.MapMaxChunk, HexagonConfig.loadedChunkVisualizations);
-        HexagonConfig.loadedChunkVisualizations = Mathf.Max(HexagonConfig.loadedChunkVisualizations, 0);
+        HexagonConfig.LoadedChunkVisualizations = Mathf.Min(HexagonConfig.MapMaxChunk, HexagonConfig.LoadedChunkVisualizations);
+        HexagonConfig.LoadedChunkVisualizations = Mathf.Max(HexagonConfig.LoadedChunkVisualizations, 0);
         Chunks = new ChunkData[HexagonConfig.MapMaxChunk, HexagonConfig.MapMaxChunk];
-        ChunkVis = new(HexagonConfig.loadedChunkVisualizations * HexagonConfig.loadedChunkVisualizations);
+        ChunkVis = new(HexagonConfig.LoadedChunkVisualizations * HexagonConfig.LoadedChunkVisualizations);
 
         if (!Game.TryGetService(out Map Map))
             return;
@@ -161,9 +160,9 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y] = ChunkData;
         }
 
-        Assert.IsTrue(HexagonConfig.loadedChunkVisualizations <= HexagonConfig.MapMaxChunk);
-        for (int x = 0; x < HexagonConfig.loadedChunkVisualizations; x++) {
-            for (int y = 0; y < HexagonConfig.loadedChunkVisualizations; y++) {
+        Assert.IsTrue(HexagonConfig.LoadedChunkVisualizations <= HexagonConfig.MapMaxChunk);
+        for (int x = 0; x < HexagonConfig.LoadedChunkVisualizations; x++) {
+            for (int y = 0; y < HexagonConfig.LoadedChunkVisualizations; y++) {
                 ChunkData ChunkData = Chunks[x, y]; 
 
                 GameObject ChunkVisObj = new GameObject();
@@ -180,8 +179,8 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     {
         HashSet<Location> set = new HashSet<Location>();
 
-        int Bounds = (HexagonConfig.loadedChunkVisualizations - 1) / 2;
-        Assert.AreEqual(Bounds * 2 + 1, HexagonConfig.loadedChunkVisualizations);
+        int Bounds = (HexagonConfig.LoadedChunkVisualizations - 1) / 2;
+        Assert.AreEqual(Bounds * 2 + 1, HexagonConfig.LoadedChunkVisualizations);
 
         for(int x = -Bounds; x <= Bounds; x++)
         {

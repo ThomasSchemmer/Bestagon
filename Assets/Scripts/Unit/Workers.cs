@@ -108,6 +108,7 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
     public void AddWorker(WorkerData Worker)
     {
         Units.Add(Worker);
+        _OnUnitCreated.ForEach(_ => _.Invoke(Worker));
     }
     
     protected override void StartServiceInternal()

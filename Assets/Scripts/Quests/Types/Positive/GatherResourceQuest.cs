@@ -39,14 +39,12 @@ public class GatherResourceQuest : Quest<Production>
         return Type.Positive;
     }
 
-    public override IQuestRegister<Production> GetRegistrar()
+    public override Dictionary<IQuestRegister<Production>, ActionList<Production>> GetRegisterMap()
     {
-        return Game.GetService<Stockpile>();
-    }
-
-    public override ActionList<Production> GetDelegates()
-    {
-        return Stockpile._OnResourcesCollected;
+        return new()
+        {
+            { Game.GetService<Stockpile>(), Stockpile._OnResourcesCollected }
+        };
     }
 
     public override Sprite GetSprite()

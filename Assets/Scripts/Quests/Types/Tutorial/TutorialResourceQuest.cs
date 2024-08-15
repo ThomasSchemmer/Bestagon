@@ -29,14 +29,12 @@ public class TutorialResourceQuest : Quest<int>
         return Type.Positive;
     }
 
-    public override IQuestRegister<int> GetRegistrar()
+    public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
-        return Game.GetService<Stockpile>();
-    }
-
-    public override ActionList<int> GetDelegates()
-    {
-        return Stockpile._OnResourceCategorySelected;
+        return new()
+        {
+            { Game.GetService<Stockpile>(), Stockpile._OnResourceCategorySelected }
+        };
     }
 
     public override Sprite GetSprite()

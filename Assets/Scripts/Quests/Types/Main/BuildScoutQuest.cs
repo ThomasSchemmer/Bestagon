@@ -3,18 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildScoutQuest : Quest<TokenizedUnitData>
+public class BuildScoutQuest : Quest<UnitData>
 {
     public BuildScoutQuest() : base() { }
 
-    public override int CheckSuccess(TokenizedUnitData Unit)
+    public override int CheckSuccess(UnitData Unit)
     {
         return Unit.Type == UnitData.UnitType.Scout ? 1 : 0;
     }
 
-    public override ActionList<TokenizedUnitData> GetDelegates()
+    public override Dictionary<IQuestRegister<UnitData>, ActionList<UnitData>> GetRegisterMap()
     {
-        return Units._OnUnitCreated;
+        return new()
+        {
+            { Game.GetService<Units>(), Units._OnUnitCreated }
+        };
     }
 
     public override string GetDescription()
@@ -30,11 +33,6 @@ public class BuildScoutQuest : Quest<TokenizedUnitData>
     public override Type GetQuestType()
     {
         return Type.Main;
-    }
-
-    public override IQuestRegister<TokenizedUnitData> GetRegistrar()
-    {
-        return Game.GetService<Units>();
     }
 
     public override Sprite GetSprite()

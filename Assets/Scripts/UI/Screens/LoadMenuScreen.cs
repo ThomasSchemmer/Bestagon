@@ -13,12 +13,9 @@ public class LoadMenuScreen : MonoBehaviour
 
     public void Show()
     {
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
-
         gameObject.SetActive(true);
         SlotDisplay.gameObject.SetActive(true);
-        SlotDisplay.CreateSavedGameSlots(Manager);
+        SlotDisplay.CreateSavedGameSlots();
     }
 
     public void Cancel()

@@ -40,7 +40,6 @@ Shader "Custom/ProgressShader"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #define PI 3.14159265359
             // rotate by 90°
             #define ROTATION 1.570796326795
             

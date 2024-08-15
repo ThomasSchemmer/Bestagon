@@ -19,9 +19,14 @@ public class Tutorial : ScriptableObject
         ParseUIObject(TipObject);
         TipObject.SetActive(true);
         TextField.text = Parse(Texts[i]);
+#if UNITY_EDITOR
+        float Scalar = 2;
+#else
+        float Scalar = 3;
+#endif
         Vector2 Position = new Vector2(
-            Positions[i].x * Screen.width / 2,
-            Positions[i].y * Screen.height / 2
+            Positions[i].x * Screen.width / Scalar,
+            Positions[i].y * Screen.height / Scalar
         );
         TipObject.GetComponent<RectTransform>().anchoredPosition = Position;
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /** Quests to build X more units */
-public class BuildUnitsQuest : Quest<TokenizedUnitData>
+public class BuildUnitsQuest : Quest<UnitData>
 {
     private Statistics Statistics;
 
@@ -12,7 +12,7 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
         Statistics = Game.GetService<Statistics>();
     }
 
-    public override int CheckSuccess(TokenizedUnitData Item)
+    public override int CheckSuccess(UnitData Item)
     {
         return 1;
     }
@@ -33,13 +33,13 @@ public class BuildUnitsQuest : Quest<TokenizedUnitData>
         return Type.Positive;
     }
 
-    public override IQuestRegister<TokenizedUnitData> GetRegistrar()
+    public override Dictionary<IQuestRegister<UnitData>, ActionList<UnitData>> GetRegisterMap()
     {
-        return Game.GetService<Units>();
-    }
-    public override ActionList<TokenizedUnitData> GetDelegates()
-    {
-        return Units._OnUnitCreated;
+        return new()
+        {
+            { Game.GetService<Units>(), Units._OnUnitCreated },
+            { Game.GetService<Workers>(), Workers._OnUnitCreated }
+        };
     }
 
     public override Sprite GetSprite()

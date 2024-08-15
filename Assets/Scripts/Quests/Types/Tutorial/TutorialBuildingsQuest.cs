@@ -29,14 +29,12 @@ public class TutorialBuildingsQuest : Quest<BuildingData>
         return Type.Positive;
     }
 
-    public override IQuestRegister<BuildingData> GetRegistrar()
+    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
     {
-        return Game.GetService<BuildingService>();
-    }
-
-    public override ActionList<BuildingData> GetDelegates()
-    {
-        return BuildingService._OnBuildingBuilt;
+        return new()
+        {
+            { Game.GetService<BuildingService>(), BuildingService._OnBuildingBuilt }
+        };
     }
 
     public override Sprite GetSprite()

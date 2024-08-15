@@ -60,8 +60,9 @@ public class PreviewSystem : GameService
 
         // check for each neighbour if it should be highlighted
         int Range = SelectedCard ? SelectedCard.GetAdjacencyRange() : MaxAdjacencyRange;
+        bool bIsAdjacentCard = Range > 1;
         Range = Mathf.Min(Range, MaxAdjacencyRange);
-        List<HexagonVisualization> Neighbours = Generator.GetNeighbours(SelectedHex, true, Range);
+        List<HexagonVisualization> Neighbours = Generator.GetNeighbours(SelectedHex, !bIsAdjacentCard, Range);
         Dictionary<HexagonConfig.HexagonType, Production> Boni = new();
         if (SelectedCard && !SelectedCard.TryGetAdjacencyBonus(out Boni))
             return;
