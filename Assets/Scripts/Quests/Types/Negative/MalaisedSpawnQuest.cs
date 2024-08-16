@@ -62,6 +62,9 @@ public class MalaisedSpawnQuestTurn : Quest<int>
 
     public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
+        if (Game.GetService<Turn>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Turn>(), Turn._OnTurnEnded }
@@ -128,6 +131,9 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
 
     public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
     {
+        if (Game.GetService<Units>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Units>(), Units._OnUnitMoved }

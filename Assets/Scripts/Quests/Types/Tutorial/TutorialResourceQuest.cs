@@ -31,6 +31,9 @@ public class TutorialResourceQuest : Quest<int>
 
     public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
+        if (Game.GetService<Stockpile>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Stockpile>(), Stockpile._OnResourceCategorySelected }

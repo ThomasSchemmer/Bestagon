@@ -15,6 +15,9 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
 
     public override Dictionary<IQuestRegister<BuildingConfig.Type>, ActionList<BuildingConfig.Type>> GetRegisterMap()
     {
+        if (Game.GetService<Unlockables>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Unlockables>(), Unlockables._OnUnlock }

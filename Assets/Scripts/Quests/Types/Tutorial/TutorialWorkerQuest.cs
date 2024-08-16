@@ -31,6 +31,9 @@ public class TutorialWorkerQuest : Quest<WorkerData>
 
     public override Dictionary<IQuestRegister<WorkerData>, ActionList<WorkerData>> GetRegisterMap()
     {
+        if (Game.GetService<Workers>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Workers>(), Workers._OnWorkerAssignedList }

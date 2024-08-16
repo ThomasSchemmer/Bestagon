@@ -14,6 +14,9 @@ public class BuildScoutQuest : Quest<UnitData>
 
     public override Dictionary<IQuestRegister<UnitData>, ActionList<UnitData>> GetRegisterMap()
     {
+        if (Game.GetService<Units>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Units>(), Units._OnUnitCreated }

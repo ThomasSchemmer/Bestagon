@@ -433,6 +433,11 @@ public class QuestService : GameService, ISaveableService
     {
         transform.GetChild(0).gameObject.SetActive(bShow);
     }
+
+    public void Load()
+    {
+        _OnInit?.Invoke(this);
+    }
     
     public QuestUIElement MainQuest;
     public QuestUIElement NegativeQuest;

@@ -31,6 +31,9 @@ public class TutorialCameraQuest : Quest<Vector3>
     }
     public override Dictionary<IQuestRegister<Vector3>, ActionList<Vector3>> GetRegisterMap()
     {
+        if (Game.GetService<CameraController>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<CameraController>(), CameraController._OnCameraMoved }

@@ -5,9 +5,9 @@ public class DiscardDeck : CardCollection {
 
     public override void AddCard(Card Card) {
         base.AddCard(Card);
-        Card.gameObject.SetActive(false);
-        Card.transform.localPosition = RootPosition + Offset * Cards.Count;
-        Card.gameObject.layer = 0;
+        //Card.gameObject.SetActive(false);
+        //Card.transform.localPosition = RootPosition + Offset * Cards.Count;
+        //Card.gameObject.layer = 0;
         Text.text = "" + Cards.Count;
     }
 
@@ -22,6 +22,16 @@ public class DiscardDeck : CardCollection {
     {
         base.Load();
 
+    }
+
+    public override bool ShouldCardsBeDisplayed()
+    {
+        return false;
+    }
+
+    public override float GetCardSize()
+    {
+        return 0;
     }
 
     public static Vector3 RootPosition = new Vector3(-20, -200, 0);

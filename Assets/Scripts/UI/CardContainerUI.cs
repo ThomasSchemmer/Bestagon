@@ -43,5 +43,15 @@ public class CardContainerUI : CardCollection
         Card.SetCanBeHovered(true);
     }
 
+    public override bool ShouldCardsBeDisplayed()
+    {
+        return true;
+    }
+
+    public override float GetCardSize()
+    {
+        return 1;
+    }
+
     private static float ScrollSpeed = 60f;
 }

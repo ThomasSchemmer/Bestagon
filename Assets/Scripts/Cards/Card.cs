@@ -5,9 +5,18 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 public abstract class Card : Draggable, ISelectable
 {        
+    public enum Visibility : uint
+    {
+        Hidden = 0,
+        Flipped = 1,
+        Visible = 2
+    }
+
     public virtual void Init(int Index) {
         CardHand = Game.GetService<CardHand>();
         ID = System.Guid.NewGuid();
@@ -20,6 +29,51 @@ public abstract class Card : Draggable, ISelectable
     public void GenerateCard() {
         GenerateVisuals();
         SetColor();
+    }
+
+    public void Update()
+    {
+        int Index = 0;
+        float RemainingTime = Time.deltaTime;
+        while (Index < Animations.Count && RemainingTime > 0)
+        {
+            CardMoveAnimation Animation = Animations[Index];
+
+            Visibility TargetVisibility = Animation.TargetCollection.ShouldCardsBeDisplayed() ? Visibility.Visible : Visibility.Flipped;
+            Show(TargetVisibility);
+
+            float Diff = Mathf.Min(RemainingTime, Animation.RemainingDurationS);
+            Animation.RemainingDurationS -= Diff;
+            RemainingTime -= Diff;
+
+            float t = 1 - Animation.RemainingDurationS / AnimationDurationS;
+            float ct = Mathf.Clamp(t, 0, 1);
+
+            Vector3 StartPosition = Animation.StartPosition;
+            Vector3 TargetPosition = Animation.TargetCollection.transform.position;
+            transform.position = Vector3.Lerp(StartPosition, TargetPosition, ct);
+
+            float SourceSize = Animation.SourceCollection.GetCardSize();
+            float TargetSize = Animation.TargetCollection.GetCardSize();
+            float ct1 = Mathf.Clamp(ct, 0, 0.5f) * 2;
+            float ct2 = Mathf.Clamp(ct - 0.5f, 0, 0.5f) * 2;
+
+            Vector3 SourceScale = Mathf.Lerp(SourceSize, 0.5f, ct1) * Vector3.one;
+            Vector3 TargetScale = Mathf.Lerp(0.5f, TargetSize, ct2) * Vector3.one;
+            transform.localScale = ct < 0.5f ? SourceScale : TargetScale;
+
+            if (Mathf.Approximately(Animation.RemainingDurationS, 0))
+            {
+                Animations.RemoveAt(0);
+                TargetVisibility = Animation.TargetCollection.ShouldCardsBeDisplayed() ? Visibility.Visible : Visibility.Hidden;
+                Show(TargetVisibility);
+                Animation.TargetCollection.Sort();
+            }
+            else
+            {
+                Index++;
+            }
+        }
     }
 
     protected virtual void GenerateVisuals() {
@@ -59,12 +113,24 @@ public abstract class Card : Draggable, ISelectable
     }
 
     protected virtual void LinkTexts() {
-        CardBase = GetComponent<Image>();
+        CardBaseImage = GetComponent<Image>();
+        CardImage = transform.Find("Image").GetComponent<Image>();
         NameText = transform.Find("Name").GetComponent<TextMeshProUGUI>();
         SymbolTransform = transform.Find("Symbol").GetComponent<RectTransform>();
         CostTransform = transform.Find("Costs").GetComponent<RectTransform>();
         UsagesTransform = transform.Find("Usages").GetComponent<RectTransform>();
         EffectTransform = transform.Find("Effects").GetComponent<RectTransform>();
+    }
+
+    public virtual void Show(Visibility Visibility)
+    {
+        CardBaseImage.enabled = Visibility >= Visibility.Flipped;
+        CardImage.gameObject.SetActive(Visibility >= Visibility.Visible);
+        NameText.gameObject.SetActive(Visibility >= Visibility.Visible);
+        SymbolTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
+        CostTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
+        UsagesTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
+        EffectTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
     }
 
     public void SetSelected(bool Selected) {
@@ -124,7 +190,7 @@ public abstract class Card : Draggable, ISelectable
     private void SetColor() {
         Color Color = isSelected ? SelectColor :
                         isHovered ? HoverColor : NormalColor;
-        CardBase.color = Color;
+        CardBaseImage.color = Color;
     }
 
     public Transform GetUsagesTransform()
@@ -244,6 +310,16 @@ public abstract class Card : Draggable, ISelectable
         return "Cards can be played on hexagons to create buildings, units or events";
     }
 
+    public void OnAssignedToCollection(CardCollection Target)
+    {
+        if (Animations.Count == 0)
+            return;
+
+        CardMoveAnimation Animation = Animations.Last();
+        Animation.TargetCollection = Target;
+        Animation.RemainingDurationS = AnimationDurationS;
+    }
+
     public void SetHoveredAsParent(bool Hovered) {
 
         // would lead to deselection of card by not hovering over smaller info sections
@@ -262,12 +338,14 @@ public abstract class Card : Draggable, ISelectable
     protected bool bWasUsedUp = false;
     protected TextMeshProUGUI NameText;
     protected RectTransform CostTransform, SymbolTransform, UsagesTransform, EffectTransform;
-    protected Image CardBase;
+    protected Image CardBaseImage, CardImage;
     protected CardHand CardHand;
 
     protected CardCollection OldCollection;
+    public List<CardMoveAnimation> Animations = new();
 
     public static float SelectOffset = 25f;
+    public static float AnimationDurationS = 0.2f;
     public static Color NormalColor = new Color(55 / 255f, 55 / 255f, 55 / 255f);
     public static Color HoverColor = new Color(23 / 255f, 171 / 255f, 167 / 255f);
     public static Color SelectColor = new Color(23 / 255f, 95 / 255f, 171 / 255f);

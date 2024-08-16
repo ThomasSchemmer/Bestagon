@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class CardDeck : CardCollection
 {
+
     protected override void StartServiceInternal()
     {
         base.StartServiceInternal();
@@ -72,7 +73,7 @@ public class CardDeck : CardCollection
     {
         foreach (Card Card in Cards)
         {
-            Card.gameObject.SetActive(false);
+            Card.Show(Card.Visibility.Hidden);
         }
 
         CheckForScout();
@@ -84,7 +85,17 @@ public class CardDeck : CardCollection
     public override void AddCard(Card Card)
     {
         base.AddCard(Card);
-        Card.gameObject.SetActive(false);
+        Card.Show(Card.Visibility.Hidden);
         UpdateText();
+    }
+
+    public override bool ShouldCardsBeDisplayed()
+    {
+        return false;
+    }
+
+    public override float GetCardSize()
+    {
+        return 0;
     }
 }

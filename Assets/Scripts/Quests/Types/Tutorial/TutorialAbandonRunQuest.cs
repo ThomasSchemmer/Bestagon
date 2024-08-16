@@ -37,6 +37,9 @@ public class TutorialAbandonRunQuest : Quest<int>
 
     public override Dictionary<IQuestRegister<int>, ActionList<int>> GetRegisterMap()
     {
+        if (Game.GetService<Turn>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Turn>(), Turn._OnRunAbandoned }

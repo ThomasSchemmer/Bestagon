@@ -25,7 +25,13 @@ public class CardHand : CardCollection, IQuestRegister<Card>
             
         });
     }
-        
+
+    public override void Sort()
+    {
+        base.Sort();
+        Sort(false);
+    }
+
     public void Sort(bool IsACardHovered) {
         transform.localPosition = IsACardHovered ? HoverPosition : NormalPosition;
         int Count = Cards.Count;
@@ -105,17 +111,26 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         });
     }
 
-    private void HandleDelayedFilling(CardDeck Deck)
+    public void HandleDelayedFilling(CardDeck Deck)
     {
-        int TargetAmount = AMOUNT_HANDCARDS_START;
+        int TargetAmount = AMOUNT_HANDCARDS_MAX;
         int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
         Amount = Mathf.Min(Amount, Deck.Cards.Count);
 
-        for (int i = 0; i < Amount; i++)
-        {
-            Card Card = Deck.RemoveCard();
-            AddCard(Card);
-        }
+        List<Card> CardsToMove = new();
+        CardsToMove.AddRange(Deck.Cards.GetRange(0, Amount));
+
+        Deck.MoveCardsTo(CardsToMove, this);
+    }
+
+    public override bool ShouldCardsBeDisplayed()
+    {
+        return true;
+    }
+
+    public override float GetCardSize()
+    {
+        return 1;
     }
 
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);
@@ -126,7 +141,6 @@ public class CardHand : CardCollection, IQuestRegister<Card>
 
     public static ActionList<Card> _OnCardPlayed = new();
 
-    public static int AMOUNT_HANDCARDS_MAX = 5;
-    public static int AMOUNT_HANDCARDS_START = 3;
+    public static int AMOUNT_HANDCARDS_MAX = 3;
 
 }

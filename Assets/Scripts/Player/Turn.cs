@@ -33,7 +33,7 @@ public class Turn : GameService, IQuestRegister<int>
     }
 
     public void NextTurn() {
-        if (!IsEnabled || !IsInit)
+        if (!bIsEnabled || !IsInit)
             return;
 
         MessageSystemScreen.DeleteAllMessages();
@@ -41,7 +41,7 @@ public class Turn : GameService, IQuestRegister<int>
         Stockpile.ProduceWorkers();
         TurnNr++;
         Units.RefreshUnits();
-        MoveCard();
+        MoveCards();
         CloudRenderer.SpreadMalaise();
 
         UpdateSelection();
@@ -57,28 +57,25 @@ public class Turn : GameService, IQuestRegister<int>
 
     private void OnPause()
     {
-        IsEnabled = false;
+        bIsEnabled = false;
     }
 
     private void OnResume()
     {
-        IsEnabled = true;
+        bIsEnabled = true;
     }
 
-    private void MoveCard() {
-        if (CardDeck.Cards.Count == 0) {
-            FillCardDeck();
-        }
+    private void MoveCards() {
+        CardHand.MoveAllCardsTo(DiscardDeck);
 
-        // already at maximum amount, so just wait 
-        if (CardHand.Cards.Count >= CardHand.AMOUNT_HANDCARDS_MAX)
+        CardHand.HandleDelayedFilling(CardDeck);
+
+        // We already moved enough cards, dont need to refill
+        if (CardDeck.Cards.Count > 0)
             return;
-
-        Card RemovedCard = CardDeck.RemoveCard();
-        if (RemovedCard == null)
-            return;
-
-        CardHand.AddCard(RemovedCard);
+        
+        FillCardDeck();
+        CardHand.HandleDelayedFilling(CardDeck);
     }
 
     private void FillCardDeck() {
@@ -131,7 +128,7 @@ public class Turn : GameService, IQuestRegister<int>
         return AbandonScreen;
     }
 
-    private bool IsEnabled = true;
+    private bool bIsEnabled = true;
     private CardHand CardHand;
     private CardDeck CardDeck;
     private DiscardDeck DiscardDeck;

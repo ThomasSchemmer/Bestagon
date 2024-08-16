@@ -37,6 +37,9 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
 
     public override Dictionary<IQuestRegister<DiscoveryState>, ActionList<DiscoveryState>> GetRegisterMap()
     {
+        if (Game.GetService<MapGenerator>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<MapGenerator>(), MapGenerator._OnDiscoveredTile }

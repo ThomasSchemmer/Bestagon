@@ -15,6 +15,16 @@ public class CardStash : CardCollection
     public override void AddCard(Card Card)
     {
         base.AddCard(Card);
-        Card.gameObject.SetActive(false);
+        Card.Show(Card.Visibility.Hidden);
+    }
+
+    public override bool ShouldCardsBeDisplayed()
+    {
+        return false;
+    }
+
+    public override float GetCardSize()
+    {
+        return 1;
     }
 }

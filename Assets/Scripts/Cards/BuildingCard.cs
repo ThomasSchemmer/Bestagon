@@ -35,6 +35,12 @@ public class BuildingCard : Card
         DeleteVisuals(EffectTransform);
     }
 
+    public override void Show(Visibility Visibility)
+    {
+        base.Show(Visibility);
+        MaxWorkerTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
+    }
+
     protected override void GenerateVisuals()
     {
         base.GenerateVisuals();
@@ -76,11 +82,11 @@ public class BuildingCard : Card
 
     protected override CardCollection GetTargetAfterUse()
     {
-        if (!Game.TryGetServices(out CardStash CardStash, out CardDeck CardDeck))
+        if (!Game.TryGetServices(out CardStash CardStash, out DiscardDeck DiscardDeck))
             return null;
 
         bool bIsUsedUp = BuildingData.CurrentUsages <= 0;
-        CardCollection Target = bIsUsedUp ? CardStash : CardDeck;
+        CardCollection Target = bIsUsedUp ? CardStash : DiscardDeck;
         return Target;
     }
 

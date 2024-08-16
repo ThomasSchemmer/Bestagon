@@ -1,6 +1,9 @@
+using JetBrains.Annotations;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEngine;
 
 public abstract class CardCollection : GameService, ISaveableService
 {
@@ -8,26 +11,46 @@ public abstract class CardCollection : GameService, ISaveableService
         Cards.Add(Card);
         Card.transform.SetParent(transform, false);
         Card.SetCanBeHovered(false);
+        Card.OnAssignedToCollection(this);
     }
 
     public virtual Card RemoveCard() {
         if (Cards.Count == 0)
             return null;
 
-        Card RemovedCard = Cards[0];
-        Cards.RemoveAt(0);
-        if (Text) {
+        Card CardToRemove = Cards[0];
+        return RemoveCard(CardToRemove);
+    }
+
+    public virtual Card RemoveCard(Card Card)
+    {
+        Cards.Remove(Card);
+        Card.Animations.Add(new()
+        {
+            StartPosition = transform.position,
+            SourceCollection = this
+        });
+
+        if (Text)
+        {
             Text.text = "" + Cards.Count;
         }
-        return RemovedCard;
+        return Card;
     }
 
     public void MoveAllCardsTo(CardCollection OtherCollection)
     {
-        while (Cards.Count > 0)
+        MoveCardsTo(Cards, OtherCollection);
+    }
+
+    public void MoveCardsTo(List<Card> CardsToMove, CardCollection OtherCollection)
+    {
+        while (CardsToMove.Count > 0)
         {
-            Card Card = RemoveCard();
+            Card Card = CardsToMove[0];
+            RemoveCard(Card);
             OtherCollection.AddCard(Card);
+            CardsToMove.Remove(Card);
         }
     }
 
@@ -68,12 +91,7 @@ public abstract class CardCollection : GameService, ISaveableService
         }
     }
 
-    public virtual void RemoveCard(Card Card) {
-        Cards.Remove(Card);
-        if (Text) {
-            Text.text = "" + Cards.Count;
-        }
-    }
+    public virtual void Sort() { }
 
     protected override void StartServiceInternal()
     {
@@ -189,6 +207,9 @@ public abstract class CardCollection : GameService, ISaveableService
             return true;
         });
     }
+
+    public abstract bool ShouldCardsBeDisplayed();
+    public abstract float GetCardSize();
 
     public List<Card> Cards = new List<Card>();
     public TMPro.TextMeshProUGUI Text;

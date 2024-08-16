@@ -31,6 +31,9 @@ public class TutorialScoutQuest : Quest<TokenizedUnitData>
 
     public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
     {
+        if (Game.GetService<Units>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Units>(), Units._OnUnitMoved }

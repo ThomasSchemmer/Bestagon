@@ -31,6 +31,9 @@ public class TutorialBuildingsQuest : Quest<BuildingData>
 
     public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
     {
+        if (Game.GetService<BuildingService>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<BuildingService>(), BuildingService._OnBuildingBuilt }

@@ -93,6 +93,7 @@
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTurnsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardMoveAnimation.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />

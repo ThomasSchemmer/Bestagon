@@ -31,6 +31,9 @@ public class TutorialCardsQuest : Quest<Card>
 
     public override Dictionary<IQuestRegister<Card>, ActionList<Card>> GetRegisterMap()
     {
+        if (Game.GetService<CardHand>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<CardHand>(), CardHand._OnCardPlayed }

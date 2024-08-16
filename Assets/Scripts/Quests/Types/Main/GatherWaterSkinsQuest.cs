@@ -23,6 +23,9 @@ public class GatherWaterSkinsQuest : Quest<Production>
 
     public override Dictionary<IQuestRegister<Production>, ActionList<Production>> GetRegisterMap()
     {
+        if (Game.GetService<Stockpile>() == null)
+            return new();
+
         return new()
         {
             { Game.GetService<Stockpile>(), Stockpile._OnResourcesCollected }
