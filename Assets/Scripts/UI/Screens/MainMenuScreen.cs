@@ -24,7 +24,7 @@ public class MainMenuScreen : MonoBehaviour
 
     public void OnSelectExit()
     {
-        Game.ExitGame();
+        Game.QuitGame();
     }
 
     public void OnSelectLoad()

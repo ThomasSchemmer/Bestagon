@@ -365,7 +365,7 @@ public class Game : MonoBehaviour
         Instance.Init();
     }
 
-    public static void ExitGame()
+    public static void QuitGame()
     {
 #if UNITY_EDITOR
             EditorApplication.isPlaying = false;

@@ -49,6 +49,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         }
         else
         {
+            // needs to be before starvation, otherwise food etc will be subtracted
+            _OnResourcesCollected.ForEach(_ => _.Invoke(ProducedThisRound));
             return CalculateStarvation(ProducedThisRound);
         }
     }
@@ -86,7 +88,6 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public void GenerateResources()
     {
         Production ProducedThisRound = CalculateResources(false);
-        _OnResourcesCollected.ForEach(_ => _.Invoke(ProducedThisRound));
         _OnResourcesChanged?.Invoke();
     }
 

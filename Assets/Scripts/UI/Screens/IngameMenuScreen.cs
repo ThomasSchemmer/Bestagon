@@ -78,12 +78,20 @@ public class IngameMenuScreen : ScreenUI
 
     public void OnClickExit()
     {
-
         Action A = () =>
         {
-            Game.ExitGame();
+            Game.LoadGame(null, Game.MenuSceneName);
         };
         ConfirmScreen.Show("Are you sure you want exit the game? Any unsaved progress will be lost!", A);
+    }
+
+    public void OnClickQuit()
+    {
+        Action A = () =>
+        {
+            Game.QuitGame();
+        };
+        ConfirmScreen.Show("Are you sure you want quit the game? Any unsaved progress will be lost!", A);
     }
 
     private bool IsShown = false;
