@@ -229,7 +229,7 @@ public class StockpileScreen : MonoBehaviour
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        UpgradesScreen.UpdateVisuals(Stockpile.UpgradePoints);
+        UpgradesScreen.UpdateVisuals(Stockpile.GetUpgradePoints());
     }
 
     public void Show(bool bShow)

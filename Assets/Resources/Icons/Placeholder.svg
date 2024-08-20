@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="Placeholder.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showguides="true"
+     inkscape:zoom="11.588215"
+     inkscape:cx="21.703084"
+     inkscape:cy="24.119332"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1.0583333"
+       spacingy="1.0583333"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <rect
+       x="0"
+       y="0"
+       width="63.999998"
+       height="63.999998"
+       id="rect1" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       d="M 3.8597127,1.3539225 V 5.5872559 9.821106 h 0.0031 V 15.57631 H 5.7474528 V 9.821106 H 7.369576 9.1549967 c 1.9447463,0 3.5108973,-1.8883322 3.5108973,-4.2338501 0,-2.3455182 -1.566151,-4.2333334 -3.5108973,-4.2333334 H 7.369576 Z M 5.7474528,3.0923177 H 7.487915 8.540564 c 1.1460901,0 2.068091,1.1126632 2.068091,2.4949382 0,1.3822749 -0.9220009,2.4954549 -2.068091,2.4954549 H 7.487915 5.7474528 v -2.38125 z"
+       style="display:inline;fill:#645c59;stroke:#645c59;stroke-width:0.0750001;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:5.2"
+       id="path6" />
+  </g>
+</svg>

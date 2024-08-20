@@ -17,6 +17,8 @@ public class IconFactory : GameService
     private GameObject ProduceConsumeEffectPrefab;
     private GameObject UpgradeButtonPrefab;
 
+    private Sprite PlaceholderSprite;
+
     public enum MiscellaneousType
     {
         TrendUp,
@@ -42,6 +44,7 @@ public class IconFactory : GameService
         LoadTiles();
         LoadBuildingTypes();
         LoadMiscellaneous();
+        LoadPlaceholder();
         LoadPrefabs();
     }
 
@@ -112,7 +115,20 @@ public class IconFactory : GameService
         }
     }
 
-    
+    private void LoadPlaceholder()
+    {
+        GameObject MeshObject = Resources.Load("Icons/Placeholder") as GameObject;
+        if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
+            return;
+
+        Sprite Sprite = MeshObject.GetComponent<SpriteRenderer>().sprite;
+        if (!Sprite)
+            return;
+
+        PlaceholderSprite = Sprite;
+    }
+
+
     private void LoadTiles()
     {
         AvailableTiles.Clear();
@@ -153,7 +169,7 @@ public class IconFactory : GameService
     public Sprite GetIconForProductionType(Production.GoodsType Type)
     {
         if (!AvailableResourceTypes.ContainsKey(Type))
-            return null;
+            return PlaceholderSprite;
 
         return AvailableResourceTypes[Type];
 
@@ -161,7 +177,7 @@ public class IconFactory : GameService
     public Sprite GetIconForProduction(Production.Type Type)
     {
         if (!AvailableResources.ContainsKey(Type))
-            return null;
+            return PlaceholderSprite;
 
         return AvailableResources[Type];
     }
@@ -169,9 +185,25 @@ public class IconFactory : GameService
     public Sprite GetIconForTile(HexagonConfig.HexagonType Type)
     {
         if (!AvailableTiles.ContainsKey(Type))
-            return null;
+            return PlaceholderSprite;
 
         return AvailableTiles[Type];
+    }
+
+    public Sprite GetIconForMisc(MiscellaneousType Type)
+    {
+        if (!AvailableMiscellaneous.ContainsKey(Type))
+            return PlaceholderSprite;
+
+        return AvailableMiscellaneous[Type];
+    }
+
+    public Sprite GetIconForBuildingType(BuildingConfig.Type Type)
+    {
+        if (!AvailableBuildingTypes.ContainsKey(Type))
+            return PlaceholderSprite;
+
+        return AvailableBuildingTypes[Type];
     }
 
     public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
@@ -385,22 +417,6 @@ public class IconFactory : GameService
         TransformToBeConverted.SetParent(ButtonTransform, true);
 
         return ButtonTransform.gameObject;
-    }
-
-    public Sprite GetIconForMisc(MiscellaneousType Type)
-    {
-        if (!AvailableMiscellaneous.ContainsKey(Type))
-            return null;
-
-        return AvailableMiscellaneous[Type];
-    }
-
-    public Sprite GetIconForBuildingType(BuildingConfig.Type Type)
-    {
-        if (!AvailableBuildingTypes.ContainsKey(Type))
-            return null;
-
-        return AvailableBuildingTypes[Type];
     }
 
     protected override void StartServiceInternal()

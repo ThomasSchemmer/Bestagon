@@ -64,6 +64,8 @@ public abstract class CollectChoiceScreen : ScreenUI
     protected abstract CardDTO.Type GetCardTypeAt(int i);
     protected abstract bool ShouldCardBeUnlocked(int i);
     protected abstract Production GetCostsForChoice(int i);
+    protected abstract int GetUpgradeCostsForChoice(int i);
+    protected abstract CardCollection GetTargetCardCollection();
 
     protected void CreateCardAt(int ChoiceIndex, CardDTO.Type Type)
     {
@@ -122,6 +124,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         {
             OnSelectOption(ChoiceIndex);
         });
+        Button.interactable = CanAffordChoice(ChoiceIndex);
         CardContainer = TargetContainer.GetChild(0).GetChild(3);
         Callback = SetChoiceCard;
     }
@@ -136,7 +139,18 @@ public abstract class CollectChoiceScreen : ScreenUI
         {
             OnSelectOption(ChoiceIndex);
         });
+        Button.interactable = CanAffordChoice(ChoiceIndex);
         Callback = SetChoiceUpgrade;
+    }
+
+    private bool CanAffordChoice(int ChoiceIndex)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return false;
+
+        Production Costs = GetCostsForChoice(ChoiceIndex);
+        int UpgradeCosts = GetUpgradeCostsForChoice(ChoiceIndex);
+        return Stockpile.CanAfford(Costs) && Stockpile.CanAffordUpgrade(UpgradeCosts);
     }
 
     private void AddPrefabToContainer(Transform Container, GameObject Prefab)
@@ -166,10 +180,12 @@ public abstract class CollectChoiceScreen : ScreenUI
             return;
 
         Production Costs = GetCostsForChoice(ChoiceIndex);
-        if (!Stockpile.CanAfford(Costs))
+        int UpgradeCosts = GetUpgradeCostsForChoice(ChoiceIndex);
+        if (!Stockpile.CanAfford(Costs) ||!Stockpile.CanAffordUpgrade(UpgradeCosts))
             return;
 
         Stockpile.Pay(Costs);
+        Stockpile.PayUpgrade(UpgradeCosts);
 
         CollectableChoice Choice = Choices[ChoiceIndex];
         List<CollectableChoice> OtherChoices = new();
@@ -206,10 +222,14 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     private void OnSelectCardChoice(CollectableChoice Choice)
     {
-        if (!Game.TryGetServices(out Unlockables Unlockables, out CardHand CardHand))
+        if (!Game.TryGetService(out Unlockables Unlockables))
             return;
 
-        CardHand.AddCard(Choice.GeneratedCard);
+        CardCollection Collection = GetTargetCardCollection();
+        if (Collection == null)
+            return;
+
+        Collection.AddCard(Choice.GeneratedCard);
 
         if (Choice.BuildingToUnlock == BuildingConfig.Type.DEFAULT)
             return;

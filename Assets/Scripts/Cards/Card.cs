@@ -33,6 +33,10 @@ public abstract class Card : Draggable, ISelectable
 
     public void Update()
     {
+        // card selection has drag and drop
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return;
+
         int Index = 0;
         float RemainingTime = Time.deltaTime;
         while (Index < Animations.Count && RemainingTime > 0)
@@ -312,6 +316,9 @@ public abstract class Card : Draggable, ISelectable
 
     public void OnAssignedToCollection(CardCollection Target)
     {
+        // card selection has drag and drop
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return;
         if (Animations.Count == 0)
             return;
 

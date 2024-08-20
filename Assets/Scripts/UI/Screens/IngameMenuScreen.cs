@@ -80,6 +80,7 @@ public class IngameMenuScreen : ScreenUI
     {
         Action A = () =>
         {
+            HexagonConfig.ResetMapSizeToDefault();
             Game.LoadGame(null, Game.MenuSceneName);
         };
         ConfirmScreen.Show("Are you sure you want exit the game? Any unsaved progress will be lost!", A);
@@ -89,6 +90,7 @@ public class IngameMenuScreen : ScreenUI
     {
         Action A = () =>
         {
+            HexagonConfig.ResetMapSizeToDefault();
             Game.QuitGame();
         };
         ConfirmScreen.Show("Are you sure you want quit the game? Any unsaved progress will be lost!", A);

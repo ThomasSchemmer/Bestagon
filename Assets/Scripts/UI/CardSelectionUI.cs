@@ -12,7 +12,7 @@ public class CardSelectionUI : MonoBehaviour
     {
         Game.RunAfterServiceInit((Stockpile Stockpile) =>
         {
-            UpdateText(Stockpile.UpgradePoints);
+            UpdateText(Stockpile.GetUpgradePoints());
         });
     }
 
@@ -21,7 +21,7 @@ public class CardSelectionUI : MonoBehaviour
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        if (Stockpile.UpgradePoints > 0)
+        if (Stockpile.CanAffordUpgrade(1))
         {
 
             ConfirmScreen.Show("You have unspend upgrade points. Are you sure you want to leave?", ConfirmLeave);
@@ -53,7 +53,7 @@ public class CardSelectionUI : MonoBehaviour
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
-        UpdateText(Stockpile.UpgradePoints);
+        UpdateText(Stockpile.GetUpgradePoints());
     }
 
 }

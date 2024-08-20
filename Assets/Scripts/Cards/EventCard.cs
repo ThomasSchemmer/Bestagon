@@ -18,7 +18,7 @@ public class EventCard : Card
 
     public override bool ShouldBeDeleted()
     {
-        return true;
+        return EventData.bIsTemporary;
     }
 
     protected override void GenerateVisuals()
@@ -86,14 +86,16 @@ public class EventCard : Card
 
     protected override CardCollection GetTargetAfterUse()
     {
-        // events are one time only
+        // events are one time only in most cases
         if (!Game.TryGetService(out CardStash CardStash))
             return null;
 
         return CardStash;
     }
 
-    protected override void UseInternal() {}
+    protected override void UseInternal() {
+        bWasUsedUp = true;
+    }
 
     public override int GetAdjacencyRange()
     {

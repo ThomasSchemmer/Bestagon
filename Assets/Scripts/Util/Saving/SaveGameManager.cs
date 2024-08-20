@@ -220,10 +220,7 @@ public class SaveGameManager : GameService
 
     private void HandleTutorialLoading()
     {
-        if (!HasTutorialFile())
-        {
-            CopyTutorialFile();
-        }
+        CopyTutorialFile();
         FileToLoad = GetTutorialSave();
         bCreateNewFile = false;
 

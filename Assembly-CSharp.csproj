@@ -90,6 +90,7 @@
     <Compile Include="Assets\Scripts\Events\GrantResourceEventData.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Main\GatherWaterSkinsQuest.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\UnlockNewCardScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTurnsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />

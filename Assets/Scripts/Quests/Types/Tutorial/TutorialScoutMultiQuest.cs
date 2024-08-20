@@ -38,8 +38,16 @@ public class TutorialScoutMultiQuest : MultiQuest<BuildingData, TokenizedUnitDat
             return;
 
         CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, null, AddCard);
-        CardFactory.CreateCard(UnitData.UnitType.Scout, 0, null, AddCard);
+        CardFactory.CreateCard(UnitData.UnitType.Scout, 0, null, AddScoutCard);
         TutorialSystem.DisplayTextFor(TutorialType.Scouts);
+    }
+
+    private void AddScoutCard(Card Card)
+    {
+        EventCard ECard = Card as EventCard;
+        GrantUnitEventData EData = ECard.EventData as GrantUnitEventData;
+        EData.bIsTemporary = false;
+        AddCard(Card);
     }
 
     private void AddCard(Card Card)

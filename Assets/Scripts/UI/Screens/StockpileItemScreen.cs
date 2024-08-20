@@ -23,7 +23,10 @@ public class StockpileItemScreen : MonoBehaviour, UIElement
         IndicatorText = transform.GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();
         IconScreen = transform.GetChild(1).GetComponent<NumberedIconScreen>();
         Production.Type? Type = ParentScreen != null ? null : (Production.Type)ProductionIndex;
-        Sprite Sprite = Type == null ? null : IconFactory.GetIconForProduction((Production.Type)Type);
+        Production.GoodsType? GoodsType = ParentScreen != null ? (Production.GoodsType)ProductionIndex : null;
+        Sprite Sprite = Type == null ? 
+            IconFactory.GetIconForProductionType((Production.GoodsType)GoodsType) :
+            IconFactory.GetIconForProduction((Production.Type)Type);
         IconScreen.Initialize(Sprite, GetHoverTooltip(), this);
         IconScreen.SetAmountAlignment(TMPro.TextAlignmentOptions.Midline);
     }

@@ -25,11 +25,15 @@ public abstract class CardCollection : GameService, ISaveableService
     public virtual Card RemoveCard(Card Card)
     {
         Cards.Remove(Card);
-        Card.Animations.Add(new()
+
+        if (!Game.IsIn(Game.GameState.CardSelection))
         {
-            StartPosition = transform.position,
-            SourceCollection = this
-        });
+            Card.Animations.Add(new()
+            {
+                StartPosition = transform.position,
+                SourceCollection = this
+            });
+        }
 
         if (Text)
         {

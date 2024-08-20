@@ -15,6 +15,16 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         return true;
     }
 
+    public bool PayUpgrade(int Costs)
+    {
+        if (!CanAffordUpgrade(Costs))
+            return false;
+
+        UpgradePoints -= Costs;
+        _OnUpgradesChanged?.Invoke();
+        return true;
+    }
+
     public void ProduceWorkers()
     {
         if (!Game.TryGetServices(out BuildingService BuildingService, out Workers WorkerService))
@@ -134,6 +144,16 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         return Costs <= Resources;
     }
 
+    public bool CanAffordUpgrade(int Costs)
+    {
+        return Costs <= UpgradePoints;
+    }
+
+    public int GetUpgradePoints()
+    {
+        return UpgradePoints;
+    }
+
     public void RequestUIRefresh()
     {
         _OnResourcesChanged?.Invoke();
@@ -236,7 +256,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public Production SimulatedGains;
 
     public Production StartingResources;
-    public int UpgradePoints = 0;
+    protected int UpgradePoints = 0;
 
     private StockpileScreen StockpileScreen;
 

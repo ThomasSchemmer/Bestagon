@@ -384,4 +384,11 @@ public class HexagonConfig {
         return Result;
     }
 
+    public static void ResetMapSizeToDefault()
+    {
+        MapMaxChunk = DefaultMapMaxChunk;
+        ChunkSize = DefaultChunkSize;
+        LoadedChunkVisualizations = DefaultLoadedChunkVisualizations;
+    }
+
 }

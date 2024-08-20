@@ -104,4 +104,14 @@ public class CollectDecorationScreen : CollectChoiceScreen
     {
         return Production.Empty;
     }
+
+    protected override int GetUpgradeCostsForChoice(int i)
+    {
+        return 0;
+    }
+
+    protected override CardCollection GetTargetCardCollection()
+    {
+        return Game.GetService<CardHand>();
+    }
 }

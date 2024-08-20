@@ -60,10 +60,7 @@ public class TutorialAbandonRunQuest : Quest<int>
     }
 
     public override void OnAfterCompletion() {
-        HexagonConfig.MapMaxChunk = HexagonConfig.DefaultMapMaxChunk;
-        HexagonConfig.ChunkSize = HexagonConfig.DefaultChunkSize;
-        HexagonConfig.LoadedChunkVisualizations = HexagonConfig.DefaultLoadedChunkVisualizations;
-
+        HexagonConfig.ResetMapSizeToDefault();
     }
 
     public override void OnCreated()

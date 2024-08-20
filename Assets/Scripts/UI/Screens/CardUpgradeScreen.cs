@@ -77,7 +77,7 @@ public class CardUpgradeScreen : GameService
         bIsVisible = Card is BuildingCard ? bIsVisible : false;
         bIsVisible = Game.TryGetService(out DraggableManager DraggableManager) && !DraggableManager.IsDragging() ? bIsVisible : false;
 
-        bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.UpgradePoints > 0;
+        bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.CanAffordUpgrade(1);
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;

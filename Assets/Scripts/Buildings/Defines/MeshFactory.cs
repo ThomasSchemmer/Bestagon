@@ -14,7 +14,7 @@ public class MeshFactory : GameService
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
     public SerializedDictionary<UnitType, Tuple<UnitData, GameObject>> AvailableUnits = new();
-    public Mesh UnknownMesh;
+    public Mesh UnknownMesh, UnknownBuildingMesh;
     public GameObject BuildingPrefab, UnitPrefab;
 
 
@@ -45,10 +45,9 @@ public class MeshFactory : GameService
                 continue;
 
             GameObject MeshObject = Resources.Load("Buildings/Prefabs/"+BuildingData.BuildingType) as GameObject;
-            if (!MeshObject || !MeshObject.GetComponent<MeshFilter>()) 
-                continue;
-
-            Mesh Mesh = MeshObject.GetComponent<MeshFilter>().sharedMesh;
+            Mesh Mesh = (MeshObject != null && MeshObject.GetComponent<MeshFilter>() != null) ? 
+                MeshObject.GetComponent<MeshFilter>().sharedMesh :
+                UnknownBuildingMesh;
             if (!Mesh)
                 continue;
 

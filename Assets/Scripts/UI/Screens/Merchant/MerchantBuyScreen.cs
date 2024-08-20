@@ -82,6 +82,15 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return new Production(Production.Type.Coins, CARD_COST);
     }
 
+    protected override int GetUpgradeCostsForChoice(int i)
+    {
+        return 0;
+    }
+    protected override CardCollection GetTargetCardCollection()
+    {
+        return Game.GetService<CardHand>();
+    }
+
     private static int CARD_COST = 5;
     private static int REFRESH_COST = 10;
 }

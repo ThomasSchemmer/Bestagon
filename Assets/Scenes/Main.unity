@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 0.28408098, g: 0.370688, b: 0.50041467, a: 1}
+  m_IndirectSpecularColor: {r: 0.2840812, g: 0.3706883, b: 0.50041527, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5680,6 +5680,7 @@ MonoBehaviour:
     - Key: 0
   UnknownMesh: {fileID: -6277642020468327343, guid: bb12aeb2f6efb52439cb0f96d4d33756,
     type: 3}
+  UnknownBuildingMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   BuildingPrefab: {fileID: 8536222950531395772, guid: 405f104a36d957c41939318d17a5611e,
     type: 3}
   UnitPrefab: {fileID: 2794737047199554117, guid: bb999a4db94e27940abcbea9b143d0ed,
@@ -19454,7 +19455,6 @@ MonoBehaviour:
         Value: 2
       - Key: 7
         Value: 7
-  UpgradePoints: 0
 --- !u!1 &2095708519
 GameObject:
   m_ObjectHideFlags: 0

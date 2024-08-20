@@ -276,6 +276,10 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
 
     public bool IsAnyUpgradePossible()
     {
+        // TODO: remove once fixed
+        if (BuildingType == BuildingConfig.Type.Hut)
+            return false;
+
         return IsUpgradePossible(UpgradeableAttributes.MaxUsages) ||
             IsUpgradePossible(UpgradeableAttributes.MaxWorker) ||
             IsUpgradePossible(UpgradeableAttributes.Production);

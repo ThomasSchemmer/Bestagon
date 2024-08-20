@@ -18,7 +18,7 @@ public class CardDeck : CardCollection
                 return;
 
             Cards = new();
-            Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddCard);
+            Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddScoutCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
@@ -87,6 +87,14 @@ public class CardDeck : CardCollection
         base.AddCard(Card);
         Card.Show(Card.Visibility.Hidden);
         UpdateText();
+    }
+
+    private void AddScoutCard(Card Card)
+    {
+        EventCard ECard = Card as EventCard;
+        GrantUnitEventData EData = ECard.EventData as GrantUnitEventData;
+        EData.bIsTemporary = false;
+        AddCard(Card);
     }
 
     public override bool ShouldCardsBeDisplayed()

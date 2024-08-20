@@ -19,6 +19,9 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
 
     public EventType Type;
 
+    // Temporary cards will be deleted once played
+    public bool bIsTemporary = true;
+
     public static EventData CreateRandom()
     {
         EventType Type = GetRandomType();
