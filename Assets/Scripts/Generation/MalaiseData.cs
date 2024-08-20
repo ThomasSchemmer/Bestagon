@@ -32,7 +32,9 @@ public class MalaiseData : ISaveableData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        HexagonData Hex = Chunk.GetHexAt(Location.HexLocation);
+        if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData Hex))
+            return;
+
         Hex.MalaisedState = HexagonData.MalaiseState.Malaised;
 
         Chunk.DestroyTokensAt(Location);
@@ -132,10 +134,13 @@ public class MalaiseData : ISaveableData
         {
             for (int x = 0; x < HexagonConfig.ChunkSize; x++)
             {
-                if (Chunk.HexDatas[x, y].MalaisedState != HexagonData.MalaiseState.Malaised)
+                if (!Chunk.TryGetHexAt(new(x, y), out HexagonData Hex))
                     continue;
 
-                MalaisedHexes.Add(Chunk.HexDatas[x, y].Location);
+                if (Hex.MalaisedState != HexagonData.MalaiseState.Malaised)
+                    continue;
+
+                MalaisedHexes.Add(Hex.Location);
             }
         }
 
@@ -153,7 +158,10 @@ public class MalaiseData : ISaveableData
         List<Location> MalaisedLocations = GetMalaised();
         foreach (Location Location in MalaisedLocations)
         {
-            MalaisedHexes.Add(Chunk.GetHexAt(Location.HexLocation));
+            if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData Hex))
+                continue;
+
+            MalaisedHexes.Add(Hex);
         }
         return MalaisedHexes;
     }
@@ -181,7 +189,9 @@ public class MalaiseData : ISaveableData
         if (ChunkData.Malaise == null)
             return;
 
-        HexagonData HexData = ChunkData.GetHexAt(Location.HexLocation);
+        if (!ChunkData.TryGetHexAt(Location.HexLocation, out HexagonData HexData))
+            return;
+
         HexData.MalaisedState = HexagonData.MalaiseState.PreMalaise;
         ChunkData.Malaise.LocationsToMalaise.Add(Location);
         ChunkData.Malaise.Infect();
@@ -228,8 +238,7 @@ public class MalaiseData : ISaveableData
         {
             Location Location = new();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-            HexagonData TargetHex = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
-            if (TargetHex == null)
+            if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData TargetHex))
                 continue;
 
             MarkToMalaise(TargetHex);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.Collections;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -29,6 +30,8 @@ public class QuestUIElement : MonoBehaviour, UIElement
 
     // actual templated data (stored as abstract class to fascilate calling of functions)
     protected QuestTemplate QuestObject;
+
+    protected float HoverTimestamp = 0;
 
     public void Init(QuestTemplate Template)
     {
@@ -117,11 +120,31 @@ public class QuestUIElement : MonoBehaviour, UIElement
         TypeImage.gameObject.SetActive(!IsCompleted());
     }
 
+    public void Update()
+    {
+        if (HoverTimestamp < 0)
+            return;
+
+        HoverTimestamp -= Time.deltaTime;
+        if (HoverTimestamp > 0)
+            return;
+
+        bIsHovered = false;
+    }
+
     public void SetSelected(bool Selected) { }
 
     public void SetHovered(bool Hovered)
     {
-        bIsHovered = Hovered;
+        if (Hovered)
+        {
+            bIsHovered = true;
+            HoverTimestamp = -1;
+        }
+        else
+        {
+            HoverTimestamp = HoverDelayS;
+        }
         //make sure the "i saw it" is only when moving away
         if (!bIsDiscovered)
         {
@@ -190,6 +213,7 @@ public class QuestUIElement : MonoBehaviour, UIElement
         return QuestObject.GetQuestType();
     }
 
+    private static float HoverDelayS = 0.25f;
     private static Color NormalQuestColor = new(1, 1, 1, 1);
     private static Color MainQuestColor = new(0.52f, 0.68f, 0.85f, 1);
     private static Color NegativeQuestColor = new(0.85f, 0.52f, 0.52f, 1);

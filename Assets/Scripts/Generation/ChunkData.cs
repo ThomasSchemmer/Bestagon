@@ -11,7 +11,6 @@ using UnityEngine;
 [System.Serializable]
 public class ChunkData : ISaveableData
 {
-
     public void GenerateData(Location Location)
     {
         this.Location = Location;
@@ -77,9 +76,16 @@ public class ChunkData : ISaveableData
         }
     }
 
-    public HexagonData GetHexAt(Vector2Int HexLocation)
+    public bool TryGetHexAt(Vector2Int HexLocation, out HexagonData Hex)
     {
-        return HexDatas[HexLocation.x, HexLocation.y];
+        Hex = null;
+        if (HexDatas == null)
+            return false;
+        if (HexLocation.x >= HexDatas.GetLength(0) || HexLocation.y >= HexDatas.GetLength(1))
+            return false;
+
+        Hex = HexDatas[HexLocation.x, HexLocation.y];
+        return true;
     }
 
     private void DestroyWorkersAt(Location Location)
@@ -191,7 +197,8 @@ public class ChunkData : ISaveableData
 
     public bool ShouldLoadWithLoadedSize() {  return true; }
 
-    public HexagonData[,] HexDatas;
     public Location Location;
     public MalaiseData Malaise;
+
+    protected HexagonData[,] HexDatas;
 }

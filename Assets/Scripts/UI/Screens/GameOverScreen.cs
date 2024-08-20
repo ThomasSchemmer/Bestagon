@@ -19,11 +19,20 @@ public class GameOverScreen : ScreenUI
 
         ResetResources();
         UpdateCards();
+        HandleTutorialInit();
 
         Statistics.ResetCurrentStats();
 
         string SaveGame = SaveGameManager.Save();
         Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
+    }
+
+    private void HandleTutorialInit()
+    {
+        if (!Game.TryGetService(out QuestService QuestService))
+            return;
+
+        QuestService.HandleTutorialInit();
     }
 
     private void DisplayCurrentRun(Statistics Statistics)

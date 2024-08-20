@@ -321,8 +321,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (!TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
             return false;
 
-        Hex = ChunkVis.Hexes[Location.HexLocation.x, Location.HexLocation.y];
-        return Hex != null;
+        return ChunkVis.TryGetHex(Location, out Hex);
     }
 
     public bool TryGetHexagonData(Location Location, out HexagonData HexData, bool bTakeRawData = false) {
@@ -339,7 +338,9 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (!TryGetChunkData(Location, out ChunkData ChunkData))
             return false;
 
-        HexData = ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
+        if (!ChunkData.TryGetHexAt(Location.HexLocation, out HexData))
+            return false;
+
         return HexData != null;
     }
 
@@ -355,10 +356,13 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (!Game.TryGetService(out Map Map))
             return false;
 
-        Map.MapData[Index] = new(Height, Type);
+        if (!ChunkData.TryGetHexAt(Location.HexLocation, out HexagonData Hex))
+            return false;
 
-        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].Type = Type;
-        ChunkData.HexDatas[Location.HexLocation.x, Location.HexLocation.y].HexHeight = Height;
+        Map.MapData[Index] = new(Height, Type);
+        Hex.Type = Type;
+        Hex.HexHeight = Height;
+
         return true;
     }
 
@@ -491,7 +495,13 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             for (int j = 0; j < HexagonConfig.ChunkSize; j++) {
                 for (int x = 0; x < HexagonConfig.MapMaxChunk; x++) {
                     for (int i = 0; i < HexagonConfig.ChunkSize; i++) {
-                        DTOs[Index] = Chunks[x, y].HexDatas[i, j].GetDTO();
+                        if (!TryGetChunkData(new Location(x, y, 0, 0), out ChunkData Chunk))
+                            continue;
+
+                        if (!Chunk.TryGetHexAt(new(i, j), out HexagonData Hex))
+                            continue;
+
+                        DTOs[Index] = Hex.GetDTO();
                         Index++;
                     }
                 }

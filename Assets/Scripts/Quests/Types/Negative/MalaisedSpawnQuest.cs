@@ -5,12 +5,12 @@ using UnityEngine;
 
 public class MalaisedSpawnQuest : MultiQuest<int, TokenizedUnitData>
 {
-    public override System.Type GetCancelQuestType()
+    public override System.Type GetQuest2Type()
     {
         return typeof(MalaisedSpawnQuestMove);
     }
 
-    public override System.Type GetMultiQuestType()
+    public override System.Type GetQuest1Type()
     {
         return typeof(MalaisedSpawnQuestTurn);
     }
@@ -26,6 +26,11 @@ public class MalaisedSpawnQuest : MultiQuest<int, TokenizedUnitData>
         return false;
     }
     public override void OnCreated() { }
+
+    public override bool IsQuest2Cancel()
+    {
+        return true;
+    }
 
     public static Location TargetLocation;
     public static int StartTurnNr;
@@ -116,7 +121,8 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
 
     public override string GetDescription()
     {
-        return "Reach "+ MalaisedSpawnQuest.TargetLocation.GlobalTileLocation.ToString()+" before the timer runs out!";
+        string Location = MalaisedSpawnQuest.TargetLocation != null ? MalaisedSpawnQuest.TargetLocation.GlobalTileLocation.ToString() : string.Empty;
+        return "Reach "+ Location + " before the timer runs out!";
     }
 
     public override int GetMaxProgress()

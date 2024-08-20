@@ -115,6 +115,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitPathScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
+    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialScoutMultiQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\ReachVisualization.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\EventCardDTO.cs" />
@@ -213,7 +214,6 @@
     <Compile Include="Assets\Scripts\Util\BackgroundRenderer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\RuinsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildBuildingsQuest.cs" />
-    <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialScoutQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnitsScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />

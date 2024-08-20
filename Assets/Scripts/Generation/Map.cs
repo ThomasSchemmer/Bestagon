@@ -45,11 +45,11 @@ public class Map : GameService
 
     public void SetDataFromChunk(ChunkData Chunk)
     {
-        foreach (HexagonData Hex in Chunk.HexDatas)
+        Chunk.ForEachHex((Hexagon) =>
         {
-            int Pos = GetMapPosFromLocation(Hex.Location);
-            MapData[Pos] = Hex;
-        }
+            int Pos = GetMapPosFromLocation(Hexagon.Location);
+            MapData[Pos] = Hexagon;
+        });
     }
 
     private void AddDelayedDecorations()

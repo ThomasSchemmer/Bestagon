@@ -116,6 +116,10 @@ public class QuestService : GameService, ISaveableService
 
     private void HandleFollowUp(QuestUIElement Quest, bool bAddFollowups = true)
     {
+        // the second of the multi-quest does not have a UI element
+        if (Quest == null)
+            return;
+
         QuestTemplate QuestT = Quest.GetQuestObject();
         if (!bAddFollowups || !QuestT.TryGetNextType(out Type Type))
             return;
@@ -210,7 +214,7 @@ public class QuestService : GameService, ISaveableService
         return Quest.IsHovered() ? HoverScaleModifier : 1;
     }
 
-    private void Loadtemplates()
+    private void LoadTemplates()
     {
         LoadQuestTemplates(true);
         // already removed follow-up quests
@@ -226,7 +230,7 @@ public class QuestService : GameService, ISaveableService
         {
             if (!Game.IsIn(Game.GameState.CardSelection) && !Manager.HasDataFor(ISaveableService.SaveGameType.Quests))
             {
-                Loadtemplates();
+                LoadTemplates();
             }
 
             _OnInit?.Invoke(this);
@@ -271,6 +275,18 @@ public class QuestService : GameService, ISaveableService
     private int GetInactiveQuestCount()
     {
         return QuestsToUnlock.Count;
+    }
+
+    public void HandleTutorialInit()
+    {
+        if (!Game.TryGetService(out TutorialSystem TutorialSystem))
+            return;
+
+        if (!TutorialSystem.IsInTutorial())
+            return;
+
+        TutorialSystem.SetInTutorial(false);
+        LoadTemplates();
     }
 
     public byte[] GetData()

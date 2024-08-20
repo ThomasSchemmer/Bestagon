@@ -70,7 +70,7 @@ public class TutorialTurnsQuest : Quest<int>
 
     public override bool TryGetNextType(out System.Type Type)
     {
-        Type = typeof(TutorialScoutQuest);
+        Type = typeof(TutorialScoutMultiQuest);
         return true;
     }
 

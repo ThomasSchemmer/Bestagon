@@ -57,6 +57,18 @@ public class ChunkVisualization : MonoBehaviour
         UnitVisualizations = new();
     }
 
+    public bool TryGetHex(Location Location, out HexagonVisualization Hex)
+    {
+        Hex = null;
+        if (Hexes == null)
+            return false;
+        if (Location.HexLocation.x >= Hexes.GetLength(0) || Location.HexLocation.y >= Hexes.GetLength(1))
+            return false;
+
+        Hex = Hexes[Location.HexLocation.x, Location.HexLocation.y];
+        return true;
+    }
+
     private void CreateBuildings() {
         if (!Game.TryGetService(out BuildingService Buildings))
             return;
@@ -132,11 +144,12 @@ public class ChunkVisualization : MonoBehaviour
         MapGenerator.FinishChunkVisualization();
     }
 
-    public HexagonVisualization[,] Hexes;
     public List<BuildingVisualization> BuildingVisualizations;
     public List<UnitVisualization> UnitVisualizations;
     public Location Location;
     public Coroutine Generator;
+
+    protected HexagonVisualization[,] Hexes;
 
     private int FinishedVisualizationCount = 0;
 }

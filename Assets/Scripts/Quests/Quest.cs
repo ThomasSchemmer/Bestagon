@@ -38,6 +38,9 @@ public abstract class Quest<T> : QuestTemplate
 
     public override void Destroy()
     {
+        if (Parent == null)
+            return;
+
         GameObject.DestroyImmediate(Parent.gameObject);
     }
 

@@ -23,7 +23,11 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         this.name = "Hex " + Location.HexLocation;
         this.Mat = Mat;
         Chunk = ChunkData;
-        Data = Chunk.HexDatas[Location.HexLocation.x, Location.HexLocation.y];
+
+        if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData Hex))
+            return;
+
+        Data = Hex;
 
         Generator = Game.GetService<MapGenerator>();
         UpdateMesh();
