@@ -90,7 +90,7 @@ public class MalaiseData : ISaveableData
         }
     }
 
-    private bool MarkToMalaise(HexagonData Hex)
+    private bool MarkToMalaise(HexagonData Hex, ChunkData TargetChunk = null)
     {
         if (Hex.MalaisedState != HexagonData.MalaiseState.None)
             return false;
@@ -98,7 +98,7 @@ public class MalaiseData : ISaveableData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return false;
 
-        if (!MapGenerator.TryGetChunkData(Hex.Location, out ChunkData TargetChunk))
+        if (TargetChunk == null && !MapGenerator.TryGetChunkData(Hex.Location, out TargetChunk))
             return false;
 
         Hex.MalaisedState = HexagonData.MalaiseState.PreMalaise;
@@ -241,7 +241,8 @@ public class MalaiseData : ISaveableData
             if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData TargetHex))
                 continue;
 
-            MarkToMalaise(TargetHex);
+            // we can force the current chunk here, cause we are directly writing to it anyway
+            MarkToMalaise(TargetHex, Chunk);
         }
         Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountPerRound);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountIncrease);
