@@ -12,6 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Brewer
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 4
   Cost:
     _Production:
@@ -19,11 +28,12 @@ MonoBehaviour:
       - Key: 6
         Value: 2
       - Key: 5
-        Value: 1
+        Value: 2
       - Key: 2
         Value: 3
   Effect:
     EffectType: 2
+    UnitType: 0
     TileType: 0
     Production:
       _Production:
@@ -36,7 +46,6 @@ MonoBehaviour:
         - Key: 8
           Value: 3
     Range: 0
-    IsProductionBlockedByBuilding: 0
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:

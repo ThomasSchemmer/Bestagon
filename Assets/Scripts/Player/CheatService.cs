@@ -87,6 +87,10 @@ public class CheatService : ScreenUI
         {
             DestroyAllResources(Cheats);
         }
+        if (Cheats[0].Equals(SCOUT_CODE))
+        {
+            Scout(Cheats);
+        }
         if (Cheats[0].Equals(VANISH_CODE))
         {
             DestroyAllCards(Cheats);
@@ -94,6 +98,21 @@ public class CheatService : ScreenUI
             DestroyAllQuests(Cheats);
             DestroyAllResources(Cheats);
         }
+    }
+
+    private void Scout(string[] Cheats)
+    {
+        if (!Game.TryGetServices(out Units Units, out MapGenerator MapGenerator))
+            return;
+
+        int Value = GetTargetValue(Cheats, true);
+        if (!Units.TryGetAnyOfType(UnitData.UnitType.Scout, out var Scout))
+            return;
+
+        if (!MapGenerator.TryGetHexagon(Scout.Location, out HexagonVisualization Vis))
+            return;
+
+        Vis.UpdateDiscoveryState(Value, Value + 1);
     }
 
     private void GiveQuest(string[] Cheats)
@@ -210,9 +229,9 @@ public class CheatService : ScreenUI
         return TargetName;
     }
 
-    private int GetTargetValue(string[] Cheats)
+    private int GetTargetValue(string[] Cheats, bool bIsFirst = false)
     {
-        string TargetValue = Cheats[2];
+        string TargetValue = Cheats[bIsFirst ? 1 : 2];
         TargetValue = TargetValue.Substring(0, TargetValue.Length);
         return int.Parse(TargetValue);
     }
@@ -273,5 +292,6 @@ public class CheatService : ScreenUI
     private static string DESTROY_UNITS_CODE = "destroyallunits";
     private static string DESTROY_QUESTS_CODE = "destroyallquests";
     private static string DESTROY_RESOURCES_CODE = "destroyallresources";
+    private static string SCOUT_CODE = "scout";
     private static string VANISH_CODE = "vanish";
 }

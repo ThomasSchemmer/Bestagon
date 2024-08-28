@@ -27,14 +27,14 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
     public int UpgradeRange = 0;
 
 
-    public Production GetProduction(int Worker, Location Location)
+    public Production GetProduction(int Worker, Location Location, bool bIsSimulated)
     {
         switch(EffectType)
         {
             case Type.Produce:
                 return GetProductionAt(Worker, Location);
             case Type.ConsumeProduce:
-                return GetConsumeProductionAt(Worker, Location);
+                return GetConsumeProductionAt(Worker, Location, bIsSimulated);
             // ProduceUnit is handled on its own
             default: return new();
         }
@@ -61,16 +61,19 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         return Production * Worker;
     }
 
-    private Production GetConsumeProductionAt(int Worker, Location Location)
+    private Production GetConsumeProductionAt(int Worker, Location Location, bool bIsSimulated)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
             return new();
 
-        if (!Stockpile.CanAfford(Consumption))
-            return new();
+        Production Resources = bIsSimulated ? Stockpile.SimulatedResources : Stockpile.Resources;
 
-        Stockpile.Pay(Consumption);
-        return Production * Worker;
+        // consumes 1 wood, has 3 worker, but only 2 wood available
+        // => 2 consumes
+        Production MinConsumption = Production.Min(Consumption * Worker, Resources);
+        var FirstConsumption = Consumption.GetTuples()[0];
+        int Amount = MinConsumption[FirstConsumption.Key] / FirstConsumption.Value;
+        return Production * Amount - MinConsumption;
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

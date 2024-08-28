@@ -80,7 +80,8 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
 
     public static int GetStaticSize()
     {
-        return sizeof(byte);
+        // type and temporary
+        return sizeof(byte) * 2;
     }
 
     public virtual byte[] GetData()
@@ -89,6 +90,7 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
         NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsTemporary);
 
         return Bytes.ToArray();
     }
@@ -97,6 +99,7 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
     {
         int Pos = 0;
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsTemporary);
 
         Type = (EventType)bType;
     }

@@ -54,7 +54,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
 
     public Production GetProduction(bool bIsSimulated)
     {
-        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Location);
+        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Location, bIsSimulated);
     }
 
     public void SimulateCurrentFood()
@@ -70,12 +70,12 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
 
     public Production GetTheoreticalMaximumProduction()
     {
-        return Effect.GetProduction(AssignedWorkers.Length, Location);
+        return Effect.GetProduction(AssignedWorkers.Length, Location, false);
     }
 
     public Production GetProductionPreview(Location Location)
     {
-        return Effect.GetProduction(GetMaximumWorkerCount(), Location);
+        return Effect.GetProduction(GetMaximumWorkerCount(), Location, false);
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

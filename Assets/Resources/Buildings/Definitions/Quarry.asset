@@ -12,30 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Quarry
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 8192
   Cost:
     _Production:
-      Tuples: []
+      Tuples:
+      - Key: 0
+        Value: 3
+      - Key: 1
+        Value: 3
   Effect:
     EffectType: 1
-    TileType: 0
+    UnitType: 0
+    TileType: 6148
     Production:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 2
+          Value: 1
     Consumption:
       _Production:
         Tuples: []
-    Range: 0
-    IsProductionBlockedByBuilding: 0
+    Range: 1
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 2
+          Value: 2
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 0
+  BuildableOn: 3091
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 1
+  UpgradeMaxWorker: 2
   UpgradeBuildableOn: 0
-  UpgradeMaxUsages: 1
+  UpgradeMaxUsages: 2

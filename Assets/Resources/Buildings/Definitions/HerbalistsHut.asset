@@ -12,6 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: HerbalistsHut
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 256
   Cost:
     _Production:
@@ -22,6 +31,7 @@ MonoBehaviour:
         Value: 2
   Effect:
     EffectType: 1
+    UnitType: 0
     TileType: 9217
     Production:
       _Production:
@@ -32,11 +42,12 @@ MonoBehaviour:
       _Production:
         Tuples: []
     Range: 0
-    IsProductionBlockedByBuilding: 0
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 8
+          Value: 3
     UpgradeRange: 0
   MaxWorker: 1
   BuildableOn: 9217

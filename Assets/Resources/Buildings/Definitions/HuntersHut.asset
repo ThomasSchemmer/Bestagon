@@ -44,11 +44,14 @@ MonoBehaviour:
       _Production:
         Tuples: []
     Range: 1
-    IsProductionBlockedByBuilding: 1
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 20
+          Value: 3
+        - Key: 9
+          Value: 2
     UpgradeRange: 0
   MaxWorker: 1
   BuildableOn: 4099

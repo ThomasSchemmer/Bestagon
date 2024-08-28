@@ -18,6 +18,11 @@ public abstract class IndicatorComponent : MonoBehaviour
         if (!Service)
             return;
 
+        for (int i = Indicators.Length - 1; i >= 0; i--)
+        {
+            Destroy(Indicators[i].gameObject);
+        }
+
         Service.Deregister(this);
     }
 
@@ -54,12 +59,19 @@ public abstract class IndicatorComponent : MonoBehaviour
 
     protected void UpdateSpriteVisuals(int i)
     {
+        if (Indicators[i] == null)
+            return;
+
         SVGImage Image = Indicators[i].GetComponent<SVGImage>();
         Image.sprite = GetIndicatorSprite(i);
     }
 
     protected void UpdateSpritePosition(int i)
     {
+        // not yet deleted, as marking takes a bit
+        if (Indicators[i] == null)
+            return;
+
         Indicators[i].position = Service.WorldPosToScreenPos(GetIndicatorWorldPosition(i));
         Indicators[i].position += GetIndicatorScreenOffset(i);
     }

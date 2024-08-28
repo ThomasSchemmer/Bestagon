@@ -33,6 +33,20 @@ public class UnitProvider<T> : GameService, IQuestRegister<UnitData>, ISaveableS
         }
     }
 
+    public bool TryGetAnyOfType(UnitData.UnitType Type, out T Unit)
+    {
+        Unit = default;
+        foreach (T Temp in Units)
+        {
+            if (Temp.Type != Type)
+                continue;
+
+            Unit = Temp;
+            return true;
+        }
+        return false;
+    }
+
     public int GetSize()
     {
         // unit count + overall size
@@ -87,6 +101,7 @@ public class UnitProvider<T> : GameService, IQuestRegister<UnitData>, ISaveableS
     {
         Units = new();
     }
+
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 

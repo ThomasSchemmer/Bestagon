@@ -12,28 +12,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: MedicineHut
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 1024
   Cost:
     _Production:
-      Tuples: []
+      Tuples:
+      - Key: 2
+        Value: 1
+      - Key: 3
+        Value: 3
   Effect:
-    EffectType: 1
+    EffectType: 2
+    UnitType: 0
     TileType: 0
     Production:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 15
+          Value: 1
     Consumption:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 8
+          Value: 2
     Range: 0
-    IsProductionBlockedByBuilding: 0
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 0
+  BuildableOn: 5121
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 1

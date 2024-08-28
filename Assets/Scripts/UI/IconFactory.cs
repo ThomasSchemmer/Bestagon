@@ -21,8 +21,6 @@ public class IconFactory : GameService
 
     public enum MiscellaneousType
     {
-        TrendUp,
-        TrendDown,
         Worker,
         Scout,
         Usages,
@@ -30,7 +28,6 @@ public class IconFactory : GameService
         WorkerIndicator,
         NoWorkerIndicator,
         Buildings,
-        Scoutings,
         Camera,
         Tile,
         Abandon,
@@ -67,7 +64,7 @@ public class IconFactory : GameService
         var ResourceTypes = Enum.GetValues(typeof(Production.Type));
         foreach (var ResourceType in ResourceTypes)
         {
-            GameObject MeshObject = Resources.Load("Icons/" + ResourceType) as GameObject;
+            GameObject MeshObject = Resources.Load("Icons/Production/" + ResourceType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
                 continue;
 
@@ -85,7 +82,7 @@ public class IconFactory : GameService
         var ResourceTypes = Enum.GetValues(typeof(Production.GoodsType));
         foreach (var ResourceType in ResourceTypes)
         {
-            GameObject MeshObject = Resources.Load("Icons/" + ResourceType) as GameObject;
+            GameObject MeshObject = Resources.Load("Icons/Production/" + ResourceType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
                 continue;
 
@@ -103,7 +100,7 @@ public class IconFactory : GameService
         var BuildingTypes = Enum.GetValues(typeof(BuildingConfig.Type));
         foreach (var BuildingType in BuildingTypes)
         {
-            GameObject MeshObject = Resources.Load("Icons/" + BuildingType) as GameObject;
+            GameObject MeshObject = Resources.Load("Icons/Buildings/" + BuildingType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
                 continue;
 
@@ -117,7 +114,7 @@ public class IconFactory : GameService
 
     private void LoadPlaceholder()
     {
-        GameObject MeshObject = Resources.Load("Icons/Placeholder") as GameObject;
+        GameObject MeshObject = Resources.Load("Icons/UI/Placeholder") as GameObject;
         if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
             return;
 
@@ -153,7 +150,7 @@ public class IconFactory : GameService
         var MiscTypes = Enum.GetValues(typeof(MiscellaneousType));
         foreach (var MiscType in MiscTypes)
         {
-            GameObject MeshObject = Resources.Load("Icons/" + MiscType) as GameObject;
+            GameObject MeshObject = Resources.Load("Icons/Misc/" + MiscType) as GameObject;
             if (!MeshObject || !MeshObject.GetComponent<SpriteRenderer>())
                 continue;
 

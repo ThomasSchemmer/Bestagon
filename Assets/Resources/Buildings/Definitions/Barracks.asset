@@ -12,18 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
   m_Name: Barracks
   m_EditorClassIdentifier: 
+  Location:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
+  AssignedWorkers:
+  - {fileID: 0}
   BuildingType: 2
   Cost:
     _Production:
       Tuples:
       - Key: 2
-        Value: 1
+        Value: 2
       - Key: 3
         Value: 2
       - Key: 1
-        Value: 1
+        Value: 3
   Effect:
     EffectType: 3
+    UnitType: 0
     TileType: 0
     Production:
       _Production:
@@ -32,11 +42,10 @@ MonoBehaviour:
       _Production:
         Tuples:
         - Key: 9
-          Value: 1
+          Value: 5
         - Key: 12
-          Value: 1
+          Value: 10
     Range: 0
-    IsProductionBlockedByBuilding: 0
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:

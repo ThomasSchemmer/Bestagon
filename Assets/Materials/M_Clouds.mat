@@ -53,7 +53,7 @@ Material:
     m_Colors:
     - _CameraDir: {r: 0, g: 0, b: 0, a: 0}
     - _CameraExtent: {r: 0, g: 0, b: 0, a: 0}
-    - _CameraPos: {r: 16.980768, g: 35, b: 9.908836, a: 0}
+    - _CameraPos: {r: 25.98076, g: 35, b: 15, a: 0}
     - _CloudColor: {r: 0.6792453, g: 0.11854753, b: 0.14777656, a: 1}
     - _NoiseWeights: {r: 1, g: 0.25, b: 0.1, a: 0.1}
     - _PhaseParams: {r: -0.5, g: 3.58, b: 0.8, a: 1}

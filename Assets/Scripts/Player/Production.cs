@@ -280,6 +280,28 @@ public class Production : ISaveableData
         }
     }
 
+    public static Production Min(Production A, Production B)
+    {
+        Production Result = new();
+        var Collection = Enum.GetValues(typeof(Type));
+        foreach (Type Type in Collection)
+        {
+            Result[Type] = Mathf.Min(A[Type], B[Type]);
+        }
+        return Result;
+    }
+
+    public static Production Max(Production A, Production B)
+    {
+        Production Result = new();
+        var Collection = Enum.GetValues(typeof(Type));
+        foreach (Type Type in Collection)
+        {
+            Result[Type] = Mathf.Max(A[Type], B[Type]);
+        }
+        return Result;
+    }
+
     public int GetSize()
     {
         return GetStaticSize();
