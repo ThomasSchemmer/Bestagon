@@ -33,7 +33,7 @@ public class SaveGameManager : GameService
     {
         Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
         {
-            Game.RunAfterServiceInit((CardFactory CardFactory) =>
+            Game.RunAfterServicesInit((CardFactory CardFactory, GameplayAbilitySystem GAS) =>
             {
                 StartServices();
             });

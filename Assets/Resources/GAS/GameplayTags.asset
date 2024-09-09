@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe67eaf2510f3d942add43c4c5a18c70, type: 3}
+  m_Name: GameplayTags
+  m_EditorClassIdentifier: 
+  Container:
+    Tokens:
+    - ID: 7f4394c7-a5d2-41ff-9347-e37e9645868d
+      Token: Tag
+      Depth: 0
+      bIsFolded: 0

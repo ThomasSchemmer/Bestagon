@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\IconPreview.cs" />
     <Compile Include="Assets\Scripts\Quests\Quest.cs" />
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
+    <Compile Include="Assets\Imports\GAS\Tags\GameplayTags.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCardsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
@@ -78,10 +79,12 @@
     <Compile Include="Assets\Scripts\Events\EventData.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\BuildingCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\CardContainerUI.cs" />
+    <Compile Include="Assets\Imports\GAS\System\GameplayAbilitySystem.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MainMenuScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorUIElement.cs" />
     <Compile Include="Assets\Scripts\Events\RemoveMalaiseEventData.cs" />
     <Compile Include="Assets\Scripts\UI\IconFactory.cs" />
+    <Compile Include="Assets\Imports\GAS\Attributes\Attribute.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialAbandonRunQuest.cs" />
     <Compile Include="Assets\Scripts\Util\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ConfirmScreen.cs" />
@@ -95,6 +98,7 @@
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\CardMoveAnimation.cs" />
+    <Compile Include="Assets\Imports\GAS\Effects\GameplayEffectModifier.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
@@ -130,6 +134,7 @@
     <Compile Include="Assets\Scripts\Visualization\Preview\PreviewSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenUI.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\OnTurnBuildingEffect.cs" />
+    <Compile Include="Assets\Imports\GAS\Behaviours\GameplayAbilityBehaviour.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceDelegate.cs" />
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
@@ -156,6 +161,7 @@
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\EditorFeatures\MapSizeEditor.cs" />
+    <Compile Include="Assets\Imports\GAS\Effects\GameplayEffect.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
@@ -164,6 +170,7 @@
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\BuildingPreview.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
+    <Compile Include="Assets\Imports\GAS\Tags\GameplayTagRegularContainer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
@@ -174,11 +181,13 @@
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTileQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
+    <Compile Include="Assets\Imports\GAS\Tags\GameplayTagSourceContainer.cs" />
     <Compile Include="Assets\Scripts\Player\Statistics.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\UnitPreview.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitProvider.cs" />
+    <Compile Include="Assets\Imports\GAS\Tags\GameplayTagToken.cs" />
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SaveGameDisplayScreen.cs" />
@@ -207,6 +216,8 @@
     <Compile Include="Assets\Scripts\Cards\DTOs\CardDTO.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitData.cs" />
     <Compile Include="Assets\Scripts\Cards\EventCard.cs" />
+    <Compile Include="Assets\Imports\GAS\Abilities\GameplayAbility.cs" />
+    <Compile Include="Assets\Scripts\Relics\RelicService.cs" />
     <Compile Include="Assets\Scripts\Player\Turn.cs" />
     <Compile Include="Assets\Scripts\Player\CheatService.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\WorkerIndicator.cs" />
@@ -217,13 +228,16 @@
     <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildBuildingsQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnitsScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileGroupScreen.cs" />
+    <Compile Include="Assets\Imports\GAS\Tags\GameplayTagMask.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorComponent.cs" />
     <Compile Include="Assets\Scripts\Quests\Interfaces\IQuestRegister.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialMalaiseQuest.cs" />
+    <Compile Include="Assets\Scripts\Relics\Relic.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
+    <Compile Include="Assets\Imports\GAS\Attributes\AttributeSet.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\TileInfoScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\MeshPreview.cs" />
     <Compile Include="Assets\Scripts\Config\HexagonConfig.cs" />

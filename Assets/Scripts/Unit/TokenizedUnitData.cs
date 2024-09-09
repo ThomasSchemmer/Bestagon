@@ -63,8 +63,15 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         if (IsStarving(false))
             return;
 
+        AttributeSet PlayerAttributes = AttributeSet.Get();
+        if (PlayerAttributes == null)
+            return;
+
+        if (!PlayerAttributes.TryFind("ScoutMovementRange", out Attribute Attribute))
+            return;
+
         base.Refresh();
-        RemainingMovement = MovementPerTurn;
+        RemainingMovement = (int)Attribute.CurrentValue;
     }
 
     public void MoveAlong(List<Location> Path)
@@ -107,6 +114,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         Units.AddUnit(this);
 
         MoveTo(Hex.Location, 0);
+        Refresh();
         return true;
     }
 
