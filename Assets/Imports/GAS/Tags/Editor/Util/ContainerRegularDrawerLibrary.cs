@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -13,7 +14,7 @@ public class ContainerRegularDrawerLibrary : ContainerDrawerLibrary
     public static void DisplayRegularTags(GameplayTags GlobalGameplayTags, SerializedProperty RegularTagsContainerProperty)
     {
         EditorGUILayout.BeginVertical();
-        SerializedProperty IDsProperty = RegularTagsContainerProperty.FindPropertyRelative("IDs");
+        SerializedProperty IDsProperty = RegularTagsContainerProperty.FindPropertyRelative("_SerializedIDs");
 
         for (int i = 0; i < IDsProperty.arraySize; i++)
         {
@@ -35,7 +36,7 @@ public class ContainerRegularDrawerLibrary : ContainerDrawerLibrary
 
             UpdateDic(TokenDic, Token.Token, Token.Depth);
 
-            if (!Token.ID.Equals(ID))
+            if (!Token.Equals(ID))
                 continue;
 
             return GetTotalTag(TokenDic, Token.Token, Token.Depth);
@@ -101,19 +102,20 @@ public class ContainerRegularDrawerLibrary : ContainerDrawerLibrary
         EditorGUILayout.EndHorizontal();
     }
 
-    protected static bool IsIDContainedInProperty(GameplayTags GlobalGameplayTags, SerializedProperty LocalIDsProperty, string TokenID, bool bAllowPartial = false)
+    protected static bool IsIDContainedInProperty(GameplayTags GlobalGameplayTags, SerializedProperty LocalIDsProperty, Guid TokenID, bool bAllowPartial = false)
     {
         for (int i = 0; i < LocalIDsProperty.arraySize; i++)
         {
             SerializedProperty LocalIDProperty = LocalIDsProperty.GetArrayElementAtIndex(i);
-            string LocalID = LocalIDProperty.stringValue; 
+            string LocalID = LocalIDProperty.stringValue;
+            Guid LocalGuid = Guid.Parse(LocalID);
             if (TokenID.Equals(LocalID))
                 return true;
 
             if (!bAllowPartial)
                 continue;
 
-            if (!GlobalGameplayTags.IsIDFromParent(LocalID, TokenID))
+            if (!GlobalGameplayTags.IsIDFromParent(LocalGuid, TokenID))
                 continue;
 
             return true;
@@ -122,14 +124,14 @@ public class ContainerRegularDrawerLibrary : ContainerDrawerLibrary
         return false;
     }
 
-    protected static void SetIDInProperty(string ID, SerializedProperty IDsProperty, bool bShouldBeContained)
+    protected static void SetIDInProperty(Guid ID, SerializedProperty IDsProperty, bool bShouldBeContained)
     {
         if (bShouldBeContained)
         {
             int TargetIndex = Mathf.Max(IDsProperty.arraySize - 1, 0);
             IDsProperty.InsertArrayElementAtIndex(TargetIndex);
             SerializedProperty NewIDProperty = IDsProperty.GetArrayElementAtIndex(IDsProperty.arraySize - 1);
-            NewIDProperty.stringValue = ID;
+            NewIDProperty.stringValue = ID.ToString();
         }
         else
         {
@@ -137,7 +139,7 @@ public class ContainerRegularDrawerLibrary : ContainerDrawerLibrary
             for (int i = IDsProperty.arraySize - 1; i >= 0; i--)
             {
                 SerializedProperty IDProperty = IDsProperty.GetArrayElementAtIndex(i);
-                if (!IDProperty.stringValue.Equals(ID))
+                if (!IDProperty.stringValue.Equals(ID.ToString()))
                     continue;
 
                 IDsProperty.DeleteArrayElementAtIndex(i);

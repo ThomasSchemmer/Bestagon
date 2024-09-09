@@ -35,7 +35,7 @@ public class GameplayTagRegularContainerDrawer : PropertyDrawer
 
         if (bIsEditing)
         {
-            SerializedProperty IDsProperty = GameplayTagContainerProperty.FindPropertyRelative("IDs");
+            SerializedProperty IDsProperty = GameplayTagContainerProperty.FindPropertyRelative("_SerializedIDs");
             ContainerRegularDrawerLibrary.DisplayButtons(GlobalGameplayTags);
             EditorGUILayout.Space(5);
             ContainerRegularDrawerLibrary.DisplayGlobalLookupTags(GlobalGameplayTags, IDsProperty);

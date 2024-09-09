@@ -32,7 +32,7 @@ public class GameplayTags : ScriptableObject
         return -1;
     }
 
-    public bool TryGetParentID(string ID, out string ParentID)
+    public bool TryGetParentID(Guid ID, out Guid ParentID)
     {
         ParentID = default;
         int SelfIndex = GetSelfIndex(ID);
@@ -47,7 +47,7 @@ public class GameplayTags : ScriptableObject
         return true;
     }
 
-    public int GetSelfIndex(string ID)
+    public int GetSelfIndex(Guid ID)
     {
         for (int i = 0; i < Container.Tokens.Count; i++)
         {
@@ -58,7 +58,7 @@ public class GameplayTags : ScriptableObject
         return -1;
     }
 
-    public bool IsIDFromParent(string ChildID, string IDToMatch)
+    public bool IsIDFromParent(Guid ChildID, Guid IDToMatch)
     {
         if (ChildID.Equals(IDToMatch))
             return true;

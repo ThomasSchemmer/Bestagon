@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 /** Implicit version of token hierarchy, derived from a combined tags
  * Unlike a normal node it does not know its children or parent and its Depth is given programatically
@@ -12,17 +13,24 @@ using System;
  * - Inserting is harder compared to Node-based
  */
 [Serializable]
-public class GameplayTagToken
+public class GameplayTagToken : ISerializationCallbackReceiver
 {
-    /** Ugly string id, should be int or something, but hard to make sure its unique */
-    public string ID;
+
+    // internal ID
+    public Guid ID;
+    [SerializeField, HideInInspector]
+    public string _SerializedID;
+    [SerializeField]
     public string Token;
+    [SerializeField]
     public int Depth;
+    [SerializeField]
     public bool bIsFolded;
 
     public GameplayTagToken(string Token, int Depth, bool bIsFolded)
     {
-        ID = Guid.NewGuid().ToString();
+        ID = Guid.NewGuid();
+        _SerializedID = ID.ToString();
         this.Token = Token;
         this.Depth = Depth;
         this.bIsFolded = bIsFolded;
@@ -35,17 +43,36 @@ public class GameplayTagToken
 
     public override bool Equals(object obj)
     {
-        if (obj is not GameplayTagToken) 
-            return false;
-
-        GameplayTagToken Other = (GameplayTagToken)obj;
-        return Token.Equals(Other.Token) && Depth == Other.Depth && bIsFolded == Other.bIsFolded;
+        if (obj is GameplayTagToken)
+        {
+            GameplayTagToken Other = (GameplayTagToken)obj;
+            return Token.Equals(Other.Token) && Depth == Other.Depth && bIsFolded == Other.bIsFolded;
+        }
+        if (obj is string)
+        {
+            string Other = (string)obj;
+            return ID.ToString().Equals(Other);
+        }
+        return false;
     }
 
     public override int GetHashCode()
     {
         return Token.GetHashCode();
     }
+
+
+
+    public void OnAfterDeserialize()
+    {
+        ID = Guid.Parse(_SerializedID);
+    }
+
+    public void OnBeforeSerialize()
+    {
+        _SerializedID = ID.ToString();
+    }
+
 
     public static char Divisor = '.';
 }

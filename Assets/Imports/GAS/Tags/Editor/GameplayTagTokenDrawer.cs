@@ -87,8 +87,10 @@ public class GameplayTagTokenDrawer : PropertyDrawer
         SerializedProperty NewTag = TagsProperty.GetArrayElementAtIndex(i + 1);
         SerializedProperty TokenProperty = NewTag.FindPropertyRelative("Token");
         SerializedProperty DepthProperty = NewTag.FindPropertyRelative("Depth");
+        SerializedProperty SerIDProperty = NewTag.FindPropertyRelative("_SerializedID");
         SerializedProperty OldDepthProperty = OldTag.FindPropertyRelative("Depth");
         TokenProperty.stringValue = "NewTag";
+        SerIDProperty.stringValue = Guid.NewGuid().ToString();
         DepthProperty.intValue = OldDepthProperty.intValue + 1;
 
         TagsProperty.serializedObject.ApplyModifiedProperties();

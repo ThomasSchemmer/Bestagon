@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,22 +38,22 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         Attributes.Tick();
     }
 
-    public void AddTag(string ID) {
+    public void AddTagByID(Guid ID) {
         GameplayTagMask.Set(ID);
 
         _OnTagsChanged?.Invoke();
         _OnTagAdded?.Invoke(ID);
     }
 
-    public void AddTags(List<string> IDs)
+    public void AddTagsByID(List<Guid> IDs)
     {
-        foreach (string ID in IDs)
+        foreach (Guid ID in IDs)
         {
-            AddTag(ID);
+            AddTagByID(ID);
         }
     }
 
-    public void RemoveTag(string ID)
+    public void RemoveTag(Guid ID)
     {
         GameplayTagMask.Clear(ID);
 
@@ -60,20 +61,20 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         _OnTagAdded?.Invoke(ID);
     }
 
-    public void RemoveTags(List<string> IDs)
+    public void RemoveTags(List<Guid> IDs)
     {
-        foreach (string ID in IDs)
+        foreach (Guid ID in IDs)
         {
             RemoveTag(ID);
         }
     }
 
-    public bool HasTag(string Tag)
+    public bool HasTag(Guid Tag)
     {
         return GameplayTagMask.HasID(Tag);
     }
 
-    public bool HasTags(List<string> IDs)
+    public bool HasTags(List<Guid> IDs)
     {
         foreach (var ID in IDs)
         {
@@ -85,7 +86,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
 
     public void AddEffect(GameplayEffect Effect) { 
         ActiveEffects.Add(Effect);
-        AddTags(Effect.GrantedTags.IDs);
+        AddTagsByID(Effect.GrantedTags.IDs);
 
         if (Effect.GrantedAbility == null || Effect.DurationPolicy == GameplayEffect.Duration.Instant)
             return;
@@ -131,8 +132,8 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     private GameplayTagMask GameplayTagMask = new();
 
     public delegate void OnTagsChanged();
-    public delegate void OnTagAdded(string Tag);
-    public delegate void OnTagRemoved(string Tag);
+    public delegate void OnTagAdded(Guid Tag);
+    public delegate void OnTagRemoved(Guid Tag);
     public OnTagsChanged _OnTagsChanged;
     public OnTagAdded _OnTagAdded;
     public OnTagRemoved _OnTagRemoved;

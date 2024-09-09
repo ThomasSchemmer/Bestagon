@@ -1,15 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /** Inner representation of GameplayTags.
- * Since we are already identifying the tags by GUID string, we can just place them in a set
+ * Since we are already identifying the tags by GUID, we can just place them in a set
  */
 public class GameplayTagMask 
 {
-    private HashSet<string> Mask = new();
+    private HashSet<Guid> Mask = new();
 
-    public void Set(string ID)
+    public void Set(Guid ID)
     {
         if (Mask.Contains(ID))
             return;
@@ -17,7 +18,7 @@ public class GameplayTagMask
         Mask.Add(ID);
     }
 
-    public void Clear(string ID)
+    public void Clear(Guid ID)
     {
         if (!Mask.Contains(ID))
             return;
@@ -25,15 +26,15 @@ public class GameplayTagMask
         Mask.Remove(ID);
     }
 
-    public void SetIDs(List<string> IDs)
+    public void SetIDs(List<Guid> IDs)
     {
-        foreach (string ID in IDs)
+        foreach (Guid ID in IDs)
         {
             Set(ID);
         }
     }
 
-    public bool HasID(string ID, bool bAllowPartial = false)
+    public bool HasID(Guid ID, bool bAllowPartial = false)
     {
         if (Mask.Contains(ID))
             return true;
@@ -41,7 +42,7 @@ public class GameplayTagMask
         if (!bAllowPartial)
             return false;
 
-        if (GameplayTags.Get().TryGetParentID(ID, out string ParentID))
+        if (GameplayTags.Get().TryGetParentID(ID, out Guid ParentID))
             return false;
 
         return HasID(ParentID, bAllowPartial);
