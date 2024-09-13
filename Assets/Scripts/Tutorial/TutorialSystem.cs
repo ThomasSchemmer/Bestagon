@@ -96,7 +96,7 @@ public class TutorialSystem : GameService
                 (CurrentTutorial == TutorialType.Camera && CurrentIndex > 1);
             QuestService.Show(bShouldShow);
         });
-        Game.RunAfterServiceInit((Turn Turn) =>
+        Game.RunAfterServicesInit((Turn Turn, RelicService RelicService) =>
         {
             bool bShouldShow = CurrentTutorial >= TutorialType.Turns;
             Turn.Show(bShouldShow);
@@ -104,6 +104,9 @@ public class TutorialSystem : GameService
             AbandonScreen Screen = Turn.GetAbandonScreen();
             bool bShouldShowAbandon = CurrentTutorial >= TutorialType.AbandonRun;
             Screen.Show(bShouldShowAbandon);
+
+            bool bShouldShowRelics = CurrentTutorial >= TutorialType.AbandonRun;
+            RelicService.ShowRelicButton.SetActive(bShouldShowRelics);
         });
         Game.RunAfterServiceInit((Stockpile Stockpile) =>
         {

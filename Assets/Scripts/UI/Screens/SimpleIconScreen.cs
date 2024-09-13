@@ -21,7 +21,7 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
         return true;
     }
 
-    public void ClickOn(Vector2 PixelPos) {
+    public virtual void ClickOn(Vector2 PixelPos) {
         if (Parent == null)
             return;
 
@@ -66,7 +66,7 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
         Parent.SetHoveredAsParent(Hovered);
     }
 
-    public void SetSelected(bool Selected)
+    public virtual void SetSelected(bool Selected)
     {
         if (Parent == null)
             return;

@@ -113,7 +113,7 @@ public class CardHand : CardCollection, IQuestRegister<Card>
 
     public void HandleDelayedFilling(CardDeck Deck)
     {
-        int TargetAmount = AMOUNT_HANDCARDS_MAX;
+        int TargetAmount = GetMaxHandCardCount();
         int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
         Amount = Mathf.Min(Amount, Deck.Cards.Count);
 
@@ -121,6 +121,11 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         CardsToMove.AddRange(Deck.Cards.GetRange(0, Amount));
 
         Deck.MoveCardsTo(CardsToMove, this);
+    }
+
+    public static int GetMaxHandCardCount()
+    {
+        return (int)AttributeSet.Get()[AttributeType.MaxAmountHandCards].CurrentValue;
     }
 
     public override bool ShouldCardsBeDisplayed()
@@ -140,7 +145,4 @@ public class CardHand : CardCollection, IQuestRegister<Card>
     public static float CardOffset = 175;
 
     public static ActionList<Card> _OnCardPlayed = new();
-
-    public static int AMOUNT_HANDCARDS_MAX = 3;
-
 }

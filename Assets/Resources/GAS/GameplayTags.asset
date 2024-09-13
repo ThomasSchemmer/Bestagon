@@ -22,19 +22,7 @@ MonoBehaviour:
       Token: Damage
       Depth: 1
       bIsFolded: 0
-    - _SerializedID: 799ea367-7657-48f1-a71c-52d9df01d91d
-      Token: Fire
-      Depth: 2
-      bIsFolded: 0
-    - _SerializedID: 3132e1ad-dabb-4f47-a1a5-67e6637ab9e5
-      Token: Element
-      Depth: 1
-      bIsFolded: 0
-    - _SerializedID: 955a4483-dc4a-413b-bc55-52660d50f87f
-      Token: Cold
-      Depth: 2
-      bIsFolded: 0
-    - _SerializedID: 385a4295-4212-4997-9b3a-7bc64aed8e47
-      Token: Fire
+    - _SerializedID: f5884da5-76d4-4cb0-8937-312bddb69c0e
+      Token: NewTag
       Depth: 2
       bIsFolded: 0

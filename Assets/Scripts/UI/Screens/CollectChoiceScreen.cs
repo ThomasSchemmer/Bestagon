@@ -265,17 +265,5 @@ public abstract class CollectChoiceScreen : ScreenUI
         Destroy(Choice.GeneratedCard.gameObject);
     }
 
-    public override void Show()
-    {
-        base.Show();
-        Game.Instance.OnPopupAction(true);
-    }
-
-    public override void Hide()
-    {
-        base.Hide();
-        Game.Instance.OnPopupAction(false);
-    }
-
 
 }

@@ -101,6 +101,12 @@ public class ScoutData : TokenizedUnitData
         return Quaternion.Euler(0, 60, 0);
     }
 
+    protected override int GetFoodConsumption()
+    {
+        AttributeSet Attributes = AttributeSet.Get();
+        return (int)Attributes[AttributeType.ScoutFoodConsumption].CurrentValue;
+    }
+
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)

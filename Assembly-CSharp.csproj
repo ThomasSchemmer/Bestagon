@@ -122,6 +122,7 @@
     <Compile Include="Assets\Scripts\Util\FloatRange.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialScoutMultiQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\ReachVisualization.cs" />
+    <Compile Include="Assets\Scripts\Player\AttributeType.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\Biome.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\EventCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\EditorFeatures\MapSizeEditor.cs" />
+    <Compile Include="Assets\Scripts\Relics\RelicEffect.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\GameplayEffect.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
@@ -196,8 +198,10 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCameraQuest.cs" />
-    <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
+    <Compile Include="Assets\Scripts\Relics\RelicIconScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\RelicScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\LabelScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionLabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Main\BuildScoutQuest.cs" />
@@ -234,7 +238,6 @@
     <Compile Include="Assets\Scripts\Quests\Interfaces\IQuestRegister.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialMalaiseQuest.cs" />
-    <Compile Include="Assets\Scripts\Relics\Relic.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
     <Compile Include="Assets\Imports\GAS\Attributes\AttributeSet.cs" />

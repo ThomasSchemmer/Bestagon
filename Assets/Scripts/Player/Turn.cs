@@ -71,7 +71,7 @@ public class Turn : GameService, IQuestRegister<int>
         CardHand.HandleDelayedFilling(CardDeck);
 
         // We already moved enough cards, dont need to refill
-        if (CardHand.Cards.Count >= CardHand.AMOUNT_HANDCARDS_MAX)
+        if (CardHand.Cards.Count >= CardHand.GetMaxHandCardCount())
             return;
         
         FillCardDeck();

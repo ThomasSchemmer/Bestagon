@@ -93,6 +93,12 @@ public class WorkerData : StarvableUnitData, ISaveableData
         Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);
     }
 
+    protected override int GetFoodConsumption()
+    {
+        AttributeSet Attributes = AttributeSet.Get();
+        return (int)Attributes[AttributeType.WorkerFoodConsumption].CurrentValue;
+    }
+
     public override bool TryInteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetServices(out Workers Workers, out Stockpile Stockpile))

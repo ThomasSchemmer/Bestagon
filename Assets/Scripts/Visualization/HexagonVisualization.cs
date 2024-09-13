@@ -160,6 +160,9 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
             return;
 
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
         if (!UnitService.TryGetUnitAt(SelectedHex.Location, out TokenizedUnitData UnitOnTile))
             return;
 
@@ -175,7 +178,15 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (Path.Count == 0 || PathCosts > UnitOnTile.RemainingMovement)
             return;
 
-        InteractMoveUnit(UnitOnTile, PathCosts);
+        // step through to trigger revealing etc for every tile instead of teleporting
+        for (int i = 1; i < Path.Count; i++)
+        {
+            if (!MapGenerator.TryGetHexagon(Path[i], out HexagonVisualization TargetHex))
+                return;
+            int StepCosts = HexagonConfig.GetCostsFromTo(Path[i - 1], Path[i]);
+
+            TargetHex.InteractMoveUnit(UnitOnTile, StepCosts);
+        }
     }
 
     private void InteractMoveUnit(TokenizedUnitData Unit, int Costs)

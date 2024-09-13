@@ -14,7 +14,7 @@ public class GameplayEffectModifier
         Override
     }
 
-    public string Attribute;
+    public AttributeType AttributeType;
     private Attribute _Attribute;
     public Type Operation;
     public float Period = 0;
@@ -29,7 +29,7 @@ public class GameplayEffectModifier
         this.Target = Target;
         TimeSinceLastActivated = 0;
 
-        Target.Attributes.TryFind(Attribute, out _Attribute);
+        _Attribute = Target.Attributes[AttributeType];
     }
 
     public void Execute()

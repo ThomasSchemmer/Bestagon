@@ -23,7 +23,8 @@ public interface ISaveableService : ISaveableData
         Units = 10,
         Malaise = 11,
         Spawning = 12,
-        Quests = 13
+        Quests = 13,
+        Relics = 14
     }
 
     /** Convenience function, should be instead the same class */

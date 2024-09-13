@@ -29,6 +29,9 @@ public class GameplayAbilitySystem : GameService
 
     public bool TryApplyEffectTo(GameplayAbilityBehaviour Target, GameplayEffect Effect)
     {
+        if (Target == null)
+            return false;
+
         if (!Target.HasTags(Effect.ApplicationRequirementTags.IDs))
             return false;
 

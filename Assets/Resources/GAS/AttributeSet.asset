@@ -13,27 +13,34 @@ MonoBehaviour:
   m_Name: AttributeSet
   m_EditorClassIdentifier: 
   Attributes:
-  - Name: MaximumHandCards
-    BaseValue: 3
-    CurrentValue: 3
-  - Name: WorkersStart
-    BaseValue: 2
-    CurrentValue: 2
-  - Name: ProductionRate
-    BaseValue: 1
-    CurrentValue: 1
-  - Name: ConsumptionRate
-    BaseValue: 1
-    CurrentValue: 1
-  - Name: BuildingCostRate
-    BaseValue: 1
-    CurrentValue: 1
-  - Name: UpgradeRate
-    BaseValue: 1
-    CurrentValue: 1
-  - Name: ScoutMovementRange
-    BaseValue: 1
-    CurrentValue: 1
-  - Name: MalaiseSpreadRate
-    BaseValue: 1
-    CurrentValue: 1
+    Tuples:
+    - Key: 1
+      Value:
+        Type: 1
+        BaseValue: 1
+        CurrentValue: 2
+    - Key: 2
+      Value:
+        Type: 2
+        BaseValue: 1
+        CurrentValue: 1
+    - Key: 3
+      Value:
+        Type: 3
+        BaseValue: 1
+        CurrentValue: 1
+    - Key: 4
+      Value:
+        Type: 4
+        BaseValue: 3
+        CurrentValue: 3
+    - Key: 5
+      Value:
+        Type: 5
+        BaseValue: 2
+        CurrentValue: 2
+    - Key: 16
+      Value:
+        Type: 16
+        BaseValue: 3
+        CurrentValue: 3

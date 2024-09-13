@@ -6,12 +6,21 @@ using UnityEngine;
 [Serializable]
 public class Attribute
 {
-    public string Name = "";
+    public AttributeType Type;
     public float BaseValue = 0;
     public float CurrentValue = 0;
 
+    // called in the editor - do not delete!
     public Attribute()
     {
+        Modifiers = new();
+        ResetModifiers();
+        Initialize();
+    }
+
+    public Attribute(AttributeType Type)
+    {
+        this.Type = Type;
         Modifiers = new();
         ResetModifiers();
         Initialize();

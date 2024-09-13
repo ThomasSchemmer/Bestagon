@@ -57,6 +57,11 @@ public class ToolTipScreen : ScreenUI
         SelfRect.anchoredPosition = TargetPosition;
     }
 
+    protected override bool CountsAsPopup()
+    {
+        return false;
+    }
+
     public RectTransform TextRect, BackgroundRect, SelfRect;
     public TMPro.TextMeshProUGUI Text;
 

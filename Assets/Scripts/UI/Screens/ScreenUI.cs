@@ -32,7 +32,13 @@ public abstract class ScreenUI : MonoBehaviour
             return;
 
         Container.SetActive(true);
+        if (CountsAsPopup())
+        {
+            Game.Instance.OnPopupAction(true);
+        }
     }
+
+    protected virtual bool CountsAsPopup() { return true; }
 
     public virtual void Hide()
     {
@@ -40,5 +46,10 @@ public abstract class ScreenUI : MonoBehaviour
             return;
 
         Container.SetActive(false);
+
+        if (CountsAsPopup())
+        {
+            Game.Instance.OnPopupAction(false);
+        }
     }
 }

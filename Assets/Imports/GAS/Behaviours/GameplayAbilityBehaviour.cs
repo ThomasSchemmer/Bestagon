@@ -94,6 +94,12 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         GrantAbility(Effect.GrantedAbility);
     }
 
+    public List<GameplayEffect> GetActiveEffects()
+    {
+        return ActiveEffects;
+    }
+       
+
     public void RemoveEffect(GameplayEffect Effect)
     {
         ActiveEffects.Remove(Effect);

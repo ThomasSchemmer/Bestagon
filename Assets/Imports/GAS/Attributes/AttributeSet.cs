@@ -1,27 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 [CreateAssetMenu(fileName = "AttributeSet", menuName = "ScriptableObjects/AttributeSet", order = 2)]
 public class AttributeSet : ScriptableObject
 {
-    public List<Attribute> Attributes = new();
+    public SerializedDictionary<AttributeType, Attribute> Attributes = new();
 
     public void Initialize()
     {
-        foreach (Attribute Attribute in Attributes)
+        foreach (var Tuple in Attributes)
         {
-            Attribute.Initialize();
+            Tuple.Value.Initialize();
         }
     }
 
     public void Tick()
     {
-        foreach (Attribute Attribute in Attributes)
+        foreach (var Tuple in Attributes)
         {
+            Attribute Attribute = Tuple.Value;
             float OldValue = Attribute.CurrentValue;
             Attribute.Tick();
             if (!Mathf.Approximately(OldValue, Attribute.CurrentValue))
@@ -31,19 +30,27 @@ public class AttributeSet : ScriptableObject
         }
     }
 
-    public bool TryFind(string AttributeName, out Attribute FoundAttribute)
+    // allows for lazy init
+    public Attribute this[AttributeType Type]
     {
-        FoundAttribute = default;
-        foreach (Attribute TargetAttribute in Attributes)
-        {
-            if (!TargetAttribute.Name.Equals(AttributeName))
-                continue;
-
-            FoundAttribute = TargetAttribute;
-            return true;
+        get { 
+            if (!Attributes.ContainsKey(Type))
+            {
+                Attributes.Add(Type, new Attribute(Type));
+            }
+            return Attributes[Type]; 
         }
-
-        return false;
+        set
+        {
+            if (Attributes.ContainsKey(Type))
+            {
+                Attributes[Type] = value;
+            }
+            else
+            {
+                Attributes.Add(Type, value);
+            }
+        }
     }
 
     public static AttributeSet Get()
@@ -54,6 +61,8 @@ public class AttributeSet : ScriptableObject
         }
         return GlobalAttributes;
     }
+
+
 
     public delegate void OnAnyAttributeChanged(Attribute Attribute);
     public OnAnyAttributeChanged _OnAnyAttributeChanged;

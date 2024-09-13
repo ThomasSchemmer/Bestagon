@@ -260,7 +260,7 @@ public class Production : ISaveableData
         return Copy;
     }
 
-    public static int GetHungerFromFood(Type FoodType)
+    public static int GetNutrition(Type FoodType)
     {
         switch (FoodType)
         {

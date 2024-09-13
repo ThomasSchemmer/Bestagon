@@ -69,7 +69,7 @@ public class QuestTemplateDTO : ISaveableData
 
     public static int GetStaticSize()
     {
-        // name, name length and current progress
+        // name and current progress
         return sizeof(byte) * MAX_NAME_LENGTH + sizeof(int);
     }
 

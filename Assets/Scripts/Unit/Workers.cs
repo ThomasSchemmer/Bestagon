@@ -115,8 +115,11 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
     {
         Game.RunAfterServiceInit((MeshFactory Factory) =>
         {
-            CreateNewWorker();
-            CreateNewWorker();
+
+            for (int i = 0; i < AttributeSet.Get()[AttributeType.AmountStartWorkers].CurrentValue; i++)
+            {
+                CreateNewWorker();
+            }
             _OnInit?.Invoke(this);
         });
     }

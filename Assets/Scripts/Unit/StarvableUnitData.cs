@@ -8,13 +8,14 @@ public abstract class StarvableUnitData : UnitData
 {
     public void HandleStarvation(bool bIsSimulated)
     {
+        int FoodConsumption = GetFoodConsumption();
         if (bIsSimulated)
         {
-            SimulatedFoodCount = Mathf.Max(SimulatedFoodCount - 1, 0);
+            SimulatedFoodCount = Mathf.Max(SimulatedFoodCount - FoodConsumption, 0);
         }
         else
         {
-            CurrentFoodCount = Mathf.Max(CurrentFoodCount - 1, 0);
+            CurrentFoodCount = Mathf.Max(CurrentFoodCount - FoodConsumption, 0);
         }
     }
 
@@ -28,25 +29,35 @@ public abstract class StarvableUnitData : UnitData
         return !IsStarving(bIsSimulated) || IsInFoodProductionBuilding();
     }
 
+    protected abstract int GetFoodConsumption();
+
     public void HandleFeeding(Production Food, bool bIsSimulated)
     {
         int MinFoodIndex = (int)Production.GoodsType.Food;
         int MaxFoodIndex = (int)Production.GoodsType.LuxuryItems - 1;
+        int FoodConsumption = GetFoodConsumption();
+        // todo: make optimal instead of greedy
         for (int i = MaxFoodIndex; i >= MinFoodIndex; i--)
         {
             Production.Type FoodType = (Production.Type)i;
-            if (Food[FoodType] == 0)
+            int Nutrition = Production.GetNutrition(FoodType);
+            int AvailableNutrition = Food[FoodType] * Nutrition;
+            if (AvailableNutrition == 0)
                 continue;
 
-            Food[FoodType] -= 1;
-            int GainedHunger = Production.GetHungerFromFood(FoodType);
+            int WantedFoodAmount = Mathf.CeilToInt((float)FoodConsumption / Nutrition);
+            int ActualFoodAmount = Mathf.Min(WantedFoodAmount, Food[FoodType]);
+            int ActualNutrition = ActualFoodAmount * Nutrition;
+
+            Food[FoodType] -= ActualFoodAmount;
+            FoodConsumption -= ActualNutrition;
             if (bIsSimulated)
             {
-                SimulatedFoodCount += GainedHunger;
+                SimulatedFoodCount += ActualNutrition;
             }
             else
             {
-                CurrentFoodCount += GainedHunger;
+                CurrentFoodCount += ActualNutrition;
             }
         }
     }

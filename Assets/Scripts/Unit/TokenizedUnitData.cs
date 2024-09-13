@@ -40,7 +40,12 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         if (!MapGenerator.TryGetHexagon(Location, out HexagonVisualization NewHex))
             return;
 
-        NewHex.UpdateDiscoveryState(VisitingRange, ScoutingRange);
+        // movement modifiers might be larger than set vis/scout range, leading to "move to invis"
+        int MovementRange = (int)AttributeSet.Get()[AttributeType.ScoutMovementRange].CurrentValue;
+        int ScoutDiff = ScoutingRange - VisitingRange;
+        int MaxVisRange = Mathf.Max(VisitingRange, MovementRange);
+        int MaxScoutRange = Mathf.Max(ScoutingRange, MaxVisRange + ScoutDiff);
+        NewHex.UpdateDiscoveryState(MaxVisRange, MaxScoutRange);
 
         if (!MapGenerator.TryGetChunkVis(OldLocation, out ChunkVisualization OldVis))
             return;
@@ -67,27 +72,8 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         if (PlayerAttributes == null)
             return;
 
-        if (!PlayerAttributes.TryFind("ScoutMovementRange", out Attribute Attribute))
-            return;
-
         base.Refresh();
-        RemainingMovement = (int)Attribute.CurrentValue;
-    }
-
-    public void MoveAlong(List<Location> Path)
-    {
-        Assert.AreNotEqual(Path.Count, 0);
-        Assert.AreEqual(Path[0], Location);
-        for (int i = 1; i < Path.Count; i++)
-        {
-            Location CurrentLocation = this.Location;
-            Location NextLocation = Path[i];
-            int MoveCosts = HexagonConfig.GetCostsFromTo(CurrentLocation, NextLocation);
-            if (RemainingMovement < MoveCosts)
-                break;
-
-            MoveTo(NextLocation, MoveCosts);
-        }
+        RemainingMovement = (int)PlayerAttributes[AttributeType.ScoutMovementRange].CurrentValue;
     }
 
     public abstract Vector3 GetOffset();

@@ -251,7 +251,7 @@ public class SaveGameManager : GameService
         FoundSaveableServices = new();
         NativeArray<byte> Bytes = GetFileData();
 
-        // no increase after loop, its done by reading the data
+        // no increase after iterations, its done by reading the data
         for (int i = 0; i < Bytes.Length;)
         {
             i = GetEnumAsByte(Bytes, i, out byte Value);

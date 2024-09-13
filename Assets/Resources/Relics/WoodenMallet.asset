@@ -9,12 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0fdbad9366fcc3640bf89cd48b8d0ae7, type: 3}
-  m_Name: Relic
+  m_Script: {fileID: 11500000, guid: ae121ed3306077a43a6407f12fc41ef7, type: 3}
+  m_Name: WoodenMallet
   m_EditorClassIdentifier: 
   DurationPolicy: 0
-  InstancingPolicy: 0
-  Modifiers: []
+  InstancingPolicy: 2
+  Modifiers:
+  - AttributeType: 4
+    Operation: 0
+    Period: 0
+    Value: 1
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
@@ -34,8 +38,9 @@ MonoBehaviour:
     bIsEditable: 1
   RemoveTags:
     _SerializedIDs: []
-    bIsEditing: 1
+    bIsEditing: 0
     Name: Remove Tags
     bIsEditable: 1
-  Name: 
-  Image: {fileID: 0}
+  Type: 1
+  Image: {fileID: 3286163911610860551, guid: a1841580a1d00374ca34e3b218ba7883, type: 3}
+  Tooltip: Increases maximum handcards

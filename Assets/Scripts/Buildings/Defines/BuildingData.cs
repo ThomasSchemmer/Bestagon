@@ -236,7 +236,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         int FoodValue = 0;
         foreach (var Tuple in GetTheoreticalMaximumProduction().GetTuples())
         {
-            FoodValue += Production.GetHungerFromFood(Tuple.Key) * Tuple.Value;
+            FoodValue += Production.GetNutrition(Tuple.Key) * Tuple.Value;
         }
         return FoodValue > 0;
     }

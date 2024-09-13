@@ -95,7 +95,7 @@ public class GameplayTagTokenDrawer : PropertyDrawer
 
         TagsProperty.serializedObject.ApplyModifiedProperties();
     }
-
+    
     private void RemoveEntryAt(int i, SerializedProperty TagsProperty)
     {
         TagsProperty.DeleteArrayElementAtIndex(i);
