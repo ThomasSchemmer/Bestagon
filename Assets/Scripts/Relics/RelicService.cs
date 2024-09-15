@@ -87,9 +87,9 @@ public class RelicService : GameService, ISaveableService
                 return;
 
             LoadRelics();
-            SetRelic(RelicType.Calligulae, RelicDiscovery.Active);
-            SetRelic(RelicType.WoodenMallet, RelicDiscovery.Active);
-            SetRelic(RelicType.Cradle, RelicDiscovery.Active);
+            //SetRelic(RelicType.Calligulae, RelicDiscovery.Active);
+            //SetRelic(RelicType.WoodenMallet, RelicDiscovery.Active);
+            //SetRelic(RelicType.Cradle, RelicDiscovery.Active);
             _OnInit?.Invoke(this);
         });
     }

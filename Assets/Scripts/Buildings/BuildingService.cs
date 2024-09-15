@@ -6,7 +6,7 @@ using UnityEngine;
 using static BuildingService;
 
 // todo: save spatially effient, either chunks or quadtree etc
-public class BuildingService : GameService, ISaveableService, IQuestRegister<BuildingData>
+public class BuildingService : GameService, ISaveableService, IQuestRegister<BuildingEntity>
 {
     protected override void StartServiceInternal()
     {
@@ -17,20 +17,20 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
 
     public bool IsBuildingAt(Location Location)
     {
-        foreach (BuildingData Building in Buildings)
+        foreach (BuildingEntity Building in Buildings)
         {
-            if (Building.Location.Equals(Location))
+            if (Building.GetLocation().Equals(Location))
                 return true;
         }
         return false;
     }
 
-    public List<BuildingData> GetBuildingsInChunk(Vector2Int ChunkLocation)
+    public List<BuildingEntity> GetBuildingsInChunk(Vector2Int ChunkLocation)
     {
-        List<BuildingData> SelectedBuildings = new List<BuildingData>();
-        foreach (BuildingData Building in Buildings)
+        List<BuildingEntity> SelectedBuildings = new List<BuildingEntity>();
+        foreach (BuildingEntity Building in Buildings)
         {
-            if (!Building.Location.ChunkLocation.Equals(ChunkLocation))
+            if (!Building.GetLocation().ChunkLocation.Equals(ChunkLocation))
                 continue;
 
             SelectedBuildings.Add(Building);
@@ -38,13 +38,13 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         return SelectedBuildings;
     }
 
-    public bool TryGetBuildingAt(Location Location, out BuildingData Data)
+    public bool TryGetBuildingAt(Location Location, out BuildingEntity Data)
     {
         Data = null;
 
-        foreach (BuildingData Building in Buildings)
+        foreach (BuildingEntity Building in Buildings)
         {
-            if (Building.Location.Equals(Location))
+            if (Building.GetLocation().Equals(Location))
             {
                 Data = Building;
                 return true;
@@ -56,7 +56,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
 
     public void DestroyBuildingAt(Location Location)
     {
-        if (!TryGetBuildingAt(Location, out BuildingData Building))
+        if (!TryGetBuildingAt(Location, out BuildingEntity Building))
             return;
 
         // Workers have been killed previously
@@ -73,7 +73,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
     private int GetBuildingsSize()
     {
         int Size = 0;
-        foreach (BuildingData Building in Buildings)
+        foreach (BuildingEntity Building in Buildings)
         {
             Size += Building.GetSize();
         }
@@ -96,7 +96,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
         Pos = SaveGameManager.AddInt(Bytes, Pos, Buildings.Count);
 
-        foreach (BuildingData Building in Buildings)
+        foreach (BuildingEntity Building in Buildings)
         {
             Pos = SaveGameManager.AddSaveable(Bytes, Pos, Building);
         }
@@ -113,7 +113,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         Buildings = new();
         for (int i = 0; i < BuildingsLength; i++)
         {
-            BuildingData Building = ScriptableObject.CreateInstance<BuildingData>();
+            BuildingEntity Building = ScriptableObject.CreateInstance<BuildingEntity>();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, Building);
             Buildings.Add(Building);
         }
@@ -124,7 +124,7 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
         Buildings = new();
     }
 
-    public void AddBuilding(BuildingData Building)
+    public void AddBuilding(BuildingEntity Building)
     {
         Buildings.Add(Building);
 
@@ -134,13 +134,13 @@ public class BuildingService : GameService, ISaveableService, IQuestRegister<Bui
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 
-    public List<BuildingData> Buildings = new();
+    public List<BuildingEntity> Buildings = new();
 
 
     public delegate void OnBuildingsChanged();
     public static OnBuildingsChanged _OnBuildingsChanged;
 
 
-    public static ActionList<BuildingData> _OnBuildingDestroyed = new();
-    public static ActionList<BuildingData> _OnBuildingBuilt = new();
+    public static ActionList<BuildingEntity> _OnBuildingDestroyed = new();
+    public static ActionList<BuildingEntity> _OnBuildingBuilt = new();
 }

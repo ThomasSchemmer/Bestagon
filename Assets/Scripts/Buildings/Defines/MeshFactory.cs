@@ -3,19 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static UnitData;
+using static UnitEntity;
 
 /**
  * Helper class to generate/find the scriptable objects for building/tile types
  */ 
 public class MeshFactory : GameService
 {
-    public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingData, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
-    public SerializedDictionary<HexagonConfig.HexagonDecoration, Mesh> AvailableDecorations = new();
-    public SerializedDictionary<UnitType, Tuple<UnitData, GameObject>> AvailableUnits = new();
+    public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingEntity, Mesh>> AvailableBuildings = new();
+    public SerializedDictionary<DecorationEntity.DType, Tuple<DecorationEntity, GameObject>> AvailableDecorations = new();
+    public SerializedDictionary<UType, Tuple<UnitEntity, GameObject>> AvailableUnits = new();
     public Mesh UnknownMesh, UnknownBuildingMesh;
-    public GameObject BuildingPrefab, UnitPrefab;
+    public GameObject BuildingPrefab, UnitPrefab, DecorationPrefab;
 
 
     public void Refresh()
@@ -40,7 +40,7 @@ public class MeshFactory : GameService
         string[] Types = Enum.GetNames(typeof(BuildingConfig.Type));
         foreach (string Type in Types)
         {
-            BuildingData BuildingData = Resources.Load("Buildings/Definitions/" + Type) as BuildingData;
+            BuildingEntity BuildingData = Resources.Load("Buildings/Definitions/" + Type) as BuildingEntity;
             if (!BuildingData)
                 continue;
 
@@ -51,7 +51,7 @@ public class MeshFactory : GameService
             if (!Mesh)
                 continue;
 
-            Tuple<BuildingData, Mesh> Tuple = new(BuildingData, Mesh);
+            Tuple<BuildingEntity, Mesh> Tuple = new(BuildingData, Mesh);
             AvailableBuildings.Add(BuildingData.BuildingType, Tuple);
         }
     }
@@ -87,39 +87,43 @@ public class MeshFactory : GameService
     private void LoadDecorations()
     {
         AvailableDecorations.Clear();
-        var DecorationTypes = Enum.GetValues(typeof(HexagonConfig.HexagonDecoration));
-        foreach (var DecorationType in DecorationTypes)
+        var DecorationTypes = Enum.GetValues(typeof(DecorationEntity.DType));
+        foreach (var Type in DecorationTypes)
         {
-            if ((HexagonConfig.HexagonDecoration)DecorationType == HexagonConfig.HexagonDecoration.None)
+            DecorationEntity.DType DecorationType = (DecorationEntity.DType)Type;
+
+            DecorationEntity Decoration = Resources.Load("Decorations/Definitions/" + DecorationType) as DecorationEntity;
+            if (!Decoration)
                 continue;
 
-            GameObject MeshObject = Resources.Load("Decorations/" + DecorationType) as GameObject;
-            if (!MeshObject || !MeshObject.GetComponent<MeshFilter>())
+            GameObject DecorationObjecet = Resources.Load("Decorations/Prefabs/" + DecorationType) as GameObject;
+            Mesh Mesh = null;
+            if (!DecorationObjecet || !DecorationObjecet.GetComponent<MeshFilter>())
                 continue;
 
-            Mesh Mesh = MeshObject.GetComponent<MeshFilter>().sharedMesh;
+            Mesh = DecorationObjecet.GetComponent<MeshFilter>().sharedMesh;
             if (!Mesh)
                 continue;
 
-            AvailableDecorations.Add((HexagonConfig.HexagonDecoration)DecorationType, Mesh);
+            AvailableDecorations.Add(DecorationType, new(Decoration, DecorationObjecet));
         }
     }
 
     private void LoadUnits()
     {
         AvailableUnits.Clear();
-        var UnitTypes = Enum.GetValues(typeof(UnitType));
+        var UnitTypes = Enum.GetValues(typeof(UType));
         foreach (var Type in UnitTypes)
         {
-            UnitType UnitType = (UnitType)Type;
+            UType UnitType = (UType)Type;
 
-            UnitData UnitData = Resources.Load("Units/Definitions/" + UnitType) as UnitData;
+            UnitEntity UnitData = Resources.Load("Units/Definitions/" + UnitType) as UnitEntity;
             if (!UnitData)
                 continue;
 
             GameObject UnitObject = Resources.Load("Units/Prefabs/" + UnitType) as GameObject;
             Mesh Mesh = null;
-            if (UnitType != UnitType.Worker)
+            if (UnitType != UType.Worker)
             {
                 if (!UnitObject || !UnitObject.GetComponent<MeshFilter>())
                     continue;
@@ -133,40 +137,51 @@ public class MeshFactory : GameService
         }
     }
 
-    public BuildingData CreateDataFromType(BuildingConfig.Type Type)
+    public BuildingEntity CreateDataFromType(BuildingConfig.Type Type)
     {
         if (!AvailableBuildings.ContainsKey(Type))
             return null;
 
         var Entry = AvailableBuildings[Type];
-        BuildingData Building = Entry.Key;
-        BuildingData Copy = Instantiate(Building);
+        BuildingEntity Building = Entry.Key;
+        BuildingEntity Copy = Instantiate(Building);
         Copy.Init();
         return Copy;
     }
 
-    public UnitData CreateDataFromType(UnitType Type)
+    public DecorationEntity CreateDataFromType(DecorationEntity.DType Type)
     {
-        if (!AvailableUnits.ContainsKey(Type))
+        if (!AvailableDecorations.ContainsKey(Type))
             return null;
 
-        var Entry = AvailableUnits[Type];
-        UnitData Unit = Entry.Key;
-        UnitData Copy = Instantiate(Unit);
+        var Entry = AvailableDecorations[Type];
+        DecorationEntity Decoration = Entry.Key;
+        DecorationEntity Copy = Instantiate(Decoration);
         return Copy;
     }
 
-    public UnitData GetDataFromType(UnitType Type)
+    public UnitEntity CreateDataFromType(UType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))
             return null;
 
         var Entry = AvailableUnits[Type];
-        UnitData Unit = Entry.Key;
+        UnitEntity Unit = Entry.Key;
+        UnitEntity Copy = Instantiate(Unit);
+        return Copy;
+    }
+
+    public UnitEntity GetDataFromType(UType Type)
+    {
+        if (!AvailableUnits.ContainsKey(Type))
+            return null;
+
+        var Entry = AvailableUnits[Type];
+        UnitEntity Unit = Entry.Key;
         return Unit;
     }
 
-    public Mesh GetMeshFromType(UnitType Type)
+    public Mesh GetMeshFromType(UType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))
             return null;
@@ -175,7 +190,16 @@ public class MeshFactory : GameService
         return UnitObject.GetComponent<MeshFilter>().sharedMesh;
     }
 
-    public GameObject GetObjectFromType(UnitType Type)
+    public Mesh GetMeshFromType(DecorationEntity.DType Type)
+    {
+        if (!AvailableDecorations.ContainsKey(Type))
+            return null;
+
+        GameObject DecorationObject = AvailableDecorations[Type].Value;
+        return DecorationObject.GetComponent<MeshFilter>().sharedMesh;
+    }
+
+    public GameObject GetObjectFromType(UType Type)
     {
         if (!AvailableUnits.ContainsKey(Type))
             return null;
@@ -191,22 +215,6 @@ public class MeshFactory : GameService
         return AvailableBuildings[Type].Value;
     }
 
-    public GameObject GetGameObjectFromType(BuildingConfig.Type Type)
-    {
-        GameObject Obj = Instantiate(BuildingPrefab);
-        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
-
-        return Obj;
-    }
-
-    public GameObject GetGameObjectFromType(UnitType Type)
-    {
-        GameObject Obj = Instantiate(UnitPrefab);
-        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
-        
-        return Obj;
-    }
-
     public Mesh GetMeshFromType(HexagonConfig.HexagonType Type)
     {
         if (!AvailableTiles.ContainsKey(Type))
@@ -215,12 +223,27 @@ public class MeshFactory : GameService
         return AvailableTiles[Type];
     }
 
-    public Mesh GetMeshFromType(HexagonConfig.HexagonDecoration Decoration) {
-        if (!AvailableDecorations.ContainsKey(Decoration))
-            return null;
+    public GameObject GetGameObjectFromType(BuildingConfig.Type Type)
+    {
+        GameObject Obj = Instantiate(BuildingPrefab);
+        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
 
-        //todo: make sure its only on suitable stuff
+        return Obj;
+    }
 
-        return AvailableDecorations[Decoration];
+    public GameObject GetGameObjectFromType(DecorationEntity.DType Type)
+    {
+        GameObject Obj = Instantiate(DecorationPrefab);
+        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
+
+        return Obj;
+    }
+
+    public GameObject GetGameObjectFromType(UType Type)
+    {
+        GameObject Obj = Instantiate(UnitPrefab);
+        Obj.GetComponent<MeshFilter>().sharedMesh = GetMeshFromType(Type);
+        
+        return Obj;
     }
 }

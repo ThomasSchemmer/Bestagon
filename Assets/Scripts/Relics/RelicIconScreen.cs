@@ -35,6 +35,9 @@ public class RelicIconScreen : SimpleIconScreen
 
     public override void ClickOn(Vector2 PixelPos)
     {
+        if (Game.IsIn(Game.GameState.Game))
+            return;
+
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GrantUnitEventData : EventData
 {
-    public UnitData.UnitType GrantedType;
+    public UnitEntity.UType GrantedType;
 
     public GrantUnitEventData()
     {
@@ -15,7 +15,7 @@ public class GrantUnitEventData : EventData
 
     public void OnEnable()
     {
-        GrantedType = (UnitData.UnitType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(UnitData.UnitType)).Length));
+        GrantedType = (UnitEntity.UType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(UnitEntity.UType)).Length));
     }
 
     public override string GetDescription()
@@ -33,8 +33,8 @@ public class GrantUnitEventData : EventData
 
     public override string GetEventName()
     {
-        UnitData Unit = GetUnitData();
-        return Unit.Type.ToString();
+        UnitEntity Unit = GetUnitData();
+        return Unit.UnitType.ToString();
     }
 
     public override byte[] GetData()
@@ -63,12 +63,12 @@ public class GrantUnitEventData : EventData
         int Pos = base.GetSize();
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bGrantedType);
 
-        GrantedType = (UnitData.UnitType)bGrantedType;
+        GrantedType = (UnitEntity.UType)bGrantedType;
     }
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        UnitData Unit = CreateUnitData();
+        UnitEntity Unit = CreateUnitData();
         if (!Unit.TryInteractWith(Hex))
         {
             Destroy(Unit);
@@ -88,14 +88,14 @@ public class GrantUnitEventData : EventData
 
     public CardPreview AddEventPreviewByType(GameObject Obj)
     {
-        UnitData Unit = GetUnitData();
-        if (Unit is TokenizedUnitData)
+        UnitEntity Unit = GetUnitData();
+        if (Unit is TokenizedUnitEntity)
             return Obj.AddComponent<UnitPreview>();
 
         return Obj.AddComponent<GrantMiscellaneousPreview>();
     }
 
-    public UnitData CreateUnitData()
+    public UnitEntity CreateUnitData()
     {
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
@@ -103,7 +103,7 @@ public class GrantUnitEventData : EventData
         return MeshFactory.CreateDataFromType(GrantedType);
     }
 
-    public UnitData GetUnitData()
+    public UnitEntity GetUnitData()
     {
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
@@ -113,7 +113,7 @@ public class GrantUnitEventData : EventData
 
     public override Vector3 GetOffset()
     {
-        TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        TokenizedUnitEntity UnitData = (GetUnitData() as TokenizedUnitEntity);
         if (UnitData == null)
             return Vector3.zero;
 
@@ -122,7 +122,7 @@ public class GrantUnitEventData : EventData
 
     public override Quaternion GetRotation()
     {
-        TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        TokenizedUnitEntity UnitData = (GetUnitData() as TokenizedUnitEntity);
         if (UnitData == null)
             return Quaternion.identity;
 
@@ -131,7 +131,7 @@ public class GrantUnitEventData : EventData
 
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        TokenizedUnitData UnitData = (GetUnitData() as TokenizedUnitData);
+        TokenizedUnitEntity UnitData = (GetUnitData() as TokenizedUnitEntity);
         //for now can only be worker, which can always be interacted with
         if (UnitData == null)
             return true;

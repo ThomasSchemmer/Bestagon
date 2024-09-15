@@ -40,7 +40,7 @@ public class Turn : GameService, IQuestRegister<int>
         Stockpile.GenerateResources();
         Stockpile.ProduceWorkers();
         TurnNr++;
-        Units.RefreshUnits();
+        Units.RefreshEntities();
         MoveCards();
         CloudRenderer.SpreadMalaise();
 

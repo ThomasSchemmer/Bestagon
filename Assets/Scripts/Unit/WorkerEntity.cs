@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+/** 
+ * Workers can be assigned in buildings to generate resources
+ * Not visualized apart from indicators!
+ */
 [CreateAssetMenu(fileName = "Worker", menuName = "ScriptableObjects/Worker", order = 5)]
-public class WorkerData : StarvableUnitData, ISaveableData
+public class WorkerEntity : StarvableUnitEntity, ISaveableData
 {
-    private BuildingData AssignedBuilding = null;
+    private BuildingEntity AssignedBuilding = null;
     private int AssignedBuildingSlot = -1;
 
     public bool IsEmployed()
@@ -14,7 +18,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
         return AssignedBuilding != null && AssignedBuildingSlot != -1;
     }
 
-    public void AssignToBuilding(BuildingData Building, int i)
+    public void AssignToBuilding(BuildingEntity Building, int i)
     {
         AssignedBuilding = Building;
         AssignedBuildingSlot = i;
@@ -26,7 +30,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
         AssignedBuildingSlot = -1;
     }
 
-    public BuildingData GetAssignedBuilding()
+    public BuildingEntity GetAssignedBuilding()
     {
         return AssignedBuilding;
     }
@@ -43,7 +47,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
 
     protected override bool IsInFoodProductionBuilding()
     {
-        BuildingData AssignedBuilding = GetAssignedBuilding();
+        BuildingEntity AssignedBuilding = GetAssignedBuilding();
         if (AssignedBuilding == null)
             return false;
 
@@ -53,7 +57,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
     public static new int GetStaticSize()
     {
         // foodcount, employed, assigned building slot
-        return StarvableUnitData.GetStaticSize() + sizeof(byte) * 3 + Location.GetStaticSize();
+        return StarvableUnitEntity.GetStaticSize() + sizeof(byte) * 3 + Location.GetStaticSize();
     }
 
     public override byte[] GetData()
@@ -65,7 +69,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)CurrentFoodCount);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)AssignedBuildingSlot);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.Location : Location.Zero);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocation() : Location.Zero);
 
         return Bytes.ToArray();
     }
@@ -87,7 +91,7 @@ public class WorkerData : StarvableUnitData, ISaveableData
         if (!bIsEmployed)
             return;
 
-        if (!Buildings.TryGetBuildingAt(Location, out BuildingData Building))
+        if (!Buildings.TryGetBuildingAt(Location, out BuildingEntity Building))
             return;
 
         Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);

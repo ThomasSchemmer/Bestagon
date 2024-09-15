@@ -3,23 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildScoutQuest : Quest<UnitData>
+public class BuildScoutQuest : Quest<ScriptableEntity>
 {
     public BuildScoutQuest() : base() { }
 
-    public override int CheckSuccess(UnitData Unit)
+    public override int CheckSuccess(ScriptableEntity Unit)
     {
-        return Unit.Type == UnitData.UnitType.Scout ? 1 : 0;
+        if (Unit is not UnitEntity)
+            return 0;
+
+        return (Unit as UnitEntity).UnitType == UnitEntity.UType.Scout ? 1 : 0;
     }
 
-    public override Dictionary<IQuestRegister<UnitData>, ActionList<UnitData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<ScriptableEntity>, ActionList<ScriptableEntity>> GetRegisterMap()
     {
-        if (Game.GetService<Units>() == null)
+        if (Game.TryGetService(out Units Units))
             return new();
 
         return new()
         {
-            { Game.GetService<Units>(), Units._OnUnitCreated }
+            { Game.GetService<Units>().GetRegister(), Units._OnEntityCreated }
         };
     }
 

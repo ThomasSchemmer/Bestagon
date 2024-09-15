@@ -30,9 +30,9 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         if (!Game.TryGetServices(out BuildingService BuildingService, out Workers WorkerService))
             return;
 
-        List<BuildingData> Buildings = BuildingService.Buildings;
+        List<BuildingEntity> Buildings = BuildingService.Buildings;
 
-        foreach (BuildingData Building in Buildings)
+        foreach (BuildingEntity Building in Buildings)
         {
             if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.ProduceUnit)
                 continue;
@@ -136,8 +136,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
 
     private void HandleStarvation(Workers WorkerService, Units UnitService, Production TargetResources, bool bIsSimulated)
     {
-        StarvableUnitData.HandleStarvationFor(WorkerService.Units, TargetResources, "Workers", bIsSimulated);
-        StarvableUnitData.HandleStarvationFor(UnitService.Units, TargetResources, "Units", bIsSimulated);
+        StarvableUnitEntity.HandleStarvationFor(WorkerService.Entities, TargetResources, "Workers", bIsSimulated);
+        StarvableUnitEntity.HandleStarvationFor(UnitService.Entities, TargetResources, "Units", bIsSimulated);
     }
 
     public bool CanAfford(Production Costs) {

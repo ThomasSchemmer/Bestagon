@@ -9,15 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a80575129398d3e4183d0a0ef43347b7, type: 3}
+  m_Script: {fileID: 11500000, guid: fc70b48c25017d047850dd07ea08da62, type: 3}
   m_Name: Scout
   m_EditorClassIdentifier: 
-  Type: 1
+  EntityType: 0
+  UnitType: 1
   CurrentFoodCount: 1
+  SimulatedFoodCount: 1
   MovementPerTurn: 1
   RemainingMovement: 1
-  VisitingRange: 1
-  ScoutingRange: 2
+  VisitingRange: 3
+  ScoutingRange: 4
   Visualization: {fileID: 0}
   Name: 
-  ID: 1
+  ID: 0

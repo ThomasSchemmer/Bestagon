@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 /** A unit that can be starved. If hungry will not work */
-public abstract class StarvableUnitData : UnitData
+public abstract class StarvableUnitEntity : UnitEntity
 {
     public void HandleStarvation(bool bIsSimulated)
     {
@@ -62,10 +62,10 @@ public abstract class StarvableUnitData : UnitData
         }
     }
 
-    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name, bool bIsSimulated) where T : StarvableUnitData
+    public static void HandleStarvationFor<T>(List<T> Units, Production Production, string Name, bool bIsSimulated) where T : StarvableUnitEntity
     {
         int StarvingCount = 0;
-        foreach (StarvableUnitData Unit in Units)
+        foreach (StarvableUnitEntity Unit in Units)
         {
             Unit.HandleStarvation(bIsSimulated);
             if (!Unit.IsStarving(bIsSimulated))
@@ -97,15 +97,16 @@ public abstract class StarvableUnitData : UnitData
 
     public static int GetStaticSize()
     {
-        // type and foodcount
-        return sizeof(byte) + sizeof(int);
+        // unit type and entity type and foodcount
+        return sizeof(byte) * 2 + sizeof(int);
     }
 
     public override byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
         int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EntityType);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)UnitType);
         Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentFoodCount);
 
         return Bytes.ToArray();
@@ -114,10 +115,12 @@ public abstract class StarvableUnitData : UnitData
     public override void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEntityType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bUnitType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentFoodCount);
 
-        Type = (UnitType)bType;
+        EntityType = (ScriptableEntity.EType)bEntityType;
+        UnitType = (UType)bUnitType;
     }
 
     [HideInInspector]

@@ -91,7 +91,7 @@ public class TutorialAbandonRunQuest : Quest<int>
                 return;
 
             GrantUnitEventData EventData = (GrantUnitEventData)ECard.EventData;
-            EventData.GrantedType = UnitData.UnitType.Worker;
+            EventData.GrantedType = UnitEntity.UType.Worker;
             Card.GenerateCard();
         }
 

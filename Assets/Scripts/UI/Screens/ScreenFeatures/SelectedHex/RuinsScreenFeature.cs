@@ -6,13 +6,26 @@ public class RuinsScreenFeature : ScreenFeature<HexagonData>
 {
     public override bool ShouldBeDisplayed()
     {
-        return Target.GetFeatureObject()?.Decoration != HexagonConfig.HexagonDecoration.None;
+        return GetFeatureDecoration() != null;
+    }
+
+    private DecorationEntity GetFeatureDecoration()
+    {
+        if (!Game.TryGetService(out DecorationService DecorationService))
+            return null;
+
+        HexagonData Feature = Target.GetFeatureObject();
+        if (Feature == null)
+            return null;
+
+        DecorationService.TryGetEntityAt(Feature.Location, out var Entity);
+        return Entity;
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        TargetText.text = Target.GetFeatureObject().GetDecorationText();
+        TargetText.text = GetFeatureDecoration().GetDecorationText();
     }
 
     public override void Hide()

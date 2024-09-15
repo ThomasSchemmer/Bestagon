@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MalaisedSpawnQuest : MultiQuest<int, TokenizedUnitData>
+public class MalaisedSpawnQuest : MultiQuest<int, TokenizedUnitEntity>
 {
     public override System.Type GetQuest2Type()
     {
@@ -108,13 +108,13 @@ public class MalaisedSpawnQuestTurn : Quest<int>
     public override void GrantRewards() { }
 
 }
-public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
+public class MalaisedSpawnQuestMove : Quest<TokenizedUnitEntity>
 {
     public MalaisedSpawnQuestMove() : base() { }
 
-    public override int CheckSuccess(TokenizedUnitData Unit)
+    public override int CheckSuccess(TokenizedUnitEntity Unit)
     {
-        return Unit.Location.Equals(MalaisedSpawnQuest.TargetLocation) ? 1 : 0;
+        return Unit.GetLocation().Equals(MalaisedSpawnQuest.TargetLocation) ? 1 : 0;
     }
 
     public override void OnCreated() { }
@@ -135,7 +135,7 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitData>
         return Type.Negative;
     }
 
-    public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<TokenizedUnitEntity>, ActionList<TokenizedUnitEntity>> GetRegisterMap()
     {
         if (Game.GetService<Units>() == null)
             return new();

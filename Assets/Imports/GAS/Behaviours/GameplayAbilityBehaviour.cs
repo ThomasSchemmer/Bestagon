@@ -87,6 +87,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     public void AddEffect(GameplayEffect Effect) { 
         ActiveEffects.Add(Effect);
         AddTagsByID(Effect.GrantedTags.IDs);
+        Effect.Execute();
 
         if (Effect.GrantedAbility == null || Effect.DurationPolicy == GameplayEffect.Duration.Instant)
             return;
@@ -104,6 +105,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     {
         ActiveEffects.Remove(Effect);
         RemoveTags(Effect.GrantedTags.IDs);
+        Effect.Deactivate();
 
         if (Effect.GrantedAbility == null || Effect.DurationPolicy == GameplayEffect.Duration.Instant)
             return;

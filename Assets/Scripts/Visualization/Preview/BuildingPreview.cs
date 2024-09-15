@@ -18,7 +18,7 @@ public class BuildingPreview : MeshPreview
 
     public override Mesh GetPreviewMesh()
     {
-        BuildingData BuildingData = GetPreviewableAs<BuildingData>();
+        BuildingEntity BuildingData = GetPreviewableAs<BuildingEntity>();
         if (BuildingData == null)
             return null;
 
@@ -42,7 +42,7 @@ public class BuildingPreview : MeshPreview
             return false;
 
         BuildingCard BCard = (BuildingCard)Card;
-        return GetPreviewableAs<BuildingData>().BuildingType == BCard.GetBuildingData().BuildingType;
+        return GetPreviewableAs<BuildingEntity>().BuildingType == BCard.GetBuildingData().BuildingType;
     }
 
 }

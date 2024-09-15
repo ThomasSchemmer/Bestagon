@@ -66,7 +66,7 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
         if (!Game.TryGetService(out Units Units))
             return false;
 
-        return Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData _);
+        return Units.HasAnyEntity(UnitEntity.UType.Scout, out TokenizedUnitEntity _);
     }
 
     public override bool TryGetNextType(out System.Type Type)

@@ -70,6 +70,14 @@ public class Attribute
         TargetList.Add(Modifier);
     }
 
+    public void RemoveModifier(GameplayEffectModifier Modifier)
+    {
+        if (!Modifiers.TryGetValue(Modifier.Operation, out List<GameplayEffectModifier> TargetList))
+            return;
+
+        TargetList.Remove(Modifier);
+    }
+
     private float GetModifiedValueFor(GameplayEffectModifier.Type Operation)
     {
         if (!Modifiers.TryGetValue(Operation, out List<GameplayEffectModifier> TargetList))

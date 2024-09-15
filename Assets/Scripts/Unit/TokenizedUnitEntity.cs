@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 /** 
- * Any unit that is represented by an in-game token. Also supports moving this token
+ * Any unit that is visually represented by an in-game token. Also supports moving this token
  * Still only contains data and is not directly linked to the token itself ("MonoBehaviour"), see 
  * @UnitVisualization for that. During lifetime will be managed by @Units and only exists there
  */
-public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
+public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, ITokenized
 {
     public abstract string GetPrefabName();
 
@@ -90,7 +90,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         if (!IsPreviewInteractableWith(Hex, false))
             return false;
 
-        if (Units.IsUnitAt(Hex.Location))
+        if (Units.IsEntityAt(Hex.Location))
         {
             MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create unit here - one already exists");
             return false;
@@ -100,8 +100,17 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         Units.AddUnit(this);
 
         MoveTo(Hex.Location, 0);
+
         Refresh();
         return true;
+    }
+
+    public void SetVisualization(EntityVisualization Vis)
+    {
+        if (Vis is not UnitVisualization)
+            return;
+
+        Visualization = Vis as UnitVisualization;
     }
 
     public bool HasRemainingMovement()
@@ -117,7 +126,7 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
     public static new int GetStaticSize()
     {
         // 4 bytes, one each for MovementPerTurn, RemainingMovement, VisitingRange, ScoutingRange,
-        return StarvableUnitData.GetStaticSize() + 4 * sizeof(byte) + Location.GetStaticSize();
+        return StarvableUnitEntity.GetStaticSize() + 4 * sizeof(byte) + Location.GetStaticSize();
     }
 
     public override byte[] GetData()
@@ -151,12 +160,22 @@ public abstract class TokenizedUnitData : StarvableUnitData, IPreviewable
         VisitingRange = bVisitingRange;
         ScoutingRange = bScoutingRage;
     }
+
+    public Location GetLocation()
+    {
+        return Location;
+    }
     
+    public void SetLocation(Location Location)
+    {
+        this.Location = Location;
+    }
+
     public int MovementPerTurn = 1;
     [HideInInspector]
     public int RemainingMovement = 0;
     [HideInInspector]
-    public Location Location;
+    protected Location Location;
 
     // should always be greater than the MovementPerTurn!
     public int VisitingRange = 3;

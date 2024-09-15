@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitMovementScreenFeature : ScreenFeature<UnitData>
+public class UnitMovementScreenFeature : ScreenFeature<UnitEntity>
 {
     public Color ColorAllowed;
     public Color ColorForbidden;
     public override bool ShouldBeDisplayed()
     {
-        TokenizedUnitData Unit = GetTargetAsTokenized();
+        TokenizedUnitEntity Unit = GetTargetAsTokenized();
         return Unit != null && TryGetHexagons(out HexagonVisualization _, out HexagonVisualization _);
     }
 
@@ -16,7 +16,7 @@ public class UnitMovementScreenFeature : ScreenFeature<UnitData>
     {
         base.ShowAt(YOffset);
         Game.TryGetService(out Selectors Selectors);
-        TokenizedUnitData UnitData = GetTargetAsTokenized();
+        TokenizedUnitEntity UnitData = GetTargetAsTokenized();
 
         TryGetHexagons(out HexagonVisualization StartHex, out HexagonVisualization TargetHex);
         List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location);
@@ -40,9 +40,9 @@ public class UnitMovementScreenFeature : ScreenFeature<UnitData>
         return SelectedHex != null && HoveredHex != null;
     }
 
-    private TokenizedUnitData GetTargetAsTokenized()
+    private TokenizedUnitEntity GetTargetAsTokenized()
     {
-        return Target.GetFeatureObject() as TokenizedUnitData;
+        return Target.GetFeatureObject() as TokenizedUnitEntity;
     }
 
 

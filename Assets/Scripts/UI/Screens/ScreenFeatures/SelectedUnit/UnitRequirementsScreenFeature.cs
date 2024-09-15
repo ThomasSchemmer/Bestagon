@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitRequirementsScreenFeature : ScreenFeature<UnitData>
+public class UnitRequirementsScreenFeature : ScreenFeature<UnitEntity>
 {
 
     RectTransform TextRect;
     RectTransform ProductionRect;
 
-    public override void Init(ScreenFeatureGroup<UnitData> Target)
+    public override void Init(ScreenFeatureGroup<UnitEntity> Target)
     {
         base.Init(Target);
         TextRect = transform.GetChild(0).GetComponent<RectTransform>();
@@ -17,7 +17,7 @@ public class UnitRequirementsScreenFeature : ScreenFeature<UnitData>
 
     public override bool ShouldBeDisplayed()
     {
-        ScoutData Scout = GetFeatureObjectAsScout();
+        ScoutEntity Scout = GetFeatureObjectAsScout();
         if (Scout == null)
             return false;
 
@@ -30,15 +30,15 @@ public class UnitRequirementsScreenFeature : ScreenFeature<UnitData>
         return true;
     }
 
-    private ScoutData GetFeatureObjectAsScout()
+    private ScoutEntity GetFeatureObjectAsScout()
     {
-        return (ScoutData)Target.GetFeatureObject();
+        return (ScoutEntity)Target.GetFeatureObject();
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        ScoutData Scout = GetFeatureObjectAsScout();
+        ScoutEntity Scout = GetFeatureObjectAsScout();
         Game.TryGetService(out IconFactory IconFactory);
 
         TextRect.gameObject.SetActive(true);

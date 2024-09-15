@@ -18,7 +18,7 @@ public class CardDeck : CardCollection
                 return;
 
             Cards = new();
-            Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddScoutCard);
+            Factory.CreateCard(UnitEntity.UType.Scout, 0, transform, AddScoutCard);
             Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
             Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
@@ -47,7 +47,7 @@ public class CardDeck : CardCollection
                 continue;
 
             GrantUnitEventData UnitEventData = ECard.EventData as GrantUnitEventData;
-            if (UnitEventData.GrantedType != UnitData.UnitType.Scout)
+            if (UnitEventData.GrantedType != UnitEntity.UType.Scout)
                 continue;
 
             bContainsScout = true;
@@ -60,7 +60,7 @@ public class CardDeck : CardCollection
         if (!Game.TryGetService(out CardFactory Factory))
             return;
 
-        Factory.CreateCard(UnitData.UnitType.Scout, 0, transform, AddDelayedScout);
+        Factory.CreateCard(UnitEntity.UType.Scout, 0, transform, AddDelayedScout);
     }
 
     private void AddDelayedScout(Card Card)

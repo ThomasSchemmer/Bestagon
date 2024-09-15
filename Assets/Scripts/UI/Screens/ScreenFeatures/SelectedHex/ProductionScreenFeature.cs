@@ -15,12 +15,12 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     public override bool ShouldBeDisplayed()
     {
-        return TryGetBuildingData(out BuildingData Building) && Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant;
+        return TryGetBuildingData(out BuildingEntity Building) && Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant;
     }
 
     private bool ShouldProductionBeDisplayed()
     {
-        if (!TryGetBuildingData(out BuildingData Building))
+        if (!TryGetBuildingData(out BuildingEntity Building))
             return false;
 
         Building.SimulateCurrentFood();
@@ -30,12 +30,12 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     private bool AreAssignedWorkersStarving()
     {
-        return TryGetBuildingData(out BuildingData Building) &&
+        return TryGetBuildingData(out BuildingEntity Building) &&
             Building.GetWorkingWorkerCount(true) == 0 &&
             Building.GetAssignedWorkerCount() > 0;
     }
 
-    private bool TryGetBuildingData(out BuildingData Building)
+    private bool TryGetBuildingData(out BuildingEntity Building)
     {
         Building = null;
         if (!Game.TryGetServices(out IconFactory IconFactory, out BuildingService Buildings))
@@ -63,7 +63,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     private void ShowProduction()
     {
-        TryGetBuildingData(out BuildingData BuildingData);
+        TryGetBuildingData(out BuildingEntity BuildingData);
         Game.TryGetService(out IconFactory IconFactory);
 
         FallbackText.gameObject.SetActive(false);

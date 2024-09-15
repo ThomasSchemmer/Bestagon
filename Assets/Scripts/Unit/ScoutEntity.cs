@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+/** 
+ * Scout data, can be moved through the map to reveal new tiles and collect decorations
+ */
 [CreateAssetMenu(fileName = "Scout", menuName = "ScriptableObjects/Scout", order = 4)]
 [Serializable]
-public class ScoutData : TokenizedUnitData
+public class ScoutEntity : TokenizedUnitEntity
 {   
     // only gets called once the scriptable object itself has been created!
-    public ScoutData() {
+    public ScoutEntity() {
         RemainingMovement = MovementPerTurn;
     }
 
@@ -17,6 +20,7 @@ public class ScoutData : TokenizedUnitData
         base.Init();
         SetName(GetPrefabName() + " " + ID);
         ID = MAX_SCOUT_ID++;
+        SetLocation(Location.Zero);
     }
 
     public override string GetPrefabName()
@@ -31,7 +35,7 @@ public class ScoutData : TokenizedUnitData
 
     public static new int GetStaticSize()
     {
-        return TokenizedUnitData.GetStaticSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
+        return TokenizedUnitEntity.GetStaticSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
     }
 
     public override byte[] GetData()

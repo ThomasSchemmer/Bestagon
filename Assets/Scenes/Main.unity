@@ -6056,18 +6056,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  AvailableBuildings:
-    Tuples:
-    - Key: 0
   AvailableTiles:
     Tuples:
     - Key: 0
       Value: {fileID: 639433941965197, guid: 25f9eb49fd100034ca028d7be4765c4f, type: 3}
+  AvailableBuildings:
+    Tuples:
+    - Key: 0
   AvailableDecorations:
     Tuples:
     - Key: 0
-      Value: {fileID: 2113629819765333494, guid: ff425a0abb9c45c49b0fc212be137b0e,
-        type: 3}
   AvailableUnits:
     Tuples:
     - Key: 0
@@ -6077,6 +6075,8 @@ MonoBehaviour:
   BuildingPrefab: {fileID: 8536222950531395772, guid: 405f104a36d957c41939318d17a5611e,
     type: 3}
   UnitPrefab: {fileID: 2794737047199554117, guid: bb999a4db94e27940abcbea9b143d0ed,
+    type: 3}
+  DecorationPrefab: {fileID: 2794737047199554117, guid: 6c4cfca76db385447ba424e827619664,
     type: 3}
 --- !u!1 &547573014
 GameObject:
@@ -8280,6 +8280,9 @@ MonoBehaviour:
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 1767183026}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1871387457}
 --- !u!4 &785273178
 Transform:
   m_ObjectHideFlags: 0
@@ -11684,8 +11687,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  AdditionalDecorations:
-    Tuples: []
   MaxSeedIterations: 20
   MaxRandomSeed: 1000
   MinimumReachableTiles: 15
@@ -13531,6 +13532,7 @@ Transform:
   - {fileID: 8862133}
   - {fileID: 918192453}
   - {fileID: 1767183025}
+  - {fileID: 1871387456}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1428331267
@@ -14325,7 +14327,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  Units: []
+  Entities: []
 --- !u!1 &1496091738
 GameObject:
   m_ObjectHideFlags: 0
@@ -18845,6 +18847,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1866332818}
   m_CullTransparentMesh: 1
+--- !u!1 &1871387455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1871387456}
+  - component: {fileID: 1871387457}
+  m_Layer: 0
+  m_Name: Decorations
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1871387456
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871387455}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1428331266}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1871387457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871387455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f944a341b533dde4e95e0d39ef84d6e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  Entities: []
 --- !u!1 &1876166692
 GameObject:
   m_ObjectHideFlags: 0
@@ -21518,7 +21567,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  Units: []
+  Entities: []
 --- !u!1 &2112215642
 GameObject:
   m_ObjectHideFlags: 0

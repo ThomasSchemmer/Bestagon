@@ -15,7 +15,7 @@ public class StockpileScreen : MonoBehaviour
             Stockpile._OnUpgradesChanged += UpdateUpgradesVisuals;
             Workers._OnWorkersChanged += UpdateWorkerVisuals;
             Units._OnUnitCountChanged += UpdateScoutVisuals;
-            TokenizedUnitData._OnMovement += UpdateScoutVisuals;
+            TokenizedUnitEntity._OnMovement += UpdateScoutVisuals;
             Turn._OnTurnEnd += UpdateIndicatorCount;
             Stockpile._OnSimulatedGainsChanged += UpdateIndicatorCount;
 
@@ -32,7 +32,7 @@ public class StockpileScreen : MonoBehaviour
         Stockpile._OnUpgradesChanged -= UpdateUpgradesVisuals;
         Workers._OnWorkersChanged -= UpdateWorkerVisuals;
         Units._OnUnitCountChanged -= UpdateScoutVisuals;
-        TokenizedUnitData._OnMovement -= UpdateScoutVisuals;
+        TokenizedUnitEntity._OnMovement -= UpdateScoutVisuals;
         Turn._OnTurnEnd -= UpdateIndicatorCount;
         Stockpile._OnSimulatedGainsChanged -= UpdateIndicatorCount;
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static TutorialSystem;
 
-public class TutorialScoutMultiQuest : MultiQuest<BuildingData, TokenizedUnitData>
+public class TutorialScoutMultiQuest : MultiQuest<BuildingEntity, TokenizedUnitEntity>
 {
     public override bool AreRequirementsFulfilled()
     {
@@ -38,7 +38,7 @@ public class TutorialScoutMultiQuest : MultiQuest<BuildingData, TokenizedUnitDat
             return;
 
         CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, null, AddCard);
-        CardFactory.CreateCard(UnitData.UnitType.Scout, 0, null, AddScoutCard);
+        CardFactory.CreateCard(UnitEntity.UType.Scout, 0, null, AddScoutCard);
         TutorialSystem.DisplayTextFor(TutorialType.Scouts);
     }
 
@@ -65,13 +65,13 @@ public class TutorialScoutMultiQuest : MultiQuest<BuildingData, TokenizedUnitDat
     }
 }
 
-public class TutorialScoutBuildingQuest : Quest<BuildingData>
+public class TutorialScoutBuildingQuest : Quest<BuildingEntity>
 {
     public TutorialScoutBuildingQuest() : base()
     {
     }
 
-    public override int CheckSuccess(BuildingData Target)
+    public override int CheckSuccess(BuildingEntity Target)
     {
         return Target.BuildingType == BuildingConfig.Type.ForagersHut ? 1 : 0;
     }
@@ -91,7 +91,7 @@ public class TutorialScoutBuildingQuest : Quest<BuildingData>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<BuildingEntity>, ActionList<BuildingEntity>> GetRegisterMap()
     {
         if (Game.GetService<BuildingService>() == null)
             return new();
@@ -134,13 +134,13 @@ public class TutorialScoutBuildingQuest : Quest<BuildingData>
 }
 
 
-public class TutorialScoutUnitQuest : Quest<TokenizedUnitData>
+public class TutorialScoutUnitQuest : Quest<TokenizedUnitEntity>
 {
     public TutorialScoutUnitQuest() : base() {}
 
-    public override int CheckSuccess(TokenizedUnitData Target)
+    public override int CheckSuccess(TokenizedUnitEntity Target)
     {
-        return Target.Type == UnitData.UnitType.Scout ? 1 : 0;
+        return Target.UnitType == UnitEntity.UType.Scout ? 1 : 0;
     }
 
     public override string GetDescription()
@@ -158,7 +158,7 @@ public class TutorialScoutUnitQuest : Quest<TokenizedUnitData>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<TokenizedUnitData>, ActionList<TokenizedUnitData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<TokenizedUnitEntity>, ActionList<TokenizedUnitEntity>> GetRegisterMap()
     {
         if (Game.GetService<Units>() == null)
             return new();

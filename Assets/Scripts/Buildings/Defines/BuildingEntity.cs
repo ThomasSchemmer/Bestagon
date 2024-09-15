@@ -5,10 +5,10 @@ using UnityEngine;
 using static CardUpgradeScreen;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
-public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQuestRegister<BuildingData>
+public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 {
-    public Location Location;
-    public WorkerData[] AssignedWorkers;
+    [HideInInspector]
+    public WorkerEntity[] AssignedWorkers;
     public BuildingConfig.Type BuildingType = BuildingConfig.Type.DEFAULT;
     public Production Cost = new Production();
     public OnTurnBuildingEffect Effect = null;
@@ -21,7 +21,14 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
     public HexagonConfig.HexagonType UpgradeBuildableOn = 0;
     public int UpgradeMaxUsages = 1;
 
-    public BuildingData() {
+    [HideInInspector]
+    public BuildingVisualization Visualization;
+
+    protected Location Location;
+
+    public BuildingEntity() {
+        // used on creating ScriptableObjects, don't delete!
+        EntityType = EType.Building;
         Init();
         Cost = new();
         Effect = new();
@@ -30,7 +37,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
     public void Init()
     {
         Location = Location.Zero;
-        AssignedWorkers = new WorkerData[MaxWorker];
+        AssignedWorkers = new WorkerEntity[MaxWorker];
     }
 
     public virtual Vector3 GetOffset() {
@@ -206,7 +213,7 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         Workers.RequestRemoveWorkerFor(this, AssignedWorkers[i], i);
     }
 
-    public void PutWorkerAt(WorkerData Worker, int i)
+    public void PutWorkerAt(WorkerEntity Worker, int i)
     {
         if (AssignedWorkers[i] != null)
             return;
@@ -219,11 +226,19 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         AssignedWorkers[i] = null;
     }
 
+    public void SetVisualization(EntityVisualization Vis)
+    {
+        if (Vis is not BuildingVisualization)
+            return;
+
+        Visualization = Vis as BuildingVisualization;
+    }
+
     public override bool Equals(object Other) {
-        if (Other is not BuildingData) 
+        if (Other is not BuildingEntity) 
             return false;
 
-        BuildingData OtherBuilding = (BuildingData)Other;
+        BuildingEntity OtherBuilding = (BuildingEntity)Other;
         return Location.Equals(OtherBuilding.Location);
     }
 
@@ -300,22 +315,32 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return false;
     }
 
-    public int GetSize()
+    public void SetLocation(Location Location)
+    {
+        this.Location = Location;
+    }
+
+    public Location GetLocation() { 
+        return this.Location; 
+    }
+
+    public override int GetSize()
     {
         return GetStaticSize();
     }
 
     public static int GetStaticSize()
     {
-        // Type and buildable on, max workers
+        // Unit/Entity Type and buildable on, max workers
         // Workers themselfs will be assigned later
-        return Location.GetStaticSize() + Production.GetStaticSize() + 1 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 7;
+        return Location.GetStaticSize() + Production.GetStaticSize() + 2 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 7;
     }
 
-    public byte[] GetData()
+    public override byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EntityType);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
         byte TypeAsByte = (byte)HexagonConfig.MaskToInt((int)BuildingType, 32);
@@ -333,10 +358,11 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         return Bytes.ToArray();
     }
 
-    public void SetData(NativeArray<byte> Bytes)
+    public override void SetData(NativeArray<byte> Bytes)
     {
         int Pos = 0;
 
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEntityType);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
@@ -349,10 +375,12 @@ public class BuildingData : ScriptableObject, ISaveableData, IPreviewable, IQues
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
 
+        EntityType = (EType)bEntityType;
         BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
 
-        AssignedWorkers = new WorkerData[MaxWorker];
+        AssignedWorkers = new WorkerEntity[MaxWorker];
     }
+
 }

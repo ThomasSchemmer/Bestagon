@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /** Quest to build X more buildings */
-public class BuildBuildingsQuest : Quest<BuildingData>
+public class BuildBuildingsQuest : Quest<BuildingEntity>
 {
     private Statistics Statistics;
 
@@ -12,7 +12,7 @@ public class BuildBuildingsQuest : Quest<BuildingData>
         Statistics = Game.GetService<Statistics>();
     }
 
-    public override int CheckSuccess(BuildingData Building)
+    public override int CheckSuccess(BuildingEntity Building)
     {
         return 1;
     }
@@ -33,7 +33,7 @@ public class BuildBuildingsQuest : Quest<BuildingData>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<BuildingEntity>, ActionList<BuildingEntity>> GetRegisterMap()
     {
         if (Game.GetService<BuildingService>() == null)
             return new();

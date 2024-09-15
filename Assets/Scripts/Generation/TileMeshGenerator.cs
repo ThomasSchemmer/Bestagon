@@ -189,28 +189,17 @@ public class TileMeshGenerator : MonoBehaviour
             return false;
 
         Mesh TileMesh = null;
-        Mesh DecorationMesh = null;
         switch (Data.GetDiscoveryState()) {
             case HexagonData.DiscoveryState.Unknown: break;
             case HexagonData.DiscoveryState.Scouted: TileMesh = BuildingFactory.UnknownMesh; break;
             case HexagonData.DiscoveryState.Visited: 
                 TileMesh = BuildingFactory.GetMeshFromType(Data.Type);
-                DecorationMesh = BuildingFactory.GetMeshFromType(Data.Decoration);
                 break;
         }
         if (!TileMesh)
             return false;
 
-        bool bIsVisited = Data.GetDiscoveryState() == HexagonData.DiscoveryState.Visited;
-        if (bIsVisited && Data.Decoration != HexagonConfig.HexagonDecoration.None && DecorationMesh == null)
-            return false;
-
-        AddMesh(Data, TileMesh);
-        if (DecorationMesh != null)
-        {
-            AddMesh(Data, DecorationMesh);
-        }
-        
+        AddMesh(Data, TileMesh);        
 
         return true;
     }

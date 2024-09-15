@@ -350,12 +350,12 @@ public class IconFactory : GameService
         return MiscUnit;
     }
 
-    public bool TryGetMiscFromUnit(UnitData.UnitType Type, out MiscellaneousType MiscType)
+    public bool TryGetMiscFromUnit(UnitEntity.UType Type, out MiscellaneousType MiscType)
     {
         switch (Type)
         {
-            case UnitData.UnitType.Worker: MiscType = MiscellaneousType.Worker; return true;
-            case UnitData.UnitType.Scout: MiscType = MiscellaneousType.Scout; return true;
+            case UnitEntity.UType.Worker: MiscType = MiscellaneousType.Worker; return true;
+            case UnitEntity.UType.Scout: MiscType = MiscellaneousType.Scout; return true;
             default: MiscType = MiscellaneousType.Worker; return false;
         }
     }

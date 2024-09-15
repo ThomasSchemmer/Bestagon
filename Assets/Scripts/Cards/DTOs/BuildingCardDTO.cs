@@ -7,7 +7,7 @@ using UnityEngine;
  */
 public class BuildingCardDTO : CardDTO
 {
-    public BuildingData BuildingData;
+    public BuildingEntity BuildingData;
 
     public BuildingCardDTO(Card Card)
     {
@@ -20,7 +20,7 @@ public class BuildingCardDTO : CardDTO
 
     public BuildingCardDTO() {
         // create an empty one, will be overwritten anyway
-        BuildingData = ScriptableObject.CreateInstance<BuildingData>();
+        BuildingData = ScriptableObject.CreateInstance<BuildingEntity>();
     }
 
     public override Type GetCardType()
@@ -52,10 +52,10 @@ public class BuildingCardDTO : CardDTO
 
     public static new int GetStaticSize()
     {
-        return CardDTO.GetStaticSize() + BuildingData.GetStaticSize();
+        return CardDTO.GetStaticSize() + BuildingEntity.GetStaticSize();
     }
 
-    public static BuildingCardDTO CreateFromBuildingData(BuildingData Data)
+    public static BuildingCardDTO CreateFromBuildingData(BuildingEntity Data)
     {
         BuildingCardDTO DTO = new();
         DTO.BuildingData = Data;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BuildingCard : Card
 {
-    public void Init(BuildingData BuildingData, int Index)
+    public void Init(BuildingEntity BuildingData, int Index)
     {
         // needs to be set before initialising the base
         this.BuildingData = BuildingData;
@@ -128,7 +128,7 @@ public class BuildingCard : Card
         }
 
         // avoids "doubling" the actual building (including workers) when building a second time
-        BuildingData Copy = Instantiate(BuildingData);
+        BuildingEntity Copy = Instantiate(BuildingData);
         Copy.BuildAt(Hex.Location);
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);
@@ -142,17 +142,17 @@ public class BuildingCard : Card
         UpdateUsageText();
     }
 
-    public void SetBuildingData(BuildingData BuildingData)
+    public void SetBuildingData(BuildingEntity BuildingData)
     {
         this.BuildingData = BuildingData;
     }
 
-    public BuildingData GetBuildingData()
+    public BuildingEntity GetBuildingData()
     {
         return BuildingData;
     }
 
-    public BuildingData GetDTOData()
+    public BuildingEntity GetDTOData()
     {
         return BuildingData;
     }
@@ -187,6 +187,6 @@ public class BuildingCard : Card
         return BuildingData != null && BuildingData.IsAnyUpgradePossible();
     }
 
-    protected BuildingData BuildingData;
+    protected BuildingEntity BuildingData;
     protected RectTransform MaxWorkerTransform;
 }

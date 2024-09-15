@@ -1,38 +1,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerData>
+public class Workers : EntityProvider<StarvableUnitEntity>
 {
-    public void RequestAddWorkerFor(BuildingData Building, int i) {
+    public void RequestAddWorkerFor(BuildingEntity Building, int i) {
         if (!HasUnemployedWorkers())
         {
             MessageSystemScreen.CreateMessage(Message.Type.Error, "No idle worker exist for this building");
             return;
         }
 
-        WorkerData WorkerUnit = GetUnemployedWorker();
+        WorkerEntity WorkerUnit = GetUnemployedWorker();
         AssignWorkerTo(WorkerUnit, Building, i);
     }
 
-    public void RequestRemoveWorkerFor(BuildingData Building, WorkerData Worker, int i)
+    public void RequestRemoveWorkerFor(BuildingEntity Building, WorkerEntity Worker, int i)
     {
         Worker.RemoveFromBuilding();
         Building.RemoveWorker(i);
         _OnWorkersChanged?.Invoke();
-        _OnWorkersAssigned?.Invoke(Building.Location);
+        _OnWorkersAssigned?.Invoke(Building.GetLocation());
         _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
-    public void AssignWorkerTo(WorkerData Worker, BuildingData Building, int i)
+    public void AssignWorkerTo(WorkerEntity Worker, BuildingEntity Building, int i)
     {
         Worker.AssignToBuilding(Building, i);
         Building.PutWorkerAt(Worker, i);
         _OnWorkersChanged?.Invoke();
-        _OnWorkersAssigned?.Invoke(Building.Location);
+        _OnWorkersAssigned?.Invoke(Building.GetLocation());
         _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
-    public void KillWorker(WorkerData WorkerUnit)
+    public void KillWorker(WorkerEntity WorkerUnit)
     {
         if (WorkerUnit == null)
             return;
@@ -41,28 +41,28 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
         {
             RequestRemoveWorkerFor(WorkerUnit.GetAssignedBuilding(), WorkerUnit, WorkerUnit.GetAssignedBuildingSlot());
         }
-        Units.Remove(WorkerUnit);
+        Entities.Remove(WorkerUnit);
         _OnWorkersChanged?.Invoke();
         CheckForGameOver();
     }
 
     private void CheckForGameOver()
     {
-        if (Units.Count != 0)
+        if (Entities.Count != 0)
             return;
 
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (UnitService.Units.Count != 0)
+        if (UnitService.Entities.Count != 0)
             return;
 
         Game.Instance.GameOver("Your tribe has died out!");
     }
 
-    private WorkerData GetUnemployedWorker()
+    private WorkerEntity GetUnemployedWorker()
     {
-        foreach (WorkerData WorkerUnit in Units)
+        foreach (WorkerEntity WorkerUnit in Entities)
         {
             if (!WorkerUnit.IsEmployed())
                 return WorkerUnit;
@@ -72,7 +72,7 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
 
     public int GetEmployedWorkerCount() {
         int EmployedCount = 0;
-        foreach (WorkerData WorkerUnit in Units)
+        foreach (WorkerEntity WorkerUnit in Entities)
         {
             if (!WorkerUnit.IsEmployed())
                 continue;
@@ -93,7 +93,7 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
     }
 
     public int GetTotalWorkerCount() {
-        return Units.Count;
+        return Entities.Count;
     }
 
     public void CreateNewWorker()
@@ -101,14 +101,14 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return;
 
-        WorkerData Worker = (WorkerData)MeshFactory.CreateDataFromType(UnitData.UnitType.Worker);
+        WorkerEntity Worker = (WorkerEntity)MeshFactory.CreateDataFromType(UnitEntity.UType.Worker);
         AddWorker(Worker);
     }
 
-    public void AddWorker(WorkerData Worker)
+    public void AddWorker(WorkerEntity Worker)
     {
-        Units.Add(Worker);
-        _OnUnitCreated.ForEach(_ => _.Invoke(Worker));
+        Entities.Add(Worker);
+        _OnEntityCreated.ForEach(_ => _.Invoke(Worker));
     }
     
     protected override void StartServiceInternal()
@@ -131,5 +131,5 @@ public class Workers : UnitProvider<StarvableUnitData>, IQuestRegister<WorkerDat
     public static OnWorkersChanged _OnWorkersChanged;
     public static OnWorkersAssigned _OnWorkersAssigned;
 
-    public static ActionList<WorkerData> _OnWorkerAssignedList = new();
+    public static ActionList<ScriptableEntity> _OnWorkerAssignedList = new();
 }

@@ -14,7 +14,7 @@ public class WorkerIndicator : IndicatorComponent
 
     protected override int GetIndicatorAmount()
     {
-        return Visualization.BuildingData.GetMaximumWorkerCount();
+        return Visualization.Entity.GetMaximumWorkerCount();
     }
 
     protected override Sprite GetIndicatorSprite(int i)
@@ -22,19 +22,19 @@ public class WorkerIndicator : IndicatorComponent
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
-        bool bIsAssigned = Visualization.BuildingData.AssignedWorkers[i] != null;
+        bool bIsAssigned = Visualization.Entity.AssignedWorkers[i] != null;
         IconFactory.MiscellaneousType Type = bIsAssigned ? IconFactory.MiscellaneousType.WorkerIndicator : IconFactory.MiscellaneousType.NoWorkerIndicator;
         return IconFactory.GetIconForMisc(Type);
     }
 
     protected override Vector3 GetIndicatorWorldPosition(int i)
     {
-        Location Location = Visualization.BuildingData.Location;
+        Location Location = Visualization.Entity.GetLocation();
         return HexagonConfig.TileSpaceToWorldSpace(Location.GlobalTileLocation);
     }
 
     public override bool IsFor(Location Location)
     {
-        return Visualization.BuildingData.Location.Equals(Location);
+        return Visualization.Entity.GetLocation().Equals(Location);
     }
 }

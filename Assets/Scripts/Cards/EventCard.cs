@@ -49,7 +49,7 @@ public class EventCard : Card
         return EventData.GetEventVisuals(this);
     }
 
-    public UnitData GetUnitData()
+    public UnitEntity GetUnitData()
     {
         if (EventData.Type != EventData.EventType.GrantUnit)
             return null;

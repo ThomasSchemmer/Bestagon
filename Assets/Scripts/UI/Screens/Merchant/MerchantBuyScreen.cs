@@ -64,9 +64,9 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return false;
     }
 
-    protected override void SetChoiceCard(Card Card, int i)
+    protected override void SetChoiceCard(Card Card, RelicType RelicType, int i)
     {
-        base.SetChoiceCard(Card, i); 
+        base.SetChoiceCard(Card, RelicType, i); 
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 

@@ -58,15 +58,18 @@ public class Statistics : GameService, ISaveableService
         Goal += GoalIncrease;
     }
 
-    public void CountBuilding(BuildingData Building)
+    public void CountBuilding(BuildingEntity Building)
     {
         BuildingsBuilt++;
         CurrentBuildings++;
         BestBuildings = Mathf.Max(BestBuildings, CurrentBuildings);
     }
 
-    public void CountUnit(UnitData Unit)
+    public void CountUnit(ScriptableEntity Unit)
     {
+        if (Unit is not UnitEntity)
+            return;
+
         UnitsCreated++;
         CurrentUnits++;
         BestUnits = Mathf.Max(BestUnits, CurrentUnits);
@@ -143,16 +146,16 @@ public class Statistics : GameService, ISaveableService
     {
         if (bSubscribe)
         {
-            Units._OnUnitCreated.Add(CountUnit);
-            Workers._OnUnitCreated.Add(CountUnit);
+            Units._OnEntityCreated.Add(CountUnit);
+            Workers._OnEntityCreated.Add(CountUnit);
             MapGenerator._OnDiscoveredTile.Add(CountMoves);
             Stockpile._OnResourcesCollected.Add(CountResources);
             BuildingService._OnBuildingBuilt.Add(CountBuilding);
         }
         else
         {
-            Units._OnUnitCreated.Remove(CountUnit);
-            Workers._OnUnitCreated.Remove(CountUnit);
+            Units._OnEntityCreated.Remove(CountUnit);
+            Workers._OnEntityCreated.Remove(CountUnit);
             MapGenerator._OnDiscoveredTile.Remove(CountMoves);
             Stockpile._OnResourcesCollected.Remove(CountResources);
             BuildingService._OnBuildingBuilt.Remove(CountBuilding);

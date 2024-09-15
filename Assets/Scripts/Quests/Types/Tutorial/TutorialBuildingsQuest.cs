@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using static TutorialSystem;
 
-public class TutorialBuildingsQuest : Quest<BuildingData>
+public class TutorialBuildingsQuest : Quest<BuildingEntity>
 {
     public TutorialBuildingsQuest() : base()
     {
     }
 
-    public override int CheckSuccess(BuildingData Target)
+    public override int CheckSuccess(BuildingEntity Target)
     {
         return 1;
     }
@@ -29,7 +29,7 @@ public class TutorialBuildingsQuest : Quest<BuildingData>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<BuildingEntity>, ActionList<BuildingEntity>> GetRegisterMap()
     {
         if (Game.GetService<BuildingService>() == null)
             return new();

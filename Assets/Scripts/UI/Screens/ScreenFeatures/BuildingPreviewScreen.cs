@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
+public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingEntity>
 {
     private PreviewSystem Previews;
 
@@ -27,9 +27,9 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
         ShowFeatures();
     }
 
-    public override BuildingData GetFeatureObject()
+    public override BuildingEntity GetFeatureObject()
     {
-        return Previews.GetPreviewableAs<BuildingData>();
+        return Previews.GetPreviewableAs<BuildingEntity>();
     }
 
     public Location GetPreviewLocation()
@@ -45,6 +45,6 @@ public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingData>
         if (Previews == null)
             return false;
 
-        return Previews.HasPreviewableAs<BuildingData>();
+        return Previews.HasPreviewableAs<BuildingEntity>();
     }
 }

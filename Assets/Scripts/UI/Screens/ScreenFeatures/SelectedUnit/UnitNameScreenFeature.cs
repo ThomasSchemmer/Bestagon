@@ -2,22 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitNameScreenFeature : ScreenFeature<UnitData>
+public class UnitNameScreenFeature : ScreenFeature<UnitEntity>
 {
     public override bool ShouldBeDisplayed()
     {
         return GetFeatureObjectAsScout() != null;
     }
 
-    private ScoutData GetFeatureObjectAsScout()
+    private ScoutEntity GetFeatureObjectAsScout()
     {
-        return (ScoutData)Target.GetFeatureObject();
+        return (ScoutEntity)Target.GetFeatureObject();
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        ScoutData SelectedUnit = GetFeatureObjectAsScout();
+        ScoutEntity SelectedUnit = GetFeatureObjectAsScout();
         TargetText.text = SelectedUnit.GetName();
     }
 
@@ -27,7 +27,7 @@ public class UnitNameScreenFeature : ScreenFeature<UnitData>
         TargetText.text = string.Empty;
     }
 
-    public override void Init(ScreenFeatureGroup<UnitData> Target)
+    public override void Init(ScreenFeatureGroup<UnitEntity> Target)
     {
         base.Init(Target);
     }

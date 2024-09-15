@@ -9,42 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ad10dc1e93f89b40ba9c51f4305bf22, type: 3}
   m_Name: Stonemason
   m_EditorClassIdentifier: 
-  Location:
-    _ChunkLocation:
-      x: 0
-      y: 0
-    _HexLocation:
-      x: 0
-      y: 0
+  EntityType: 1
   AssignedWorkers:
   - {fileID: 0}
   BuildingType: 262144
   Cost:
     _Production:
-      Tuples:
-      - Key: 2
-        Value: 5
-      - Key: 3
-        Value: 3
-      - Key: 4
-        Value: 3
+      Tuples: []
   Effect:
-    EffectType: 2
+    EffectType: 1
     UnitType: 0
     TileType: 0
     Production:
       _Production:
-        Tuples:
-        - Key: 5
-          Value: 1
+        Tuples: []
     Consumption:
       _Production:
-        Tuples:
-        - Key: 2
-          Value: 3
+        Tuples: []
     Range: 0
     UpgradeTileType: 0
     UpgradeProduction:
@@ -52,9 +36,10 @@ MonoBehaviour:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5120
+  BuildableOn: 0
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 2
+  UpgradeMaxWorker: 1
   UpgradeBuildableOn: 0
-  UpgradeMaxUsages: 2
+  UpgradeMaxUsages: 1
+  Visualization: {fileID: 0}

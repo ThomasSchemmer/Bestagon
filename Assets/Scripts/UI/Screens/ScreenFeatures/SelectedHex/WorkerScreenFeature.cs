@@ -9,13 +9,13 @@ public class WorkerScreenFeature : ScreenFeature<HexagonData>
 
     public override bool ShouldBeDisplayed()
     {
-        if (!TryGetBuilding(out BuildingData Building))
+        if (!TryGetBuilding(out BuildingEntity Building))
             return false;
 
         return true;
     }
 
-    private bool TryGetBuilding(out BuildingData Building)
+    private bool TryGetBuilding(out BuildingEntity Building)
     {
         Building = null;
         HexagonData SelectedHex = Target.GetFeatureObject();
@@ -41,7 +41,7 @@ public class WorkerScreenFeature : ScreenFeature<HexagonData>
         DeleteWorkerVisuals();
         SetConditionalPadding(Height);
 
-        TryGetBuilding(out BuildingData BuildingData);
+        TryGetBuilding(out BuildingEntity BuildingData);
 
         for (int i = 0; i < BuildingData.MaxWorker; i++)
         {
@@ -49,7 +49,7 @@ public class WorkerScreenFeature : ScreenFeature<HexagonData>
         }
     }
 
-    private void CreateWorkerUI(BuildingData BuildingData, int i)
+    private void CreateWorkerUI(BuildingEntity BuildingData, int i)
     {
         SelectedHexScreen HexScreen = (SelectedHexScreen)Target;
         bool bShouldShowEmployee = BuildingData.AssignedWorkers[i] != null;

@@ -15,7 +15,7 @@ public class CardUpgradeScreen : GameService
 
     //for now only BuildingCards can be upgraded
     private BuildingCard LastCard = null, CopyCard = null, UpgradedCard = null;
-    private BuildingData UpgradedBuildingData;
+    private BuildingEntity UpgradedBuildingData;
 
     public enum UpgradeableAttributes
     {
@@ -125,7 +125,7 @@ public class CardUpgradeScreen : GameService
         CloneTransform.anchorMax = Vector2.one * 0.5f;
     }
 
-    private void ConvertToButton(BuildingData BuildingData, Transform OldTransform, UpgradeableAttributes Type)
+    private void ConvertToButton(BuildingEntity BuildingData, Transform OldTransform, UpgradeableAttributes Type)
     {
         if (!BuildingData.IsUpgradePossible(Type))
             return;

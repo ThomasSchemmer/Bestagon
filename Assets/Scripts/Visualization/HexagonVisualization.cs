@@ -147,7 +147,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             return;
 
         ChunkVis?.RefreshTokens();
-        GenerateMesh(MapGenerator.HexMat);
+        GenerateMesh(Mat);
         VisualizeSelection();
 
         if (!Game.TryGetService(out MiniMap Minimap))
@@ -163,11 +163,11 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        if (!UnitService.TryGetUnitAt(SelectedHex.Location, out TokenizedUnitData UnitOnTile))
+        if (!UnitService.TryGetEntityAt(SelectedHex.Location, out TokenizedUnitEntity UnitOnTile))
             return;
 
         // can't move if there already is a unit!
-        if (UnitService.TryGetUnitAt(this.Location, out TokenizedUnitData UnitAtTarget))
+        if (UnitService.TryGetEntityAt(this.Location, out TokenizedUnitEntity UnitAtTarget))
             return;
 
         if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()) || UnitOnTile.IsStarving(false))
@@ -189,7 +189,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         }
     }
 
-    private void InteractMoveUnit(TokenizedUnitData Unit, int Costs)
+    private void InteractMoveUnit(TokenizedUnitEntity Unit, int Costs)
     {
         if (!Game.TryGetServices(out Selectors Selector, out Stockpile Stockpile))
             return;
@@ -202,7 +202,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
         Unit.MoveTo(this.Location, Costs);
 
-        if (!Generator.TryGetHexagon(Unit.Location, out HexagonVisualization NewHex))
+        if (!Generator.TryGetHexagon(Unit.GetLocation(), out HexagonVisualization NewHex))
             return;
 
         Selector.SelectHexagon(NewHex);
@@ -229,7 +229,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             return;
 
         // always query, just reset if null
-        UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit);
+        UnitService.TryGetEntityAt(Location, out TokenizedUnitEntity Unit);
 
         bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements()) && !Unit.IsStarving(false);
 

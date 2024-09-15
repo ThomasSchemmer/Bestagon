@@ -57,16 +57,21 @@ public class SpawnSystem : GameService, ISaveableService
         if (DiscoveredCount < CountToSpawnDecoration)
             return;
 
-        if (!Data.CanDecorationSpawn())
+        if (!Game.TryGetService(out DecorationService DecorationService))
+            return;
+
+        if (!Data.CanDecorationSpawn() || DecorationService.IsEntityAt(Data.Location))
             return;
 
         DiscoveredCount -= CountToSpawnDecoration;
         CountToSpawnDecoration += CountToSpawnDecorationIncrease;
         float Chance = Random.Range(0f, 1f);
-        HexagonConfig.HexagonDecoration Decoration = Chance < TribeChance ? 
-            HexagonConfig.HexagonDecoration.Tribe : 
-            HexagonConfig.HexagonDecoration.Ruins;
-        Data.Decoration = Decoration;
+
+        DecorationEntity.DType Decoration = Chance < TribeChance ? 
+            DecorationEntity.DType.Tribe : Chance < RuinsChance ?
+            DecorationEntity.DType.Ruins :
+            DecorationEntity.DType.Treasure;
+        DecorationService.CreateNewDecoration(Decoration, Data.Location);
     }
 
     protected override void StopServiceInternal() {}
@@ -102,5 +107,6 @@ public class SpawnSystem : GameService, ISaveableService
     private int DiscoveredCount = 0;
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;
-    private float TribeChance = 0.65f;
+    private float TribeChance = 0.45f;
+    private float RuinsChance = 0.8f;
 }

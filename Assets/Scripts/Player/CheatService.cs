@@ -106,10 +106,11 @@ public class CheatService : ScreenUI
             return;
 
         int Value = GetTargetValue(Cheats, true);
-        if (!Units.TryGetAnyOfType(UnitData.UnitType.Scout, out var Scout))
+        if (!Units.TryGetAnyOfType(UnitEntity.UType.Scout, out var Entity))
             return;
 
-        if (!MapGenerator.TryGetHexagon(Scout.Location, out HexagonVisualization Vis))
+        ScoutEntity Scout = Entity as ScoutEntity;
+        if (!MapGenerator.TryGetHexagon(Scout.GetLocation(), out HexagonVisualization Vis))
             return;
 
         Vis.UpdateDiscoveryState(Value, Value + 1);
@@ -170,8 +171,8 @@ public class CheatService : ScreenUI
         if (!Game.TryGetServices(out Units Units, out Workers Workers))
             return;
 
-        Units.KillAllUnits();
-        Workers.KillAllUnits();
+        Units.KillAllEntities();
+        Workers.KillAllEntities();
     }
 
     private void GiveResource(string[] Cheats) {
@@ -206,10 +207,10 @@ public class CheatService : ScreenUI
             CardFactory.CreateCard(TargetType, 0, CardHand.transform, CardHand.AddCard);
             return;
         }
-        TargetIndex = GetTargetIndex(TargetName, typeof(UnitData.UnitType));
+        TargetIndex = GetTargetIndex(TargetName, typeof(UnitEntity.UType));
         if (TargetIndex >= 0)
         {
-            UnitData.UnitType TargetType = (UnitData.UnitType)(TargetIndex);
+            UnitEntity.UType TargetType = (UnitEntity.UType)(TargetIndex);
             CardFactory.CreateCard(TargetType, 0, CardHand.transform, CardHand.AddCard);
             return;
         }

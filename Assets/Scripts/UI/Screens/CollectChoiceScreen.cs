@@ -12,13 +12,15 @@ public abstract class CollectChoiceScreen : ScreenUI
     public enum ChoiceType
     {
         Card,
-        Upgrade
+        Upgrade,
+        Relic
     }
 
     public class CollectableChoice
     {
         public ChoiceType Type;
         public BuildingConfig.Type BuildingToUnlock = BuildingConfig.Type.DEFAULT;
+        public RelicType RelicToUnlock = RelicType.DEFAULT;
         public Card GeneratedCard;
 
         public CollectableChoice(Card GeneratedCard)
@@ -35,6 +37,12 @@ public abstract class CollectChoiceScreen : ScreenUI
         public CollectableChoice()
         {
             Type = ChoiceType.Upgrade;
+        }
+
+        public CollectableChoice(RelicType RelicType)
+        {
+            RelicToUnlock = RelicType;
+            Type = ChoiceType.Relic;
         }
     }
 
@@ -57,6 +65,7 @@ public abstract class CollectChoiceScreen : ScreenUI
             {
                 case ChoiceType.Card: CreateCardAt(i, GetCardTypeAt(i)); break;
                 case ChoiceType.Upgrade: CreateUpgradeAt(i); break;
+                case ChoiceType.Relic: CreateRelicAt(i); break;
             }
         }
     }
@@ -79,8 +88,14 @@ public abstract class CollectChoiceScreen : ScreenUI
     protected void CreateUpgradeAt(int ChoiceIndex)
     {
         // keep the kinda clunky callback syntax to be similar to the CreateCardAt function
-        PrepareContainerForUpgrade(ChoiceIndex, out Action<Card, int> Callback);
-        Callback(null, ChoiceIndex);
+        PrepareContainerForUpgrade(ChoiceIndex, out Action<Card, RelicType, int> Callback);
+        Callback(null, RelicType.DEFAULT, ChoiceIndex);
+    }
+
+    protected void CreateRelicAt(int ChoiceIndex)
+    {
+        PrepareContainerForUpgrade(ChoiceIndex, out Action<Card, RelicType, int> Callback);
+        Callback(null, RelicType.Calligulae, ChoiceIndex);
     }
 
     private void CreateEventCardAt(int ChoiceIndex)
@@ -88,7 +103,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetService(out CardFactory CardFactory))
             return;
 
-        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, int> Callback);
+        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
         CardFactory.CreateCard(EventData.GetRandomType(), ChoiceIndex, CardContainer, Callback);
     }
 
@@ -109,12 +124,12 @@ public abstract class CollectChoiceScreen : ScreenUI
             BuildingToUnlock = Unlockables.GetRandomUnlockedType();
         }
 
-        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, int> Callback);
+        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
         CardFactory.CreateCard(BuildingToUnlock, ChoiceIndex, CardContainer, Callback);
     }
 
 
-    protected virtual void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<Card, int> Callback)
+    protected virtual void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
         AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
@@ -129,7 +144,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         Callback = SetChoiceCard;
     }
 
-    private void PrepareContainerForUpgrade(int ChoiceIndex, out Action<Card, int> Callback)
+    private void PrepareContainerForUpgrade(int ChoiceIndex, out Action<Card, RelicType, int> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
         AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
@@ -141,6 +156,20 @@ public abstract class CollectChoiceScreen : ScreenUI
         });
         Button.interactable = CanAffordChoice(ChoiceIndex);
         Callback = SetChoiceUpgrade;
+    }
+
+    private void PrepareContainerForRelic(int ChoiceIndex, out Action<Card, RelicType, int> Callback)
+    {
+        Transform TargetContainer = ChoiceContainers[ChoiceIndex];
+        AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
+        Button Button = TargetContainer.GetChild(0).GetChild(2).GetComponent<Button>();
+        Button.onClick.RemoveAllListeners();
+        Button.onClick.AddListener(() =>
+        {
+            OnSelectOption(ChoiceIndex);
+        });
+        Button.interactable = CanAffordChoice(ChoiceIndex);
+        Callback = SetChoiceRelic;
     }
 
     private bool CanAffordChoice(int ChoiceIndex)
@@ -163,15 +192,20 @@ public abstract class CollectChoiceScreen : ScreenUI
         Instantiate(Prefab, Container);
     }
 
-    protected virtual void SetChoiceCard(Card Card, int i)
+    protected virtual void SetChoiceCard(Card Card, RelicType RelicType, int i)
     {
         Choices[i] = new(Card);
     }
 
-    protected virtual void SetChoiceUpgrade(Card Card, int i)
+    protected virtual void SetChoiceUpgrade(Card Card, RelicType RelicType, int i)
     {
         // dont need to save anything, the upgrade definition is implicit
         Choices[i] = new();
+    }
+
+    protected virtual void SetChoiceRelic(Card Card, RelicType RelicType, int i)
+    {
+        Choices[i] = new(RelicType);
     }
 
     public virtual void OnSelectOption(int ChoiceIndex)

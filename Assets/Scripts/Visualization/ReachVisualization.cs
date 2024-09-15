@@ -111,10 +111,10 @@ public class ReachVisualization : GameService
         Triangles.AddRange(new[] { Count + 3, Count + 4, Count + 5 });
     }
 
-    private void AddReach(BuildingData AddedBuilding)
+    private void AddReach(BuildingEntity AddedBuilding)
     {
-        BuildingLocations.Add(AddedBuilding.Location);
-        AddReach(AddedBuilding.Location);
+        BuildingLocations.Add(AddedBuilding.GetLocation());
+        AddReach(AddedBuilding.GetLocation());
     }
 
     private void AddReach(Location Location, bool bShouldUpdateBorders = true)
@@ -159,9 +159,9 @@ public class ReachVisualization : GameService
         }
     }
 
-    private void RemoveReach(BuildingData RemovedBuilding)
+    private void RemoveReach(BuildingEntity RemovedBuilding)
     {
-        BuildingLocations.Remove(RemovedBuilding.Location);
+        BuildingLocations.Remove(RemovedBuilding.GetLocation());
         Set = new();
         // dont auto update everytime
         foreach (Location ReachLocation in BuildingLocations)

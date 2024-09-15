@@ -25,6 +25,7 @@ public class RelicEffect : GameplayEffect
 
 public enum RelicType : uint
 {
+    DEFAULT = 255,
     Calligulae = 0,
     WoodenMallet = 1,
     Cradle = 2,

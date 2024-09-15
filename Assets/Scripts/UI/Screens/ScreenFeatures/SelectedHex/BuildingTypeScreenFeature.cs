@@ -6,10 +6,10 @@ public class BuildingTypeScreenFeature : ScreenFeature<HexagonData>
 {
     public override bool ShouldBeDisplayed()
     {
-        return TryGetBuilding(out BuildingData BuildingData);
+        return TryGetBuilding(out BuildingEntity BuildingData);
     }
 
-    private bool TryGetBuilding(out BuildingData Building)
+    private bool TryGetBuilding(out BuildingEntity Building)
     {
         Building = null;
         HexagonData SelectedHex = Target.GetFeatureObject();
@@ -29,7 +29,7 @@ public class BuildingTypeScreenFeature : ScreenFeature<HexagonData>
     {
         base.ShowAt(YOffset);
 
-        TryGetBuilding(out BuildingData BuildingData);
+        TryGetBuilding(out BuildingEntity BuildingData);
         TargetText.text = BuildingData.BuildingType.ToString();
     }
 

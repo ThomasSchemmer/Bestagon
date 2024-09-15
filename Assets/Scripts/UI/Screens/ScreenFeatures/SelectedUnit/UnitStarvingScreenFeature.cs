@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitStarvingScreenFeature : ScreenFeature<UnitData>
+public class UnitStarvingScreenFeature : ScreenFeature<UnitEntity>
 {
     public override bool ShouldBeDisplayed()
     {
-        StarvableUnitData Unit = GetTargetAsStarvable();
+        StarvableUnitEntity Unit = GetTargetAsStarvable();
         return Unit != null && Unit.CurrentFoodCount == 0;
     }
 
-    private StarvableUnitData GetTargetAsStarvable()
+    private StarvableUnitEntity GetTargetAsStarvable()
     {
-        return Target.GetFeatureObject() as StarvableUnitData;
+        return Target.GetFeatureObject() as StarvableUnitEntity;
     }
 
 

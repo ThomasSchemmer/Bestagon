@@ -37,6 +37,33 @@ public class GameplayEffectModifier
         _Attribute.AddModifier(this);
     }
 
+    public void Revert()
+    {
+        _Attribute.AddModifier(Invert());
+    }
+
+    private GameplayEffectModifier Invert()
+    {
+        if (Operation == Type.Override)
+            return null;
+
+        GameplayEffectModifier Copy = new();
+        Copy.Period = this.Period;
+        Copy.AttributeType = this.AttributeType;
+        Copy.SetTarget(this.Target);
+        Copy.Operation = this.Operation;
+
+        switch (Operation)
+        {
+            case Type.Add: Copy.Value = -this.Value; break;
+            case Type.Multiply: 
+            case Type.Divide: Copy.Value = 1 / this.Value; break;
+            default: break;
+        }
+
+        return Copy;
+    }
+
     public void Tick(float Delta)
     {
         TimeSinceLastActivated += Delta;

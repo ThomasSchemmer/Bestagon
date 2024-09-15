@@ -69,7 +69,7 @@ public class ScoutTilesQuest : Quest<DiscoveryState>
         if (!Game.TryGetServices(out Units Units, out Turn Turn))
             return false;
 
-        return Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData _) && Turn.TurnNr > 1;
+        return Units.HasAnyEntity(UnitEntity.UType.Scout, out TokenizedUnitEntity _) && Turn.TurnNr > 1;
     }
 
     public override bool TryGetNextType(out System.Type Type)

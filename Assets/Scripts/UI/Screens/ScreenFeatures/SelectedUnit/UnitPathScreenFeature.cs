@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitPathScreenFeature : ScreenFeature<UnitData>
+public class UnitPathScreenFeature : ScreenFeature<UnitEntity>
 {
     public Vector3 Offset = new Vector3(0, 6, 0);
     private LineRenderer LineRenderer;
 
-    public override void Init(ScreenFeatureGroup<UnitData> Target)
+    public override void Init(ScreenFeatureGroup<UnitEntity> Target)
     {
         base.Init(Target);
         LineRenderer = GetComponent<LineRenderer>();
@@ -17,7 +17,7 @@ public class UnitPathScreenFeature : ScreenFeature<UnitData>
     {
         base.ShowAt(YOffset);
 
-        TokenizedUnitData Unit = GetTargetAsTokenized();
+        TokenizedUnitEntity Unit = GetTargetAsTokenized();
         TryGetHexagons(out HexagonVisualization StartHex, out HexagonVisualization TargetHex);
         List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location);
         List<Location> AffordablePath = Pathfinding.GetAffordableSubPath(Path, Unit.RemainingMovement);
@@ -33,7 +33,7 @@ public class UnitPathScreenFeature : ScreenFeature<UnitData>
 
     public override bool ShouldBeDisplayed()
     {
-        TokenizedUnitData Unit = GetTargetAsTokenized();
+        TokenizedUnitEntity Unit = GetTargetAsTokenized();
         return Unit != null && TryGetHexagons(out HexagonVisualization _, out HexagonVisualization _);
     }
 
@@ -49,8 +49,8 @@ public class UnitPathScreenFeature : ScreenFeature<UnitData>
         return SelectedHex != null && HoveredHex != null;
     }
 
-    private TokenizedUnitData GetTargetAsTokenized()
+    private TokenizedUnitEntity GetTargetAsTokenized()
     {
-        return Target.GetFeatureObject() as TokenizedUnitData;
+        return Target.GetFeatureObject() as TokenizedUnitEntity;
     }
 }

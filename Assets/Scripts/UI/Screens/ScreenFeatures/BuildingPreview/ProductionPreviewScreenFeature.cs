@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
+public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
 {
     public override bool ShouldBeDisplayed()
     {
         if (!Target.HasFeatureObject())
             return false;
 
-        BuildingData CurrentBuilding = Target.GetFeatureObject();
+        BuildingEntity CurrentBuilding = Target.GetFeatureObject();
         return CurrentBuilding != null && Game.TryGetService(out IconFactory IconFactory);
     }
 
@@ -22,7 +22,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingData>
         BuildingPreviewScreen PreviewScreen = (BuildingPreviewScreen)Target;
         Location PreviewLocation = PreviewScreen.GetPreviewLocation();
 
-        BuildingData CurrentBuilding = Target.GetFeatureObject();
+        BuildingEntity CurrentBuilding = Target.GetFeatureObject();
         Production Production = CurrentBuilding.GetProductionPreview(PreviewLocation);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
         Visuals.transform.SetParent(TargetTransform, false);

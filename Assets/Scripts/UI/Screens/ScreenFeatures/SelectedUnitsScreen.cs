@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
+public class SelectedUnitsScreen : ScreenFeatureGroup<UnitEntity>
 {
     public Selector<HexagonVisualization> Selector;
 
-    private UnitData SelectedUnit;
+    private UnitEntity SelectedUnit;
     private HexagonVisualization SelectedHex;
 
     void Start()
@@ -48,7 +48,7 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
         if (!Game.TryGetService(out Units Units))
             return;
 
-        if (!Units.TryGetUnitAt(SelectedHex.Location, out TokenizedUnitData Unit))
+        if (!Units.TryGetEntityAt(SelectedHex.Location, out TokenizedUnitEntity Unit))
             return;
 
         SelectedUnit = Unit;
@@ -64,7 +64,7 @@ public class SelectedUnitsScreen : ScreenFeatureGroup<UnitData>
         HideFeatures();
     }
 
-    public override UnitData GetFeatureObject()
+    public override UnitEntity GetFeatureObject()
     {
         return SelectedUnit;
     }

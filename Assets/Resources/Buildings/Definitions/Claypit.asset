@@ -9,16 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e4b29f393aa9cc4795a4d3d9b949fb7, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ad10dc1e93f89b40ba9c51f4305bf22, type: 3}
   m_Name: Claypit
   m_EditorClassIdentifier: 
-  Location:
-    _ChunkLocation:
-      x: 0
-      y: 0
-    _HexLocation:
-      x: 0
-      y: 0
+  EntityType: 1
   AssignedWorkers:
   - {fileID: 0}
   BuildingType: 8
@@ -26,16 +20,16 @@ MonoBehaviour:
     _Production:
       Tuples:
       - Key: 0
-        Value: 2
+        Value: 3
   Effect:
     EffectType: 1
     UnitType: 0
-    TileType: 12292
+    TileType: 4100
     Production:
       _Production:
         Tuples:
         - Key: 1
-          Value: 1
+          Value: 0
     Consumption:
       _Production:
         Tuples: []
@@ -48,9 +42,10 @@ MonoBehaviour:
           Value: 2
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5121
+  BuildableOn: 5123
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 3
+  UpgradeMaxWorker: 2
   UpgradeBuildableOn: 0
-  UpgradeMaxUsages: 3
+  UpgradeMaxUsages: 2
+  Visualization: {fileID: 0}

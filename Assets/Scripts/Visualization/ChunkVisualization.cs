@@ -55,6 +55,7 @@ public class ChunkVisualization : MonoBehaviour
 
         BuildingVisualizations = new();
         UnitVisualizations = new();
+        DecorationVisualizations = new();
     }
 
     public bool TryGetHex(Location Location, out HexagonVisualization Hex)
@@ -73,17 +74,31 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out BuildingService Buildings))
             return;
 
-        foreach (BuildingData BuildingData in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
-            BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
-            Vis.transform.parent = transform;
-            BuildingVisualizations.Add(Vis);
+        foreach (BuildingEntity BuildingData in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
+            CreateBuilding(BuildingData);
         }
     }
 
-    public void CreateBuilding(BuildingData BuildingData) {
-        BuildingVisualization Vis = BuildingVisualization.CreateFromData(BuildingData);
+    public void CreateBuilding(BuildingEntity BuildingData) {
+        BuildingVisualization Vis = (BuildingVisualization)BuildingVisualization.CreateFromData(BuildingData);
         Vis.transform.parent = transform;
         BuildingVisualizations.Add(Vis);
+    }
+
+    private void CreateDecorations()
+    {
+        if (!Game.TryGetService(out DecorationService DecorationService))
+            return;
+
+        if (!DecorationService.TryGetEntitiesInChunk(Location, out List<DecorationEntity> Decorations))
+            return;
+
+        foreach (DecorationEntity Decoration in Decorations)
+        {
+            DecorationVisualization DecorationVis = (DecorationVisualization)DecorationVisualization.CreateFromData(Decoration);
+            DecorationVis.transform.parent = transform;
+            DecorationVisualizations.Add(DecorationVis);
+        }
     }
 
     private void CreateUnits()
@@ -91,19 +106,19 @@ public class ChunkVisualization : MonoBehaviour
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitsInChunk(Location, out List<TokenizedUnitData> Units))
+        if (!UnitService.TryGetEntitiesInChunk(Location, out List<TokenizedUnitEntity> Units))
             return;
 
-        foreach (TokenizedUnitData Unit in Units)
+        foreach (TokenizedUnitEntity Unit in Units)
         {
-            UnitVisualization UnitVis = UnitVisualization.CreateFromData(Unit);
+            UnitVisualization UnitVis = (UnitVisualization)UnitVisualization.CreateFromData(Unit);
             UnitVis.transform.parent = transform;
             UnitVisualizations.Add(UnitVis);
         }
     }
 
     public void Reset() {
-        if (BuildingVisualizations == null || UnitVisualizations == null) 
+        if (BuildingVisualizations == null || UnitVisualizations == null || DecorationVisualizations == null) 
             return;
 
         foreach (BuildingVisualization Building in BuildingVisualizations) {
@@ -115,6 +130,12 @@ public class ChunkVisualization : MonoBehaviour
             Destroy(Unit.gameObject);
         }
         UnitVisualizations.Clear();
+
+        foreach (DecorationVisualization Decoration in DecorationVisualizations)
+        {
+            Destroy(Decoration.gameObject);
+        }
+        DecorationVisualizations.Clear();
     }
 
     public void OnDestroy()
@@ -130,6 +151,7 @@ public class ChunkVisualization : MonoBehaviour
         Reset();
         CreateBuildings();
         CreateUnits();
+        CreateDecorations();
     }
 
     public void FinishVisualization()
@@ -146,6 +168,7 @@ public class ChunkVisualization : MonoBehaviour
 
     public List<BuildingVisualization> BuildingVisualizations;
     public List<UnitVisualization> UnitVisualizations;
+    public List<DecorationVisualization> DecorationVisualizations;
     public Location Location;
     public Coroutine Generator;
 

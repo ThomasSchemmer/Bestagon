@@ -16,7 +16,7 @@ public class MerchantScreenFeature : ScreenFeature<HexagonData>
         if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        if (!Buildings.TryGetBuildingAt(Hex.Location, out BuildingData CurrentBuilding))
+        if (!Buildings.TryGetBuildingAt(Hex.Location, out BuildingEntity CurrentBuilding))
             return false;
 
         if (CurrentBuilding.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant)

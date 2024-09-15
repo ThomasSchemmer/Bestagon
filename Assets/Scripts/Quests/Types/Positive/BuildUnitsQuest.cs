@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /** Quests to build X more units */
-public class BuildUnitsQuest : Quest<UnitData>
+public class BuildUnitsQuest : Quest<ScriptableEntity>
 {
     private Statistics Statistics;
 
@@ -12,7 +12,7 @@ public class BuildUnitsQuest : Quest<UnitData>
         Statistics = Game.GetService<Statistics>();
     }
 
-    public override int CheckSuccess(UnitData Item)
+    public override int CheckSuccess(ScriptableEntity Item)
     {
         return 1;
     }
@@ -33,7 +33,7 @@ public class BuildUnitsQuest : Quest<UnitData>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<UnitData>, ActionList<UnitData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<ScriptableEntity>, ActionList<ScriptableEntity>> GetRegisterMap()
     {
         if (Game.GetService<Units>() == null)
             return new();
@@ -44,8 +44,8 @@ public class BuildUnitsQuest : Quest<UnitData>
 
         return new()
         {
-            { Game.GetService<Units>(), Units._OnUnitCreated },
-            { Game.GetService<Workers>(), Workers._OnUnitCreated }
+            { Game.GetService<Units>().GetRegister(), Units._OnEntityCreated },
+            { Game.GetService<Workers>().GetRegister(), Workers._OnEntityCreated }
         };
     }
 

@@ -367,17 +367,17 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     }
 
 
-    public void AddBuilding(BuildingData BuildingData) {
+    public void AddBuilding(BuildingEntity BuildingData) {
         if (!Game.TryGetService(out BuildingService Buildings))
             return;
 
-        if (!TryGetChunkData(BuildingData.Location, out ChunkData Chunk))
+        if (!TryGetChunkData(BuildingData.GetLocation(), out ChunkData Chunk))
             return;
 
         Buildings.AddBuilding(BuildingData);
 
         // if the chunk is currently being shown, force create the building
-        if (!TryGetChunkVis(BuildingData.Location, out ChunkVisualization ChunkVis))
+        if (!TryGetChunkVis(BuildingData.GetLocation(), out ChunkVisualization ChunkVis))
             return;
 
         ChunkVis.CreateBuilding(BuildingData);

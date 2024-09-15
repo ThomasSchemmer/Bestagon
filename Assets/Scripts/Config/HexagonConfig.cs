@@ -80,13 +80,6 @@ public class HexagonConfig {
         DeepOcean = 1 << 15,
     }
 
-    public enum HexagonDecoration : uint
-    {
-        None = 0,
-        Ruins = 1,
-        Tribe = 2
-    }
-
     // lookup table whether a specific type can have a higher tile 
     public static HexagonType CanHaveHeight = HexagonType.Forest | HexagonType.Mountain | HexagonType.Desert | HexagonType.Tundra;
 

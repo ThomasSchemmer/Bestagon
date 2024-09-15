@@ -52,7 +52,7 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetService(out BuildingService Buildings))
             return Production;
 
-        foreach (BuildingData Building in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
+        foreach (BuildingEntity Building in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
             if (bIsSimulated)
             {
                 Building.SimulateCurrentFood();
@@ -93,7 +93,7 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetServices(out Workers WorkerService, out BuildingService Buildings))
             return;
 
-        if (!Buildings.TryGetBuildingAt(Location, out BuildingData Building))
+        if (!Buildings.TryGetBuildingAt(Location, out BuildingEntity Building))
             return;
 
         int TempWorkerCount = Building.GetAssignedWorkerCount();
@@ -114,10 +114,10 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetService(out Units UnitService))
             return;
 
-        if (!UnitService.TryGetUnitAt(Location, out TokenizedUnitData Unit))
+        if (!UnitService.TryGetEntityAt(Location, out TokenizedUnitEntity Unit))
             return;
 
-        UnitService.KillUnit(Unit);
+        UnitService.KillEntity(Unit);
 
         string Text = "One unit has been killed by malaise";
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);

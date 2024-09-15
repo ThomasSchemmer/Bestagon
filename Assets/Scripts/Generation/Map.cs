@@ -16,8 +16,6 @@ public class Map : GameService
      */
     public HexagonData[] MapData;
 
-    public SerializedDictionary<Location, HexagonDecoration> AdditionalDecorations = new();
-
     public int MaxSeedIterations = 20;
     public int MaxRandomSeed = 1000;
     public int MinimumReachableTiles = 5;
@@ -50,18 +48,6 @@ public class Map : GameService
             int Pos = GetMapPosFromLocation(Hexagon.Location);
             MapData[Pos] = Hexagon;
         });
-    }
-
-    private void AddDelayedDecorations()
-    {
-        if (Game.Instance.Mode != Game.GameMode.Game)
-            return;
-
-        foreach (var Tuple in AdditionalDecorations)
-        {
-            int Pos = GetMapPosFromLocation(Tuple.Key);
-            MapData[Pos].Decoration = Tuple.Value;
-        }
     }
 
     protected override void StartServiceInternal()
@@ -112,8 +98,6 @@ public class Map : GameService
             EvaluateSeed(WorldGenerator, SpawnSystem, Seed, Seeds, out LocationsCount);
         }
         UnityEngine.Debug.Log("Found a seed/start after " + Iteration + " tries - seed: "+Seed+" reachable locations: "+LocationsCount);
-        
-        AddDelayedDecorations();
     }
 
     private bool EvaluateSeed(WorldGenerator WorldGenerator, SpawnSystem SpawnSystem, int Seed, PriorityQueue<int> Seeds, out int LocationsCount)

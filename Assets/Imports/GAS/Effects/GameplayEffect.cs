@@ -28,6 +28,7 @@ public class GameplayEffect : ScriptableObject
 
     private GameplayAbilityBehaviour Target;
     private float Runtime = 0;
+    private bool bIsDeactivated = false;
 
     public GameplayTagRegularContainer GrantedTags = new("Granted Tags");
     public GameplayTagRegularContainer ApplicationRequirementTags = new("Application Requirement Tags");
@@ -56,6 +57,18 @@ public class GameplayEffect : ScriptableObject
         Target.RemoveTags(RemoveTags.IDs);
     }
 
+    public void Deactivate()
+    {
+        if (DurationPolicy != Duration.Instant)
+            return;
+
+        foreach (GameplayEffectModifier Modifier in Modifiers)
+        {
+            Modifier.Revert();
+        }
+        bIsDeactivated = true;
+    }
+
     public void Tick(float Delta)
     {
         if (DurationPolicy == Duration.Instant)
@@ -69,6 +82,12 @@ public class GameplayEffect : ScriptableObject
 
     public bool IsExpired(float Delta)
     {
+        if (bIsDeactivated)
+            return true;
+
+        if (DurationPolicy == Duration.Instant)
+            return false;
+
         Runtime += Delta;
         return Runtime > DurationLength;
     }

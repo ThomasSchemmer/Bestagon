@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /** Quest to potentially spawn a new Malaise origin */
-public class MalaisedBuildingsQuest : Quest<BuildingData>
+public class MalaisedBuildingsQuest : Quest<BuildingEntity>
 {
     public MalaisedBuildingsQuest() : base(){}
 
-    public override int CheckSuccess(BuildingData Item)
+    public override int CheckSuccess(BuildingEntity Item)
     {
         return 3;
     }
 
-    public override Dictionary<IQuestRegister<BuildingData>, ActionList<BuildingData>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<BuildingEntity>, ActionList<BuildingEntity>> GetRegisterMap()
     {
         if (Game.GetService<BuildingService>() == null)
             return new();
@@ -61,15 +61,15 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
         if (!Game.TryGetService(out Turn Turn))
             return;
 
-        if (!Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData Scout))
+        if (!Units.HasAnyEntity(UnitEntity.UType.Scout, out TokenizedUnitEntity Scout))
             return;
 
         int Distance = 6;
-        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.Location, Distance);
+        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.GetLocation(), Distance);
         HexagonData Target = null;
         foreach (Location Location in Locations)
         {
-            var Path = Pathfinding.FindPathFromTo(Scout.Location, Location);
+            var Path = Pathfinding.FindPathFromTo(Scout.GetLocation(), Location);
             if (Path.Count < Distance - 1)
                 continue;
 
@@ -102,7 +102,7 @@ public class MalaisedBuildingsQuest : Quest<BuildingData>
         if (!Game.TryGetService(out Units Units))
             return false;
 
-        return Units.HasAnyUnit(UnitData.UnitType.Scout, out TokenizedUnitData _);
+        return Units.HasAnyEntity(UnitEntity.UType.Scout, out TokenizedUnitEntity _);
     }
 
     public override bool TryGetNextType(out System.Type Type)

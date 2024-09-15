@@ -39,7 +39,6 @@ public class GameplayAbilitySystem : GameService
 
         Clone.SetTarget(Target);
         Target.AddEffect(Clone);
-        Clone.Execute();
         return true;
     }
 

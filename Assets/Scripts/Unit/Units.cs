@@ -9,86 +9,26 @@ using static Units;
  * Since the unit data is independent of any chunk, while UnitVisualization is directly bound and managed by 
  * a chunk, there is no direct link from the UnitData to its visualization
  */
-public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUnitData>
+public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
 {
-    public bool TryGetUnitAt(Location Location, out TokenizedUnitData Unit)
-    {
-        Unit = null;
-        foreach (TokenizedUnitData ActiveUnit in Units)
-        {
-            if (!ActiveUnit.Location.Equals(Location))
-                continue;
-
-            Unit = ActiveUnit;
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool IsUnitAt(Location Location)
-    {
-        return TryGetUnitAt(Location, out TokenizedUnitData Unit);
-    }
-
-    public bool TryGetUnitsInChunk(Location ChunkLocation, out List<TokenizedUnitData> UnitsInChunk)
-    {
-        UnitsInChunk = new();
-        foreach (TokenizedUnitData ActiveUnit in Units)
-        {
-            if (!ActiveUnit.Location.ChunkLocation.Equals(ChunkLocation.ChunkLocation))
-                continue;
-
-            UnitsInChunk.Add(ActiveUnit);
-        }
-
-        return UnitsInChunk.Count > 0;
-    }
-
-
-    public void AddUnit(TokenizedUnitData Unit)
+    public void AddUnit(TokenizedUnitEntity Unit)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        Units.Add(Unit);
+        Entities.Add(Unit);
         _OnUnitCountChanged?.Invoke();
-        _OnUnitCreated.ForEach(_ => _.Invoke(Unit));
+        _OnEntityCreated.ForEach(_ => _.Invoke(Unit));
 
-        if (!MapGenerator.TryGetChunkVis(Unit.Location, out ChunkVisualization ChunkVis))
+        if (!MapGenerator.TryGetChunkVis(Unit.GetLocation(), out ChunkVisualization ChunkVis))
             return;
 
         ChunkVis.RefreshTokens();
     }
 
-    public override void KillUnit(TokenizedUnitData Unit)
-    {
-        base.KillUnit(Unit);
-
-        if (Unit.Visualization != null){
-            Destroy(Unit.Visualization);
-        }
-        _OnUnitCountChanged?.Invoke();
-        CheckForGameOver();
-    }
-
-    public bool HasAnyUnit(UnitData.UnitType UnitType, out TokenizedUnitData FoundUnit)
-    {
-        foreach (TokenizedUnitData Unit in Units)
-        {
-            if (Unit.Type != UnitType)
-                continue;
-
-            FoundUnit = Unit;
-            return true;
-        }
-        FoundUnit = default;
-        return false;
-    }
-
     private void CheckForGameOver()
     {
-        if (Units.Count != 0)
+        if (Entities.Count != 0)
             return;
 
         if (!Game.TryGetService(out Workers Workers))
@@ -100,7 +40,7 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
         Game.Instance.GameOver("Your tribe has died out!");
     }
 
-    public void InvokeUnitMoved(TokenizedUnitData Unit)
+    public void InvokeUnitMoved(TokenizedUnitEntity Unit)
     {
         _OnUnitMoved.ForEach(_ => _.Invoke(Unit));
     }
@@ -108,9 +48,9 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
     public int GetIdleScoutCount()
     {
         int Count = 0;
-        foreach (var Unit in Units)
+        foreach (var Unit in Entities)
         {
-            if (Unit is not ScoutData)
+            if (Unit is not ScoutEntity)
                 continue;
 
             if (!Unit.HasRemainingMovement())
@@ -124,9 +64,9 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
     public int GetMaxScoutCount()
     {
         int Count = 0;
-        foreach (var Unit in Units)
+        foreach (var Unit in Entities)
         {
-            if (Unit is not ScoutData)
+            if (Unit is not ScoutEntity)
                 continue;
 
             Count++;
@@ -142,10 +82,28 @@ public class Units : UnitProvider<TokenizedUnitData>, IQuestRegister<TokenizedUn
         });
     }
 
+    public bool HasAnyEntity(UnitEntity.UType UnitType, out TokenizedUnitEntity FoundEntity)
+    {
+        foreach (TokenizedUnitEntity Entity in Entities)
+        {
+            if (Entity.EntityType != ScriptableEntity.EType.Unit)
+                continue;
+
+            if (Entity.UnitType != UnitType)
+                continue;
+
+            FoundEntity = Entity;
+            return true;
+        }
+        FoundEntity = default;
+        return false;
+    }
+
+
 
     protected override void StopServiceInternal() { }
 
     public delegate void OnUnitCountChanged();
     public static event OnUnitCountChanged _OnUnitCountChanged;
-    public static ActionList<TokenizedUnitData> _OnUnitMoved = new();
+    public static ActionList<TokenizedUnitEntity> _OnUnitMoved = new();
 }

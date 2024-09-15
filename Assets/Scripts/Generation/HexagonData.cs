@@ -21,7 +21,6 @@ public class HexagonData : ISaveableData
 
     public Location Location;
     public HexagonType Type;
-    public HexagonDecoration Decoration;
     public HexagonHeight HexHeight;
     public MalaiseState MalaisedState = MalaiseState.None;
     private DiscoveryState Discovery = DiscoveryState.Unknown;
@@ -89,8 +88,8 @@ public class HexagonData : ISaveableData
 
     public int GetSize()
     {
-        // Height, discovery, ruins and malaise each get a byte, type cant be smaller than int
-        return Location.GetStaticSize() + 4 + sizeof(double) * 3 + sizeof(int);
+        // Height, discovery and malaise each get a byte, type cant be smaller than int
+        return Location.GetStaticSize() + 3 + sizeof(double) * 3 + sizeof(int);
     }
 
     public bool IsMalaised()
@@ -113,21 +112,12 @@ public class HexagonData : ISaveableData
         return MalaisedState == MalaiseState.PreMalaise;
     }
     
+
     public bool CanDecorationSpawn()
     {
-        return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain && Decoration == HexagonDecoration.None;
+        return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain;
     }
-    
-    public string GetDecorationText()
-    {
-        switch (Decoration)
-        {
-            case HexagonDecoration.Ruins: return "Contains ancient ruins";
-            case HexagonDecoration.Tribe: return "Contains unknown tribe";
-            default: return "";
-        }
-    }
-    
+        
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
     {
         HexagonType TempType = (HexagonType)IntToMask(MaskToInt((int)Info.TypeIndex, 32));
@@ -138,7 +128,6 @@ public class HexagonData : ISaveableData
             Humidity = Info.Humidity,
             Temperature = Info.Temperature,
             HexHeight = (HexagonHeight)Info.HexHeightIndex,
-            Decoration = HexagonDecoration.None,
             Type = TempType,
         };
     }
@@ -155,7 +144,6 @@ public class HexagonData : ISaveableData
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)HexHeight);
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Discovery);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Decoration);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
         Pos = SaveGameManager.AddBool(Bytes, Pos, IsMalaised());
         Pos = SaveGameManager.AddDouble(Bytes, Pos, Height);
@@ -173,7 +161,6 @@ public class HexagonData : ISaveableData
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iHeight);
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDiscovery);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDecoration);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bool bIsMalaised);
         Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHeight);
@@ -183,7 +170,6 @@ public class HexagonData : ISaveableData
         Type = (HexagonType)iType;
         HexHeight = (HexagonHeight)iHeight;
         Discovery = (DiscoveryState)iDiscovery;
-        Decoration = (HexagonDecoration)iDecoration;
         MalaisedState = bIsMalaised ? MalaiseState.Malaised : MalaiseState.None;
         Height = (float)dHeight;
         Temperature = (float)dTemperature;

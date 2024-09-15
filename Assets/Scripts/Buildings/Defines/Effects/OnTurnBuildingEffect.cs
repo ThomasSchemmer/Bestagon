@@ -16,7 +16,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
     }
 
     public Type EffectType = Type.Produce;
-    public UnitData.UnitType UnitType = UnitData.UnitType.Worker;
+    public UnitEntity.UType UnitType = UnitEntity.UType.Worker;
     public HexagonConfig.HexagonType TileType = 0;
     public Production Production = new Production();
     public Production Consumption = new Production();

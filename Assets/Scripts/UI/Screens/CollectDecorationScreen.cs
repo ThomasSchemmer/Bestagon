@@ -12,14 +12,14 @@ public class CollectDecorationScreen : CollectChoiceScreen
 
     private void Start()
     {
-        TokenizedUnitData._OnMovementTo += HandleMovement;
+        TokenizedUnitEntity._OnMovementTo += HandleMovement;
         Container = transform.GetChild(0).gameObject;
         Hide();
     }
 
     private void OnDestroy()
     {
-        TokenizedUnitData._OnMovementTo -= HandleMovement;
+        TokenizedUnitEntity._OnMovementTo -= HandleMovement;
     }
 
     public override void OnSelectOption(int ChoiceIndex)
@@ -27,13 +27,17 @@ public class CollectDecorationScreen : CollectChoiceScreen
         base.OnSelectOption(ChoiceIndex);
         Hide();
 
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetServices(out MapGenerator MapGenerator, out DecorationService DecorationService))
             return;
 
         if (!MapGenerator.TryGetHexagonData(CurrentLocation, out HexagonData HexData))
             return;
 
-        HexData.Decoration = HexagonConfig.HexagonDecoration.None;
+        if (!DecorationService.TryGetEntityAt(CurrentLocation, out var Decoration))
+            return;
+
+        DecorationService.KillEntity(Decoration);
+
         if (!MapGenerator.TryGetHexagon(CurrentLocation, out HexagonVisualization HexVis))
             return;
 
@@ -42,29 +46,33 @@ public class CollectDecorationScreen : CollectChoiceScreen
 
     private void HandleMovement(Location Location)
     {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
+        if (!Game.TryGetService(out DecorationService DecSer))
             return;
 
-        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData HexData))
-            return;
-
-        if (HexData.Decoration == HexagonConfig.HexagonDecoration.None)
+        if (!DecSer.TryGetEntityAt(Location, out DecorationEntity Decoration))
             return;
 
         CurrentLocation = Location;
 
         Show();
 
-        switch (HexData.Decoration)
+        switch (Decoration.DecorationType)
         {
-            case HexagonConfig.HexagonDecoration.Ruins: ShowRuinChoices(); break;
-            case HexagonConfig.HexagonDecoration.Tribe: ShowTribeChoices(); break;
+            case DecorationEntity.DType.Ruins: ShowRuinChoices(); break;
+            case DecorationEntity.DType.Tribe: ShowTribeChoices(); break;
+            case DecorationEntity.DType.Treasure: ShowTreasureChoices(); break;
         }
     }
 
     private void ShowRuinChoices()
     {
         ChoiceTypes = new() { ChoiceType.Card, ChoiceType.Upgrade};
+        Create();
+    }
+
+    private void ShowTreasureChoices()
+    {
+        ChoiceTypes = new() { ChoiceType.Relic, ChoiceType.Relic };
         Create();
     }
 
@@ -78,26 +86,26 @@ public class CollectDecorationScreen : CollectChoiceScreen
     {
         switch (GetDecorationType())
         {
-            case HexagonConfig.HexagonDecoration.Ruins: return CardDTO.Type.Building;
-            case HexagonConfig.HexagonDecoration.Tribe: return CardDTO.Type.Event;
+            case DecorationEntity.DType.Ruins: return CardDTO.Type.Building;
+            case DecorationEntity.DType.Tribe: return CardDTO.Type.Event;
             default: return CardDTO.Type.Event;
         }
     }
 
-    private HexagonConfig.HexagonDecoration GetDecorationType()
+    private DecorationEntity.DType GetDecorationType()
     {
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return HexagonConfig.HexagonDecoration.None;
+        if (!Game.TryGetService(out DecorationService DecorationService))
+            return default;
 
-        if (!MapGenerator.TryGetHexagon(CurrentLocation, out HexagonVisualization Hex))
-            return HexagonConfig.HexagonDecoration.None;
+        if (!DecorationService.TryGetEntityAt(CurrentLocation, out DecorationEntity Entity))
+            return default;
 
-        return Hex.Data.Decoration;
+        return Entity.DecorationType;
     }
 
     protected override bool ShouldCardBeUnlocked(int i)
     {
-        return GetDecorationType() == HexagonConfig.HexagonDecoration.Ruins;
+        return GetDecorationType() == DecorationEntity.DType.Ruins;
     }
 
     protected override Production GetCostsForChoice(int i)
