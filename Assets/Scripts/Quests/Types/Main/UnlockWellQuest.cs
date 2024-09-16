@@ -15,12 +15,11 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
 
     public override Dictionary<IQuestRegister<BuildingConfig.Type>, ActionList<BuildingConfig.Type>> GetRegisterMap()
     {
-        if (Game.GetService<Unlockables>() == null)
+        if (!Game.TryGetService(out BuildingService Service))
             return new();
 
-        return new()
-        {
-            { Game.GetService<Unlockables>(), Unlockables._OnUnlock }
+        return new() {
+            {Service.UnlockableBuildings, Service.UnlockableBuildings._OnTypeChanged }
         };
     }
 
@@ -50,10 +49,10 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
 
     public override int GetStartProgress()
     {
-        if (!Game.TryGetService(out Unlockables Unlockables))
+        if (!Game.TryGetService(out BuildingService BuildingService))
             return 0;
 
-        return !Unlockables.IsLocked(BuildingConfig.Type.Well) ? 1 : 0;
+        return !BuildingService.UnlockableBuildings.IsLocked(BuildingConfig.Type.Well) ? 1 : 0;
     }
 
     public override void OnAfterCompletion()

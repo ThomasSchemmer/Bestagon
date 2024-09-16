@@ -15,34 +15,31 @@ public class RelicEffect : GameplayEffect
     public Sprite Image;
     public string Tooltip;
 
-    public void BroadcastDiscoveryChanged(RelicDiscovery Discovery)
+    public void BroadcastDiscoveryChanged(Unlockables.State State)
     {
-        OnDiscoveryChanged.ForEach(_ => _?.Invoke(Discovery));
+        OnDiscoveryChanged.ForEach(_ => _?.Invoke(State));
     }
 
-    public ActionList<RelicDiscovery> OnDiscoveryChanged = new();
+    public ActionList<Unlockables.State> OnDiscoveryChanged = new();
+
+    public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle;
+    public static int MaxIndex = 2;
 }
 
+[Flags]
 public enum RelicType : uint
 {
     DEFAULT = 255,
-    Calligulae = 0,
-    WoodenMallet = 1,
-    Cradle = 2,
-}
-
-public enum RelicDiscovery : uint
-{
-    Unknown = 1 << 0,
-    Discovered = 1 << 1,
-    Active = 1 << 2
+    Calligulae = 1 << 0,
+    WoodenMallet = 1 << 1,
+    Cradle = 1 << 2,
 }
 
 /** Saveable version of relics, identifiable by type-derived name */
 public class RelicDTO : ISaveableData
 {
 
-    public RelicDiscovery Disc;
+    public Unlockables.State State;
     public RelicType Type;
 
     public byte[] GetData()
@@ -50,7 +47,7 @@ public class RelicDTO : ISaveableData
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)Disc);
+        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)State);
 
         return Bytes.ToArray();
     }
@@ -72,13 +69,13 @@ public class RelicDTO : ISaveableData
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
         Pos = SaveGameManager.GetByte(Bytes, Pos, out byte DiscoveryByte);
         Type = (RelicType)iType;
-        Disc = (RelicDiscovery)DiscoveryByte;
+        State = (Unlockables.State)DiscoveryByte;
     }
 
-    public static RelicDTO CreateFromRelicEffect(RelicEffect Relic, RelicDiscovery Disc)
+    public static RelicDTO CreateFromRelicEffect(RelicEffect Relic, Unlockables.State State)
     {
         RelicDTO DTO = new();
-        DTO.Disc = Disc;
+        DTO.State = State;
         DTO.Type = Relic.Type;
         return DTO;
     }

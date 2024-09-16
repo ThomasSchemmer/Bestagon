@@ -1,21 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RelicScreen : ScreenUI
 {
     public List<RelicIconScreen> Relics = new();
 
-    public GameObject RelicIconScreenPrefab;
     public Transform RelicContainer;
 
-    protected override void Initialize()
+
+    public override void Show()
     {
-        base.Initialize();
+        base.Show();
+        ClearRelics();
         Game.RunAfterServiceInit((RelicService RelicService) =>
         {
             InitializeRelics();
         });
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+        ClearRelics();
     }
 
     private void InitializeRelics()
@@ -23,19 +31,24 @@ public class RelicScreen : ScreenUI
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 
-        List<GameplayEffect> Effects = RelicService.GetPlayerBehavior().GetActiveEffects();
+        List<RelicEffect> Effects = RelicService.Relics.Values.ToList();
 
         foreach (var Effect in Effects)
         {
-            if (Effect is not RelicEffect)
+            if (RelicService.UnlockableRelics[Effect.Type] == Unlockables.State.Locked)
                 continue;
 
-            GameObject GO = Instantiate(RelicIconScreenPrefab);
-            RelicIconScreen RelicIcon = GO.GetComponent<RelicIconScreen>();
-            RelicEffect Relic = Effect as RelicEffect;
-            RelicIcon.Initialize(Relic);
-            RelicIcon.transform.SetParent(RelicContainer, false);
+            var RelicIcon = RelicService.CreateRelicIcon(RelicContainer, Effect);
             Relics.Add(RelicIcon);
         }
+    }
+
+    private void ClearRelics()
+    {
+        for (int i = Relics.Count - 1; i >= 0; i--)
+        {
+            Destroy(Relics[i].gameObject);
+        }
+        Relics.Clear();
     }
 }

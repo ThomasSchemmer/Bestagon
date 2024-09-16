@@ -128,6 +128,7 @@
     <Compile Include="Assets\Scripts\UI\Selectors.cs" />
     <Compile Include="Assets\Scripts\Player\SpawnSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\WorkerScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Player\IUnlockableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\ScreenFeatureGroup.cs" />
     <Compile Include="Assets\Scripts\Generation\DecorationService.cs" />
     <Compile Include="Assets\Scripts\Unit\UnitEntity.cs" />

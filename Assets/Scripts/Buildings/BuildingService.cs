@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class BuildingService : TokenizedEntityProvider<BuildingEntity>
+public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlockableService
 {
+    public Unlockables<BuildingConfig.Type> UnlockableBuildings = new();
+
     protected override void StartServiceInternal()
     {
+        UnlockableBuildings = new();
+        UnlockableBuildings.Init(this);
         _OnInit?.Invoke(this);
     }
 
@@ -40,6 +44,117 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>
 
         _OnBuildingBuilt.ForEach(_ => _.Invoke(Building));
         _OnBuildingsChanged?.Invoke();
+    }
+
+    public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
+    {
+        RandomType = default;
+        if (!IsFullyLoaded())
+            return false;
+
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return false;
+
+        Production UnlockedCost = new();
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
+        BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
+        UnlockedCost += Building.Cost;
+        Destroy(Building);
+
+        List<Production.Type> UnlockedTypes = new();
+        foreach (var Tuple in UnlockedCost.GetTuples())
+        {
+            if (UnlockedTypes.Contains(Tuple.Key))
+                continue;
+
+            UnlockedTypes.Add(Tuple.Key);
+        }
+
+        if (UnlockedTypes.Count == 0)
+            return false;
+
+        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
+        RandomType = UnlockedTypes[RandomIndex];
+        return true;
+    }
+
+    public bool TryGetRandomUnlockedTile(out HexagonConfig.HexagonType RandomType)
+    {
+        RandomType = default;
+        if (!IsFullyLoaded())
+            return false;
+
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return false;
+
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
+        BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
+        HexagonConfig.HexagonType UnlockedHexTypes = Building.BuildableOn;
+        Destroy(Building);
+
+        List<HexagonConfig.HexagonType> UnlockedTypes = new();
+        for (int i = 0; i < HexagonConfig.MaxTypeIndex; i++)
+        {
+            int HasType = ((int)UnlockedHexTypes >> i) & 0x1;
+            if (HasType == 0)
+                continue;
+
+            HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)(HasType << i);
+            UnlockedTypes.Add(Type);
+        }
+
+        if (UnlockedTypes.Count == 0)
+            return false;
+
+        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
+        RandomType = UnlockedTypes[RandomIndex];
+        return true;
+    }
+
+    private bool IsFullyLoaded()
+    {
+        return UnlockableBuildings.GetCategoryCount() == 4;
+    }
+
+    bool IUnlockableService.IsInit()
+    {
+        return IsInit;
+    }
+
+    public void InitUnlockables()
+    {
+        AddBuildingCategory(BuildingConfig.CategoryMeadow);
+        AddBuildingCategory(BuildingConfig.CategoryDesert);
+        AddBuildingCategory(BuildingConfig.CategorySwamp);
+        AddBuildingCategory(BuildingConfig.CategoryIce);
+
+        UnlockBuildingCategory(BuildingConfig.UnlockOnStart);
+    }
+
+    private void UnlockBuildingCategory(BuildingConfig.Type CategoryType)
+    {
+        int Mask = (int)CategoryType;
+        for (int i = 0; i < BuildingConfig.MaxIndex; i++)
+        {
+            if ((Mask & (i << 1)) == 0)
+                continue;
+
+            UnlockableBuildings[(BuildingConfig.Type)i] = Unlockables.State.Unlocked;
+        }
+    }
+
+    private void AddBuildingCategory(BuildingConfig.Type CategoryType)
+    {
+        SerializedDictionary<BuildingConfig.Type, Unlockables.State> Category = new();
+        int Mask = (int)CategoryType;
+        for (int i = 0; i < BuildingConfig.MaxIndex; i++)
+        {
+            if ((Mask & (1 << i)) == 0)
+                continue;
+
+            Category.Add((BuildingConfig.Type)(1 << i), Unlockables.State.Locked);
+        }
+        UnlockableBuildings.AddCategory(Category);
     }
 
     public delegate void OnBuildingsChanged();

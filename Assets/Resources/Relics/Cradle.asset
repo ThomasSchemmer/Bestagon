@@ -41,6 +41,6 @@ MonoBehaviour:
     bIsEditing: 0
     Name: Remove Tags
     bIsEditable: 1
-  Type: 2
+  Type: 4
   Image: {fileID: 3286163911610860551, guid: c34b000de7ce34f44b679758c3234ebb, type: 3}
   Tooltip: Grants another starting worker

@@ -63,6 +63,7 @@
     <Compile Include="Assets\Scripts\Util\BiomeMap\Editor\BiomeInspectorWindow.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\Editor\Util\ContainerSourceDrawerLibrary.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Editor\ISaveableDrawer.cs" />
+    <Compile Include="Assets\Scripts\Relics\Editor\RelicTypeDrawer.cs" />
     <Compile Include="Assets\Scripts\Builds\Editor\MapContainerEditor.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\Editor\Util\ContainerRegularDrawerLibrary.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\Editor\Util\ContainerDrawerLibrary.cs" />

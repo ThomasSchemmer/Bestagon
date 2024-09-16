@@ -94,8 +94,15 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     protected void CreateRelicAt(int ChoiceIndex)
     {
-        PrepareContainerForUpgrade(ChoiceIndex, out Action<Card, RelicType, int> Callback);
-        Callback(null, RelicType.Calligulae, ChoiceIndex);
+        if (!Game.TryGetService(out RelicService RelicService))
+            return;
+
+        if (!RelicService.UnlockableRelics.TryUnlockNewType(out var RelicType, true))
+            return;
+
+        PrepareContainerForRelic(ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback);
+        RelicService.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType]);
+        Callback(null, RelicType, ChoiceIndex);
     }
 
     private void CreateEventCardAt(int ChoiceIndex)
@@ -109,19 +116,19 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     private void CreateBuildingCardAt(int ChoiceIndex)
     {
-        if (!Game.TryGetServices(out Unlockables Unlockables, out CardFactory CardFactory))
+        if (!Game.TryGetServices(out BuildingService BuildingService, out CardFactory CardFactory))
             return;
 
         BuildingConfig.Type BuildingToUnlock;
         if (ShouldCardBeUnlocked(ChoiceIndex))
         {
             // preview cause we dont wanna unlock it just yet - wait for the actual choice
-            if (!Unlockables.TryUnlockNewBuildingType(out BuildingToUnlock, true))
+            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(out BuildingToUnlock, true))
                 return;
         }
         else
         {
-            BuildingToUnlock = Unlockables.GetRandomUnlockedType();
+            BuildingToUnlock = BuildingService.UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
         }
 
         PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
@@ -158,7 +165,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         Callback = SetChoiceUpgrade;
     }
 
-    private void PrepareContainerForRelic(int ChoiceIndex, out Action<Card, RelicType, int> Callback)
+    private void PrepareContainerForRelic(int ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
         AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
@@ -169,6 +176,7 @@ public abstract class CollectChoiceScreen : ScreenUI
             OnSelectOption(ChoiceIndex);
         });
         Button.interactable = CanAffordChoice(ChoiceIndex);
+        RelicContainer = TargetContainer.GetChild(0).GetChild(3);
         Callback = SetChoiceRelic;
     }
 
@@ -230,6 +238,7 @@ public abstract class CollectChoiceScreen : ScreenUI
         {
             case ChoiceType.Card: OnSelectCardChoice(Choice); break;
             case ChoiceType.Upgrade: OnSelectUpgradeChoice(Choice); break;
+            case ChoiceType.Relic: OnSelectRelicChoice(Choice); break;
         }
         DeactivateChoice(ChoiceIndex);
         Choices[ChoiceIndex] = null;
@@ -256,7 +265,7 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     private void OnSelectCardChoice(CollectableChoice Choice)
     {
-        if (!Game.TryGetService(out Unlockables Unlockables))
+        if (!Game.TryGetService(out BuildingService BuildingService))
             return;
 
         CardCollection Collection = GetTargetCardCollection();
@@ -268,7 +277,18 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (Choice.BuildingToUnlock == BuildingConfig.Type.DEFAULT)
             return;
 
-        Unlockables.UnlockSpecificBuildingType(Choice.BuildingToUnlock);
+        BuildingService.UnlockableBuildings[Choice.BuildingToUnlock] = Unlockables.State.Unlocked;
+    }
+
+    private void OnSelectRelicChoice(CollectableChoice Choice)
+    {
+        if (!Game.TryGetService(out RelicService RelicService))
+            return;
+
+        if (Choice.RelicToUnlock == RelicType.DEFAULT)
+            return;
+
+        RelicService.UnlockableRelics[Choice.RelicToUnlock] = Unlockables.State.Unlocked;
     }
 
     private void OnSelectUpgradeChoice(CollectableChoice Choice)
@@ -278,6 +298,7 @@ public abstract class CollectChoiceScreen : ScreenUI
 
         Stockpile.AddUpgrades(2);
     }
+
 
     private void Deselect()
     {
@@ -293,6 +314,7 @@ public abstract class CollectChoiceScreen : ScreenUI
             return;
 
         // updates dont have any created card objects
+        // TODO: fix for relic
         if (Choice.Type != ChoiceType.Card)
             return;
 

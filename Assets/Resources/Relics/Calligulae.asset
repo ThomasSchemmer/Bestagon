@@ -45,6 +45,6 @@ MonoBehaviour:
     bIsEditing: 0
     Name: Remove Tags
     bIsEditable: 1
-  Type: 0
+  Type: 1
   Image: {fileID: 3286163911610860551, guid: 58383e00e32ba3243b9d29e286cb3e8e, type: 3}
   Tooltip: Increases scout movement range as well as food consumption

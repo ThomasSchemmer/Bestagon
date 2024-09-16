@@ -75,6 +75,7 @@ public class ChunkVisualization : MonoBehaviour
             return;
 
         if (!Buildings.TryGetEntitiesInChunk(Location, out var FoundBuildings))
+            return;
 
         foreach (BuildingEntity BuildingData in FoundBuildings) {
             CreateBuilding(BuildingData);

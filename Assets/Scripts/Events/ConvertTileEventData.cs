@@ -15,10 +15,10 @@ public class ConvertTileEventData : EventData
 
     public void OnEnable()
     {
-        if (!Game.TryGetService(out Unlockables Unlockables))
+        if (!Game.TryGetService(out BuildingService BuildingService))
             return;
 
-        if (!Unlockables.TryGetRandomUnlockedTile(out HexagonConfig.HexagonType GrantedType))
+        if (!BuildingService.TryGetRandomUnlockedTile(out HexagonConfig.HexagonType GrantedType))
             return;
 
         TargetType = GrantedType;

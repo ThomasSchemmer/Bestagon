@@ -41,6 +41,6 @@ MonoBehaviour:
     bIsEditing: 0
     Name: Remove Tags
     bIsEditable: 1
-  Type: 1
+  Type: 2
   Image: {fileID: 3286163911610860551, guid: a1841580a1d00374ca34e3b218ba7883, type: 3}
   Tooltip: Increases maximum handcards

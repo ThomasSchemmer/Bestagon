@@ -14,7 +14,7 @@ public class GrantResourceEventData : EventData
     public void OnEnable()
     {
         GrantedResource = Production.Empty;
-        if (!Game.TryGetService(out Unlockables Unlockables))
+        if (!Game.TryGetService(out BuildingService Unlockables))
             return;
 
         if (!Unlockables.TryGetRandomUnlockedResource(out Production.Type GrantedType))

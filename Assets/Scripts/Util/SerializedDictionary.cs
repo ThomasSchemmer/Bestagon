@@ -41,6 +41,16 @@ public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISer
         }
     }
 
+    public TKey GetKeyAt(int i)
+    {
+        var Enumerator = Keys.GetEnumerator();
+        for (int j = 0; j <= i; j++)
+        {
+            Enumerator.MoveNext();
+        }
+        return Enumerator.Current;
+    }
+
 
     /** Unity duplicates the last entry on creating a new one, so on immediately serializing 
      * it tries to save the key twice - leading to only the last one being saved / displayed

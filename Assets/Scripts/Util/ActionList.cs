@@ -58,3 +58,56 @@ public class ActionList<T>
 
 
 }
+
+public class ActionList<X, Y>
+{
+    private List<Action<X, Y>> Actions = new();
+    private List<Action<X, Y>> ToRemove = new();
+
+    public void Add(Action<X, Y> Action)
+    {
+        Actions.Add(Action);
+    }
+
+    public void Remove(Action<X, Y> Action)
+    {
+        ToRemove.Add(Action);
+    }
+
+    public void ForEach(Action<Action<X, Y>> Execution)
+    {
+        RemoveMarked();
+        Actions.ForEach(A => {
+            if (A == null)
+                return;
+
+            if (A.Target == null || A.Method == null)
+            {
+                Remove(A);
+                return;
+            }
+
+            Execution(A);
+        });
+        RemoveMarked();
+    }
+
+    private void RemoveMarked()
+    {
+        foreach (var Action in ToRemove)
+        {
+            Actions.Remove(Action);
+        }
+        ToRemove.Clear();
+    }
+
+    public static bool IsValid(ActionList<X, Y> ActionList)
+    {
+        if (ActionList == null)
+            return false;
+
+        return ActionList.Actions.Count >= 0;
+    }
+
+
+}

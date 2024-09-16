@@ -15,16 +15,15 @@ public interface ISaveableService : ISaveableData
         CardHand = 2,
         CardDeck = 3,
         CardStash = 4,
-        Unlockables = 5,
-        Stockpile = 6,
-        Statistics = 7,
-        Buildings = 8,
-        Workers = 9,
-        Units = 10,
-        Malaise = 11,
-        Spawning = 12,
-        Quests = 13,
-        Relics = 14
+        Stockpile = 5,
+        Statistics = 6,
+        Buildings = 7,
+        Workers = 8,
+        Units = 9,
+        Malaise = 10,
+        Spawning = 11,
+        Quests = 12,
+        Relics = 13
     }
 
     /** Convenience function, should be instead the same class */

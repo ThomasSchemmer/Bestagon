@@ -15,7 +15,7 @@ public class RelicIconScreen : SimpleIconScreen
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 
-        OnRelicDiscoveryChanged(RelicService.RelicStatus[Relic.Type]);
+        OnRelicDiscoveryChanged(RelicService.UnlockableRelics[Relic.Type]);
     }
 
     public void OnDestroy()
@@ -27,9 +27,9 @@ public class RelicIconScreen : SimpleIconScreen
     }
 
 
-    public void OnRelicDiscoveryChanged(RelicDiscovery Discovery)
+    public void OnRelicDiscoveryChanged(Unlockables.State State)
     {
-        bool bIsActive = Discovery == RelicDiscovery.Active;
+        bool bIsActive = State == Unlockables.State.Active;
         IconRenderer.color = bIsActive ? ActiveColor : InActiveColor;
     }
 
@@ -41,9 +41,9 @@ public class RelicIconScreen : SimpleIconScreen
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 
-        RelicDiscovery Discovery = RelicService.RelicStatus[Relic.Type];
-        Discovery = Discovery == RelicDiscovery.Discovered ? RelicDiscovery.Active : RelicDiscovery.Discovered;
-        RelicService.SetRelic(Relic.Type, Discovery);
+        Unlockables.State State = RelicService.UnlockableRelics[Relic.Type];
+        State = State == Unlockables.State.Unlocked ? Unlockables.State.Active : Unlockables.State.Unlocked;
+        RelicService.SetRelic(Relic.Type, State);
     }
 
     public static Color ActiveColor = new Color(1, 1, 1, 1);

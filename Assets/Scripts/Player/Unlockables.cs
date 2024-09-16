@@ -3,276 +3,229 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-using static HexagonData;
 
-public class Unlockables : GameService, ISaveableService, IQuestRegister<BuildingConfig.Type>
+public abstract class Unlockables : ISaveableData
 {
-    public BuildingConfig.Type[] LockedTypesPerCategory;
+    public abstract byte[] GetData();
+    public abstract int GetSize();
+    public abstract void SetData(NativeArray<byte> Bytes);
 
-    public bool TryUnlockNewBuildingType(out BuildingConfig.Type Type, bool bIsPreview = false)
+    public enum State : uint
     {
-        Type = BuildingConfig.Type.Mine;
-        if (!IsInit)
+        Locked = 0,
+        Unlocked = 1,
+        Active = 2
+    }
+}
+
+public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, IConvertible
+{
+    private IUnlockableService Service;
+    private List<SerializedDictionary<T, State>> Categories;
+
+    public void Init(IUnlockableService Service)
+    {
+        this.Service = Service;
+        this.Categories = new();
+        this.Service.InitUnlockables();
+    }
+
+    public bool TryUnlockNewType(out T Type, bool bIsPreview = false)
+    {
+        Type = default;
+        if (!Service.IsInit())
             return false;
 
-        for (int CategoryIndex = 0; CategoryIndex < LockedTypesPerCategory.Length; CategoryIndex++)
+        Type = GetRandomOfState(State.Locked, false);
+
+        if (!bIsPreview)
         {
-            int Category = (int)LockedTypesPerCategory[CategoryIndex];
-            if (IsCategoryFullyUnlocked(Category))
-                continue;
-
-            Type = GetRandomTypeFromMask(Category);
-
-            if (!bIsPreview)
-            {
-                MarkAsUnlocked(Type, CategoryIndex);
-            }
-            return true;
+            this[Type] = State.Unlocked;
         }
-
-        return false;
+        return true;
     }
 
-    public void UnlockSpecificBuildingType(BuildingConfig.Type Type)
+    public void MarkAs(T Type, int CategoryIndex, State NewState) 
     {
-        // we can simply always set this to "unlocked" as its only tracking locked types per category
-        for (int i = 0; i < LockedTypesPerCategory.Length; i++)
-        {
-            MarkAsUnlocked(Type, i);
-        }
-    }
-
-    private void MarkAsUnlocked(BuildingConfig.Type Type, int CategoryIndex) 
-    {
-        BuildingConfig.Type OldMask = LockedTypesPerCategory[CategoryIndex];
-        LockedTypesPerCategory[CategoryIndex] = (BuildingConfig.Type)((int)LockedTypesPerCategory[CategoryIndex] & (~(int)Type));
-
-        BuildingConfig.Type NewMask = LockedTypesPerCategory[CategoryIndex];
-        if (OldMask == NewMask)
+        State OldState = this[Type];
+        if (OldState == default)
             return;
 
-        _OnUnlock.ForEach(_ => _.Invoke(Type));
-    }
+        this[Type] = NewState;
 
-    private bool IsIndexInCategory(int Category, int Index)
-    {
-        return ((Category >> Index) & 0x1) == 1;
-    }
-
-    private bool IsIndexLockedInCategoryIndex(int CategoryIndex, int Index)
-    { 
-        return (((int)LockedTypesPerCategory[CategoryIndex] >> Index) & 0x1) == 1;
-    }
-
-    public bool IsLocked(BuildingConfig.Type Type)
-    {
-        int Wanted = HexagonConfig.MaskToInt((int)Type, 32);
-        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
+        if (OldState != NewState)
         {
-            int Category = (int)BuildingConfig.Categories[i];
-            if (!IsIndexInCategory(Category, Wanted))
+            _OnStateChanged.ForEach(_ => _.Invoke(Type, NewState));
+            _OnTypeChanged.ForEach(_ => _.Invoke(Type));
+        }
+    }
+
+    public bool IsLocked(T Type)
+    {
+        return this[Type] == State.Locked;
+    }
+
+    public T GetRandomOfState(State TargetState, bool bCanBeHigher)
+    {
+        List<int> TargetCategories = new();
+        for (int i = 0; i < Categories.Count; i++)
+        {
+            if (!HasCategoryAnyInState(i, TargetState, bCanBeHigher))
                 continue;
 
-            return IsIndexLockedInCategoryIndex(i, Wanted);
+            TargetCategories.Add(i);
+        }
+
+        int RandomCategory = UnityEngine.Random.Range(0, TargetCategories.Count);
+        var SelectedCategory = Categories[TargetCategories[RandomCategory]];
+
+        List<T> TargetTypes = new();
+        foreach(var Tuple in SelectedCategory)
+        {
+            if (!bCanBeHigher && Tuple.Value != TargetState)
+                continue;
+
+            if (bCanBeHigher && Tuple.Value < TargetState)
+                continue;
+
+            TargetTypes.Add(Tuple.Key);
+        }
+
+        int RandomType = UnityEngine.Random.Range(0, TargetTypes.Count);
+        return TargetTypes[RandomType];
+    }
+
+    private bool HasCategoryAllUnlocked(int CategoryIndex)
+    {
+        foreach (var Tuple in Categories[CategoryIndex])
+        {
+            if (Tuple.Value == State.Locked)
+                return false;
+        }
+        return true;
+    }
+
+    private bool HasCategoryAnyInState(int CategoryIndex, State TargetState, bool bCanBeHigher)
+    {
+        foreach (var Tuple in Categories[CategoryIndex])
+        {
+            if (!bCanBeHigher && Tuple.Value == TargetState)
+                return true;
+
+            if (bCanBeHigher && Tuple.Value >= TargetState)
+                return true;
         }
         return false;
     }
 
-    public BuildingConfig.Type GetRandomUnlockedType()
-    {
-        // this implies that a category can only be unlocked if all previous things have been unlocked!
-        int UnlockedCategories = 0;
-        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
-        {
-            UnlockedCategories += LockedTypesPerCategory[i] != BuildingConfig.Categories[i] ? 1 : 0;
-        }
-
-        int RandomCategory = UnityEngine.Random.Range(0, UnlockedCategories);
-        int UnlockedTypes = ~(int)LockedTypesPerCategory[RandomCategory] & (int)BuildingConfig.Categories[RandomCategory];
-
-        return GetRandomTypeFromMask(UnlockedTypes);
-    }
-
-    public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
-    {
-        RandomType = default;
-        if (!IsFullyLoaded())
-            return false;
-
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return false;
-
-        Production UnlockedCost = new();
-        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
-        {
-            for (int j = 0; j < BuildingConfig.MaxIndex; j++) {
-                int Category = (int)BuildingConfig.Categories[i];
-                BuildingConfig.Type Type = (BuildingConfig.Type)(1 << j);
-                if (!IsIndexInCategory(Category, j))
-                    continue;
-
-                if (IsIndexLockedInCategoryIndex(i, j))
-                    continue;
-
-                UnlockedCost += MeshFactory.CreateDataFromType(Type).Cost;
-            }
-        }
-
-        List<Production.Type> UnlockedTypes = new();
-        foreach (var Tuple in UnlockedCost.GetTuples())
-        {
-            if (UnlockedTypes.Contains(Tuple.Key))
-                continue;
-
-            UnlockedTypes.Add(Tuple.Key);
-        }
-
-        if (UnlockedTypes.Count == 0)
-            return false;
-
-        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
-        RandomType = UnlockedTypes[RandomIndex];
-        return true;
-    }
-
-    public bool TryGetRandomUnlockedTile(out HexagonConfig.HexagonType RandomType)
-    {
-        RandomType = default;
-        if (!IsFullyLoaded())
-            return false;
-
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return false;
-        
-        HexagonConfig.HexagonType UnlockedTypesMask = 0;
-        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
-        {
-            for (int j = 0; j < BuildingConfig.MaxIndex; j++)
-            {
-                int Category = (int)BuildingConfig.Categories[i];
-                BuildingConfig.Type Type = (BuildingConfig.Type)(1 << j);
-                if (!IsIndexInCategory(Category, j))
-                    continue;
-
-                if (IsIndexLockedInCategoryIndex(i, j))
-                    continue;
-
-                UnlockedTypesMask |= MeshFactory.CreateDataFromType(Type).BuildableOn;
-            }
-        }
-
-        List<HexagonConfig.HexagonType> UnlockedTypes = new();
-        for (int i = 0; i < HexagonConfig.MaxTypeIndex; i++)
-        {
-            int HasType = ((int)UnlockedTypesMask >> i) & 0x1;
-            if (HasType == 0)
-                continue;
-
-            HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)(HasType << i);
-            UnlockedTypes.Add(Type);
-        }
-
-        if (UnlockedTypes.Count == 0)
-            return false;
-
-        int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
-        RandomType = UnlockedTypes[RandomIndex];
-        return true;
-    }
-
-    private bool IsFullyLoaded()
-    {
-        // can get called after being init, but not yet loaded!
-        // should not matter then, cause calling object should be loaded (overwritten) too
-        if (LockedTypesPerCategory.Length != BuildingConfig.CategoryAmount)
-            return false;
-
-        return true;
-    }
-
-    private bool IsCategoryFullyUnlocked(int Category)
-    {
-        return HexagonConfig.GetSetBitsAmount(Category) == 0;
-    }
-
-    private BuildingConfig.Type GetRandomTypeFromMask(int Mask)
-    {
-        int BitMaxAmount = HexagonConfig.GetSetBitsAmount(Mask);
-        int RandomIndex = UnityEngine.Random.Range(0, BitMaxAmount);
-        int SelectedBit = -1;
-
-        for (int i = 0; i < 32 && SelectedBit < BitMaxAmount; i++)
-        {
-            int Bit = (Mask & (1 << i)) >> i;
-            SelectedBit += Bit;
-            if (SelectedBit == RandomIndex && Bit > 0)
-                return (BuildingConfig.Type)(1 << i);
-        }
-
-        return BuildingConfig.Type.DEFAULT;
-    }
-
-    private void InitializeCategories()
-    {
-        LockedTypesPerCategory = new BuildingConfig.Type[BuildingConfig.CategoryAmount];
-        LockedTypesPerCategory[0] = BuildingConfig.CategoryMeadow;
-        LockedTypesPerCategory[1] = BuildingConfig.CategoryDesert;
-        LockedTypesPerCategory[2] = BuildingConfig.CategorySwamp;
-        LockedTypesPerCategory[3] = BuildingConfig.CategoryIce;
-
-        UnlockSpecificBuildingType(BuildingConfig.UnlockOnStart);
-    }
-
-    public byte[] GetData()
+    public override byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingConfig.CategoryAmount);
-        for (int i = 0; i < BuildingConfig.CategoryAmount; i++)
+        for (int i = 0; i < Categories.Count; i++)
         {
-            Pos = SaveGameManager.AddInt(Bytes, Pos, (int)LockedTypesPerCategory[i]);
+            Pos = SaveGameManager.AddInt(Bytes, Pos, Categories[i].Count);
+            foreach (var Tuple in Categories[i])
+            {
+                // force object-conversion to allow int cast
+                Pos = SaveGameManager.AddInt(Bytes, Pos, (int)(object)Tuple.Key);
+                Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Categories[i][Tuple.Key]);
+            }
         }
 
         return Bytes.ToArray();
     }
 
-    public int GetSize()
+    public override int GetSize()
     {
-        return sizeof(int) * (BuildingConfig.CategoryAmount + 1);
+        // serialized categories with data and category size
+        return (sizeof(int) + sizeof(byte)) * GetCategoriesAmount() + sizeof(int) * Categories.Count;
     }
 
-    public void SetData(NativeArray<byte> Bytes)
+    private int GetCategoriesAmount()
     {
-        InitializeCategories();
-        int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int Count);
-        for (int i = 0; i < Count; i++)
+        int Count = 0;
+        for (int i = 0; i < Categories.Count; i++)
         {
-            Pos = SaveGameManager.GetInt(Bytes, Pos, out int Temp);
-            LockedTypesPerCategory[i] = (BuildingConfig.Type)Temp;
+            Count += Categories[i].Count;
+        }
+        return Count;
+    }
+
+    public override void SetData(NativeArray<byte> Bytes)
+    {
+        if (Service == null)
+            return;
+
+        Service.InitUnlockables();
+        int Pos = 0;
+        Categories.Clear();
+        while (Pos < Bytes.Length)
+        {
+            SerializedDictionary<T, State> Category = new();
+            Pos = SaveGameManager.GetInt(Bytes, Pos, out int CategorySize);
+            for (int i = 0; Pos < CategorySize; i++)
+            {
+                Pos = SaveGameManager.GetInt(Bytes, Pos, out int Key);
+                Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bValue);
+                Category.Add((T)(object)Key, (State)bValue);
+            }
+            Categories.Add(Category);
         }
     }
 
     public void Reset()
     {
-        InitializeCategories();
+        if (Service == null)
+            return;
+
+        Service.InitUnlockables();
     }
 
-    protected override void StartServiceInternal() {
-        Game.RunAfterServiceInit((SaveGameManager SaveGameManager) =>
+    private void Set(T Type, State Value)
+    {
+        for (int i = 0; i < Categories.Count; i++)
         {
-            if (!SaveGameManager.HasDataFor(ISaveableService.SaveGameType.Unlockables))
-            {
-                InitializeCategories();
-            }
+            if (!Categories[i].ContainsKey(Type))
+                continue;
 
-            _OnInit?.Invoke(this);
-        });
+            Categories[i][Type] = Value;
+        }
     }
 
-    protected override void StopServiceInternal() {}
+    private State Get(T Type)
+    {
+        for (int i = 0; i < Categories.Count; i++)
+        {
+            if (!Categories[i].ContainsKey(Type))
+                continue;
 
-    public delegate void OnUnlock(BuildingConfig.Type Type);
-    public static ActionList<BuildingConfig.Type> _OnUnlock = new();
+            return Categories[i][Type];
+        }
+        return default;
+    }
+
+    public int GetCategoryCount()
+    {
+        return Categories.Count;
+    }
+
+    public void AddCategory(SerializedDictionary<T, State> Category)
+    {
+        Categories.Add(Category);
+    }
+
+    public State this[T Type]
+    {
+        get { return Get(Type); }
+        set
+        {
+            Set(Type, value);
+        }
+    }
+
+    public delegate void OnUnlock(T Type);
+    public ActionList<T, State> _OnStateChanged = new();
+    public ActionList<T> _OnTypeChanged = new();
 }
