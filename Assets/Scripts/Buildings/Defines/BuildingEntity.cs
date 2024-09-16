@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using static CardUpgradeScreen;
+using static UnitEntity;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
@@ -139,7 +140,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             return false;
         }
 
-        if (Buildings.IsBuildingAt(Hex.Location))
+        if (Buildings.IsEntityAt(Hex.Location))
         {
             Reason = "another building exists already";
             return false;
@@ -381,6 +382,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
 
         AssignedWorkers = new WorkerEntity[MaxWorker];
+    }
+
+    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Building)
+    {
+        Building = CreateInstance<BuildingEntity>();
+        return SaveGameManager.SetSaveable(Bytes, Pos, Building);
     }
 
 }

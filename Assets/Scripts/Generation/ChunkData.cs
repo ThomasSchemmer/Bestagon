@@ -52,7 +52,10 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetService(out BuildingService Buildings))
             return Production;
 
-        foreach (BuildingEntity Building in Buildings.GetBuildingsInChunk(Location.ChunkLocation)) {
+        if (!Buildings.TryGetEntitiesInChunk(Location, out var FoundBuildings))
+            return Production;
+
+        foreach (BuildingEntity Building in FoundBuildings) {
             if (bIsSimulated)
             {
                 Building.SimulateCurrentFood();
@@ -93,7 +96,7 @@ public class ChunkData : ISaveableData
         if (!Game.TryGetServices(out Workers WorkerService, out BuildingService Buildings))
             return;
 
-        if (!Buildings.TryGetBuildingAt(Location, out BuildingEntity Building))
+        if (!Buildings.TryGetEntityAt(Location, out BuildingEntity Building))
             return;
 
         int TempWorkerCount = Building.GetAssignedWorkerCount();

@@ -38,7 +38,7 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
         if (!Game.TryGetServices(out BuildingService Buildings, out Selectors Selector))
             return;
 
-        if (!Buildings || SelectedHexTile == null || !Buildings.TryGetBuildingAt(SelectedHexTile.Location, out BuildingEntity Building))
+        if (!Buildings || SelectedHexTile == null || !Buildings.TryGetEntityAt(SelectedHexTile.Location, out BuildingEntity Building))
             return;
 
         Selector.DeselectUI();
@@ -52,7 +52,7 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
         if (!Game.TryGetServices(out BuildingService Buildings, out Selectors Selector))
             return;
 
-        if (SelectedHexTile == null || !Buildings.TryGetBuildingAt(SelectedHexTile.Location, out BuildingEntity Building))
+        if (SelectedHexTile == null || !Buildings.TryGetEntityAt(SelectedHexTile.Location, out BuildingEntity Building))
             return;
 
         Selector.DeselectUI();

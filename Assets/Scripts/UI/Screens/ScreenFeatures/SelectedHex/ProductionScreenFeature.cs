@@ -42,7 +42,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
             return false;
 
         HexagonData SelectedHex = Target.GetFeatureObject();
-        if (SelectedHex == null || !Buildings.TryGetBuildingAt(SelectedHex.Location, out Building))
+        if (SelectedHex == null || !Buildings.TryGetEntityAt(SelectedHex.Location, out Building))
             return false;
 
         return true;

@@ -26,4 +26,10 @@ public abstract class ScriptableEntity : ScriptableObject, ISaveableData
     public abstract byte[] GetData();
 
     public abstract void SetData(NativeArray<byte> Bytes);
+
+    public static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Entity)
+    {
+        Entity = null;
+        return -1;
+    }
 }

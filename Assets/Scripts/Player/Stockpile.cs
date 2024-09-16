@@ -30,7 +30,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         if (!Game.TryGetServices(out BuildingService BuildingService, out Workers WorkerService))
             return;
 
-        List<BuildingEntity> Buildings = BuildingService.Buildings;
+        List<BuildingEntity> Buildings = BuildingService.Entities;
 
         foreach (BuildingEntity Building in Buildings)
         {

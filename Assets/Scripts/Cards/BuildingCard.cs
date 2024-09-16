@@ -96,7 +96,7 @@ public class BuildingCard : Card
             return false;
 
         string Reason = "Cannot create building here - ";
-        if (Buildings.IsBuildingAt(Hex.Location))
+        if (Buildings.TryGetEntityAt(Hex.Location, out var _))
         {
             MessageSystemScreen.CreateMessage(Message.Type.Error, Reason + "one already exists");
             return false;

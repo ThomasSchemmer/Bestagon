@@ -91,7 +91,7 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         if (!bIsEmployed)
             return;
 
-        if (!Buildings.TryGetBuildingAt(Location, out BuildingEntity Building))
+        if (!Buildings.TryGetEntityAt(Location, out BuildingEntity Building))
             return;
 
         Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);

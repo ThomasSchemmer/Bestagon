@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -6,6 +7,7 @@ using UnityEngine;
 /** Base class providing access for any one type of entity.
  * Useful for shared saving/loading
  */
+// todo: save spatially effient, either chunks or quadtree etc
 public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableService where T : ScriptableEntity
 {
     public List<T> Entities = new();
@@ -32,7 +34,7 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         }
     }
 
-    public int GetSize()
+    public virtual int GetSize()
     {
         // unit count + overall size
         return GetEntitiesSize() + sizeof(int) * 2;
@@ -48,7 +50,7 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         return Size;
     }
 
-    public byte[] GetData()
+    public virtual byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
@@ -64,7 +66,7 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         return Bytes.ToArray();
     }
 
-    public void SetData(NativeArray<byte> Bytes)
+    public virtual void SetData(NativeArray<byte> Bytes)
     {
         // skip overall size info at the beginning
         int Pos = sizeof(int);
@@ -73,16 +75,21 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         Entities = new();
         for (int i = 0; i < EntitiesLength; i++)
         {
-            UnitEntity Entity = UnitEntity.CreateSubFromSave(Bytes, Pos);
+            throw new System.Exception("Not yet implemented");
+            /*
+            UnitEntity.CreateFromSave(Bytes, Pos, out ScriptableEntity Entity);
             if (Entity is not T)
+            {
+                Destroy(Entity);
                 continue;
+            }
 
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Entity);
             Entities.Add(Entity as T);
+            */
         }
     }
 
-    public void Reset()
+    public virtual void Reset()
     {
         KillAllEntities();
         Entities = new();

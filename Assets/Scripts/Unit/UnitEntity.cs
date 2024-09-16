@@ -22,18 +22,19 @@ public abstract class UnitEntity : ScriptableEntity
 
     public abstract bool TryInteractWith(HexagonVisualization Hex);
 
-    /** This requires the UnitType to be saved as first position! */
-    public static UnitEntity CreateSubFromSave(NativeArray<byte> Bytes, int Pos)
+    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Unit)
     {
+        Unit = null;
         if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return null;
+            return -1;
 
         // ignore first EntityType byte
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
-        SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bUnitType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bUnitType);
         UType Type = (UType)bUnitType;
 
-        return MeshFactory.CreateDataFromType(Type);
+        Unit = MeshFactory.CreateDataFromType(Type);
+        return Pos;
     }
 
 }

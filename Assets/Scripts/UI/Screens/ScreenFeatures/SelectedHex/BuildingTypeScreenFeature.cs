@@ -19,7 +19,7 @@ public class BuildingTypeScreenFeature : ScreenFeature<HexagonData>
         if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        if (!Buildings.TryGetBuildingAt(SelectedHex.Location, out Building))
+        if (!Buildings.TryGetEntityAt(SelectedHex.Location, out Building))
             return false;
 
         return true;
