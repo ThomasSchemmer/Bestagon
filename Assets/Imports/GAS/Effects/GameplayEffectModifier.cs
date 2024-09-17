@@ -74,4 +74,43 @@ public class GameplayEffectModifier
         _Attribute.AddModifier(this);
     }
 
+    public string GetDescription()
+    {
+        return GetOperationDescription() +
+            GetAttributeDescription() + 
+            GetOperationPrepositionDescription() +
+            Value;
+    }
+
+    // https://stackoverflow.com/a/6137889
+    private string GetAttributeDescription()
+    {
+        string Name = AttributeType.ToString();
+        return System.Text.RegularExpressions.Regex.Replace(Name, "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim();
+    }
+
+    private string GetOperationDescription()
+    {
+        switch (Operation)
+        {
+            case Type.Add: return "Increases ";
+            case Type.Multiply: return "Multiplies ";
+            case Type.Divide: return "Divides ";
+            case Type.Override: return "Overrides ";
+            default: return "";
+        }
+    }
+
+    private string GetOperationPrepositionDescription()
+    {
+        switch (Operation)
+        {
+            case Type.Add: return " by ";
+            case Type.Multiply: return " by ";
+            case Type.Divide: return " by ";
+            case Type.Override: return " with ";
+            default: return "";
+        }
+    }
+
 }

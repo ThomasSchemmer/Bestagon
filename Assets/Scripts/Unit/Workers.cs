@@ -131,5 +131,5 @@ public class Workers : EntityProvider<StarvableUnitEntity>
     public static OnWorkersChanged _OnWorkersChanged;
     public static OnWorkersAssigned _OnWorkersAssigned;
 
-    public static ActionList<ScriptableEntity> _OnWorkerAssignedList = new();
+    public static ActionList<StarvableUnitEntity> _OnWorkerAssignedList = new();
 }

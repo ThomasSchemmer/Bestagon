@@ -4161,8 +4161,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2097707016}
-        m_TargetAssemblyTypeName: ScreenUI, Assembly-CSharp
-        m_MethodName: Show
+        m_TargetAssemblyTypeName: RelicScreen, Assembly-CSharp
+        m_MethodName: OnToggle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17713,7 +17713,9 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   ShowRelicButton: {fileID: 1188692568}
-  RelicIconScreenPrefab: {fileID: 6355220842690441584, guid: 9f24c5fc455d0f3428277f7e19ecbbde,
+  RelicIconPrefab: {fileID: 6355220842690441584, guid: a4f86a51e01a7514d9d75f09e1fb6087,
+    type: 3}
+  RelicIconPreviewPrefab: {fileID: 6355220842690441584, guid: 9f24c5fc455d0f3428277f7e19ecbbde,
     type: 3}
 --- !u!1 &1767718987
 GameObject:

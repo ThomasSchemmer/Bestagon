@@ -65,10 +65,11 @@ public class SpawnSystem : GameService, ISaveableService
 
         DiscoveredCount -= CountToSpawnDecoration;
         CountToSpawnDecoration += CountToSpawnDecorationIncrease;
+        Random.InitState(Data.Location.GetHashCode() + Data.Type.GetHashCode());
         float Chance = Random.Range(0f, 1f);
 
-        DecorationEntity.DType Decoration = Chance < TribeChance ? 
-            DecorationEntity.DType.Tribe : Chance < RuinsChance ?
+        DecorationEntity.DType Decoration = Chance > RuinsChance ? 
+            DecorationEntity.DType.Tribe : Chance > TreasureChance ?
             DecorationEntity.DType.Ruins :
             DecorationEntity.DType.Treasure;
         DecorationService.CreateNewDecoration(Decoration, Data.Location);
@@ -107,6 +108,6 @@ public class SpawnSystem : GameService, ISaveableService
     private int DiscoveredCount = 0;
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;
-    private float TribeChance = 0.45f;
-    private float RuinsChance = 0.8f;
+    private float RuinsChance = 0.5f;
+    private float TreasureChance = 0.2f;
 }

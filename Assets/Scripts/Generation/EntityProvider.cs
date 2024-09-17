@@ -129,15 +129,10 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         return false;
     }
 
-    public IQuestRegister<ScriptableEntity> GetRegister()
-    {
-        return (IQuestRegister<ScriptableEntity>)this;
-    }
-
     public bool ShouldLoadWithLoadedSize() { return true; }
 
     protected override void StartServiceInternal() { }
     protected override void StopServiceInternal() { }
 
-    public static ActionList<ScriptableEntity> _OnEntityCreated = new();
+    public static ActionList<T> _OnEntityCreated = new();
 }

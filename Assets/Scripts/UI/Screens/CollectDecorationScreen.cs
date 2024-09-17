@@ -38,10 +38,10 @@ public class CollectDecorationScreen : CollectChoiceScreen
 
         DecorationService.KillEntity(Decoration);
 
-        if (!MapGenerator.TryGetHexagon(CurrentLocation, out HexagonVisualization HexVis))
+        if (!MapGenerator.TryGetChunkVis(CurrentLocation, out var ChunkVis))
             return;
 
-        HexVis.UpdateMesh();
+        ChunkVis.RefreshTokens();
     }
 
     private void HandleMovement(Location Location)
@@ -121,5 +121,10 @@ public class CollectDecorationScreen : CollectChoiceScreen
     protected override CardCollection GetTargetCardCollection()
     {
         return Game.GetService<CardHand>();
+    }
+
+    protected override int GetSeed()
+    {
+        return CurrentLocation.GetHashCode();
     }
 }

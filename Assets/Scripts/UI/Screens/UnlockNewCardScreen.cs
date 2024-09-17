@@ -49,4 +49,12 @@ public class UnlockNewCardScreen : CollectChoiceScreen
     {
         return Target;
     }
+
+    protected override int GetSeed()
+    {
+        if (!Game.TryGetService(out BuildingService BuildingService))
+            return 0;
+
+        return BuildingService.UnlockableBuildings.GetCountOfState(Unlockables.State.Unlocked);
+    }
 }

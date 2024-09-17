@@ -116,5 +116,16 @@ public class GameplayEffect : ScriptableObject
         return null;
     }
 
-
+    public string GetEffectDescription()
+    {
+        string Result = "";
+        for (int i = 0; i < Modifiers.Count; i++)
+        {
+            Result = Modifiers[i].GetDescription();
+            if (i == Modifiers.Count - 1)
+                continue;
+            Result += "\n"; 
+        }
+        return Result;
+    }
 }

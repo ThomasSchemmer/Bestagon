@@ -55,8 +55,6 @@ public class ActionList<T>
 
         return ActionList.Actions.Count >= 0;
     }
-
-
 }
 
 public class ActionList<X, Y>

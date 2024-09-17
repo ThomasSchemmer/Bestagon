@@ -126,6 +126,17 @@ public class ChunkData : ISaveableData
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
     }
 
+    private void DestroyDecorationsAt(Location Location)
+    {
+        if (!Game.TryGetService(out DecorationService Decorations))
+            return;
+
+        if (!Decorations.TryGetEntityAt(Location, out var Entity))
+            return;
+
+        Decorations.KillEntity(Entity);
+    }
+
     public void DestroyTokensAt(Location Location)
     {
         if (!Game.TryGetServices(out BuildingService Buildings, out MapGenerator MapGenerator))
@@ -133,6 +144,7 @@ public class ChunkData : ISaveableData
 
         DestroyWorkersAt(Location);
         DestroyUnitsAt(Location);
+        DestroyDecorationsAt(Location);
 
         Buildings.DestroyBuildingAt(Location);
 

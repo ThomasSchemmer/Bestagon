@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildScoutQuest : Quest<ScriptableEntity>
+public class BuildScoutQuest : Quest<TokenizedUnitEntity>
 {
     public BuildScoutQuest() : base() { }
 
-    public override int CheckSuccess(ScriptableEntity Unit)
+    public override int CheckSuccess(TokenizedUnitEntity Unit)
     {
         if (Unit is not UnitEntity)
             return 0;
@@ -15,14 +15,14 @@ public class BuildScoutQuest : Quest<ScriptableEntity>
         return (Unit as UnitEntity).UnitType == UnitEntity.UType.Scout ? 1 : 0;
     }
 
-    public override Dictionary<IQuestRegister<ScriptableEntity>, ActionList<ScriptableEntity>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<TokenizedUnitEntity>, ActionList<TokenizedUnitEntity>> GetRegisterMap()
     {
-        if (Game.TryGetService(out Units Units))
+        if (!Game.TryGetService(out Units Units))
             return new();
 
         return new()
         {
-            { Game.GetService<Units>().GetRegister(), Units._OnEntityCreated }
+            { Game.GetService<Units>(), Units._OnEntityCreated }
         };
     }
 

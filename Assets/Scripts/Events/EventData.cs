@@ -22,14 +22,9 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
     // Temporary cards will be deleted once played
     public bool bIsTemporary = true;
 
-    public static EventData CreateRandom()
+    public static EventType GetRandomType(int Seed)
     {
-        EventType Type = GetRandomType();
-        return CreateRandom(Type);
-    }
-
-    public static EventType GetRandomType()
-    {
+        UnityEngine.Random.InitState(Seed);
         return (EventType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(EventType)).Length));
     }
 

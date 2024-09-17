@@ -89,7 +89,10 @@ public class MalaisedSpawnQuestTurn : Quest<int>
         return 0;
     }
 
-    public override void OnAfterCompletion() {
+    public override void OnAfterCompletion()
+    {
+        if (MalaisedSpawnQuest.TargetLocation == null)
+            return;
         MessageSystemScreen.CreateMessage(Message.Type.Error, "Your scouts were not able to stop the spread of the malaise!");
         MalaiseData.SpreadInitially(MalaisedSpawnQuest.TargetLocation);
     }

@@ -56,7 +56,8 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
             return false;
 
         Production UnlockedCost = new();
-        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
+        int Seed = UnityEngine.Random.Range(0, 100);
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true);
         BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
         UnlockedCost += Building.Cost;
         Destroy(Building);
@@ -87,7 +88,8 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return false;
 
-        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
+        int Seed = UnityEngine.Random.Range(0, 100);
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true);
         BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
         HexagonConfig.HexagonType UnlockedHexTypes = Building.BuildableOn;
         Destroy(Building);

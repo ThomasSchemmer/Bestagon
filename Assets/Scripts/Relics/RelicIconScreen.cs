@@ -5,12 +5,24 @@ using UnityEngine;
 public class RelicIconScreen : SimpleIconScreen
 {
     public RelicEffect Relic;
+    private bool bIsPreview;
+    private TMPro.TextMeshProUGUI NameText, DescriptionText;
 
-    public void Initialize(RelicEffect Relic)
+    public void Initialize(RelicEffect Relic, bool bIsPreview)
     {
         this.Relic = Relic;
+        this.bIsPreview = bIsPreview;
         Initialize(Relic.Image, Relic.Tooltip, null);
         Relic.OnDiscoveryChanged.Add(OnRelicDiscoveryChanged);
+
+        if (bIsPreview)
+        {
+            NameText = transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
+            DescriptionText = transform.GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
+
+            NameText.text = Relic.name;
+            DescriptionText.text = Relic.GetEffectDescription();
+        }
 
         if (!Game.TryGetService(out RelicService RelicService))
             return;
@@ -29,7 +41,7 @@ public class RelicIconScreen : SimpleIconScreen
 
     public void OnRelicDiscoveryChanged(Unlockables.State State)
     {
-        bool bIsActive = State == Unlockables.State.Active;
+        bool bIsActive = State == Unlockables.State.Active || bIsPreview;
         IconRenderer.color = bIsActive ? ActiveColor : InActiveColor;
     }
 

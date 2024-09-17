@@ -13,7 +13,8 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
     public Dictionary<RelicType, RelicEffect> Relics = new();
 
     public GameObject ShowRelicButton;
-    public GameObject RelicIconScreenPrefab;
+    public GameObject RelicIconPrefab;
+    public GameObject RelicIconPreviewPrefab;
 
     public byte[] GetData()
     {
@@ -85,11 +86,11 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
         ShowRelicButton.SetActive(Relics.Count > 0);
     }
 
-    public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic)
+    public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic, bool bIsPreview)
     {
-        GameObject GO = Instantiate(RelicIconScreenPrefab);
+        GameObject GO = Instantiate(bIsPreview ? RelicIconPreviewPrefab : RelicIconPrefab);
         RelicIconScreen RelicIcon = GO.GetComponent<RelicIconScreen>();
-        RelicIcon.Initialize(Relic);
+        RelicIcon.Initialize(Relic, bIsPreview);
         RelicIcon.transform.SetParent(Container, false);
         return RelicIcon;
     }

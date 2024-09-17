@@ -91,6 +91,12 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return Game.GetService<CardHand>();
     }
 
+    protected override int GetSeed()
+    {
+        // TODO: check if this actually gives a wide enough range?
+        return UnityEngine.Random.Range(0, 100);
+    }
+
     private static int CARD_COST = 5;
     private static int REFRESH_COST = 10;
 }

@@ -182,7 +182,6 @@
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
-    <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildUnitsQuest.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\ScoutTilesQuest.cs" />

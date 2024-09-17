@@ -30,13 +30,13 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         this.Service.InitUnlockables();
     }
 
-    public bool TryUnlockNewType(out T Type, bool bIsPreview = false)
+    public bool TryUnlockNewType(int Seed, out T Type, bool bIsPreview = false)
     {
         Type = default;
         if (!Service.IsInit())
             return false;
 
-        Type = GetRandomOfState(State.Locked, false);
+        Type = GetRandomOfState(Seed, State.Locked, false);
 
         if (!bIsPreview)
         {
@@ -65,7 +65,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         return this[Type] == State.Locked;
     }
 
-    public T GetRandomOfState(State TargetState, bool bCanBeHigher)
+    public T GetRandomOfState(int Seed, State TargetState, bool bCanBeHigher)
     {
         List<int> TargetCategories = new();
         for (int i = 0; i < Categories.Count; i++)
@@ -76,6 +76,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
             TargetCategories.Add(i);
         }
 
+        UnityEngine.Random.InitState(Seed);
         int RandomCategory = UnityEngine.Random.Range(0, TargetCategories.Count);
         var SelectedCategory = Categories[TargetCategories[RandomCategory]];
 
@@ -209,6 +210,22 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
     public int GetCategoryCount()
     {
         return Categories.Count;
+    }
+
+    public int GetCountOfState(State State)
+    {
+        int Count = 0;
+        for (int i = 0; i < Categories.Count; i++)
+        {
+            foreach (var Tuple in Categories[i])
+            {
+                if (Tuple.Value != State)
+                    continue;
+
+                Count++;
+            }
+        }
+        return Count;
     }
 
     public void AddCategory(SerializedDictionary<T, State> Category)

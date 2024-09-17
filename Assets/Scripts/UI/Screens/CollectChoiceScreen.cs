@@ -75,6 +75,7 @@ public abstract class CollectChoiceScreen : ScreenUI
     protected abstract Production GetCostsForChoice(int i);
     protected abstract int GetUpgradeCostsForChoice(int i);
     protected abstract CardCollection GetTargetCardCollection();
+    protected abstract int GetSeed();
 
     protected void CreateCardAt(int ChoiceIndex, CardDTO.Type Type)
     {
@@ -97,11 +98,11 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 
-        if (!RelicService.UnlockableRelics.TryUnlockNewType(out var RelicType, true))
+        if (!RelicService.UnlockableRelics.TryUnlockNewType(GetSeed() + ChoiceIndex, out var RelicType, true))
             return;
 
         PrepareContainerForRelic(ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback);
-        RelicService.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType]);
+        RelicService.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType], true);
         Callback(null, RelicType, ChoiceIndex);
     }
 
@@ -111,7 +112,7 @@ public abstract class CollectChoiceScreen : ScreenUI
             return;
 
         PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
-        CardFactory.CreateCard(EventData.GetRandomType(), ChoiceIndex, CardContainer, Callback);
+        CardFactory.CreateCard(EventData.GetRandomType(GetSeed() + ChoiceIndex), ChoiceIndex, CardContainer, Callback);
     }
 
     private void CreateBuildingCardAt(int ChoiceIndex)
@@ -123,12 +124,12 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (ShouldCardBeUnlocked(ChoiceIndex))
         {
             // preview cause we dont wanna unlock it just yet - wait for the actual choice
-            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(out BuildingToUnlock, true))
+            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out BuildingToUnlock, true))
                 return;
         }
         else
         {
-            BuildingToUnlock = BuildingService.UnlockableBuildings.GetRandomOfState(Unlockables.State.Unlocked, true);
+            BuildingToUnlock = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex, Unlockables.State.Unlocked, true);
         }
 
         PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);

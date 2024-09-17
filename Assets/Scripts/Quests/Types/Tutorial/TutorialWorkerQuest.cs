@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using static TutorialSystem;
 
-public class TutorialWorkerQuest : Quest<ScriptableEntity>
+public class TutorialWorkerQuest : Quest<StarvableUnitEntity>
 {
     public TutorialWorkerQuest() : base()
     {
     }
 
-    public override int CheckSuccess(ScriptableEntity Target)
+    public override int CheckSuccess(StarvableUnitEntity Target)
     {
         return 1;
     }
@@ -29,14 +29,14 @@ public class TutorialWorkerQuest : Quest<ScriptableEntity>
         return Type.Positive;
     }
 
-    public override Dictionary<IQuestRegister<ScriptableEntity>, ActionList<ScriptableEntity>> GetRegisterMap()
+    public override Dictionary<IQuestRegister<StarvableUnitEntity>, ActionList<StarvableUnitEntity>> GetRegisterMap()
     {
         if (Game.GetService<Workers>() == null)
             return new();
 
         return new()
         {
-            { Game.GetService<Workers>().GetRegister(), Workers._OnWorkerAssignedList }
+            { Game.GetService<Workers>(), Workers._OnWorkerAssignedList }
         };
     }
 

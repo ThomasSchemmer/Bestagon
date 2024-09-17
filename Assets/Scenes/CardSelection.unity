@@ -681,21 +681,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  AvailableBuildings:
-    Tuples:
-    - Key: 2
-    - Key: 4
-    - Key: 8
-    - Key: 16
-    - Key: 32
-    - Key: 64
-    - Key: 128
-    - Key: 256
-    - Key: 512
-    - Key: 2048
-    - Key: 4096
-    - Key: 4194304
-    - Key: 8388608
   AvailableTiles:
     Tuples:
     - Key: 1
@@ -745,11 +730,24 @@ MonoBehaviour:
     - Key: 32768
       Value: {fileID: -4575734979276873811, guid: a96aa5806cf63b8458ac793f07fd2fca,
         type: 3}
+  AvailableBuildings:
+    Tuples:
+    - Key: 2
+    - Key: 4
+    - Key: 8
+    - Key: 16
+    - Key: 32
+    - Key: 64
+    - Key: 128
+    - Key: 256
+    - Key: 512
+    - Key: 2048
+    - Key: 4096
+    - Key: 4194304
+    - Key: 8388608
   AvailableDecorations:
     Tuples:
     - Key: 1
-      Value: {fileID: 2113629819765333494, guid: ff425a0abb9c45c49b0fc212be137b0e,
-        type: 3}
   AvailableUnits:
     Tuples:
     - Key: 0
@@ -761,6 +759,7 @@ MonoBehaviour:
     type: 3}
   UnitPrefab: {fileID: 2794737047199554117, guid: bb999a4db94e27940abcbea9b143d0ed,
     type: 3}
+  DecorationPrefab: {fileID: 0}
 --- !u!1 &217087476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1516,53 +1515,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 257689934}
   m_CullTransparentMesh: 1
---- !u!1 &258449588
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 258449589}
-  - component: {fileID: 258449590}
-  m_Layer: 0
-  m_Name: Unlockables
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &258449589
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 258449588}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1745459820}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &258449590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 258449588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e84738674d8248249b5d0fbbc5f78b45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IsRunning: 0
-  IsInit: 0
-  LockedTypesPerCategory: 
 --- !u!1 &258483323
 GameObject:
   m_ObjectHideFlags: 0
@@ -1878,8 +1830,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1888270407}
-        m_TargetAssemblyTypeName: ScreenUI, Assembly-CSharp
-        m_MethodName: Show
+        m_TargetAssemblyTypeName: RelicScreen, Assembly-CSharp
+        m_MethodName: OnToggle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5699,9 +5651,6 @@ MonoBehaviour:
     TargetScript: {fileID: 223016191}
   - IsForEditor: 0
     IsForGame: 1
-    TargetScript: {fileID: 258449590}
-  - IsForEditor: 0
-    IsForGame: 1
     TargetScript: {fileID: 1999662649}
 --- !u!4 &1030420838
 Transform:
@@ -5734,23 +5683,21 @@ MonoBehaviour:
   IsInit: 0
   Saveables:
     Tuples:
-    - Key: 7
+    - Key: 6
       Value: {fileID: 223016191}
     - Key: 2
       Value: {fileID: 1603327538}
     - Key: 4
       Value: {fileID: 1706127493}
-    - Key: 6
+    - Key: 5
       Value: {fileID: 1137995693}
     - Key: 3
       Value: {fileID: 2100521094}
-    - Key: 5
-      Value: {fileID: 258449590}
-    - Key: 12
+    - Key: 11
       Value: {fileID: 626326041}
-    - Key: 13
+    - Key: 12
       Value: {fileID: 1161608406}
-    - Key: 14
+    - Key: 13
       Value: {fileID: 1999662649}
   bLoadLastFile: 1
 --- !u!1 &1050591515
@@ -8288,7 +8235,6 @@ Transform:
   m_Children:
   - {fileID: 1137995694}
   - {fileID: 223016190}
-  - {fileID: 258449589}
   - {fileID: 626326042}
   - {fileID: 1999662650}
   m_Father: {fileID: 0}
@@ -8782,8 +8728,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Relics: []
-  RelicIconScreenPrefab: {fileID: 6355220842690441584, guid: 9f24c5fc455d0f3428277f7e19ecbbde,
-    type: 3}
   RelicContainer: {fileID: 2024900277}
 --- !u!1 &1999662648
 GameObject:
@@ -8817,6 +8761,10 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   ShowRelicButton: {fileID: 247238322}
+  RelicIconPrefab: {fileID: 6355220842690441584, guid: a4f86a51e01a7514d9d75f09e1fb6087,
+    type: 3}
+  RelicIconPreviewPrefab: {fileID: 6355220842690441584, guid: 9f24c5fc455d0f3428277f7e19ecbbde,
+    type: 3}
 --- !u!4 &1999662650
 Transform:
   m_ObjectHideFlags: 0
