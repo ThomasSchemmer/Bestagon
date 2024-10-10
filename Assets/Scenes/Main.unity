@@ -8332,11 +8332,13 @@ MonoBehaviour:
     - Key: 10
       Value: {fileID: 1288013424}
     - Key: 11
-      Value: {fileID: 1717196397}
+      Value: {fileID: 0}
     - Key: 12
       Value: {fileID: 1504442746}
     - Key: 13
       Value: {fileID: 1767183026}
+    - Key: 14
+      Value: {fileID: 1871387457}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -17310,7 +17312,7 @@ GameObject:
   - component: {fileID: 1717196396}
   - component: {fileID: 1717196397}
   m_Layer: 0
-  m_Name: SpawnSystem
+  m_Name: SpawnService
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17340,12 +17342,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1717196395}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc06149e008af354b8482536d2b30bfc, type: 3}
+  m_Script: {fileID: 11500000, guid: 62ccf9402bd20bc48afab57bf5196689, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  StartLocation: {x: 0, y: 0, z: 1, w: 1}
+  StartLocation: {x: 0, y: 0, z: 2, w: 2}
   StartVisibilityRange: 2
   StartScoutingRange: 3
 --- !u!1 &1730421129

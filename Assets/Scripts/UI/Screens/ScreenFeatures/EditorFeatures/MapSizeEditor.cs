@@ -30,7 +30,7 @@ public class MapSizeEditor : ScreenFeature
     public void OnClickToggle()
     {
         bShowAllHexes = !bShowAllHexes; 
-        if (!Game.TryGetServices(out MapGenerator MapGen, out SpawnSystem SpawnSystem))
+        if (!Game.TryGetServices(out MapGenerator MapGen, out SpawnService SpawnSystem))
             return;
 
         MapGen.ForEachChunk(ToggleChunk);

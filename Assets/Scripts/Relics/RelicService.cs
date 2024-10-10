@@ -113,7 +113,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
         });
     }
 
-    public void Load()
+    public void OnLoaded()
     {
         _OnInit?.Invoke(this);
     }

@@ -271,7 +271,7 @@ public class CloudRenderer : GameService, ISaveableService
         ActiveMalaises = new();
     }
 
-    public void Load()
+    public void OnLoaded()
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {

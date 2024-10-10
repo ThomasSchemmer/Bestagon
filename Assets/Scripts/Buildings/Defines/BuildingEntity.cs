@@ -4,6 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 using static CardUpgradeScreen;
 using static UnitEntity;
+using static UnityEngine.UI.CanvasScaler;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
@@ -57,7 +58,29 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public Production GetCosts()
     {
-        return Cost;
+        float Multiplier = AttributeSet.Get()[AttributeType.BuildingCostRate].CurrentValue;
+        int Count = 0;
+        // maybe remove empty
+        List<Tuple<Production.Type, int>> Tuples = Cost.GetTuples();
+        foreach (var Tuple in Tuples)
+        {
+            Count += Tuple.Value;
+        }
+        int ActualCount = Mathf.RoundToInt(Count * Multiplier);
+        int Difference = ActualCount - Count;
+        int Sign = (int)Mathf.Sign(Difference);
+
+        UnityEngine.Random.InitState(BuildingType.GetHashCode());
+        for (int i = 0; i < Mathf.Abs(Difference); i++)
+        {
+            int ResourceIndex = UnityEngine.Random.Range(0, Tuples.Count);
+            var OldTuple = Tuples[ResourceIndex];
+            
+            Tuple<Production.Type, int> NewTuple = new (OldTuple.Key, OldTuple.Value + 1 * Sign);
+            Tuples[ResourceIndex] = NewTuple;
+        }
+
+       return new(Tuples);
     }
 
     public Production GetProduction(bool bIsSimulated)
@@ -330,22 +353,27 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return GetStaticSize();
     }
 
-    public static int GetStaticSize()
+    public static new int GetStaticSize()
     {
-        // Unit/Entity Type and buildable on, max workers
+        // BuildingType Type and buildable on, max workers
         // Workers themselfs will be assigned later
-        return Location.GetStaticSize() + Production.GetStaticSize() + 2 + OnTurnBuildingEffect.GetStaticSize() + sizeof(int) * 7;
+        return ScriptableEntity.GetStaticSize() +
+            Location.GetStaticSize() +
+            Production.GetStaticSize() +
+            OnTurnBuildingEffect.GetStaticSize() +
+            sizeof(byte) * 1 +
+            sizeof(int) * 7;
     }
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EntityType);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(BuildingEntity.GetStaticSize(), base.GetSize(), base.GetData());
+
+        int Pos = base.GetSize();
         byte TypeAsByte = (byte)HexagonConfig.MaskToInt((int)BuildingType, 32);
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, TypeAsByte);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
@@ -361,12 +389,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public override void SetData(NativeArray<byte> Bytes)
     {
-        int Pos = 0;
+        base.SetData(Bytes);
+        int Pos = base.GetSize();
 
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEntityType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
@@ -376,7 +404,6 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
 
-        EntityType = (EType)bEntityType;
         BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
@@ -386,8 +413,16 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Building)
     {
-        Building = CreateInstance<BuildingEntity>();
-        return SaveGameManager.SetSaveable(Bytes, Pos, Building);
+        Building = default;
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return -1;
+
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
+        BuildingConfig.Type Type = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
+
+        Building = MeshFactory.CreateDataFromType(Type);
+        return Pos;
     }
 
 }

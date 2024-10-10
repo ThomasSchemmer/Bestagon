@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class GrantUnitEventData : EventData
 {
-    public UnitEntity.UType GrantedType;
-
     public GrantUnitEventData()
     {
         Type = EventType.GrantUnit;
@@ -15,7 +13,7 @@ public class GrantUnitEventData : EventData
 
     public void OnEnable()
     {
-        GrantedType = (UnitEntity.UType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(UnitEntity.UType)).Length));
+        GrantedUnitType = (UnitEntity.UType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(UnitEntity.UType)).Length));
     }
 
     public override string GetDescription()
@@ -35,35 +33,6 @@ public class GrantUnitEventData : EventData
     {
         UnitEntity Unit = GetUnitData();
         return Unit.UnitType.ToString();
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GrantedType);
-
-        return Bytes.ToArray();
-    }
-
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        return EventData.GetStaticSize() + sizeof(byte);
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bGrantedType);
-
-        GrantedType = (UnitEntity.UType)bGrantedType;
     }
 
     public override void InteractWith(HexagonVisualization Hex)
@@ -100,7 +69,7 @@ public class GrantUnitEventData : EventData
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
 
-        return MeshFactory.CreateDataFromType(GrantedType);
+        return MeshFactory.CreateDataFromType(GrantedUnitType);
     }
 
     public UnitEntity GetUnitData()
@@ -108,7 +77,7 @@ public class GrantUnitEventData : EventData
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
 
-        return MeshFactory.GetDataFromType(GrantedType);
+        return MeshFactory.GetDataFromType(GrantedUnitType);
     }
 
     public override Vector3 GetOffset()

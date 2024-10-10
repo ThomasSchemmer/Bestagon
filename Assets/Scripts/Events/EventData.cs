@@ -18,6 +18,9 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
     }
 
     public EventType Type;
+    public UnitEntity.UType GrantedUnitType;
+    public Production GrantedResource;
+    public HexagonConfig.HexagonType TargetHexType;
 
     // Temporary cards will be deleted once played
     public bool bIsTemporary = true;
@@ -76,7 +79,8 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
     public static int GetStaticSize()
     {
         // type and temporary
-        return sizeof(byte) * 2;
+        // unit type, HexType
+        return sizeof(byte) * 4 + Production.GetStaticSize();
     }
 
     public virtual byte[] GetData()
@@ -86,15 +90,26 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsTemporary);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GrantedUnitType);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)TargetHexType);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, GrantedResource ?? Production.Empty);
 
         return Bytes.ToArray();
     }
 
     public virtual void SetData(NativeArray<byte> Bytes)
     {
+        GrantedResource = Production.Empty;
+
         int Pos = 0;
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsTemporary);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bGrantedType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bTargetType);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, GrantedResource);
+
+        GrantedUnitType = (UnitEntity.UType)bGrantedType;
+        TargetHexType = (HexagonConfig.HexagonType)bTargetType;
 
         Type = (EventType)bType;
     }

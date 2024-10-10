@@ -72,7 +72,7 @@ public class CardFactory : GameService
         public DelayedCardInfo(UnitEntity.UType UnitType, int Index, Transform Parent, Action<Card> Callback)
         {
             GrantUnitEventData EventData = ScriptableObject.CreateInstance<GrantUnitEventData>();
-            EventData.GrantedType = UnitType;
+            EventData.GrantedUnitType = UnitType;
             this.DTO = EventCardDTO.CreateFromEventData(EventData);
             this.Index = Index;
             this.Parent = Parent;
@@ -176,6 +176,7 @@ public class CardFactory : GameService
         CardObject.name = "Card " + EventData.Type.ToString();
         EventCard Card = CardObject.AddComponent<EventCard>();
         Card.Init(EventData, Info.Index);
+        Card.SetPinned(Info.DTO.PinnedIndex);
 
         return Card;
     }
@@ -187,6 +188,7 @@ public class CardFactory : GameService
         CardObject.name = "Card " + BuildingData.BuildingType;
         BuildingCard Card = CardObject.AddComponent<BuildingCard>();
         Card.Init(BuildingData, Info.Index);
+        Card.SetPinned(Info.DTO.PinnedIndex);
 
         return Card;
     }

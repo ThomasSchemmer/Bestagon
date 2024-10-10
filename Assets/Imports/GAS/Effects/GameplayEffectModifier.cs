@@ -56,7 +56,7 @@ public class GameplayEffectModifier
         switch (Operation)
         {
             case Type.Add: Copy.Value = -this.Value; break;
-            case Type.Multiply: 
+            case Type.Multiply: Copy.Value = -this.Value; break;
             case Type.Divide: Copy.Value = 1 / this.Value; break;
             default: break;
         }

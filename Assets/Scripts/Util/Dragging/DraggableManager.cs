@@ -64,10 +64,16 @@ public class DraggableManager : GameService
         DraggingPreview.SetActive(false);
         DraggingPreview.transform.SetParent(transform, false);
 
+        if (Draggable is Card)
+        {
+            Card DraggableCard = (Card)Draggable;
+            DraggableCard.SetPinned(DraggableCard.IsPinned() ? Index : -1);
+        }
+
         if (!Game.TryGetService(out CardUpgradeScreen Screen))
             return;
 
-        Screen.HideUpgradeButton();
+        Screen.HideCardButtons();
     }
 
     private RectTransform GetTarget(PointerEventData Event)

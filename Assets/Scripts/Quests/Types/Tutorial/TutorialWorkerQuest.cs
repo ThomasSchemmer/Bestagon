@@ -80,7 +80,7 @@ public class TutorialWorkerQuest : Quest<StarvableUnitEntity>
             return;
 
         GrantUnitEventData EventData = (GrantUnitEventData)ECard.EventData;
-        EventData.GrantedType = UnitEntity.UType.Worker;
+        EventData.GrantedUnitType = UnitEntity.UType.Worker;
         Card.GenerateCard();
 
         CardHand.AddCard(Card);

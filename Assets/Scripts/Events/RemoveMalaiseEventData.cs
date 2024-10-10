@@ -85,14 +85,4 @@ public class RemoveMalaiseEventData : EventData
         return true;
     }
 
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        //since this eventdata does need more info, we can just reuse the upper class
-        return EventData.GetStaticSize();
-    }
 }

@@ -23,7 +23,8 @@ public interface ISaveableService : ISaveableData
         Malaise = 10,
         Spawning = 11,
         Quests = 12,
-        Relics = 13
+        Relics = 13,
+        Decorations = 14
     }
 
     /** Convenience function, should be instead the same class */
@@ -43,5 +44,5 @@ public interface ISaveableService : ISaveableData
     public void Reset();
 
     /** Overwrite for actions that have to be taken after loading the data */
-    public void Load() { }
+    public void OnLoaded() { }
 }

@@ -42,7 +42,7 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         MaxXOffset *= Count / 2f;
 
         foreach(Card Card in Cards) {
-            Card.SetIndex(Count - 1 - Card.GetIndex());
+            Card.transform.SetSiblingIndex(Count - 1 - Card.GetIndex());
 
             float TempIndex = Count == 1 ? 0.5f : (float)i / (Count - 1);
             float MappedIndex = Map(TempIndex, 0, 1, -1, 1);
@@ -79,7 +79,7 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         int i = 0;
         foreach (Card Other in Cards)
         {
-            Other.SetIndex(i);
+            Other.transform.SetSiblingIndex(i);
             i++;
         }
         Sort(false);
@@ -95,14 +95,15 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         Card.gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         int i = 0;
         foreach (Card Other in Cards) {
-            Other.SetIndex(i);
+            Other.transform.SetSiblingIndex(i);
             i++;
         }
         Sort(false);
     }
 
-    public override void Load()
+    public override void OnLoaded()
     {
+        base.OnLoaded();
         Sort(false);
         Game.RunAfterServiceInit((CardDeck Deck) =>
         {

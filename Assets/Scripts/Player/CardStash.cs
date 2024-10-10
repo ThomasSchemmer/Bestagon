@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class CardStash : CardCollection
 {
-    public override void Load()
+    public override void OnLoaded()
     {
+        base.OnLoaded();
         foreach (Card Card in Cards)
         {
             Card.gameObject.SetActive(false);

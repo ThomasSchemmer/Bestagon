@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static UnitEntity;
 
 /** 
  * Entity representing decoration data on some hexagon, managed by @DecorationService
@@ -58,17 +59,34 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 
     public override int GetSize()
     {
-        throw new NotImplementedException();
+        return GetStaticSize();
+    }
+
+    public static new int GetStaticSize()
+    {
+        return ScriptableEntity.GetStaticSize() + Location.GetStaticSize() + sizeof(byte);
     }
 
     public override byte[] GetData()
     {
-        throw new NotImplementedException();
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(DecorationEntity.GetStaticSize(), base.GetSize(), base.GetData());
+
+        int Pos = base.GetSize();
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)DecorationType);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+
+        return Bytes.ToArray();
     }
 
     public override void SetData(NativeArray<byte> Bytes)
     {
-        throw new NotImplementedException();
+        base.SetData(Bytes);
+        int Pos = base.GetSize();
+        Location = new();
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bDecorationType);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+
+        DecorationType = (DType)bDecorationType;
     }
 
     public virtual Vector3 GetOffset()
@@ -84,5 +102,19 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
     public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         throw new NotImplementedException();
+    }
+
+    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Decoration)
+    {
+        Decoration = default;
+        if (!Game.TryGetService(out MeshFactory MeshFactory))
+            return -1;
+
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bDecorationType);
+        DType Type = (DType)bDecorationType;
+
+        Decoration = MeshFactory.CreateDataFromType(Type);
+        return Pos;
     }
 }

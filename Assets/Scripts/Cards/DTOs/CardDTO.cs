@@ -9,9 +9,10 @@ public abstract class CardDTO : ISaveableData
     public enum Type
     {
         Building,
-        Unit,
         Event
     }
+
+    public int PinnedIndex = -1;
 
     public virtual byte[] GetData()
     {
@@ -20,6 +21,7 @@ public abstract class CardDTO : ISaveableData
         NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GetCardType());
+        Pos = SaveGameManager.AddInt(Bytes, Pos, PinnedIndex);
         return Bytes.ToArray();
     }
 
@@ -30,13 +32,16 @@ public abstract class CardDTO : ISaveableData
 
     public static int GetStaticSize()
     {
-        // type
-        return 1;
+        // type + pinned index
+        return sizeof(byte) + sizeof(int);
     }
 
     public virtual void SetData(NativeArray<byte> Bytes)
-    {        
-        // nothing to load/set
+    {
+        int Pos = 0;
+        // skip card type, its already checked in @CreateForSaveable
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bCardType);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out PinnedIndex);
     }
 
     // declare from interface so that children can override
@@ -46,29 +51,34 @@ public abstract class CardDTO : ISaveableData
 
     public static CardDTO CreateFromCard(Card Card) {
 
+        CardDTO DTO = null;
         if (Card is BuildingCard)
-            return new BuildingCardDTO(Card);
+            DTO = new BuildingCardDTO(Card);
 
         if (Card is EventCard)
-            return new EventCardDTO(Card);
+            DTO = new EventCardDTO(Card);
 
-        return null;
+        if (DTO == null)
+        {
+            throw new System.Exception("Could not create DTO for Card");
+        }
+
+        DTO.PinnedIndex = Card.GetPinnedIndex();
+
+        return DTO;
     }
 
     public static CardDTO CreateForSaveable(NativeArray<byte> Bytes, int Pos)
     {
-        //skip size info
-        Pos += sizeof(int);
         SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
         Type CardType = (Type)bType;
 
         switch (CardType)
         {
-            case Type.Building: return new BuildingCardDTO();
-            case Type.Event: return new EventCardDTO();
+            case Type.Building: return new BuildingCardDTO(); 
+            case Type.Event: return new EventCardDTO(); 
+            default: return null;
         }
-
-        return null;
     }
 
 }

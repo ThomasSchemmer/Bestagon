@@ -126,7 +126,6 @@
     <Compile Include="Assets\Scripts\Cards\DTOs\EventCardDTO.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileItemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selectors.cs" />
-    <Compile Include="Assets\Scripts\Player\SpawnSystem.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\WorkerScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Player\IUnlockableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\ScreenFeatureGroup.cs" />
@@ -202,6 +201,7 @@
     <Compile Include="Assets\Scripts\Quests\QuestTemplate.cs" />
     <Compile Include="Assets\Scripts\Util\ChunkTest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionPreviewScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\PinnedIndicator.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCameraQuest.cs" />
     <Compile Include="Assets\Scripts\Relics\RelicIconScreen.cs" />
@@ -217,6 +217,7 @@
     <Compile Include="Assets\Scripts\Util\ActionList.cs" />
     <Compile Include="Assets\Scripts\Unit\Workers.cs" />
     <Compile Include="Assets\Scripts\Quests\MultiQuest.cs" />
+    <Compile Include="Assets\Scripts\Player\SpawnService.cs" />
     <Compile Include="Assets\Scripts\UI\HoverableButton.cs" />
     <Compile Include="Assets\Scripts\Player\Unlockables.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\MapEditorScreen.cs" />

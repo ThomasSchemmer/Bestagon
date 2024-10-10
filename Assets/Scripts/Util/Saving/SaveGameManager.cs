@@ -5,6 +5,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static ISaveableService;
 
+/**
+ * Manages all savegame related things
+ * Used to switch into the main menu from any game scene inside the unity editor
+ * Also provides utility functions to map data into byte structures
+ * 
+ * Keeps track of @Saveables in order to map loadable data 
+ * 
+ * Loading flow:
+ * - Find all saveables in data that match the scene saveables
+ *   (any non-found, but listed in @Game will be started normally)
+ * - Fill saveables with found data
+ * - call @OnLoaded for Saveable, initializing it
+ */
 public class SaveGameManager : GameService
 {
     public SerializedDictionary<SaveGameType, GameService> Saveables;
@@ -145,6 +158,8 @@ public class SaveGameManager : GameService
 
         string FileName = SaveGameName;
         string FullPath = GetSavegamePath() + FileName;
+        // @GetMostRecentSave needs this
+        File.SetCreationTime(FullPath, DateTime.Now);
         File.WriteAllBytes(FullPath, Bytes.ToArray());
         FileInfo fileInfo = new FileInfo(FullPath);
         fileInfo.IsReadOnly = false;
@@ -317,7 +332,7 @@ public class SaveGameManager : GameService
             ISaveableService Saveable = Service as ISaveableService;
             SetSaveable(Bytes, Tuple.Value, Saveable);
 
-            Saveable.Load();
+            Saveable.OnLoaded();
         }
 
         return true;
@@ -342,18 +357,11 @@ public class SaveGameManager : GameService
         }
         return Size;
     }
-
-    /** Convenience function to create a new NativeArray and fill it with the base data */
-    public static NativeArray<byte> GetArrayWithBaseFilled(ISaveableData Saveable, int BaseSize, byte[] BaseData)
-    {
-        NativeArray<byte> Bytes = new(Saveable.GetSize(), Allocator.Temp);
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, 0, BaseSize);
-        Slice.CopyFrom(BaseData);
-        return Bytes;
-    }
-
-
-    /** Convenience function to create a new NativeArray and fill it with the base data, but enfore a certain size of the base chunk */
+    
+    /** 
+     * Convenience function to create a new NativeArray and fill it with the base data, but enforce a certain size of the base chunk 
+     * The base chunk can then be recursively used again to fill the next chunk
+     */
     public static NativeArray<byte> GetArrayWithBaseFilled(int TotalSize, int BaseSize, byte[] BaseData)
     {
         NativeArray<byte> Bytes = new(TotalSize, Allocator.Temp);

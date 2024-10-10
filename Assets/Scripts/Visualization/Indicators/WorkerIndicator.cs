@@ -10,6 +10,7 @@ public class WorkerIndicator : IndicatorComponent
     protected override void Initialize()
     {
         Visualization = GetComponent<BuildingVisualization>();
+        Workers._OnWorkersAssigned += OnWorkerChanged;
     }
 
     protected override int GetIndicatorAmount()
@@ -27,14 +28,32 @@ public class WorkerIndicator : IndicatorComponent
         return IconFactory.GetIconForMisc(Type);
     }
 
-    protected override Vector3 GetIndicatorWorldPosition(int i)
+    protected override void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform)
     {
         Location Location = Visualization.Entity.GetLocation();
-        return HexagonConfig.TileSpaceToWorldSpace(Location.GlobalTileLocation);
+        Vector3 WorldPos = HexagonConfig.TileSpaceToWorldSpace(Location.GlobalTileLocation);
+        IndicatorTransform.position = Service.WorldPosToScreenPos(WorldPos);
+        IndicatorTransform.position += GetIndicatorScreenOffset(i);
     }
 
     public override bool IsFor(Location Location)
     {
         return Visualization.Entity.GetLocation().Equals(Location);
     }
+
+    public void OnWorkerChanged(Location Location)
+    {
+        if (!IsFor(Location))
+            return;
+
+        UpdateSpritesVisuals();
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        Workers._OnWorkersAssigned -= OnWorkerChanged;
+    }
+
+
 }

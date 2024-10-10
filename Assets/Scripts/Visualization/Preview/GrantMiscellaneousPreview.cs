@@ -39,7 +39,7 @@ public class GrantMiscellaneousPreview : IconPreview
                 return default;
 
             GrantUnitEventData UnitEventData = Data as GrantUnitEventData;
-            IconFactory.TryGetMiscFromUnit(UnitEventData.GrantedType, out MiscellaneousType MiscType);
+            IconFactory.TryGetMiscFromUnit(UnitEventData.GrantedUnitType, out MiscellaneousType MiscType);
             return MiscType;
         }
         if (Data.Type == EventData.EventType.RemoveMalaise)

@@ -31,7 +31,9 @@ public class IconFactory : GameService
         Camera,
         Tile,
         Abandon,
-        Upgrades
+        Upgrades,
+        Pin,
+        PinActive
     }
 
     public void Refresh()
@@ -299,7 +301,7 @@ public class IconFactory : GameService
 
     public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData, ISelectable Parent)
     {
-        if (!TryGetMiscFromUnit(EventData.GrantedType, out MiscellaneousType UnitType))
+        if (!TryGetMiscFromUnit(EventData.GrantedUnitType, out MiscellaneousType UnitType))
             return null;
 
         return GetVisualsForMiscalleneousEffect(EventData, UnitType, Parent);
@@ -367,7 +369,7 @@ public class IconFactory : GameService
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetVisualsForHexTypes(EventData.TargetType, Parent);
+        GameObject UnitTypeGO = GetVisualsForHexTypes(EventData.TargetHexType, Parent);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 

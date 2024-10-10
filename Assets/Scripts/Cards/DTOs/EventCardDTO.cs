@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-/** Similar to @UnitCardDTO the saving is a bit complicated due to its different sizes */
+/** DTO for EventCards, useed to minify data to save */
 public class EventCardDTO : CardDTO
 {
     public EventData EventData;
@@ -31,18 +31,11 @@ public class EventCardDTO : CardDTO
         return Type.Event;
     }
 
-
     public override byte[] GetData()
     {
-        // since we have to write the overall size at the first byte, we have to move all base data 
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(EventCardDTO.GetStaticSize(), base.GetSize(), base.GetData());
 
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Pos, base.GetSize());
-        Slice.CopyFrom(base.GetData());
-        Pos += base.GetSize();
-
+        int Pos = base.GetSize();
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, EventData);
 
         return Bytes.ToArray();
@@ -50,18 +43,8 @@ public class EventCardDTO : CardDTO
 
     public override void SetData(NativeArray<byte> Bytes)
     {
-        // skip the first "size" byte, as the savegamemanager already has handled it
-        int Pos = sizeof(int);
-
-        // now move the base data before we can set the actual data
-        NativeSlice<byte> Slice = new NativeSlice<byte>(Bytes, Pos, base.GetSize());
-        Slice.CopyFrom(base.GetData());
-
-        // initialize the base DTO, aka card type
-        NativeArray<byte> BaseBytes = new(base.GetSize(), Allocator.Temp);
-        BaseBytes.CopyFrom(Slice.ToArray());
-        base.SetData(BaseBytes);
-        Pos += base.GetSize();
+        base.SetData(Bytes);
+        int Pos = base.GetSize();
 
         // create random data according to type as we will overwrite it anyway
         SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEventType);
@@ -69,25 +52,14 @@ public class EventCardDTO : CardDTO
 
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, EventData);
     }
-    public override bool ShouldLoadWithLoadedSize() { return true; }
-
+    
     public override int GetSize()
     {
-        return GetStaticSize(EventData.Type);
+        return GetStaticSize();
     }
 
-    public static int GetStaticSize(EventData.EventType Type)
+    public static new int GetStaticSize()
     {
-        int EventSize = 0;
-        switch (Type)
-        {
-            case EventData.EventType.GrantUnit: EventSize = GrantUnitEventData.GetStaticSize(); break;
-            case EventData.EventType.GrantResource: EventSize = GrantResourceEventData.GetStaticSize(); break;
-            case EventData.EventType.ConvertTile: EventSize = ConvertTileEventData.GetStaticSize(); break;
-            case EventData.EventType.RemoveMalaise: EventSize = RemoveMalaiseEventData.GetStaticSize(); break;
-            default: break;
-        }
-
-        return GetStaticSize() + EventSize + sizeof(int);
+        return CardDTO.GetStaticSize() + EventData.GetStaticSize();
     }
 }

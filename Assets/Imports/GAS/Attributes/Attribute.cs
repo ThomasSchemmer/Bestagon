@@ -45,21 +45,18 @@ public class Attribute
 
     public void Tick()
     {
-        float OldValue = CurrentValue;
         float DivideValue = 1 + Divide;
         float MultiplyValue = 1 + Multiply;
-        CurrentValue = (CurrentValue + Add) * MultiplyValue / DivideValue;
+        CurrentValue = (BaseValue + Add) * MultiplyValue / DivideValue;
         if (!Mathf.Approximately(Override, 0))
         {
             CurrentValue = Override;
         }
 
-        if (!Mathf.Approximately(OldValue, CurrentValue))
+        if (!Mathf.Approximately(BaseValue, CurrentValue))
         {
             _OnAttributeChanged?.Invoke();
         }
-
-        ResetModifiers();
     }
 
     public void AddModifier(GameplayEffectModifier Modifier)
@@ -68,6 +65,7 @@ public class Attribute
             return;
 
         TargetList.Add(Modifier);
+        Tick();
     }
 
     public void RemoveModifier(GameplayEffectModifier Modifier)

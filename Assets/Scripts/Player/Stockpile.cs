@@ -220,7 +220,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         Pos = SaveGameManager.GetBool(Bytes, Pos, out bShouldReset);
     }
 
-    public void Load()
+    public void OnLoaded()
     {
         Refill();
         _OnInit?.Invoke(this);

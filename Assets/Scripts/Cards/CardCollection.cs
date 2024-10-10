@@ -79,7 +79,15 @@ public abstract class CardCollection : GameService, ISaveableService
         }
 
         Cards.Insert(Index, Card);
-        Card.SetIndex(Index);
+        Card.transform.SetSiblingIndex(Index);
+    }
+
+    public void UpdatePinnedIndices()
+    {
+        foreach (Card Card in Cards)
+        {
+            Card.SetPinned(Card.IsPinned() ? Card.transform.GetSiblingIndex() : -1);
+        }
     }
 
     public void DeleteAllCardsConditionally(Func<Card, bool> Check)
@@ -127,13 +135,11 @@ public abstract class CardCollection : GameService, ISaveableService
 
     private int GetCardSize(Card Card)
     {
-        // all building data has the same size
         if (Card is BuildingCard)
             return BuildingCardDTO.GetStaticSize();
 
-        // but event data size is dependent on its type!
         if (Card is EventCard)
-            return EventCardDTO.GetStaticSize(((EventCard)Card).EventData.Type);
+            return EventCardDTO.GetStaticSize();
 
         return CardDTO.GetStaticSize();
     }
@@ -200,7 +206,36 @@ public abstract class CardCollection : GameService, ISaveableService
         gameObject.SetActive(bShow);
     }
 
-    public virtual void Load() { }
+    public virtual void OnLoaded()
+    {
+        Card[] PinnedCardOrder = new Card[Cards.Count];
+        List<Card> NonPinnedCards = new();
+        foreach (Card Card in Cards)
+        {
+            if (!Card.IsPinned())
+            {
+                NonPinnedCards.Add(Card);
+                continue;
+            }
+
+            PinnedCardOrder[Card.GetPinnedIndex()] = Card;
+        }
+
+        for (int i = 0; i < PinnedCardOrder.Length; i++)
+        {
+            if (PinnedCardOrder[i] == null)
+            {
+                Card Card = NonPinnedCards[0];
+                SetIndex(Card, i);
+                NonPinnedCards.Remove(Card);
+                PinnedCardOrder[i] = Card;
+            }
+            else
+            {
+                SetIndex(PinnedCardOrder[i], i);
+            }
+        }
+    }
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 

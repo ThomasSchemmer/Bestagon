@@ -30,7 +30,7 @@ public class BuildingCardDTO : CardDTO
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(BuildingCardDTO.GetStaticSize(), base.GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, BuildingData);

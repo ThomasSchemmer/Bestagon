@@ -27,11 +27,6 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         return false;
     }
 
-    public virtual void SetIndex(int i)
-    {
-        transform.SetSiblingIndex(i);
-    }
-
     public virtual void OnBeginDrag(PointerEventData eventData)
     {
         bIsBeingDragged = CanBeDragged();

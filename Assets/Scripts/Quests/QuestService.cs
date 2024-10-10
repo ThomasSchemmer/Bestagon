@@ -450,7 +450,7 @@ public class QuestService : GameService, ISaveableService
         transform.GetChild(0).gameObject.SetActive(bShow);
     }
 
-    public void Load()
+    public void OnLoaded()
     {
         _OnInit?.Invoke(this);
     }

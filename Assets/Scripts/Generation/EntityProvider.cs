@@ -75,17 +75,14 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         Entities = new();
         for (int i = 0; i < EntitiesLength; i++)
         {
-            throw new System.Exception("Not yet implemented");
-            /*
-            UnitEntity.CreateFromSave(Bytes, Pos, out ScriptableEntity Entity);
+            ScriptableEntity.CreateFromSave(Bytes, Pos, out ScriptableEntity Entity);
             if (Entity is not T)
             {
-                Destroy(Entity);
-                continue;
+                throw new System.Exception("Cannot create entity from data entry");
             }
 
+            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Entity);
             Entities.Add(Entity as T);
-            */
         }
     }
 

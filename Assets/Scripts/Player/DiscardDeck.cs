@@ -13,14 +13,17 @@ public class DiscardDeck : CardCollection {
 
     protected override void StartServiceInternal()
     {
-        base.StartServiceInternal();
-        Text.text = "" + Cards.Count;
-        _OnInit?.Invoke(this);
+        Game.RunAfterServiceInit((RelicService RelicService) =>
+        {
+            base.StartServiceInternal();
+            Text.text = "" + Cards.Count;
+            _OnInit?.Invoke(this);
+        });
     }
 
-    public override void Load()
+    public override void OnLoaded()
     {
-        base.Load();
+        base.OnLoaded();
 
     }
 

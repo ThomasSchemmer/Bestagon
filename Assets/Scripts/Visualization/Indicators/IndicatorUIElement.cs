@@ -5,6 +5,12 @@ using UnityEngine;
 /** Empty UI shell that foces the Indicator to be ignored for clicks */
 public class IndicatorUIElement : MonoBehaviour, UIElement
 {
+    public void Start()
+    {
+        // @ShouldBeIgnored causes the hover to be swallowed, making buttons ontop not interactable anymore
+        gameObject.layer = 0;
+    }
+
     public bool CanBeLongHovered()
     {
         return false;

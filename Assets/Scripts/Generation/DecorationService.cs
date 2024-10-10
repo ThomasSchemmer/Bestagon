@@ -19,4 +19,8 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
         Entities.Add(Decoration);
         _OnEntityCreated.ForEach(_ => _.Invoke(Decoration));
     }
+    protected override void StartServiceInternal()
+    {
+        _OnInit?.Invoke(this);
+    }
 }

@@ -13,14 +13,18 @@ public abstract class IndicatorComponent : MonoBehaviour
         Service.Register(this);
     }
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         if (!Service)
             return;
 
         for (int i = Indicators.Length - 1; i >= 0; i--)
         {
+            if (Indicators[i] == null)
+                continue;
+
             Destroy(Indicators[i].gameObject);
+            Indicators[i] = null;
         }
 
         Service.Deregister(this);
@@ -28,7 +32,7 @@ public abstract class IndicatorComponent : MonoBehaviour
 
     protected abstract int GetIndicatorAmount();
 
-    protected abstract Vector3 GetIndicatorWorldPosition(int i);
+    protected abstract void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform);
     protected abstract Sprite GetIndicatorSprite(int i);
     protected abstract void Initialize();
 
@@ -72,8 +76,7 @@ public abstract class IndicatorComponent : MonoBehaviour
         if (Indicators[i] == null)
             return;
 
-        Indicators[i].position = Service.WorldPosToScreenPos(GetIndicatorWorldPosition(i));
-        Indicators[i].position += GetIndicatorScreenOffset(i);
+        ApplyIndicatorScreenPosition(i, Indicators[i]);
     }
 
     public void UpdateSpritesVisuals()

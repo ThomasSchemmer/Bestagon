@@ -13,12 +13,9 @@ public class IndicatorService : GameService
 
     protected override void StartServiceInternal(){
         MainCam = Camera.main;
-        Workers._OnWorkersAssigned += OnWorkerChanged;
     }
 
-    protected override void StopServiceInternal(){
-        Workers._OnWorkersAssigned -= OnWorkerChanged;
-    }
+    protected override void StopServiceInternal(){}
 
     public void FixedUpdate()
     {
@@ -33,17 +30,6 @@ public class IndicatorService : GameService
             IndicatorMap.Remove(Key);
         }
         MarkedToDelete.Clear();
-    }
-
-    private void OnWorkerChanged(Location Location)
-    {
-        foreach (var Key in IndicatorMap.Keys)
-        {
-            if (!Key.IsFor(Location))
-                continue;
-
-            Key.UpdateSpritesVisuals();
-        }
     }
 
     public void Register(IndicatorComponent IndComp) {

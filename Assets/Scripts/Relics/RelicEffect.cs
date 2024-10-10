@@ -22,17 +22,19 @@ public class RelicEffect : GameplayEffect
 
     public ActionList<Unlockables.State> OnDiscoveryChanged = new();
 
-    public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle;
-    public static int MaxIndex = 2;
+    public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle | RelicType.Abacus;
+    public static int MaxIndex = 3;
 }
 
 [Flags]
 public enum RelicType : uint
 {
+    // dont forget to list it in a category and update max index!
     DEFAULT = 255,
     Calligulae = 1 << 0,
     WoodenMallet = 1 << 1,
     Cradle = 1 << 2,
+    Abacus = 1 << 3
 }
 
 /** Saveable version of relics, identifiable by type-derived name */

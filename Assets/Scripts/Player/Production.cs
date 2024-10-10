@@ -88,6 +88,15 @@ public class Production : ISaveableData
         }
     }
 
+
+    public Production(List<Tuple<Type, int>> Tuples) : this()
+    {
+        foreach (Tuple<Type, int> Tuple in Tuples)
+        {
+            _Production.Add(Tuple.Key, Tuple.Value);
+        }
+    }
+
     public bool Contains(Type Type)
     {
         return _Production.ContainsKey(Type);

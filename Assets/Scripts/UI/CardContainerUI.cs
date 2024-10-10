@@ -24,12 +24,12 @@ public class CardContainerUI : CardCollection
         VerticalBar.value -= Diff * ScrollSpeed;
         VerticalBar.value = Mathf.Clamp(VerticalBar.value, 0, 1);
         PrevScrollValue = VerticalBar.value;
-        CardScreen.HideUpgradeButton();
+        CardScreen.HideCardButtons();
     }
     
-    public override void Load()
+    public override void OnLoaded()
     {
-        base.Load();
+        base.OnLoaded();
         CanvasGroup CanvasGroup = GetComponent<CanvasGroup>();
         if (!CanvasGroup)
             return;

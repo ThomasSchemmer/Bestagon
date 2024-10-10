@@ -20,7 +20,7 @@ public class ConvertTilePreview : IconPreview
 
     private void InitAsConvertTile(EventCard EventCard)
     {
-        GrantedType = (EventCard.EventData as ConvertTileEventData).TargetType;
+        GrantedType = (EventCard.EventData as ConvertTileEventData).TargetHexType;
     }
 
     public override bool IsFor(Card Card)
@@ -28,7 +28,7 @@ public class ConvertTilePreview : IconPreview
         if (Card is not EventCard || (Card as EventCard).EventData.Type != EventData.EventType.ConvertTile)
             return false;
 
-        HexagonConfig.HexagonType OtherType = ((Card as EventCard).EventData as ConvertTileEventData).TargetType;
+        HexagonConfig.HexagonType OtherType = ((Card as EventCard).EventData as ConvertTileEventData).TargetHexType;
         return GrantedType == OtherType;
     }
     protected override GameObject CreateVisuals()

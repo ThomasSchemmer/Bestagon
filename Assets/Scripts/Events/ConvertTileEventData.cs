@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class ConvertTileEventData : EventData
 {
-    public HexagonConfig.HexagonType TargetType;
 
     public ConvertTileEventData()
     {
@@ -21,7 +20,7 @@ public class ConvertTileEventData : EventData
         if (!BuildingService.TryGetRandomUnlockedTile(out HexagonConfig.HexagonType GrantedType))
             return;
 
-        TargetType = GrantedType;
+        TargetHexType = GrantedType;
     }
 
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
@@ -75,7 +74,7 @@ public class ConvertTileEventData : EventData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        if (!MapGenerator.TrySetHexagonData(Hex.Location, HexagonConfig.HexagonHeight.Flat, TargetType))
+        if (!MapGenerator.TrySetHexagonData(Hex.Location, HexagonConfig.HexagonHeight.Flat, TargetHexType))
             return;
         
         if (!MapGenerator.TryGetChunkVis(Hex.Location, out ChunkVisualization ChunkVis))
@@ -106,35 +105,4 @@ public class ConvertTileEventData : EventData
         Bonus = GetStandardAdjacencyBonus();
         return true;
     }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)TargetType);
-
-        return Bytes.ToArray();
-    }
-
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        // HexagonType
-        return EventData.GetStaticSize() + 1;
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bTargetType);
-
-        TargetType = (HexagonConfig.HexagonType)bTargetType;
-    }
-
 }

@@ -627,7 +627,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         }
     }
 
-    public void Load()
+    public void OnLoaded()
     {
         GenerateMap();
     }

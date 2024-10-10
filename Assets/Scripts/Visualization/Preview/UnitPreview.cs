@@ -25,7 +25,7 @@ public class UnitPreview : MeshPreview
         if (!Game.TryGetService(out MeshFactory MeshFactory))
             return null;
 
-        return MeshFactory.GetMeshFromType(UnitData.GrantedType);
+        return MeshFactory.GetMeshFromType(UnitData.GrantedUnitType);
     }
 
     public override Material GetPreviewMaterial()
@@ -42,6 +42,6 @@ public class UnitPreview : MeshPreview
             return false;
 
         EventCard OtherCard = (EventCard)Card;
-        return GetPreviewableAs<GrantUnitEventData>().GrantedType == (OtherCard.EventData as GrantUnitEventData).GrantedType;
+        return GetPreviewableAs<GrantUnitEventData>().GrantedUnitType == (OtherCard.EventData as GrantUnitEventData).GrantedUnitType;
     }
 }

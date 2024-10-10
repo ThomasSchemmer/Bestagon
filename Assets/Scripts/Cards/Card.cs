@@ -8,6 +8,13 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
+/**
+ * Base class for any card, visualized as a playing card in the game
+ * Can be selected by the player (displaying additional hover tooltips) and "played",
+ * providing different effects according to type. 
+ * Can be assigned to different @CardCollections 
+ * Will not be saved, as its mostly visualization! See @CardDTO 
+ */
 public abstract class Card : Draggable, ISelectable
 {        
     public enum Visibility : uint
@@ -20,7 +27,7 @@ public abstract class Card : Draggable, ISelectable
     public virtual void Init(int Index) {
         CardHand = Game.GetService<CardHand>();
         ID = System.Guid.NewGuid();
-        this.Index = Index;
+        transform.SetSiblingIndex(Index);
         gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         GenerateCard();
         Init();
@@ -167,15 +174,10 @@ public abstract class Card : Draggable, ISelectable
 
     private void SetHoveredCardSelection(bool Hovered)
     {
-        if (!CanBeUpgraded())
-        {
-            Hovered = false;
-        }
-
         if (!Game.TryGetService(out CardUpgradeScreen CardScreen))
             return;
 
-        CardScreen.ShowButtonAtCard(this, Hovered);
+        CardScreen.ShowButtonsAtCard(this, Hovered);
     }
 
     private void SetHoveredGame(bool Hovered)
@@ -219,18 +221,57 @@ public abstract class Card : Draggable, ISelectable
         return isSelected;
     }
 
-    public int GetIndex() {
-        if (isHovered)
-            return -1;
-        if (isSelected)
-            return 0;
-        return Index;
+    public bool IsPinned()
+    {
+        return PinnedIndex > -1;
     }
 
-    public override void SetIndex(int i)
+    public void SetPinned(int InIndex) {
+        PinnedIndex = InIndex;
+
+        if (!Game.IsIn(Game.GameState.CardSelection))
+            return;
+
+        if (PinnedIndex < 0)
+        {
+            DeletePinnedIndicator();
+        }
+        else
+        {
+            CreatePinnedIndicator();
+        }
+    }
+
+    private void DeletePinnedIndicator()
     {
-        base.SetIndex(i);
-        Index = i;
+        if (!Game.TryGetService(out IndicatorService IndicatorService))
+            return;
+
+        if (!TryGetComponent<PinnedIndicator>(out var Indicator))
+            return;
+
+        DestroyImmediate(Indicator);
+    }
+
+    private void CreatePinnedIndicator()
+    {
+        if (TryGetComponent<PinnedIndicator>(out var _))
+            return;
+
+        gameObject.AddComponent<PinnedIndicator>();
+    }
+
+    public int GetPinnedIndex()
+    {
+        return PinnedIndex;
+    }
+
+    public int GetIndex(bool bForce = false) {
+        if (isHovered && !bForce)
+            return -1;
+        if (isSelected && !bForce)
+            return 0;
+        return transform.GetSiblingIndex();
     }
 
     public void SetCanBeHovered(bool bNewState)
@@ -238,12 +279,18 @@ public abstract class Card : Draggable, ISelectable
         bCanBeHovered = bNewState;
     }
 
+
     public bool CanBeInteracted()
     {
         if (Game.Instance.bIsPaused)
             return false;
 
         return bCanBeHovered;
+    }
+
+    public CardCollection GetCurrentCollection()
+    {
+        return Collection;
     }
 
     public void Use()
@@ -286,7 +333,9 @@ public abstract class Card : Draggable, ISelectable
 
         CardCollection NewCollection = transform.parent.GetComponent<CardCollection>();
         OldCollection.RemoveCard(this);
+        OldCollection.UpdatePinnedIndices();
         NewCollection.SetIndex(this, Index);
+        NewCollection.UpdatePinnedIndices();
     }
 
     public override void OnBeginDrag(PointerEventData eventData)
@@ -316,7 +365,9 @@ public abstract class Card : Draggable, ISelectable
 
     public void OnAssignedToCollection(CardCollection Target)
     {
-        // card selection has drag and drop
+        Collection = Target;
+
+        // card selection has drag and drop, skip animations
         if (Game.IsIn(Game.GameState.CardSelection))
             return;
         if (Animations.Count == 0)
@@ -338,15 +389,16 @@ public abstract class Card : Draggable, ISelectable
         ((ISelectable)this).GetSelectorByType().SetHovered(this, Hovered);
     }
 
-    protected System.Guid ID;
-    protected int Index;
+    protected Guid ID;
     protected bool isHovered, isSelected;
     protected bool bCanBeHovered = false;
     protected bool bWasUsedUp = false;
+    protected int PinnedIndex = -1;
     protected TextMeshProUGUI NameText;
     protected RectTransform CostTransform, SymbolTransform, UsagesTransform, EffectTransform;
     protected Image CardBaseImage, CardImage;
     protected CardHand CardHand;
+    protected CardCollection Collection;
 
     protected CardCollection OldCollection;
     public List<CardMoveAnimation> Animations = new();

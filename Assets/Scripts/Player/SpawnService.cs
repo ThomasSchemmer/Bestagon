@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class SpawnSystem : GameService, ISaveableService
+public class SpawnService : GameService, ISaveableService
 {
     protected override void StartServiceInternal()
     {
@@ -104,7 +104,7 @@ public class SpawnSystem : GameService, ISaveableService
     public Vector4 StartLocation;
     public int StartVisibilityRange = 2;
     public int StartScoutingRange = 1;
-
+    
     private int DiscoveredCount = 0;
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;

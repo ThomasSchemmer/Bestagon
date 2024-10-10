@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GrantResourceEventData : EventData
 {
-    public Production GrantedResource;
 
     public GrantResourceEventData()
     {
@@ -40,35 +39,6 @@ public class GrantResourceEventData : EventData
             return null;
 
         return IconFactory.GetVisualsForGrantResourceEffect(this, Parent);
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, GrantedResource);
-
-        return Bytes.ToArray();
-    }
-
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        return EventData.GetStaticSize() + Production.GetStaticSize();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        GrantedResource = Production.Empty;
-
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, GrantedResource);
     }
 
     public override void InteractWith(HexagonVisualization Hex)

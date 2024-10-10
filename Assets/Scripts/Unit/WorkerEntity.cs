@@ -62,7 +62,8 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
 
     public override byte[] GetData()
     {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(this, base.GetSize(), base.GetData());
+        int TotalSize = GetStaticSize();
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(TotalSize, base.GetSize(), base.GetData());
 
         int Pos = base.GetSize();
         bool bIsEmployed = AssignedBuilding != null;

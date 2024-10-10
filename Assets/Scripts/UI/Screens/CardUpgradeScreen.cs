@@ -1,20 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CardUpgradeScreen : GameService
 {
     public RectTransform UpgradeButton;
+    public RectTransform PinButton;
     public GameObject RegularCardContainer, UpgradedCardContainer, UpgradeArrow, ConfirmButton;
     public CardSelectionUI CardSelectionUI;
     public GameObject UpgradeButtonPrefab;
     public List<GameObject> ToHide = new();
     public List<GameObject> ToDim = new();
+    public Sprite PinInactive, PinActive;
 
     //for now only BuildingCards can be upgraded
-    private BuildingCard LastCard = null, CopyCard = null, UpgradedCard = null;
+    private Card LastCard = null;
+    private BuildingCard CopyCard = null, UpgradedCard = null;
     private BuildingEntity UpgradedBuildingData;
 
     public enum UpgradeableAttributes
@@ -70,34 +74,72 @@ public class CardUpgradeScreen : GameService
         {
             Destroy(UpgradedCard.gameObject);
         }
+        HideCardButtons();
     }
 
-    public void ShowButtonAtCard(Card Card, bool bIsVisible) {
+    public void ShowButtonsAtCard(Card Card, bool bIsVisible) {
 
-        bIsVisible = Card is BuildingCard ? bIsVisible : false;
         bIsVisible = Game.TryGetService(out DraggableManager DraggableManager) && !DraggableManager.IsDragging() ? bIsVisible : false;
+        ShowUpgradeButtonAtCard(Card, bIsVisible);
+        ShowPinButtonAtCard(Card, bIsVisible);
 
+        LastCard = Card;
+    }
+
+    private void ShowUpgradeButtonAtCard(Card Card, bool bIsVisible)
+    {
+        bool bIsBuildingCard = Card is BuildingCard;
         bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.CanAffordUpgrade(1);
+        bool bCanBeUpgraded = Card.CanBeUpgraded();
+        bIsVisible = bIsVisible && bIsBuildingCard && bHaveEnoughUpgrades && bCanBeUpgraded;
+
+        RectTransform RectTransform = Card.GetComponent<RectTransform>();
+        Vector3 TargetPosition = RectTransform.position;
+        TargetPosition.x += 200 / 2f - 15 - 35;
+        TargetPosition.y += 320 / 2f - 15;
+        Vector3 OffsetWorld = TargetPosition - UpgradeButton.position;
+        Vector3 OffsetLocal = UpgradeButton.InverseTransformVector(OffsetWorld);
+        UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
+        UpgradeButton.gameObject.SetActive(bIsVisible);
+    }
+
+    private void ShowPinButtonAtCard(Card Card, bool bIsVisible)
+    {
+        CardContainerUI Container = Card.GetCurrentCollection() as CardContainerUI;
+        bool bIsActive = Container != null && Container.bIsActiveCards;
+        bIsVisible = bIsVisible && bIsActive;
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
         TargetPosition.x += 200 / 2f - 15;
         TargetPosition.y += 320 / 2f - 15;
-        Vector3 OffsetWorld = TargetPosition - UpgradeButton.position;
-        Vector3 OffsetLocal = UpgradeButton.InverseTransformVector(OffsetWorld);
-        UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
-        UpgradeButton.gameObject.SetActive(bIsVisible && bHaveEnoughUpgrades);
-
-        LastCard = Card as BuildingCard;
+        Vector3 OffsetWorld = TargetPosition - PinButton.position;
+        Vector3 OffsetLocal = PinButton.InverseTransformVector(OffsetWorld);
+        PinButton.GetComponent<Image>().sprite = Card.IsPinned() ? PinActive : PinInactive;
+        PinButton.anchoredPosition = PinButton.anchoredPosition + (Vector2)OffsetLocal;
+        PinButton.gameObject.SetActive(bIsVisible);
     }
 
-    public void HideUpgradeButton()
+    private void HideUpgradeButton()
     {
         UpgradeButton.gameObject.SetActive(false);
     }
 
+    private void HidePinButton()
+    {
+        PinButton.gameObject.SetActive(false);
+    }
+
+    public void HideCardButtons()
+    {
+        HideUpgradeButton();
+        HidePinButton();
+    }
+
     public void LoadCard()
     {
+        if (LastCard is not BuildingCard)
+            return;
         if (!Game.TryGetService(out CardFactory CardFactory))
             return;
 
@@ -106,12 +148,13 @@ public class CardUpgradeScreen : GameService
 
     private void OnLoadedCard(Card Card)
     {
+        BuildingCard LastBuildingCard = LastCard as BuildingCard;
         CopyCard = Card as BuildingCard;
 
         MoveToContainer(CopyCard.gameObject, false);
-        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
-        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
-        ConvertToButton(LastCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
+        ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
+        ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
+        ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
         EnableConfirmButton(false);
     }
 
@@ -147,10 +190,13 @@ public class CardUpgradeScreen : GameService
 
     private void SelectUpgrade(UpgradeableAttributes SelectedUpgrade)
     {
+        if (LastCard is not BuildingCard)
+            return;
         if (!Game.TryGetService(out CardFactory CardFactory))
             return;
 
-        UpgradedBuildingData = Instantiate(LastCard.GetBuildingData());
+        BuildingCard LastBuildingCard = LastCard as BuildingCard;
+        UpgradedBuildingData = Instantiate(LastBuildingCard.GetBuildingData());
         UpgradedBuildingData.Upgrade(SelectedUpgrade);
         UpgradedCardContainer.SetActive(true);
         UpgradeArrow.SetActive(true);
@@ -175,15 +221,29 @@ public class CardUpgradeScreen : GameService
 
     public void ConfirmUpgrade()
     {
+        if (LastCard is not BuildingCard)
+            return;
         if (!Game.TryGetService(out Stockpile Stockpile))
             return;
 
         Destroy(CopyCard.gameObject);
-        LastCard.SetBuildingData(UpgradedBuildingData);
+        BuildingCard LastBuildingCard = LastCard as BuildingCard;
+        LastBuildingCard.SetBuildingData(UpgradedBuildingData);
         LastCard.GenerateCard();
         Hide();
         Stockpile.AddUpgrades(-1);
         CardSelectionUI.UpdateText();
+    }
+
+    public void OnPinCard()
+    {
+        if (LastCard == null)
+            return;
+
+        bool bShouldBePinned = !LastCard.IsPinned();
+        int Index = bShouldBePinned ? LastCard.GetIndex(true) : -1;
+        LastCard.SetPinned(Index);
+        ShowButtonsAtCard(LastCard, true);
     }
 
     protected override void StartServiceInternal() {}

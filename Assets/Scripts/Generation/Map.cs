@@ -66,7 +66,7 @@ public class Map : GameService
 
     protected void FindValidStartingSeed(WorldGenerator WorldGenerator)
     {
-        if (!Game.TryGetService(out SpawnSystem SpawnSystem))
+        if (!Game.TryGetService(out SpawnService SpawnSystem))
             return;
 
         if (Game.Instance.Mode == Game.GameMode.MapEditor)
@@ -100,7 +100,7 @@ public class Map : GameService
         UnityEngine.Debug.Log("Found a seed/start after " + Iteration + " tries - seed: "+Seed+" reachable locations: "+LocationsCount);
     }
 
-    private bool EvaluateSeed(WorldGenerator WorldGenerator, SpawnSystem SpawnSystem, int Seed, PriorityQueue<int> Seeds, out int LocationsCount)
+    private bool EvaluateSeed(WorldGenerator WorldGenerator, SpawnService SpawnSystem, int Seed, PriorityQueue<int> Seeds, out int LocationsCount)
     {
         Location StartLocation = Location.CreateFromVector(SpawnSystem.StartLocation);
         MapData = WorldGenerator.NoiseLand(true, Seed);
