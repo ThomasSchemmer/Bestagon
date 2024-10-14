@@ -57,7 +57,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
 
         Production UnlockedCost = new();
         int Seed = UnityEngine.Random.Range(0, 100);
-        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true);
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true, false);
         BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
         UnlockedCost += Building.Cost;
         Destroy(Building);
@@ -89,7 +89,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
             return false;
 
         int Seed = UnityEngine.Random.Range(0, 100);
-        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true);
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true, false);
         BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
         HexagonConfig.HexagonType UnlockedHexTypes = Building.BuildableOn;
         Destroy(Building);
@@ -138,10 +138,10 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         int Mask = (int)CategoryType;
         for (int i = 0; i < BuildingConfig.MaxIndex; i++)
         {
-            if ((Mask & (i << 1)) == 0)
+            if ((Mask & (1 << i)) == 0)
                 continue;
 
-            UnlockableBuildings[(BuildingConfig.Type)i] = Unlockables.State.Unlocked;
+            UnlockableBuildings[(BuildingConfig.Type)(1 << i)] = Unlockables.State.Unlocked;
         }
     }
 

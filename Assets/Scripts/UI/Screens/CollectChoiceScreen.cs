@@ -120,20 +120,21 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetServices(out BuildingService BuildingService, out CardFactory CardFactory))
             return;
 
-        BuildingConfig.Type BuildingToUnlock;
+        BuildingConfig.Type TargetBuilding;
         if (ShouldCardBeUnlocked(ChoiceIndex))
         {
             // preview cause we dont wanna unlock it just yet - wait for the actual choice
-            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out BuildingToUnlock, true))
+            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out TargetBuilding, true))
                 return;
         }
         else
         {
-            BuildingToUnlock = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex, Unlockables.State.Unlocked, true);
+            // just get a random, already unlocked one to duplicate
+            TargetBuilding = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex, Unlockables.State.Unlocked, true, false);
         }
 
         PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
-        CardFactory.CreateCard(BuildingToUnlock, ChoiceIndex, CardContainer, Callback);
+        CardFactory.CreateCard(TargetBuilding, ChoiceIndex, CardContainer, Callback);
     }
 
 

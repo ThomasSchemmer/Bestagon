@@ -35,12 +35,6 @@ public class MerchantSellScreen : StockpileScreen
     {
         return false;
     }
-
-    protected override bool ShouldDisplayUpgrades()
-    {
-        return false;
-    }
-
     protected override bool ShouldDisplayWorkers()
     {
         return false;

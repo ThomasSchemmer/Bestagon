@@ -37,9 +37,11 @@ public abstract class StarvableUnitEntity : UnitEntity
         int MaxFoodIndex = (int)Production.GoodsType.LuxuryItems - 1;
         int FoodConsumption = GetFoodConsumption();
         // todo: make optimal instead of greedy
-        for (int i = MaxFoodIndex; i >= MinFoodIndex; i--)
+        int i = MaxFoodIndex;
+        while (i >= MinFoodIndex && FoodConsumption > 0)
         {
             Production.Type FoodType = (Production.Type)i;
+            i--;
             int Nutrition = Production.GetNutrition(FoodType);
             int AvailableNutrition = Food[FoodType] * Nutrition;
             if (AvailableNutrition == 0)

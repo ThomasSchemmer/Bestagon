@@ -23,6 +23,12 @@ public class UnlockNewCardScreen : CollectChoiceScreen
 
     public void OnClickUnlock()
     {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        if (!Stockpile.CanAffordUpgrade(GetUpgradeCostsForChoice(0)))
+            return;
+
         Show();
         Create();
     }

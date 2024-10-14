@@ -5,14 +5,37 @@ using UnityEngine;
 
 public class AbandonScreen : ScreenUI
 {
+    protected NumberedIconScreen UpgradesScreen;
+
     protected override void Initialize()
     {
         base.Initialize();
+
+        InitUpgradeVisuals();
 
         if (Game.Instance.Mode != Game.GameMode.Game)
         {
             Hide();
         }
+    }
+
+    private void InitUpgradeVisuals()
+    {
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return;
+
+        GameObject UpgradesVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Upgrades, null, 0, false, true);
+        this.UpgradesScreen = UpgradesVisuals.GetComponent<NumberedIconScreen>();
+        this.UpgradesScreen.HoverTooltip = "Upgrade points";
+        RectTransform UpgradesScreen = UpgradesVisuals.GetComponent<RectTransform>();
+        UpgradesScreen.SetParent(Container.transform, false);
+        UpgradesScreen.anchoredPosition = new(85, -25);
+
+
+        Game.RunAfterServicesInit((Stockpile Stockpile, IconFactory IconFactory) =>
+        {
+            Stockpile._OnUpgradesChanged += UpdateUpgradesVisuals;
+        });
     }
 
     public void OnClick()
@@ -32,5 +55,18 @@ public class AbandonScreen : ScreenUI
     public void Show(bool bShow)
     {
         gameObject.SetActive(bShow);
+    }
+
+    private void UpdateUpgradesVisuals()
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return;
+
+        UpgradesScreen.UpdateVisuals(Stockpile.GetUpgradePoints());
+    }
+
+    private void OnDestroy()
+    {
+        Stockpile._OnUpgradesChanged -= UpdateUpgradesVisuals;
     }
 }

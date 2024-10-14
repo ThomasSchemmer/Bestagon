@@ -12,7 +12,7 @@ public class IconFactory : GameService
     public SerializedDictionary<BuildingConfig.Type, Sprite> AvailableBuildingTypes = new();
     public SerializedDictionary<MiscellaneousType, Sprite> AvailableMiscellaneous = new();
 
-    private GameObject ProductionGroupPrefab, NumberedIconPrefab, SimpleIconPrefab, ProduceEffectPrefab;
+    private GameObject ProductionGroupPrefab, NumberedIconPrefab, NumberedIconHighlightedPrefab, SimpleIconPrefab, ProduceEffectPrefab;
     private GameObject ProduceUnitEffectPrefab, GrantMiscPrefab, GrantResourceEventEffectPrefab;
     private GameObject ProduceConsumeEffectPrefab;
     private GameObject UpgradeButtonPrefab;
@@ -52,6 +52,7 @@ public class IconFactory : GameService
     {
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;
         NumberedIconPrefab = Resources.Load("UI/NumberedIcon") as GameObject;
+        NumberedIconHighlightedPrefab = Resources.Load("UI/NumberedIconHighlighted") as GameObject;
         SimpleIconPrefab = Resources.Load("UI/SimpleIcon") as GameObject;
         ProduceEffectPrefab = Resources.Load("UI/Cards/ProduceEffect") as GameObject;
         ProduceUnitEffectPrefab = Resources.Load("UI/Cards/ProduceUnitEffect") as GameObject;
@@ -341,9 +342,9 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount, bool bIgnore = false)
+    public GameObject GetVisualsForMiscalleneous(MiscellaneousType Type, ISelectable Parent, int Amount, bool bIgnore = false, bool bHighlight = false)
     {
-        GameObject MiscUnit = Instantiate(NumberedIconPrefab);
+        GameObject MiscUnit = Instantiate(bHighlight ? NumberedIconHighlightedPrefab : NumberedIconPrefab);
         NumberedIconScreen IconScreen = MiscUnit.GetComponent<NumberedIconScreen>();
 
         IconScreen.Initialize(GetIconForMisc(Type), Type.ToString(), Parent);

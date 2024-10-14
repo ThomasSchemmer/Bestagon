@@ -18,28 +18,36 @@ MonoBehaviour:
   BuildingType: 4096
   Cost:
     _Production:
-      Tuples: []
+      Tuples:
+      - Key: 0
+        Value: 3
+      - Key: 1
+        Value: 2
+      - Key: 3
+        Value: 3
   Effect:
     EffectType: 1
     UnitType: 0
-    TileType: 0
+    TileType: 4
     Production:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 22
+          Value: 0
     Consumption:
       _Production:
         Tuples: []
-    Range: 0
+    Range: 1
     UpgradeTileType: 0
     UpgradeProduction:
       _Production:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 0
+  BuildableOn: 4
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 1
+  UpgradeMaxWorker: 2
   UpgradeBuildableOn: 0
-  UpgradeMaxUsages: 1
+  UpgradeMaxUsages: 3
   Visualization: {fileID: 0}

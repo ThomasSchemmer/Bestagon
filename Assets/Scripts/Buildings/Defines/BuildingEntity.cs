@@ -16,6 +16,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     public OnTurnBuildingEffect Effect = null;
     public int MaxWorker = 1;
     public HexagonConfig.HexagonType BuildableOn = 0;
+    [HideInInspector]
     public int CurrentUsages = 1;
     public int MaxUsages = 1;
 

@@ -91,6 +91,10 @@ public class CheatService : ScreenUI
         {
             Scout(Cheats);
         }
+        if (Cheats[0].Equals(ACTIVATE_CODE))
+        {
+            ActiveRelic(Cheats);
+        }
         if (Cheats[0].Equals(VANISH_CODE))
         {
             DestroyAllCards(Cheats);
@@ -273,9 +277,31 @@ public class CheatService : ScreenUI
     {
         string TargetName = GetTargetName(Cheats);
         int TargetIndex = GetTargetIndex(TargetName, typeof(BuildingConfig.Type));
-        if (TargetIndex == -1)
+        if (TargetIndex > -1)
+        {
+            UnlockBuilding(TargetIndex);
+            return;
+        }
+        TargetIndex = GetTargetIndex(TargetName, typeof(RelicType));
+        if (TargetIndex > -1)
+        {
+            UnlockRelic(TargetIndex);
+            return;
+        }
+    }
+
+    private void UnlockRelic(int TargetIndex, bool bShouldActivate = false)
+    {
+        if (!Game.TryGetService(out RelicService RelicService))
             return;
 
+        RelicType TargetType = (RelicType)HexagonConfig.IntToMask(TargetIndex);
+        RelicService.SetRelic(TargetType, bShouldActivate ? Unlockables.State.Active : Unlockables.State.Unlocked);
+        Debug.Log("Unlocked " + TargetType);
+    }
+
+    private void UnlockBuilding(int TargetIndex)
+    {
         if (!Game.TryGetService(out BuildingService BuildingService))
             return;
 
@@ -284,8 +310,19 @@ public class CheatService : ScreenUI
         Debug.Log("Unlocked " + TargetType);
     }
 
+    private void ActiveRelic(string[] Cheats)
+    {
+        string TargetName = GetTargetName(Cheats);
+        int TargetIndex = GetTargetIndex(TargetName, typeof(RelicType));
+        if (TargetIndex == -1)
+            return;
+
+        UnlockRelic(TargetIndex, true);
+    }
+
     private static string TOKEN_DIVIDER = " ";
     private static string UNLOCK_CODE = "unlock";
+    private static string ACTIVATE_CODE = "activate";
     private static string CARD_CODE = "givecard";
     private static string RESOURCE_CODE = "giveresource";
     private static string QUEST_CODE = "givequest";

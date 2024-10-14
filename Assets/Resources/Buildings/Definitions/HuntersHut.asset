@@ -20,7 +20,9 @@ MonoBehaviour:
     _Production:
       Tuples:
       - Key: 0
-        Value: 0
+        Value: 4
+      - Key: 1
+        Value: 1
   Effect:
     EffectType: 1
     UnitType: 0

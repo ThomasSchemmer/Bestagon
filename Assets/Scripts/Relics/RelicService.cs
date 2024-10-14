@@ -16,6 +16,9 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
     public GameObject RelicIconPrefab;
     public GameObject RelicIconPreviewPrefab;
 
+    public int MaxActiveRelics = 3;
+    public int CurrentActiveRelics = 0;
+
     public byte[] GetData()
     {
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
@@ -54,7 +57,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
         {
             RelicDTO DTO = new();
             Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
-            UnlockableRelics[DTO.Type] = DTO.State;
+            SetRelic(DTO.Type, DTO.State);
         }
     }
 
@@ -120,6 +123,13 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
 
     public void SetRelic(RelicType Type, Unlockables.State State)
     {
+        if (CurrentActiveRelics == MaxActiveRelics)
+        {
+            ConfirmScreen.Show("Cannot active another relic, reached max capacity!", OnSetRelicConfirm);
+            return;
+        }
+
+        Unlockables.State OldState = UnlockableRelics[Type];
         UnlockableRelics[Type] = State;
 
         Game.RunAfterServiceInit((GameplayAbilitySystem GAS) =>
@@ -128,16 +138,36 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
             if (Player == null)
                 return;
 
-            if (State == Unlockables.State.Active)
+            if (OldState != Unlockables.State.Active && State == Unlockables.State.Active)
             {
                 GAS.TryApplyEffectTo(Player, Relics[Type]);
+                CurrentActiveRelics++;
             }
-            if (State == Unlockables.State.Unlocked)
+            if (OldState == Unlockables.State.Active && State != Unlockables.State.Active)
             {
                 Player.RemoveEffect(Relics[Type]);
+                CurrentActiveRelics--;
             }
         });
+
+        if (OldState == State)
+            return;
+
         Relics[Type].BroadcastDiscoveryChanged(State);
+        OnRelicDiscoveryChanged.ForEach(_ => _.Invoke(Type, State));
+    }
+
+    public bool HasIdleSpot()
+    {
+        if (UnlockableRelics.GetCountOfState(Unlockables.State.Unlocked) == 0)
+            return false;
+
+        return CurrentActiveRelics < MaxActiveRelics;
+    }
+
+    public void OnSetRelicConfirm()
+    {
+        // TODO: empty stud for now
     }
 
     protected override void StopServiceInternal() {}
@@ -151,4 +181,6 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
     {
         LoadRelics();
     }
+
+    public ActionList<RelicType, Unlockables.State> OnRelicDiscoveryChanged = new();
 }

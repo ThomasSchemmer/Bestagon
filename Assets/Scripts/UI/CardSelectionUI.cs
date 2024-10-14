@@ -18,18 +18,25 @@ public class CardSelectionUI : MonoBehaviour
 
     public void OnConfirm()
     {
-        if (!Game.TryGetService(out Stockpile Stockpile))
+        if (!Game.TryGetServices(out Stockpile Stockpile, out RelicService RelicService))
             return;
 
+        bool bAllGood = true;
         if (Stockpile.CanAffordUpgrade(1))
         {
-
             ConfirmScreen.Show("You have unspend upgrade points. Are you sure you want to leave?", ConfirmLeave);
+            bAllGood = false;
         }
-        else
+        if (RelicService.HasIdleSpot())
         {
-            ConfirmLeave();
+            ConfirmScreen.Show("You can assign more relics. Are you sure you want to leave?", ConfirmLeave);
+            bAllGood = false;
         }
+
+        if (!bAllGood)
+            return;
+
+        ConfirmLeave();
     }
 
     private void ConfirmLeave()

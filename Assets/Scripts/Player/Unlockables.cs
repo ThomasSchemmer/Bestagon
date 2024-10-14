@@ -36,7 +36,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         if (!Service.IsInit())
             return false;
 
-        Type = GetRandomOfState(Seed, State.Locked, false);
+        Type = GetRandomOfState(Seed, State.Locked, false, true);
 
         if (!bIsPreview)
         {
@@ -65,7 +65,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         return this[Type] == State.Locked;
     }
 
-    public T GetRandomOfState(int Seed, State TargetState, bool bCanBeHigher)
+    public T GetRandomOfState(int Seed, State TargetState, bool bCanBeHigher, bool bSingleCategory)
     {
         List<int> TargetCategories = new();
         for (int i = 0; i < Categories.Count; i++)
@@ -74,6 +74,8 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
                 continue;
 
             TargetCategories.Add(i);
+            if (bSingleCategory)
+                break;
         }
 
         UnityEngine.Random.InitState(Seed);

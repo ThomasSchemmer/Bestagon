@@ -214,7 +214,7 @@ public class Selector<T> : Selector, IQuestRegister<T> where T : ISelectable
         if (!Hovered.CanBeLongHovered())
             return;
 
-        if (Vector2.Distance(HoverPosition, Input.mousePosition) > 10)
+        if (Vector2.Distance(HoverPosition, Input.mousePosition) > 100)
         {
             StopLongHover();
             return;
