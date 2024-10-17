@@ -38,6 +38,7 @@ public class GameplayEffect : ScriptableObject
     public void SetTarget(GameplayAbilityBehaviour Target)
     {
         this.Target = Target;
+        bIsDeactivated = false;
         Runtime = 0;
         foreach (GameplayEffectModifier Modifier in Modifiers)
         {

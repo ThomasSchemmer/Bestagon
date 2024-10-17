@@ -6,7 +6,9 @@ using UnityEngine;
 
 /** 
  * Scriptable for Relics, used solely for defining. 
- * Cannot be stored in savegame itself, convert to DTO
+ * Must be created as ScriptableObject
+ * Inherits from GameplayEffect to make use of a good buff/debuff applying system
+ * Cannot be stored in savegame itself, only implicitly saved as @Unlockable type and loaded on runtime
  */ 
 [CreateAssetMenu(fileName = "Relic", menuName = "ScriptableObjects/Relic", order = 10)]
 public class RelicEffect : GameplayEffect
@@ -23,6 +25,7 @@ public class RelicEffect : GameplayEffect
     public ActionList<Unlockables.State> OnDiscoveryChanged = new();
 
     public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle | RelicType.Abacus;
+    public static int CategoryCount = 1;
     public static int MaxIndex = 3;
 }
 
@@ -37,48 +40,3 @@ public enum RelicType : uint
     Abacus = 1 << 3
 }
 
-/** Saveable version of relics, identifiable by type-derived name */
-public class RelicDTO : ISaveableData
-{
-
-    public Unlockables.State State;
-    public RelicType Type;
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)State);
-
-        return Bytes.ToArray();
-    }
-
-    public int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static int GetStaticSize()
-    {
-        // typee and discoverey
-        return sizeof(uint) + 1;
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte DiscoveryByte);
-        Type = (RelicType)iType;
-        State = (Unlockables.State)DiscoveryByte;
-    }
-
-    public static RelicDTO CreateFromRelicEffect(RelicEffect Relic, Unlockables.State State)
-    {
-        RelicDTO DTO = new();
-        DTO.State = State;
-        DTO.Type = Relic.Type;
-        return DTO;
-    }
-}

@@ -10,9 +10,17 @@ public class RelicIconScreen : SimpleIconScreen
 
     public void Initialize(RelicEffect Relic, bool bIsPreview)
     {
+        if (!Game.TryGetServices(out IconFactory IconFactory, out RelicService RelicService))
+            return;
+
+        bool bIsUnlocked = RelicService.UnlockableRelics[Relic.Type] >= Unlockables.State.Unlocked;
+        bIsUnlocked = bIsPreview || bIsUnlocked;
+        Sprite Sprite = bIsUnlocked ? Relic.Image : IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.UnknownRelic);
+        
         this.Relic = Relic;
         this.bIsPreview = bIsPreview;
-        Initialize(Relic.Image, Relic.Tooltip, null);
+        string ToolTip = bIsUnlocked ? Relic.Tooltip : "Unknown Effect";
+        Initialize(Sprite, ToolTip, null);
         Relic.OnDiscoveryChanged.Add(OnRelicDiscoveryChanged);
 
         if (bIsPreview)
@@ -20,12 +28,9 @@ public class RelicIconScreen : SimpleIconScreen
             NameText = transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
             DescriptionText = transform.GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
 
-            NameText.text = Relic.name;
-            DescriptionText.text = Relic.GetEffectDescription();
+            NameText.text = bIsUnlocked ? Relic.name : "Unknown Relic";
+            DescriptionText.text = bIsUnlocked ? Relic.GetEffectDescription() : "Unknown Effect";
         }
-
-        if (!Game.TryGetService(out RelicService RelicService))
-            return;
 
         OnRelicDiscoveryChanged(RelicService.UnlockableRelics[Relic.Type]);
     }
@@ -41,7 +46,9 @@ public class RelicIconScreen : SimpleIconScreen
 
     public void OnRelicDiscoveryChanged(Unlockables.State State)
     {
-        bool bIsActive = State == Unlockables.State.Active || bIsPreview;
+        bool bIsActive = State == Unlockables.State.Active ||
+            State == Unlockables.State.Locked || // locked relics have a hidden icon anyway
+            bIsPreview ;
         IconRenderer.color = bIsActive ? ActiveColor : InActiveColor;
     }
 
@@ -54,6 +61,9 @@ public class RelicIconScreen : SimpleIconScreen
             return;
 
         Unlockables.State State = RelicService.UnlockableRelics[Relic.Type];
+        if (State == Unlockables.State.Locked)
+            return;
+
         State = State == Unlockables.State.Unlocked ? Unlockables.State.Active : Unlockables.State.Unlocked;
         RelicService.SetRelic(Relic.Type, State);
     }

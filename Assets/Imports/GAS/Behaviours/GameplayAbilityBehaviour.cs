@@ -10,13 +10,18 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         Game.RunAfterServiceInit((GameplayAbilitySystem System) =>
         {
             System.Register(this);
+            Attributes.Initialize();
+            bIsInitialized = true;
+            HandleDelayedEffects();
         });
-        Attributes.Initialize();
     }
 
     public void Tick(float Delta)
     {
-        // Effects can register themselfs on attributes
+        if (!bIsInitialized)
+            return;
+
+        // Effects can register themselves on attributes
         foreach (GameplayEffect ActiveEffect in ActiveEffects)
         {
             bool bIsExpired = ActiveEffect.IsExpired(Delta);
@@ -33,9 +38,31 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         {
             RemoveEffect(ToRemoveEffect);
         }
+        MarkedForRemovalEffects.Clear();
 
         // now attributes can be calculated
         Attributes.Tick();
+    }
+
+    private void HandleDelayedEffects()
+    {
+        if (!bIsInitialized)
+        {
+            throw new System.Exception("Cannot handle delayed effects if not fully initialized!");
+        }
+
+        foreach (var Tuple in EffectsToHandle)
+        {
+            if (Tuple.Value)
+            {
+                AddEffect(Tuple.Key);
+            }
+            else
+            {
+                RemoveEffect(Tuple.Key);
+            }
+        }
+        EffectsToHandle.Clear();
     }
 
     public void AddTagByID(Guid ID) {
@@ -85,6 +112,12 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     }
 
     public void AddEffect(GameplayEffect Effect) { 
+        if (!bIsInitialized)
+        {
+            EffectsToHandle.Add(new(Effect, true));
+            return;
+        }
+
         ActiveEffects.Add(Effect);
         AddTagsByID(Effect.GrantedTags.IDs);
         Effect.Execute();
@@ -103,6 +136,16 @@ public class GameplayAbilityBehaviour : MonoBehaviour
 
     public void RemoveEffect(GameplayEffect Effect)
     {
+        if (!bIsInitialized)
+        {
+            EffectsToHandle.Add(new(Effect, false));
+            return;
+        }
+
+        // have to check that after the queue, as it might be slightly before (but still in the queue)
+        if (!ActiveEffects.Contains(Effect))
+            return;
+
         ActiveEffects.Remove(Effect);
         RemoveTags(Effect.GrantedTags.IDs);
         Effect.Deactivate();
@@ -138,6 +181,10 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     private List<GameplayEffect> MarkedForRemovalEffects = new();
     private List<GameplayAbility> GrantedAbilities = new();
     private GameplayTagMask GameplayTagMask = new();
+
+    private bool bIsInitialized = false;
+
+    private List<Tuple<GameplayEffect, bool>> EffectsToHandle = new();
 
     public delegate void OnTagsChanged();
     public delegate void OnTagAdded(Guid Tag);

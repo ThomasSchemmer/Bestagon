@@ -12,6 +12,11 @@ public class PinnedIndicator : IndicatorComponent
         Card = GetComponent<Card>();
     }
 
+    protected override int GetTargetLayer()
+    {
+        return 0;
+    }
+
     protected override int GetIndicatorAmount()
     {
         return 1;

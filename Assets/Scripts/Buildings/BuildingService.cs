@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlockableService
+public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlockableService<BuildingConfig.Type>
 {
     public Unlockables<BuildingConfig.Type> UnlockableBuildings = new();
 
@@ -118,9 +118,23 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         return UnlockableBuildings.GetCategoryCount() == 4;
     }
 
-    bool IUnlockableService.IsInit()
+    bool IUnlockableService<BuildingConfig.Type>.IsInit()
     {
         return IsInit;
+    }
+    public int GetValueAsInt(BuildingConfig.Type Type)
+    {
+        return HexagonConfig.MaskToInt((int)Type, 32);
+    }
+
+    public BuildingConfig.Type GetValueAsT(int Value)
+    {
+        return (BuildingConfig.Type)HexagonConfig.IntToMask(Value);
+    }
+
+    public void OnLoadUnlockable(BuildingConfig.Type Type, Unlockables.State State)
+    {
+        // don't need to do anything, as its handled with the card loading
     }
 
     public void InitUnlockables()

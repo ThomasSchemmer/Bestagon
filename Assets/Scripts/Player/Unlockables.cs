@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+/** 
+ * Regulates unlocking of different things, should always be contained in a @IUnlockableService 
+ * that handles the calling of methods / saving
+ */
 public abstract class Unlockables : ISaveableData
 {
     public abstract byte[] GetData();
@@ -18,12 +22,17 @@ public abstract class Unlockables : ISaveableData
     }
 }
 
+/**
+ * Templated version that allows for variable types
+ * Contains the actual categories that can be unlock (incl the types)
+ * Note: boilerplate code to allow T to be an enum inheriting uint
+ */
 public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, IConvertible
 {
-    private IUnlockableService Service;
+    private IUnlockableService<T> Service;
     private List<SerializedDictionary<T, State>> Categories;
 
-    public void Init(IUnlockableService Service)
+    public void Init(IUnlockableService<T> Service)
     {
         this.Service = Service;
         this.Categories = new();
@@ -126,13 +135,15 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
+        // instead of having to create DTO's for every possible type and casting them into enums
+        // we force conversion to int and save that
         for (int i = 0; i < Categories.Count; i++)
         {
             Pos = SaveGameManager.AddInt(Bytes, Pos, Categories[i].Count);
             foreach (var Tuple in Categories[i])
             {
-                // force object-conversion to allow int cast
-                Pos = SaveGameManager.AddInt(Bytes, Pos, (int)(object)Tuple.Key);
+                // unity does not allow (T)(IConvertible)Value casting, so create functions in the serviceee
+                Pos = SaveGameManager.AddInt(Bytes, Pos, Service.GetValueAsInt(Tuple.Key));
                 Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Categories[i][Tuple.Key]);
             }
         }
@@ -142,8 +153,13 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
 
     public override int GetSize()
     {
+        return GetStaticSize(Categories.Count, GetCategoriesAmount());
+    }
+
+    public static int GetStaticSize(int CategoriesCount, int OverallCount)
+    {
         // serialized categories with data and category size
-        return (sizeof(int) + sizeof(byte)) * GetCategoriesAmount() + sizeof(int) * Categories.Count;
+        return sizeof(int) * CategoriesCount + (sizeof(int) + sizeof(byte)) * OverallCount;
     }
 
     private int GetCategoriesAmount()
@@ -168,13 +184,22 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         {
             SerializedDictionary<T, State> Category = new();
             Pos = SaveGameManager.GetInt(Bytes, Pos, out int CategorySize);
-            for (int i = 0; Pos < CategorySize; i++)
+            // cast back into type with help of service
+            for (int i = 0; i < CategorySize; i++)
             {
                 Pos = SaveGameManager.GetInt(Bytes, Pos, out int Key);
                 Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bValue);
-                Category.Add((T)(object)Key, (State)bValue);
+                Category.Add(Service.GetValueAsT(Key), (State)bValue);
+
             }
             Categories.Add(Category);
+
+            // now that the category has been added, we can execute callbacks
+            for (int i = 0; i < Category.Count; i++)
+            {
+                T Key = Category.GetKeyAt(i);
+                Service.OnLoadUnlockable(Key, Category[Key]);
+            }
         }
     }
 

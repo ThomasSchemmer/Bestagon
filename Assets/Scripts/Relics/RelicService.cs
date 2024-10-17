@@ -7,7 +7,7 @@ using UnityEngine;
  * Handles loading and applying of relics
  * Since the relics are GAS-effects, the actual gameplay logic is handled in GAS
  */
-public class RelicService : GameService, ISaveableService, IUnlockableService
+public class RelicService : GameService, ISaveableService, IUnlockableService<RelicType>
 {
     public Unlockables<RelicType> UnlockableRelics;
     public Dictionary<RelicType, RelicEffect> Relics = new();
@@ -24,23 +24,19 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
 
-        foreach (RelicType Type in Relics.Keys)
-        {
-            RelicDTO DTO = RelicDTO.CreateFromRelicEffect(Relics[Type], UnlockableRelics[Type]);
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
-        }
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UnlockableRelics);
 
         return Bytes.ToArray();
     }
 
     public int GetSize()
     {
-        return GetStaticSize();
+        return Unlockables<RelicType>.GetStaticSize(RelicEffect.CategoryCount, GetOverallRelicAmount());
     }
 
-    public static int GetStaticSize()
+    public int GetOverallRelicAmount()
     {
-        return Resources.LoadAll("Relics/", typeof(RelicEffect)).Length * RelicDTO.GetStaticSize();
+        return Resources.LoadAll("Relics/", typeof(RelicEffect)).Length;
     }
 
     public void Reset()
@@ -50,18 +46,14 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
 
     public void SetData(NativeArray<byte> Bytes)
     {
-        int Pos = 0;
+        // will be overwritten by the loading
         UnlockableRelics = new();
         UnlockableRelics.Init(this);
-        foreach (var Type in Relics.Keys)
-        {
-            RelicDTO DTO = new();
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
-            SetRelic(DTO.Type, DTO.State);
-        }
+        int Pos = 0;
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UnlockableRelics);
     }
 
-    private void LoadRelics()
+    private void LoadRelicTypes()
     {
         Relics.Clear();
 
@@ -75,6 +67,11 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
             Relics.Add(Relic.Type, Relic);
         }
 
+        ShowRelicButton.SetActive(Relics.Count > 0);
+    }
+
+    private void LoadUnlockableRelics()
+    {
         SerializedDictionary<RelicType, Unlockables.State> Category = new();
         int Mask = (int)RelicEffect.CategoryMeadow;
         for (int i = 0; i <= RelicEffect.MaxIndex; i++)
@@ -85,8 +82,6 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
             Category.Add((RelicType)(1 << i), Unlockables.State.Locked);
         }
         UnlockableRelics.AddCategory(Category);
-
-        ShowRelicButton.SetActive(Relics.Count > 0);
     }
 
     public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic, bool bIsPreview)
@@ -121,7 +116,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
         _OnInit?.Invoke(this);
     }
 
-    public void SetRelic(RelicType Type, Unlockables.State State)
+    public void SetRelic(RelicType Type, Unlockables.State State, bool bForce = false)
     {
         if (CurrentActiveRelics == MaxActiveRelics)
         {
@@ -138,23 +133,34 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
             if (Player == null)
                 return;
 
-            if (OldState != Unlockables.State.Active && State == Unlockables.State.Active)
+            bool bIsNowActive = (OldState != Unlockables.State.Active || bForce) && 
+                State == Unlockables.State.Active;
+            bool bIsNowInActive = (OldState == Unlockables.State.Active || bForce) && 
+                State != Unlockables.State.Active;
+
+            if (bIsNowActive)
             {
                 GAS.TryApplyEffectTo(Player, Relics[Type]);
                 CurrentActiveRelics++;
             }
-            if (OldState == Unlockables.State.Active && State != Unlockables.State.Active)
+            if (bIsNowInActive)
             {
                 Player.RemoveEffect(Relics[Type]);
                 CurrentActiveRelics--;
             }
         });
 
-        if (OldState == State)
+        if (OldState == State && !bForce)
             return;
 
         Relics[Type].BroadcastDiscoveryChanged(State);
         OnRelicDiscoveryChanged.ForEach(_ => _.Invoke(Type, State));
+    }
+
+    public void OnLoadUnlockable(RelicType Type, Unlockables.State State)
+    {
+        // need to force as relics will be loaded into "active" state, but not applied!
+        SetRelic(Type, State, true);
     }
 
     public bool HasIdleSpot()
@@ -172,14 +178,25 @@ public class RelicService : GameService, ISaveableService, IUnlockableService
 
     protected override void StopServiceInternal() {}
 
-    bool IUnlockableService.IsInit()
+    bool IUnlockableService<RelicType>.IsInit()
     {
         return IsInit;
     }
 
     public void InitUnlockables()
     {
-        LoadRelics();
+        LoadRelicTypes();
+        LoadUnlockableRelics();
+    }
+
+    public int GetValueAsInt(RelicType Type)
+    {
+        return HexagonConfig.MaskToInt((int)Type, 32);
+    }
+
+    public RelicType GetValueAsT(int Value)
+    {
+        return (RelicType)HexagonConfig.IntToMask(Value);
     }
 
     public ActionList<RelicType, Unlockables.State> OnRelicDiscoveryChanged = new();

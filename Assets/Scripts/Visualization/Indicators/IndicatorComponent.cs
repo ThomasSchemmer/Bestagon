@@ -30,6 +30,12 @@ public abstract class IndicatorComponent : MonoBehaviour
         Service.Deregister(this);
     }
 
+    /** 
+     * @ShouldBeIgnored causes the hover to be swallowed, making buttons ontop not interactable anymore
+     * returns "Default" layer if buttons should be clickable
+     */
+    protected abstract int GetTargetLayer();
+
     protected abstract int GetIndicatorAmount();
 
     protected abstract void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform);
@@ -54,6 +60,7 @@ public abstract class IndicatorComponent : MonoBehaviour
     protected void CreateIndicator(int i, RectTransform Parent)
     {
         GameObject Indicator = Instantiate(Service.IndicatorPrefab);
+        Indicator.layer = GetTargetLayer();
         RectTransform RectTrans = Indicator.GetComponent<RectTransform>();
         RectTrans.SetParent(Parent);
         Indicators[i] = RectTrans;

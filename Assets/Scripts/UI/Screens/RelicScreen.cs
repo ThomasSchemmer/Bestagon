@@ -11,18 +11,28 @@ public class RelicScreen : ScreenUI
 
     protected TMPro.TextMeshProUGUI ActiveText;
 
+    protected override void Initialize()
+    {
+        base.Initialize();
+        ActiveText = Container.transform.GetChild(3).GetComponent<TMPro.TextMeshProUGUI>();
+
+        if (!Game.TryGetService(out RelicService RelicService))
+            return;
+
+        RelicService.OnRelicDiscoveryChanged.Add(SetCount);
+    }
 
     public override void Show()
     {
         base.Show();
-        ActiveText = Container.transform.GetChild(3).GetComponent<TMPro.TextMeshProUGUI>();
-        SetCount(RelicType.DEFAULT, Unlockables.State.Locked);
 
         ClearRelics();
         Game.RunAfterServiceInit((RelicService RelicService) =>
         {
             InitializeRelics();
         });
+
+        SetCount(RelicType.DEFAULT, Unlockables.State.Locked);
     }
 
     public override void Hide()
@@ -69,8 +79,14 @@ public class RelicScreen : ScreenUI
             var RelicIcon = RelicService.CreateRelicIcon(RelicContainer, Effect, false);
             Relics.Add(RelicIcon);
         }
+        foreach (var Effect in Effects)
+        {
+            if (RelicService.UnlockableRelics[Effect.Type] != Unlockables.State.Locked)
+                continue;
 
-        RelicService.OnRelicDiscoveryChanged.Add(SetCount);
+            var RelicIcon = RelicService.CreateRelicIcon(RelicContainer, Effect, false);
+            Relics.Add(RelicIcon);
+        }
     }
 
     private void ClearRelics()
@@ -80,11 +96,6 @@ public class RelicScreen : ScreenUI
             Destroy(Relics[i].gameObject);
         }
         Relics.Clear();
-
-        if (!Game.TryGetService(out RelicService RelicService))
-            return;
-
-        RelicService.OnRelicDiscoveryChanged.Remove(SetCount);
     }
 
     private void OnDestroy()

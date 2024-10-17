@@ -14,7 +14,6 @@ public class Attribute
     public Attribute()
     {
         Modifiers = new();
-        ResetModifiers();
         Initialize();
     }
 
@@ -22,13 +21,13 @@ public class Attribute
     {
         this.Type = Type;
         Modifiers = new();
-        ResetModifiers();
         Initialize();
     }
 
     public void Initialize()
     {
         CurrentValue = BaseValue;
+        ResetModifiers();
     }
 
     private void ResetModifiers()

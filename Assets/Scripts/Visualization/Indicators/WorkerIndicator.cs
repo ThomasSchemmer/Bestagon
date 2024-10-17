@@ -13,6 +13,11 @@ public class WorkerIndicator : IndicatorComponent
         Workers._OnWorkersAssigned += OnWorkerChanged;
     }
 
+    protected override int GetTargetLayer()
+    {
+        return LayerMask.NameToLayer("UI");
+    }
+
     protected override int GetIndicatorAmount()
     {
         return Visualization.Entity.GetMaximumWorkerCount();

@@ -33,7 +33,9 @@ public class IconFactory : GameService
         Abandon,
         Upgrades,
         Pin,
-        PinActive
+        PinActive,
+        UnknownRelic,
+        Relic
     }
 
     public void Refresh()
