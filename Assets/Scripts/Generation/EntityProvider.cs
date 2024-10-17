@@ -52,7 +52,14 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
 
     public virtual byte[] GetData()
     {
+        // will be called for eg Units, but will be overwritten in BuildingService
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
+        return GetData(Bytes);
+    }
+
+    /** Since BuildingService overrides GeetSize and there is no static size, we have to use a fixed size array here!*/
+    public byte[] GetData(NativeArray<byte> Bytes)
+    {
         int Pos = 0;
         // save the size to make reading it easier
         Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());

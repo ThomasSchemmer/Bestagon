@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
+/** 
+ * Provides access to any building entity and keeps track of which buildings types the player has unlocked
+ */
 public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlockableService<BuildingConfig.Type>
 {
     public Unlockables<BuildingConfig.Type> UnlockableBuildings = new();
@@ -35,7 +38,9 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
 
     public override void Reset()
     {
-        Entities = new();
+        base.Reset();
+        UnlockableBuildings = new();
+        UnlockableBuildings.Init(this);
     }
 
     public void AddBuilding(BuildingEntity Building)
@@ -171,6 +176,48 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
             Category.Add((BuildingConfig.Type)(1 << i), Unlockables.State.Locked);
         }
         UnlockableBuildings.AddCategory(Category);
+    }
+
+    public override int GetSize()
+    {
+        return base.GetSize() + GetSelfSize();
+    }
+
+    private int GetSelfSize()
+    {
+        return UnlockableBuildings.GetSize();
+    }
+
+    public override byte[] GetData()
+    {
+        // Note: this should really use GetStaticSize(), but static isn't possible for runtime dependent
+        // EntityProvider. Since GetSize() would get overriden, the SGM has no way of getting the actual size
+        // could be fixed by a workaround with indirect Saveable loading, but its a service, not an easy entity
+        // when overriding BuildingService make sure you update this!
+        NativeArray<byte> BaseBytes = new(base.GetSize(), Allocator.Temp);
+        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(GetSize(), base.GetSize(), base.GetData(BaseBytes));
+
+        int Pos = base.GetSize();
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UnlockableBuildings);
+
+        return Bytes.ToArray();
+    }
+
+    public override void SetData(NativeArray<byte> Bytes)
+    {
+        // will be overwritten by the loading
+        UnlockableBuildings = new();
+        UnlockableBuildings.Init(this);
+
+        base.SetData(Bytes);
+        int Pos = base.GetSize(); ;
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UnlockableBuildings);
+
+        // kill all buildings, but leave the unlocks untouched
+        if (Game.IsIn(Game.GameState.CardSelection))
+        {
+            base.Reset();
+        }
     }
 
     public delegate void OnBuildingsChanged();
