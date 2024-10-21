@@ -102,6 +102,10 @@ public class CheatService : ScreenUI
             DestroyAllQuests(Cheats);
             DestroyAllResources(Cheats);
         }
+        if (Cheats[0].Equals(DECORATION_CODE))
+        {
+            CreateDecoration(Cheats);
+        }
     }
 
     private void Scout(string[] Cheats)
@@ -320,6 +324,29 @@ public class CheatService : ScreenUI
         UnlockRelic(TargetIndex, true);
     }
 
+    private void CreateDecoration(string[] Cheats)
+    {
+        if (Cheats.Length != 6)
+            return;
+
+        string TargetName = GetTargetName(Cheats);
+        int TargetIndex = GetTargetIndex(TargetName, typeof(DecorationEntity.DType));
+        if (TargetIndex == -1)
+            return;
+
+        if (!Game.TryGetService(out DecorationService DecorationService))
+            return;
+
+        if (!int.TryParse(Cheats[2], out int x) ||
+            !int.TryParse(Cheats[3], out int y) ||
+            !int.TryParse(Cheats[4], out int z) ||
+            !int.TryParse(Cheats[5], out int w))
+            return;
+
+        Location TargetLocation = new (x, y, z, w);
+        DecorationService.CreateNewDecoration((DecorationEntity.DType)TargetIndex, TargetLocation);
+    }
+
     private static string TOKEN_DIVIDER = " ";
     private static string UNLOCK_CODE = "unlock";
     private static string ACTIVATE_CODE = "activate";
@@ -332,4 +359,5 @@ public class CheatService : ScreenUI
     private static string DESTROY_RESOURCES_CODE = "destroyallresources";
     private static string SCOUT_CODE = "scout";
     private static string VANISH_CODE = "vanish";
+    private static string DECORATION_CODE = "decoration";
 }

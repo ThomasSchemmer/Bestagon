@@ -59,6 +59,12 @@ public class BuildingCardDTO : CardDTO
     {
         BuildingCardDTO DTO = new();
         DTO.BuildingData = Data;
+
+        int AdditionalUsability = (int)AttributeSet.Get()[AttributeType.CardNewUsability].CurrentValue;
+        DTO.BuildingData.CurrentUsages += AdditionalUsability;
+        DTO.BuildingData.MaxUsages += AdditionalUsability;
+        DTO.BuildingData.UpgradeMaxUsages += AdditionalUsability;
+
         return DTO;
     }
 

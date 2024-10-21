@@ -104,7 +104,15 @@ public class Production : ISaveableData
 
     public bool IsEmpty()
     {
-        return _Production.Count == 0;
+        if (_Production.Count == 0)
+            return true;
+
+        foreach (var Item in _Production)
+        {
+            if (Item.Value > 0)
+                return false;
+        }
+        return true;
     }
 
     public static Production operator +(Production A, Production B) {

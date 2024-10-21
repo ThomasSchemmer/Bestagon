@@ -14,10 +14,12 @@ public enum AttributeType
     BuildingCostRate,
     DecorationSpawnRate,
     CardNewUsability,
-    CardUsability,
     MalaiseSpreadRate,
     CardUnlockCost,
     ConstructionCostRecoveryRate,
     ResourceBankRate,
-    MaximumRelicCount
+    MaximumRelicCount,
+    BuildingReach,
+    MarketCosts,
+
 }

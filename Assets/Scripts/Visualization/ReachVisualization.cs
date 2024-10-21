@@ -19,8 +19,6 @@ public class ReachVisualization : GameService
     private Dictionary<Location, byte> Corners = new();
     private HashSet<Location> Set = new();
 
-    private int Range = 2;
-
     private MeshFilter MeshFilter;
     private MeshRenderer Renderer;
 
@@ -119,7 +117,8 @@ public class ReachVisualization : GameService
 
     private void AddReach(Location Location, bool bShouldUpdateBorders = true)
     {
-        Set.UnionWith(Pathfinding.FindReachableLocationsFrom(Location, Range, false));
+        int Reach = (int)AttributeSet.Get()[AttributeType.BuildingReach].CurrentValue;
+        Set.UnionWith(Pathfinding.FindReachableLocationsFrom(Location, Reach, false));
         if (!bShouldUpdateBorders)
             return;
 

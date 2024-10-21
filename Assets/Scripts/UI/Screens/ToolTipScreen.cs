@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ToolTipScreen : ScreenUI
+public class ToolTipScreen : ScreenUI, UIElement
 {
     protected override void Initialize()
     {
@@ -61,6 +61,30 @@ public class ToolTipScreen : ScreenUI
     {
         return false;
     }
+
+    public void SetSelected(bool Selected) {}
+
+    public void SetHovered(bool Hovered) { }
+
+    public void ClickOn(Vector2 PixelPos) { }
+
+    public void Interact() { }
+
+    public bool IsEqual(ISelectable other)
+    {
+        if (other == null)
+            return false;
+
+        if (other is not ToolTipScreen)
+            return false;
+
+        return name.Equals((other as ToolTipScreen).name);
+    }
+
+    public bool CanBeLongHovered() { return false; }
+
+    public bool CanBeInteracted() { return false; }
+    public bool ShouldBeIgnored() { return true; }
 
     public RectTransform TextRect, BackgroundRect, SelfRect;
     public TMPro.TextMeshProUGUI Text;

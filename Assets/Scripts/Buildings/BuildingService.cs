@@ -13,9 +13,15 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
 
     protected override void StartServiceInternal()
     {
-        UnlockableBuildings = new();
-        UnlockableBuildings.Init(this);
-        _OnInit?.Invoke(this);
+        Game.RunAfterServiceInit((SaveGameManager Manager) =>
+        {
+            if (Manager.HasDataFor(ISaveableService.SaveGameType.Buildings))
+                return;
+
+            UnlockableBuildings = new();
+            UnlockableBuildings.Init(this);
+            _OnInit?.Invoke(this);
+        });
     }
 
     protected override void StopServiceInternal() { }
@@ -218,6 +224,11 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         {
             base.Reset();
         }
+    }
+
+    public override void OnLoaded()
+    {
+        _OnInit?.Invoke(this);
     }
 
     public delegate void OnBuildingsChanged();

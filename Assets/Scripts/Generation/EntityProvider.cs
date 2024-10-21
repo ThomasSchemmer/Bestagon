@@ -133,10 +133,27 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
         return false;
     }
 
+    public bool TryGetEntityToBeMalaised(out T Entity)
+    {
+        Entity = default;
+        foreach (var FoundEntity in Entities)
+        {
+            if (!FoundEntity.IsAboutToBeMalaised())
+                continue;
+
+            Entity = FoundEntity;
+            return true;
+        }
+
+        return false;
+    }
+
     public bool ShouldLoadWithLoadedSize() { return true; }
 
     protected override void StartServiceInternal() { }
     protected override void StopServiceInternal() { }
+
+    public virtual void OnLoaded() { }
 
     public static ActionList<T> _OnEntityCreated = new();
 }

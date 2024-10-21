@@ -25,8 +25,9 @@ public class RelicEffect : GameplayEffect
     public ActionList<Unlockables.State> OnDiscoveryChanged = new();
 
     public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle | RelicType.Abacus;
-    public static int CategoryCount = 1;
-    public static int MaxIndex = 3;
+    public static RelicType CategoryDesert = RelicType.Trowel | RelicType.Purse | RelicType.PrayerBeads;
+    public static int CategoryCount = 2;
+    public static int MaxIndex = 6;
 }
 
 [Flags]
@@ -37,6 +38,9 @@ public enum RelicType : uint
     Calligulae = 1 << 0,
     WoodenMallet = 1 << 1,
     Cradle = 1 << 2,
-    Abacus = 1 << 3
+    Abacus = 1 << 3,
+    Trowel = 1 << 4, 
+    Purse = 1 << 5,
+    PrayerBeads = 1 << 6,
 }
 

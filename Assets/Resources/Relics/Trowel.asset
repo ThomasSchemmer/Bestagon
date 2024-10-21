@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ae121ed3306077a43a6407f12fc41ef7, type: 3}
-  m_Name: Abacus
+  m_Name: Trowel
   m_EditorClassIdentifier: 
   DurationPolicy: 0
   InstancingPolicy: 2
   Modifiers:
-  - AttributeType: 8
-    Operation: 1
+  - AttributeType: 16
+    Operation: 0
     Period: 0
-    Value: -0.25
+    Value: 1
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
@@ -41,6 +41,6 @@ MonoBehaviour:
     bIsEditing: 0
     Name: Remove Tags
     bIsEditable: 1
-  Type: 8
-  Image: {fileID: 3286163911610860551, guid: b45529dc5d4b39743bb6fa4d6bdd9c71, type: 3}
-  Tooltip: Reduces building costs
+  Type: 16
+  Image: {fileID: 3286163911610860551, guid: bb1d5e4541ca6dc49a843562cd7e9a36, type: 3}
+  Tooltip: Increases building reach

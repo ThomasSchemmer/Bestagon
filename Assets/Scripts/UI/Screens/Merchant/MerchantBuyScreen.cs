@@ -79,7 +79,8 @@ public class MerchantBuyScreen : CollectChoiceScreen
 
     protected override Production GetCostsForChoice(int i)
     {
-        return new Production(Production.Type.Coins, CARD_COST);
+        int Costs = (int)AttributeSet.Get()[AttributeType.MarketCosts].CurrentValue;
+        return new Production(Production.Type.Coins, Costs);
     }
 
     protected override int GetUpgradeCostsForChoice(int i)
@@ -97,6 +98,5 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return UnityEngine.Random.Range(0, 100);
     }
 
-    private static int CARD_COST = 5;
     private static int REFRESH_COST = 10;
 }

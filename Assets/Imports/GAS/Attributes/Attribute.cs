@@ -34,19 +34,16 @@ public class Attribute
     {
         Modifiers.Remove(GameplayEffectModifier.Type.Add);
         Modifiers.Remove(GameplayEffectModifier.Type.Multiply);
-        Modifiers.Remove(GameplayEffectModifier.Type.Divide);
         Modifiers.Remove(GameplayEffectModifier.Type.Override);
         Modifiers.Add(GameplayEffectModifier.Type.Add, new());
         Modifiers.Add(GameplayEffectModifier.Type.Multiply, new());
-        Modifiers.Add(GameplayEffectModifier.Type.Divide, new());
         Modifiers.Add(GameplayEffectModifier.Type.Override, new());
     }
 
     public void Tick()
     {
-        float DivideValue = 1 + Divide;
         float MultiplyValue = 1 + Multiply;
-        CurrentValue = (BaseValue + Add) * MultiplyValue / DivideValue;
+        CurrentValue = (BaseValue + Add) * MultiplyValue;
         if (!Mathf.Approximately(Override, 0))
         {
             CurrentValue = Override;
@@ -97,11 +94,6 @@ public class Attribute
     private float Multiply
     {
         get { return GetModifiedValueFor(GameplayEffectModifier.Type.Multiply); }
-    }
-
-    private float Divide
-    {
-        get { return GetModifiedValueFor(GameplayEffectModifier.Type.Divide); }
     }
 
     private float Override

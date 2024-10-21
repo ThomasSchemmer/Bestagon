@@ -172,6 +172,17 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
         this.Location = Location;
     }
 
+    public override bool IsAboutToBeMalaised()
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData Hex))
+            return false;
+
+        return Hex.IsPreMalaised();
+    }
+
     public int MovementPerTurn = 1;
     [HideInInspector]
     public int RemainingMovement = 0;

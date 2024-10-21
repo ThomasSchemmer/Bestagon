@@ -42,10 +42,20 @@ MonoBehaviour:
     - Key: 16
       Value:
         Type: 16
-        BaseValue: 3
-        CurrentValue: 3
+        BaseValue: 2
+        CurrentValue: 2
     - Key: 8
       Value:
         Type: 8
         BaseValue: 1
         CurrentValue: 1
+    - Key: 10
+      Value:
+        Type: 10
+        BaseValue: 0
+        CurrentValue: 0
+    - Key: 17
+      Value:
+        Type: 17
+        BaseValue: 5
+        CurrentValue: 5

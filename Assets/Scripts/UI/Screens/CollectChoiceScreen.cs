@@ -182,6 +182,21 @@ public abstract class CollectChoiceScreen : ScreenUI
         Callback = SetChoiceRelic;
     }
 
+    public void UpdateSelectChoiceButtons()
+    {
+        for (int i = 0; i < ChoiceContainers.Count; i++)
+        {
+            if (ChoiceContainers[i] == null)
+                continue;
+
+            Button Button = ChoiceContainers[i].GetChild(0).GetChild(2).GetComponent<Button>();
+            if (Button == null)
+                continue;
+
+            Button.interactable = CanAffordChoice(i);
+        }
+    }
+
     private bool CanAffordChoice(int ChoiceIndex)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))

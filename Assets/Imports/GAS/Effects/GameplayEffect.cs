@@ -122,7 +122,7 @@ public class GameplayEffect : ScriptableObject
         string Result = "";
         for (int i = 0; i < Modifiers.Count; i++)
         {
-            Result = Modifiers[i].GetDescription();
+            Result += Modifiers[i].GetDescription();
             if (i == Modifiers.Count - 1)
                 continue;
             Result += "\n"; 

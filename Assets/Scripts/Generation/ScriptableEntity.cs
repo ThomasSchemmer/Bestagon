@@ -62,4 +62,6 @@ public abstract class ScriptableEntity : ScriptableObject, ISaveableData
             default: return -1;
         }
     }
+
+    public abstract bool IsAboutToBeMalaised();
 }

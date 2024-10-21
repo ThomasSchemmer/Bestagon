@@ -36,6 +36,55 @@ public class Turn : GameService, IQuestRegister<int>
         if (!bIsEnabled || !IsInit)
             return;
 
+        if (HasMalaisedEntities())
+            return;
+
+        ExecuteNextTurn();
+    }
+
+    private bool HasMalaisedEntities()
+    {
+        if (!Game.TryGetServices(out Units Units, out Workers Workers))
+            return false;
+
+        Units.TryGetEntityToBeMalaised(out TokenizedUnitEntity Unit);
+        Workers.TryGetEntityToBeMalaised(out StarvableUnitEntity Worker);
+
+        MalaisedEntity = Unit != null ? Unit :
+                    Worker != null ? Worker : null;
+        if (MalaisedEntity == null)
+            return false;
+
+        ConfirmScreen.Show("You have a unit that will be destroyed this turn by the malaise!", ExecuteNextTurn, ShowMalaisedUnit, "Show");
+        return true;
+    }
+
+    private void ShowMalaisedUnit()
+    {
+        Location TargetLocation = null;
+        if (MalaisedEntity is WorkerEntity)
+        {
+            WorkerEntity MalaisedWorker = MalaisedEntity as WorkerEntity;
+            BuildingEntity AssignedBuilding = MalaisedWorker.GetAssignedBuilding();
+            TargetLocation = AssignedBuilding != null ? AssignedBuilding.GetLocation() : null;
+        }
+        if (MalaisedEntity is TokenizedUnitEntity)
+        {
+            TargetLocation = (MalaisedEntity as TokenizedUnitEntity).GetLocation();
+        }
+
+        if (TargetLocation == null)
+            return;
+
+        if (!Game.TryGetService(out CameraController CameraController))
+            return;
+
+        CameraController.TeleportTo(TargetLocation.WorldLocation);
+    }
+
+    private void ExecuteNextTurn()
+    {
+        MalaisedEntity = null;
         MessageSystemScreen.DeleteAllMessages();
         Stockpile.GenerateResources();
         Stockpile.ProduceWorkers();
@@ -138,6 +187,8 @@ public class Turn : GameService, IQuestRegister<int>
     private CloudRenderer CloudRenderer;
     private Selectors Selectors;
     private QuestService Quests;
+
+    private ScriptableEntity MalaisedEntity;
 
     public int TurnNr = 0;
 

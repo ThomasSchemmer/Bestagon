@@ -349,6 +349,17 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return this.Location; 
     }
 
+    public override bool IsAboutToBeMalaised()
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData Hex))
+            return false;
+
+        return Hex.IsPreMalaised();
+    }
+
     public override int GetSize()
     {
         return GetStaticSize();

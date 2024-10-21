@@ -14,6 +14,7 @@ using static UnitEntity;
 public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 {
     public enum DType {
+        DEFAULT = 0,
         Ruins = 1,
         Tribe = 2,
         Treasure = 3,
@@ -97,6 +98,12 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
     public virtual Quaternion GetRotation()
     {
         return Quaternion.Euler(0, 180, 0);
+    }
+
+    public override bool IsAboutToBeMalaised()
+    {
+        // while decorations can be destroyed, it is not the players unit
+        return false;
     }
 
     public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)

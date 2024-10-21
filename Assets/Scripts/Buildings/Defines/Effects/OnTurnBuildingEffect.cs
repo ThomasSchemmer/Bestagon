@@ -68,12 +68,19 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
         Production Resources = bIsSimulated ? Stockpile.SimulatedResources : Stockpile.Resources;
 
-        // consumes 1 wood, has 3 worker, but only 2 wood available
-        // => 2 consumes
-        Production MinConsumption = Production.Min(Consumption * Worker, Resources);
-        var FirstConsumption = Consumption.GetTuples()[0];
-        int Amount = MinConsumption[FirstConsumption.Key] / FirstConsumption.Value;
-        return Production * Amount - MinConsumption;
+        int MaxAmount = Worker;
+        foreach (var Tuple in Consumption.GetTuples())
+        {
+            if (Tuple.Value == 0)
+                continue;
+
+            int Amount = Mathf.Max(Resources[Tuple.Key], 0) / Consumption[Tuple.Key];
+            MaxAmount = Mathf.Min(Amount, MaxAmount);
+        }
+
+        Production Combined = MaxAmount * Production;
+        Combined -= MaxAmount * Consumption;
+        return Combined;
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

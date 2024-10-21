@@ -114,4 +114,17 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         Stockpile.RequestUIRefresh();
         return true;
     }
+    public override bool IsAboutToBeMalaised()
+    {
+        if (GetAssignedBuilding() == null)
+            return false;
+
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        if (!MapGenerator.TryGetHexagonData(GetAssignedBuilding().GetLocation(), out HexagonData Hex))
+            return false;
+
+        return Hex.IsPreMalaised();
+    }
 }

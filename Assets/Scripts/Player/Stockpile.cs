@@ -51,6 +51,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return Production.Empty;
 
+        SimulatedResources = Resources.Copy();
         Production ProducedThisRound = MapGenerator.GetProductionPerTurn(bIsSimulated);
 
         if (bIsSimulated)
@@ -83,11 +84,10 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         if (!Game.TryGetServices(out Workers WorkerService, out Units UnitService))
             return Production.Empty;
 
-        SimulatedResources = Resources.Copy();
         Production PreProduction = SimulatedResources.Copy();
-        SimulatedResources += ProducedThisRound;
-        HandleStarvation(WorkerService, UnitService, SimulatedResources, true);
-        Production AfterStarvation = SimulatedResources.Copy();
+        Production Combined = SimulatedResources.Copy() + ProducedThisRound;
+        HandleStarvation(WorkerService, UnitService, Combined, true);
+        Production AfterStarvation = Combined.Copy();
 
         SimulatedGains = AfterStarvation - PreProduction;
         _OnSimulatedGainsChanged?.Invoke();

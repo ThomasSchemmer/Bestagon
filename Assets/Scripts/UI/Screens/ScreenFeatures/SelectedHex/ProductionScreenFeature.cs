@@ -25,7 +25,14 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
         Building.SimulateCurrentFood();
 
-        return Building.GetWorkingWorkerCount(true) > 0;
+        switch (Building.Effect.EffectType)
+        {
+            case OnTurnBuildingEffect.Type.Merchant: return false;
+            case OnTurnBuildingEffect.Type.ProduceUnit: return false;
+            case OnTurnBuildingEffect.Type.Produce: 
+            case OnTurnBuildingEffect.Type.ConsumeProduce: return Building.GetWorkingWorkerCount(true) > 0 && AreEnoughResourcesAvailable();
+            default: return false;
+        }
     }
 
     private bool AreAssignedWorkersStarving()
@@ -33,6 +40,12 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         return TryGetBuildingData(out BuildingEntity Building) &&
             Building.GetWorkingWorkerCount(true) == 0 &&
             Building.GetAssignedWorkerCount() > 0;
+    }
+
+    private bool AreWorkersAssigned()
+    {
+        return TryGetBuildingData(out BuildingEntity Building) &&
+            Building.GetWorkingWorkerCount(true) > 0;
     }
 
     private bool TryGetBuildingData(out BuildingEntity Building)
@@ -77,13 +90,31 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     private void ShowFallback()
     {
+        bool bAreWorkersAssigned = AreWorkersAssigned();
         bool bAreWorkersStarving = AreAssignedWorkersStarving();
+        bool bHaveEnoughResources = AreEnoughResourcesAvailable();
         FallbackText.gameObject.SetActive(true);
-        FallbackText.text = bAreWorkersStarving ? StarvingWorkersText : NoWorkersText;
+        string TargetText =
+            !bAreWorkersAssigned ? NoWorkersText :
+            bAreWorkersStarving ? StarvingWorkersText :
+            !bHaveEnoughResources ? NoConsumptionText : "Unknown error";
+        FallbackText.text = TargetText;
         FallbackText.color = bAreWorkersStarving ? StarvingWorkersColor : NoWorkersColor;
 
         ProductionTransform.gameObject.SetActive(false);
         Cleanup();
+    }
+
+    private bool AreEnoughResourcesAvailable()
+    {
+
+        if (!TryGetBuildingData(out BuildingEntity Building))
+            return true;
+
+        if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.ConsumeProduce)
+            return true;
+
+        return !Building.GetProduction(true).IsEmpty();
     }
 
     private void Cleanup()
@@ -103,6 +134,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         ProductionTransform.gameObject.SetActive(false);
     }
 
+    private static string NoConsumptionText = "Not enough resources to work!";
     private static string NoWorkersText = "No workers assigned!";
     private static string StarvingWorkersText = "Workers are hungry and refuse to work!";
 

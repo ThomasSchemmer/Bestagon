@@ -7,6 +7,7 @@ public class MerchantSellScreen : StockpileScreen
 {
     public GameObject Container;
     public GameObject CoinsContainer;
+    public CollectChoiceScreen MerchantBuyScreen;
 
     public void Show()
     {
@@ -124,6 +125,7 @@ public class MerchantSellScreen : StockpileScreen
 
         Production Reward = new(Production.Type.Coins, COIN_REWARD);
         Stockpile.AddResources(Reward);
+        MerchantBuyScreen.UpdateSelectChoiceButtons();
 
         if (Stockpile.CanAfford(Costs))
             return;

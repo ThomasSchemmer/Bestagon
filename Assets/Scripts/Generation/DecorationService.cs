@@ -18,6 +18,13 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
     {
         Entities.Add(Decoration);
         _OnEntityCreated.ForEach(_ => _.Invoke(Decoration));
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        if (!MapGenerator.TryGetChunkVis(Decoration.GetLocation(), out var Vis))
+            return;
+
+        Vis.RefreshTokens();
     }
     protected override void StartServiceInternal()
     {

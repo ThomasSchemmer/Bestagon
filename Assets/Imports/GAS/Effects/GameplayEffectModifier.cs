@@ -10,7 +10,6 @@ public class GameplayEffectModifier
     {
         Add,
         Multiply,
-        Divide,
         Override
     }
 
@@ -57,7 +56,6 @@ public class GameplayEffectModifier
         {
             case Type.Add: Copy.Value = -this.Value; break;
             case Type.Multiply: Copy.Value = -this.Value; break;
-            case Type.Divide: Copy.Value = 1 / this.Value; break;
             default: break;
         }
 
@@ -76,8 +74,25 @@ public class GameplayEffectModifier
 
     public string GetDescription()
     {
+        switch (Operation)
+        {
+            case Type.Add: return GetAddDescription();
+            default: return GetNormalDescription();
+        }
+    }
+
+    private string GetAddDescription()
+    {
         return GetOperationDescription() +
-            GetAttributeDescription() + 
+            Value +
+            GetOperationPrepositionDescription() +
+            GetAttributeDescription();
+    }
+
+    private string GetNormalDescription()
+    {
+        return GetOperationDescription() +
+            GetAttributeDescription() +
             GetOperationPrepositionDescription() +
             Value;
     }
@@ -93,10 +108,9 @@ public class GameplayEffectModifier
     {
         switch (Operation)
         {
-            case Type.Add: return "Increases ";
-            case Type.Multiply: return "Multiplies ";
-            case Type.Divide: return "Divides ";
-            case Type.Override: return "Overrides ";
+            case Type.Add: return "Adds ";
+            case Type.Multiply: return Value > 0 ?  "Increases " : "reduces";
+            case Type.Override: return "Sets ";
             default: return "";
         }
     }
@@ -105,10 +119,9 @@ public class GameplayEffectModifier
     {
         switch (Operation)
         {
-            case Type.Add: return " by ";
+            case Type.Add: return " to ";
             case Type.Multiply: return " by ";
-            case Type.Divide: return " by ";
-            case Type.Override: return " with ";
+            case Type.Override: return " to ";
             default: return "";
         }
     }

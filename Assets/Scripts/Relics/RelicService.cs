@@ -72,8 +72,13 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     private void LoadUnlockableRelics()
     {
+        LoadUnlockableRelicCategory((int)RelicEffect.CategoryMeadow);
+        LoadUnlockableRelicCategory((int)RelicEffect.CategoryDesert);
+    }
+
+    private void LoadUnlockableRelicCategory(int Mask)
+    {
         SerializedDictionary<RelicType, Unlockables.State> Category = new();
-        int Mask = (int)RelicEffect.CategoryMeadow;
         for (int i = 0; i <= RelicEffect.MaxIndex; i++)
         {
             if ((Mask & (1 << i)) == 0)
@@ -82,6 +87,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
             Category.Add((RelicType)(1 << i), Unlockables.State.Locked);
         }
         UnlockableRelics.AddCategory(Category);
+
     }
 
     public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic, bool bIsPreview)
@@ -141,20 +147,21 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
             if (bIsNowActive)
             {
                 GAS.TryApplyEffectTo(Player, Relics[Type]);
-                CurrentActiveRelics++;
             }
             if (bIsNowInActive)
             {
                 Player.RemoveEffect(Relics[Type]);
-                CurrentActiveRelics--;
             }
+
+            //since we forced the update, we cannot simply increase/decrease
+            CurrentActiveRelics = UnlockableRelics.GetCountOfState(Unlockables.State.Active);
+
+            if (OldState == State && !bForce)
+                return;
+
+            Relics[Type].BroadcastDiscoveryChanged(State);
+            OnRelicDiscoveryChanged.ForEach(_ => _.Invoke(Type, State));
         });
-
-        if (OldState == State && !bForce)
-            return;
-
-        Relics[Type].BroadcastDiscoveryChanged(State);
-        OnRelicDiscoveryChanged.ForEach(_ => _.Invoke(Type, State));
     }
 
     public void OnLoadUnlockable(RelicType Type, Unlockables.State State)
