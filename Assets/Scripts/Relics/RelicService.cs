@@ -13,8 +13,6 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
     public Dictionary<RelicType, RelicEffect> Relics = new();
 
     public GameObject ShowRelicButton;
-    public GameObject RelicIconPrefab;
-    public GameObject RelicIconPreviewPrefab;
 
     public int MaxActiveRelics = 3;
     public int CurrentActiveRelics = 0;
@@ -90,14 +88,6 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     }
 
-    public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic, bool bIsPreview)
-    {
-        GameObject GO = Instantiate(bIsPreview ? RelicIconPreviewPrefab : RelicIconPrefab);
-        RelicIconScreen RelicIcon = GO.GetComponent<RelicIconScreen>();
-        RelicIcon.Initialize(Relic, bIsPreview);
-        RelicIcon.transform.SetParent(Container, false);
-        return RelicIcon;
-    }
 
     public GameplayAbilityBehaviour GetPlayerBehavior()
     {
@@ -124,7 +114,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     public void SetRelic(RelicType Type, Unlockables.State State, bool bForce = false)
     {
-        if (CurrentActiveRelics == MaxActiveRelics)
+        if (CurrentActiveRelics == MaxActiveRelics && State == Unlockables.State.Active && !bForce)
         {
             ConfirmScreen.Show("Cannot active another relic, reached max capacity!", OnSetRelicConfirm);
             return;

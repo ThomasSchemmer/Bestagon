@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class RelicScreen : ScreenUI
 {
-    public List<RelicIconScreen> Relics = new();
+    public List<RelicGroupScreen> RelicGroups = new();
 
     public Transform RelicContainer;
 
@@ -29,7 +29,7 @@ public class RelicScreen : ScreenUI
         ClearRelics();
         Game.RunAfterServiceInit((RelicService RelicService) =>
         {
-            InitializeRelics();
+            InitializeRelicGroups();
         });
 
         SetCount(RelicType.DEFAULT, Unlockables.State.Locked);
@@ -64,38 +64,26 @@ public class RelicScreen : ScreenUI
         ActiveText.text = "Active: " + RelicService.CurrentActiveRelics + "/" + RelicService.MaxActiveRelics;
     }
 
-    private void InitializeRelics()
+    private void InitializeRelicGroups()
     {
-        if (!Game.TryGetService(out RelicService RelicService))
+        if (!Game.TryGetServices(out RelicService RelicService, out IconFactory IconFactory))
             return;
 
-        List<RelicEffect> Effects = RelicService.Relics.Values.ToList();
-
-        foreach (var Effect in Effects)
+        for (int i = 0; i < RelicService.UnlockableRelics.GetCategoryCount(); i++)
         {
-            if (RelicService.UnlockableRelics[Effect.Type] == Unlockables.State.Locked)
-                continue;
-
-            var RelicIcon = RelicService.CreateRelicIcon(RelicContainer, Effect, false);
-            Relics.Add(RelicIcon);
-        }
-        foreach (var Effect in Effects)
-        {
-            if (RelicService.UnlockableRelics[Effect.Type] != Unlockables.State.Locked)
-                continue;
-
-            var RelicIcon = RelicService.CreateRelicIcon(RelicContainer, Effect, false);
-            Relics.Add(RelicIcon);
+            var Category = RelicService.UnlockableRelics.GetCategory(i);
+            var GroupScreen = IconFactory.CreateRelicGroup(RelicContainer, Category, i);
+            RelicGroups.Add(GroupScreen);
         }
     }
 
     private void ClearRelics()
     {
-        for (int i = Relics.Count - 1; i >= 0; i--)
+        for (int i = RelicGroups.Count - 1; i >= 0; i--)
         {
-            Destroy(Relics[i].gameObject);
+            Destroy(RelicGroups[i].gameObject);
         }
-        Relics.Clear();
+        RelicGroups.Clear();
     }
 
     private void OnDestroy()

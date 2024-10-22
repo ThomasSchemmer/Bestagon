@@ -14,13 +14,13 @@ public class ConvertTileEventData : EventData
 
     public void OnEnable()
     {
-        if (!Game.TryGetService(out BuildingService BuildingService))
-            return;
+        Game.RunAfterServiceInit((BuildingService BuildingService) =>
+        {
+            if (!BuildingService.TryGetRandomUnlockedTile(out HexagonConfig.HexagonType GrantedType))
+                return;
 
-        if (!BuildingService.TryGetRandomUnlockedTile(out HexagonConfig.HexagonType GrantedType))
-            return;
-
-        TargetHexType = GrantedType;
+            TargetHexType = GrantedType;
+        });
     }
 
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)

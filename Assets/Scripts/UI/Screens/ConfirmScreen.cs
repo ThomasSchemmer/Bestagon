@@ -15,6 +15,9 @@ public class ConfirmScreen : ScreenUI
 
     public static void Show(string Message, Action Callback, bool bShowInput = false)
     {
+        if (Instance == null)
+            return;
+
         Instance.Show(Message, Callback, null, string.Empty, bShowInput);
     }
 
@@ -25,6 +28,9 @@ public class ConfirmScreen : ScreenUI
 
     private void Show(string Message, Action Callback, Action OtherAction, string OtherName, bool bShowInput)
     {
+        if (Text == null)
+            return;
+
         bool bHasOtherAction = OtherAction != null;
         ModifyAs(bShowInput, bHasOtherAction);
 

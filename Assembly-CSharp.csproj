@@ -100,6 +100,7 @@
     <Compile Include="Assets\Scripts\Cards\CardMoveAnimation.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\GameplayEffectModifier.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
+    <Compile Include="Assets\Scripts\Relics\RelicGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />

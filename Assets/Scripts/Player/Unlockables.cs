@@ -71,7 +71,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
 
     public bool IsLocked(T Type)
     {
-        return this[Type] == State.Locked;
+        return this[Type] <= State.Locked;
     }
 
     public T GetRandomOfState(int Seed, State TargetState, bool bCanBeHigher, bool bSingleCategory)
@@ -224,6 +224,9 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
 
     private State Get(T Type)
     {
+        if (Categories == null)
+            return default;
+
         for (int i = 0; i < Categories.Count; i++)
         {
             if (!Categories[i].ContainsKey(Type))
@@ -267,6 +270,11 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         {
             Set(Type, value);
         }
+    }
+
+    public SerializedDictionary<T, State> GetCategory(int i)
+    {
+        return Categories[i];
     }
 
     public delegate void OnUnlock(T Type);

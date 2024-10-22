@@ -109,7 +109,7 @@ public class GameplayEffectModifier
         switch (Operation)
         {
             case Type.Add: return "Adds ";
-            case Type.Multiply: return Value > 0 ?  "Increases " : "reduces";
+            case Type.Multiply: return Value > 0 ?  "Increases " : "Reduces ";
             case Type.Override: return "Sets ";
             default: return "";
         }

@@ -11359,15 +11359,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 15
+    m_Left: 0
     m_Right: 0
-    m_Top: 15
+    m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 125, y: 125}
-  m_Spacing: {x: 15, y: 15}
+  m_CellSize: {x: 900, y: 175}
+  m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &1137653718
@@ -18107,10 +18107,6 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   ShowRelicButton: {fileID: 1188692568}
-  RelicIconPrefab: {fileID: 6355220842690441584, guid: a4f86a51e01a7514d9d75f09e1fb6087,
-    type: 3}
-  RelicIconPreviewPrefab: {fileID: 6355220842690441584, guid: 9f24c5fc455d0f3428277f7e19ecbbde,
-    type: 3}
   MaxActiveRelics: 3
   CurrentActiveRelics: 0
 --- !u!1 &1767718987
@@ -21682,7 +21678,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bef0613edd1fa240a748ec49171b48f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Relics: []
+  RelicGroups: []
   RelicContainer: {fileID: 1133960368}
 --- !u!1 &2098490453
 GameObject:

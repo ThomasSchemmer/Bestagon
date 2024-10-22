@@ -52,6 +52,9 @@ public class UnlockWellQuest : Quest<BuildingConfig.Type>
         if (!Game.TryGetService(out BuildingService BuildingService))
             return 0;
 
+        if (BuildingService.UnlockableBuildings == null)
+            return 0;
+
         return !BuildingService.UnlockableBuildings.IsLocked(BuildingConfig.Type.Well) ? 1 : 0;
     }
 

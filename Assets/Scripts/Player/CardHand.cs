@@ -16,7 +16,7 @@ public class CardHand : CardCollection, IQuestRegister<Card>
             if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
                 return;
 
-            Game.RunAfterServiceInit((CardDeck Deck) =>
+            Game.RunAfterServicesInit((CardDeck Deck, RelicService RelicService) =>
             {
                 Cards = new List<Card>();
                 HandleDelayedFilling(Deck);

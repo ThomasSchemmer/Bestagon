@@ -50,7 +50,7 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
 
     public void Interact() {}
 
-    public bool IsEqual(ISelectable other)
+    public virtual bool IsEqual(ISelectable other)
     {
         SimpleIconScreen OtherIcon = other as SimpleIconScreen;
         if (OtherIcon == null)

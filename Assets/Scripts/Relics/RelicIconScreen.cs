@@ -19,7 +19,7 @@ public class RelicIconScreen : SimpleIconScreen
         
         this.Relic = Relic;
         this.bIsPreview = bIsPreview;
-        string ToolTip = bIsUnlocked ? Relic.Tooltip : "Unknown Effect";
+        string ToolTip = bIsUnlocked ? Relic.GetEffectDescription() : UnknownText;
         Initialize(Sprite, ToolTip, null);
         Relic.OnDiscoveryChanged.Add(OnRelicDiscoveryChanged);
 
@@ -28,8 +28,8 @@ public class RelicIconScreen : SimpleIconScreen
             NameText = transform.GetChild(1).GetComponent<TMPro.TextMeshProUGUI>();
             DescriptionText = transform.GetChild(2).GetComponent<TMPro.TextMeshProUGUI>();
 
-            NameText.text = bIsUnlocked ? Relic.name : "Unknown Relic";
-            DescriptionText.text = bIsUnlocked ? Relic.GetEffectDescription() : "Unknown Effect";
+            NameText.text = bIsUnlocked ? Relic.name : UnknownText;
+            DescriptionText.text = bIsUnlocked ? Relic.GetEffectDescription() : UnknownText;
         }
 
         OnRelicDiscoveryChanged(RelicService.UnlockableRelics[Relic.Type]);
@@ -68,6 +68,16 @@ public class RelicIconScreen : SimpleIconScreen
         RelicService.SetRelic(Relic.Type, State);
     }
 
+    public override bool IsEqual(ISelectable Other)
+    {
+        RelicIconScreen OtherIcon = Other as RelicIconScreen;
+        if (OtherIcon == null)
+            return false;
+
+        return Relic.Type == OtherIcon.Relic.Type;
+    }
+
     public static Color ActiveColor = new Color(1, 1, 1, 1);
     public static Color InActiveColor = new Color(0.25f, 0.25f, 0.25f, 1);
+    public static string UnknownText = "Unknown Relic";
 }

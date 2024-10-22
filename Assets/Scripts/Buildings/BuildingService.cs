@@ -60,7 +60,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
     {
         RandomType = default;
-        if (!IsFullyLoaded())
+        if (!IsInit)
             return false;
 
         if (!Game.TryGetService(out MeshFactory MeshFactory))
@@ -93,7 +93,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     public bool TryGetRandomUnlockedTile(out HexagonConfig.HexagonType RandomType)
     {
         RandomType = default;
-        if (!IsFullyLoaded())
+        if (!IsInit)
             return false;
 
         if (!Game.TryGetService(out MeshFactory MeshFactory))
@@ -122,11 +122,6 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         int RandomIndex = UnityEngine.Random.Range(0, UnlockedTypes.Count);
         RandomType = UnlockedTypes[RandomIndex];
         return true;
-    }
-
-    private bool IsFullyLoaded()
-    {
-        return UnlockableBuildings.GetCategoryCount() == 4;
     }
 
     bool IUnlockableService<BuildingConfig.Type>.IsInit()

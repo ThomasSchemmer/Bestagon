@@ -16,6 +16,7 @@ public class IconFactory : GameService
     private GameObject ProduceUnitEffectPrefab, GrantMiscPrefab, GrantResourceEventEffectPrefab;
     private GameObject ProduceConsumeEffectPrefab;
     private GameObject UpgradeButtonPrefab;
+    private GameObject RelicIconPrefab, RelicGroupPrefab, RelicIconPreviewPrefab;
 
     private Sprite PlaceholderSprite;
 
@@ -62,6 +63,11 @@ public class IconFactory : GameService
         GrantResourceEventEffectPrefab = Resources.Load("UI/Cards/GrantResourceEventEffect") as GameObject;
         ProduceConsumeEffectPrefab = Resources.Load("UI/Cards/ProduceConsumeEffect") as GameObject;
         UpgradeButtonPrefab = Resources.Load("UI/UpgradeButton") as GameObject;
+
+
+        RelicIconPrefab = Resources.Load("UI/Relics/RelicIcon") as GameObject;
+        RelicIconPreviewPrefab = Resources.Load("UI/Relics/RelicIconPreview") as GameObject;
+        RelicGroupPrefab = Resources.Load("UI/Relics/RelicGroup") as GameObject;
     }
     private void LoadResources()
     {
@@ -323,6 +329,24 @@ public class IconFactory : GameService
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
+    }
+
+    public RelicGroupScreen CreateRelicGroup(Transform Container, SerializedDictionary<RelicType, Unlockables.State> Category, int Tier)
+    {
+        GameObject GO = Instantiate(RelicGroupPrefab);
+        RelicGroupScreen RelicGroup = GO.GetComponent<RelicGroupScreen>();
+        RelicGroup.InitializeRelics(Category, Tier);
+        RelicGroup.transform.SetParent(Container, false);
+        return RelicGroup;
+    }
+
+    public RelicIconScreen CreateRelicIcon(Transform Container, RelicEffect Relic, bool bIsPreview)
+    {
+        GameObject GO = Instantiate(bIsPreview ? RelicIconPreviewPrefab : RelicIconPrefab);
+        RelicIconScreen RelicIcon = GO.GetComponent<RelicIconScreen>();
+        RelicIcon.Initialize(Relic, bIsPreview);
+        RelicIcon.transform.SetParent(Container, false);
+        return RelicIcon;
     }
 
     public GameObject GetVisualsForRemoveMalaiseEffect(RemoveMalaiseEventData EventData, ISelectable Parent)

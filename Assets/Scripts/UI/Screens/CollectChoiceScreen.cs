@@ -95,14 +95,14 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     protected void CreateRelicAt(int ChoiceIndex)
     {
-        if (!Game.TryGetService(out RelicService RelicService))
+        if (!Game.TryGetServices(out RelicService RelicService, out IconFactory IconFactory))
             return;
 
         if (!RelicService.UnlockableRelics.TryUnlockNewType(GetSeed() + ChoiceIndex, out var RelicType, true))
             return;
 
         PrepareContainerForRelic(ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback);
-        RelicService.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType], true);
+        IconFactory.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType], true);
         Callback(null, RelicType, ChoiceIndex);
     }
 
