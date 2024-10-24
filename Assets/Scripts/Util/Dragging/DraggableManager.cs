@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class DraggableManager : GameService
 {
@@ -23,32 +24,20 @@ public class DraggableManager : GameService
 
     public void Drag(Draggable Draggable, PointerEventData Event)
     {
-        RectTransform Target = GetTarget(Event);
+        RectTransform Target = GetDragTarget(Event);
         if (!Target)
             return;
 
-        RectTransform Content = GetContentFromViewport(Target);
+        IDragTarget DragTarget = Target.GetComponent<IDragTarget>();
+
+        RectTransform Content = DragTarget.GetTargetContainer();
         if (!Content)
             return;
 
-        GridLayoutGroup Layout = Content.GetComponent<GridLayoutGroup>();
-        if (!Layout)
-            return;
-
-        // map pointer to top left inner position of the actual layout
-        Vector2 Position = Event.position - new Vector2(Layout.padding.left, Layout.padding.top);
-        Position -= new Vector2(Content.position.x, Content.position.y);
-        Position.y = -Position.y;
-        // then check which index to place at
-        Vector2 CellSize = Layout.cellSize + Layout.spacing;
-        Vector2Int CellPosition = new();
-        CellPosition.x = (int)(Position.x / CellSize.x);
-        CellPosition.y = (int)(Position.y / CellSize.y);
-        int GlobalPosition = CellPosition.y * Layout.constraintCount + CellPosition.x;
-        GlobalPosition = Mathf.Min(GlobalPosition, Content.childCount);
+        int SiblingIndex = DragTarget.GetTargetSiblingIndex(Event);
 
         DraggingPreview.transform.SetParent(Content, true);
-        DraggingPreview.transform.SetSiblingIndex(GlobalPosition);
+        DraggingPreview.transform.SetSiblingIndex(SiblingIndex);
         DraggingPreview.transform.localScale = Vector3.one;
         DraggingPreview.SetActive(true);
     }
@@ -60,7 +49,7 @@ public class DraggableManager : GameService
 
         DraggedObjects.Remove(Draggable);
         int Index = DraggingPreview.transform.GetSiblingIndex();
-        Draggable.SetDragParent(GetTarget(Event), Index);
+        Draggable.SetDragParent(GetDragTarget(Event), Index);
         DraggingPreview.SetActive(false);
         DraggingPreview.transform.SetParent(transform, false);
 
@@ -76,14 +65,19 @@ public class DraggableManager : GameService
         Screen.HideCardButtons();
     }
 
-    private RectTransform GetTarget(PointerEventData Event)
+    private RectTransform GetDragTarget(PointerEventData Event)
     {
         RectTransform Chosen = null;
-        foreach (RectTransform Target in Targets)
+        foreach (RectTransform Rect in Targets)
         {
-            if (GetWorldRect(Target).Contains(Event.position))
+            IDragTarget DragTarget = Rect.GetComponent<IDragTarget>();
+            if (DragTarget == null)
+                continue;
+
+            // the checked size rect does not need to be the same as the target container
+            if (GetWorldRect(DragTarget.GetSizeRect()).Contains(Event.position))
             {
-                Chosen = Target;
+                Chosen = DragTarget.GetTargetContainer();
                 break;
             }
         }
@@ -91,6 +85,9 @@ public class DraggableManager : GameService
     }
     private Rect GetWorldRect(RectTransform Rect)
     {
+        if (Rect == null)
+            return new(-1, -1, -1, -1);
+
         Vector3[] Vertices = new Vector3[4];
         Rect.GetWorldCorners(Vertices);
         Vector3 Position = Vertices[0];
@@ -105,13 +102,6 @@ public class DraggableManager : GameService
     public bool IsDragging()
     {
         return DraggedObjects.Count > 0;
-    }
-
-    public RectTransform GetContentFromViewport(RectTransform Viewport)
-    {
-        // we have to check the viewport, not the container
-        // the container height will change according to content, so mouse events will be invalid!
-        return Viewport.childCount > 0 ? Viewport.GetChild(0).GetComponent<RectTransform>() : null;
     }
 
     public List<RectTransform> Targets = new();

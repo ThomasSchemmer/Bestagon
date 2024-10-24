@@ -117,14 +117,14 @@ public class Turn : GameService, IQuestRegister<int>
     private void MoveCards() {
         CardHand.MoveAllCardsTo(DiscardDeck);
 
-        CardHand.HandleDelayedFilling(CardDeck);
+        CardHand.HandleDelayedFilling();
 
         // We already moved enough cards, dont need to refill
         if (CardHand.Cards.Count >= CardHand.GetMaxHandCardCount())
             return;
         
         FillCardDeck();
-        CardHand.HandleDelayedFilling(CardDeck);
+        CardHand.HandleDelayedFilling();
     }
 
     private void FillCardDeck() {

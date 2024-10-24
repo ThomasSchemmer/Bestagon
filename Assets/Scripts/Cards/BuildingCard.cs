@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class BuildingCard : Card
 {
-    public void Init(BuildingEntity BuildingData, int Index)
+    public void Init(BuildingEntity BuildingData, CardDTO DTO, int Index)
     {
         // needs to be set before initialising the base
         this.BuildingData = BuildingData;
-        base.Init(Index);
+        base.Init(DTO, Index);
         this.BuildingData.Init();
     }
 

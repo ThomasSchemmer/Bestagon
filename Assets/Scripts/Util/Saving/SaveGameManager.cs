@@ -134,6 +134,17 @@ public class SaveGameManager : GameService
 
     public string Save(string SaveGameName = DefaultSaveGameName)
     {
+        foreach (var Tuple in Saveables)
+        {
+            ISaveableService SaveableService = Tuple.Value as ISaveableService;
+            if (SaveableService == null)
+                continue;
+            if (!SaveableService.IsServiceInit())
+                continue;
+
+            SaveableService.OnBeforeSaved();
+        }
+
         int Size = GetSaveableSize();
         NativeArray<byte> Bytes = new(Size, Allocator.Temp);
 

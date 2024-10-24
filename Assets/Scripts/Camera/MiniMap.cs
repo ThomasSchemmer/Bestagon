@@ -1,5 +1,8 @@
+using System.Drawing.Drawing2D;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Linq.Expressions;
 
 public class MiniMap : GameService, UIElement
 {
@@ -73,20 +76,35 @@ public class MiniMap : GameService, UIElement
         if (!IsInit)
             return;
 
-        RectTransform transform = GetComponent<RectTransform>();
-        Rect Rectangle = new Rect(transform.anchoredPosition - transform.sizeDelta / 2.0f, transform.sizeDelta);
-        if (!Rectangle.Contains(PixelPos))
+        RectTransform Transform = GetComponent<RectTransform>();
+        Size Size = new((int)Transform.sizeDelta.x, (int)Transform.sizeDelta.y);
+        Point Center = new((int)Transform.position.x, (int)Transform.position.y);
+        Rectangle Rectangle = new(Center - Size / 2, Size);
+
+        Point P = new Point((int)PixelPos.x, (int)PixelPos.y);
+        P = Rotate(Center, P, -Transform.eulerAngles.z);
+
+        if (!Rectangle.Contains(P))
             return;
 
         Vector2 PercentMiniMap;
-        PercentMiniMap.x = (PixelPos.x - Rectangle.xMin) / Rectangle.width;
-        PercentMiniMap.y = (PixelPos.y - Rectangle.yMin) / Rectangle.height;
+        PercentMiniMap.x = (P.X - Rectangle.Left) / (float)Rectangle.Width;
+        PercentMiniMap.y = (P.Y - Rectangle.Top) / (float)Rectangle.Height;
 
         MapGenerator.GetMapBounds(out Vector3 MinBottomLeft, out Vector3 MaxTopRight);
         Vector3 WorldDiff = MaxTopRight - MinBottomLeft;
         Vector3 WorldPosition = MinBottomLeft + new Vector3(PercentMiniMap.x * WorldDiff.x, 0, PercentMiniMap.y * WorldDiff.z);
         CameraController.TargetPosition.x = WorldPosition.x;
         CameraController.TargetPosition.z = WorldPosition.z;
+    }
+
+    private Point Rotate(Point Center, Point P, float Angle)
+    {
+        Matrix M = new Matrix();
+        M.RotateAt(Angle, Center);
+        Point[] Ps = new Point[] { P };
+        M.TransformPoints(Ps);
+        return Ps[0];
     }
 
     public void SetSelected(bool Selected) { }

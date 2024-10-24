@@ -29,7 +29,7 @@ public class AbandonScreen : ScreenUI
         this.UpgradesScreen.HoverTooltip = "Upgrade points";
         RectTransform UpgradesScreen = UpgradesVisuals.GetComponent<RectTransform>();
         UpgradesScreen.SetParent(Container.transform, false);
-        UpgradesScreen.anchoredPosition = new(85, -25);
+        UpgradesScreen.anchoredPosition = new(32, -45);
 
 
         Game.RunAfterServicesInit((Stockpile Stockpile, IconFactory IconFactory) =>

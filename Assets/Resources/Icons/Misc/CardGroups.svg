@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666665 8.4666665"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="CardGroups.svg"
+   inkscape:export-filename="CardGroups.png"
+   inkscape:export-xdpi="768"
+   inkscape:export-ydpi="768"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showguides="true"
+     inkscape:zoom="8.1941055"
+     inkscape:cx="26.543471"
+     inkscape:cy="16.780355"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1.0583333"
+       spacingy="1.0583333"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       d="M 2.9977498,8.1121663 4.5123861,7.5468262 C 4.7870417,7.4443278 4.9254598,7.1403864 4.8229614,6.8657308 L 3.3429484,2.8995646 C 3.24045,2.624909 2.9365087,2.4864909 2.661853,2.5889893 L 0.67902832,3.3289958 C 0.40437267,3.4314942 0.26595457,3.7349187 0.36845296,4.0095744 L 1.615922,7.3530396 a 4.0761104,4.0761104 0 0 0 1.3818278,0.7591267 z"
+       style="fill:#2a68a4;stroke:#518abd;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2"
+       id="path1"
+       inkscape:label="Card1" />
+    <path
+       d="M 3.175,2.598291 C 2.8818419,2.5983051 2.6458193,2.8342996 2.6458333,3.1274577 V 7.360791 C 2.6458474,7.6539491 2.8818419,7.8899717 3.175,7.8899577 H 5.2916667 C 5.5848247,7.8899436 5.8208474,7.6539491 5.8208333,7.360791 V 3.1274577 C 5.8208193,2.8342996 5.5848247,2.598277 5.2916667,2.598291 Z"
+       style="fill:#518abd;stroke:#61b0d4;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2"
+       id="path3" />
+    <path
+       d="M 6.9391113,7.2812093 8.1038981,4.1961263 C 8.2074401,3.9218624 8.0701705,3.6175394 7.7959066,3.5139974 L 5.8156657,2.7662394 C 5.5414018,2.6626974 5.2370788,2.799967 5.1335368,3.074231 L 3.6385376,7.0352295 c -0.103542,0.2742639 0.033728,0.5780701 0.3079915,0.6816121 L 5.2048503,8.191748 a 4.0761104,4.0761104 0 0 0 1.734261,-0.9105387 z"
+       style="fill:#61b0d4;stroke:#abd2e3;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2"
+       id="path2"
+       inkscape:label="Card3" />
+    <path
+       d="M 4.23346,0.157223 A 4.0761104,4.0761104 0 0 0 0.157223,4.23346 4.0761104,4.0761104 0 0 0 4.23346,8.309697 4.0761104,4.0761104 0 0 0 8.309697,4.23346 4.0761104,4.0761104 0 0 0 4.23346,0.157223 Z"
+       style="fill:none;stroke:#2f2114;stroke-width:0.3;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+       id="path5" />
+  </g>
+</svg>

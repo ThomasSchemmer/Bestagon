@@ -32,10 +32,10 @@ public class ScoutEntity : TokenizedUnitEntity
     {
         return GetStaticSize();
     }
-
+    
     public static new int GetStaticSize()
     {
-        return TokenizedUnitEntity.GetStaticSize() + MAX_NAME_LENGTH * sizeof(int) + sizeof(int);
+        return TokenizedUnitEntity.GetStaticSize() + MAX_NAME_LENGTH * sizeof(byte) + sizeof(int);
     }
 
     public override byte[] GetData()

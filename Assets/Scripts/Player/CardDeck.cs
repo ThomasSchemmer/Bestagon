@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Holds all cards that will be available to the player to draw from every turn
+ * Once empty, will be refilled with shuffled cards from the @DiscardDeck
+ */
 public class CardDeck : CardCollection
 {
 
@@ -17,15 +21,6 @@ public class CardDeck : CardCollection
             // needs to have updated costs
             Game.RunAfterServiceInit((RelicService RelicService) =>
             {
-                if (Manager.HasDataFor(ISaveableService.SaveGameType.CardDeck))
-                    return;
-
-                Cards = new();
-                Factory.CreateCard(UnitEntity.UType.Scout, 0, transform, AddScoutCard);
-                Factory.CreateCard(BuildingConfig.Type.Woodcutter, 0, transform, AddCard);
-                Factory.CreateCard(BuildingConfig.Type.ForagersHut, 0, transform, AddCard);
-                Factory.CreateCard(BuildingConfig.Type.Claypit, 0, transform, AddCard);
-                Factory.CreateCard(BuildingConfig.Type.Hut, 0, transform, AddCard);
                 _OnInit?.Invoke(this);
             });
         });
@@ -56,14 +51,6 @@ public class CardDeck : CardCollection
         UpdateText();
     }
 
-    private void AddScoutCard(Card Card)
-    {
-        EventCard ECard = Card as EventCard;
-        GrantUnitEventData EData = ECard.EventData as GrantUnitEventData;
-        EData.bIsTemporary = false;
-        AddCard(Card);
-    }
-
     public override bool ShouldCardsBeDisplayed()
     {
         return false;
@@ -72,5 +59,14 @@ public class CardDeck : CardCollection
     public override float GetCardSize()
     {
         return 0;
+    }
+
+    public override Card.CardState GetState()
+    {
+        return Card.CardState.Available;
+    }
+    public override bool ShouldUpdateCardState()
+    {
+        return true;
     }
 }

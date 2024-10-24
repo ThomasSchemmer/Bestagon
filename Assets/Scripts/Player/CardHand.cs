@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEngine.XR;
 
+/**
+ * Holds cards that the player can actively play
+ * Refreshes cards every turn, takes them from @CardDeck
+ */
 public class CardHand : CardCollection, IQuestRegister<Card>
 {
 
@@ -12,17 +14,7 @@ public class CardHand : CardCollection, IQuestRegister<Card>
 
             base.StartServiceInternal();
 
-            // cards will be loaded instead of newly generated
-            if (Manager.HasDataFor(ISaveableService.SaveGameType.CardHand))
-                return;
-
-            Game.RunAfterServicesInit((CardDeck Deck, RelicService RelicService) =>
-            {
-                Cards = new List<Card>();
-                HandleDelayedFilling(Deck);
-                _OnInit?.Invoke(this);
-            });
-            
+            _OnInit?.Invoke(this);
         });
     }
 
@@ -107,13 +99,16 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         Sort(false);
         Game.RunAfterServiceInit((CardDeck Deck) =>
         {
-            HandleDelayedFilling(Deck);
+            HandleDelayedFilling();
             _OnInit?.Invoke(this);
         });
     }
 
-    public void HandleDelayedFilling(CardDeck Deck)
+    public void HandleDelayedFilling()
     {
+        if (!Game.TryGetService(out CardDeck Deck))
+            return;
+
         int TargetAmount = GetMaxHandCardCount();
         int Amount = Mathf.Max(TargetAmount - Cards.Count, 0);
         Amount = Mathf.Min(Amount, Deck.Cards.Count);
@@ -137,6 +132,15 @@ public class CardHand : CardCollection, IQuestRegister<Card>
     public override float GetCardSize()
     {
         return 1;
+    }
+
+    public override Card.CardState GetState()
+    {
+        return Card.CardState.InHand;
+    }
+    public override bool ShouldUpdateCardState()
+    {
+        return true;
     }
 
     public static Vector3 NormalPosition = new Vector3(0, -500, 0);

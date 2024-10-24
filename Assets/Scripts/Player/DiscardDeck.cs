@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+/**
+ * Holds all cards that have been played by the player and not yet shuffled
+ */
 public class DiscardDeck : CardCollection {
 
     public override void AddCard(Card Card) {
         base.AddCard(Card);
-        //Card.gameObject.SetActive(false);
-        //Card.transform.localPosition = RootPosition + Offset * Cards.Count;
-        //Card.gameObject.layer = 0;
         Text.text = "" + Cards.Count;
     }
 
@@ -35,6 +35,15 @@ public class DiscardDeck : CardCollection {
     public override float GetCardSize()
     {
         return 0;
+    }
+
+    public override Card.CardState GetState()
+    {
+        return Card.CardState.Played;
+    }
+    public override bool ShouldUpdateCardState()
+    {
+        return true;
     }
 
     public static Vector3 RootPosition = new Vector3(-20, -200, 0);

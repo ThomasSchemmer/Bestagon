@@ -12,9 +12,7 @@ public interface ISaveableService : ISaveableData
     {
         None = 0,
         MapGenerator = 1,
-        CardHand = 2,
-        CardDeck = 3,
-        CardStash = 4,
+        CardGroups = 2,
         Stockpile = 5,
         Statistics = 6,
         Buildings = 7,
@@ -45,4 +43,7 @@ public interface ISaveableService : ISaveableData
 
     /** Overwrite for actions that have to be taken after loading the data */
     public void OnLoaded() { }
+
+    /** Overwrite for any actions that have to be taken right before saving */
+    public void OnBeforeSaved() { }
 }

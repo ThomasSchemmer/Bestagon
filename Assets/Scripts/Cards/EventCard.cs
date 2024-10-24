@@ -6,9 +6,9 @@ public class EventCard : Card
 {
     public EventData EventData;
 
-    public void Init(EventData EventData, int Index) {
+    public void Init(EventData EventData, CardDTO DTO, int Index) {
         this.EventData = EventData;
-        base.Init(Index);
+        base.Init(DTO, Index);
     }
 
     public override string GetName()

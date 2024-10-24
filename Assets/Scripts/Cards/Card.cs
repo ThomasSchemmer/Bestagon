@@ -17,6 +17,7 @@ using System.Linq;
  */
 public abstract class Card : Draggable, ISelectable
 {        
+    /** Describes whether the card GO should be visible */
     public enum Visibility : uint
     {
         Hidden = 0,
@@ -24,10 +25,21 @@ public abstract class Card : Draggable, ISelectable
         Visible = 2
     }
 
-    public virtual void Init(int Index) {
+    /** Deescribes in which collection and therefore state its in */
+    public enum CardState : uint
+    {
+        DEFAULT = 0,
+        Available = 1,
+        InHand = 2,
+        Played = 3,
+        Disabled = 4
+    }
+
+    public virtual void Init(CardDTO DTO, int Index) {
         CardHand = Game.GetService<CardHand>();
         ID = System.Guid.NewGuid();
         transform.SetSiblingIndex(Index);
+        State = DTO.State;
         gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         GenerateCard();
         Init();
@@ -331,11 +343,27 @@ public abstract class Card : Draggable, ISelectable
     {
         base.SetDragParent(NewParent, Index);
 
-        CardCollection NewCollection = transform.parent.GetComponent<CardCollection>();
-        OldCollection.RemoveCard(this);
-        OldCollection.UpdatePinnedIndices();
-        NewCollection.SetIndex(this, Index);
-        NewCollection.UpdatePinnedIndices();
+        CardCollection NewCollection = NewParent.GetComponent<CardCollection>();
+        if (NewCollection != null)
+        {
+            OldCollection.RemoveCard(this);
+            OldCollection.UpdatePinnedIndices();
+            NewCollection.SetIndex(this, Index);
+            NewCollection.UpdatePinnedIndices();
+            return;
+        }
+
+        CardGroupScreen GroupScreen = NewParent.GetComponent<CardGroupScreen>();
+        if (GroupScreen != null)
+        {
+            if (!Game.TryGetService(out CardGroupManager Manager))
+                return;
+
+            OldCollection.RemoveCard(this);
+            OldCollection.UpdatePinnedIndices();
+            GroupScreen.StoreCard(this, Index);
+            Manager.GetActiveCardGroup().InvokeCardRemoved();
+        }
     }
 
     public override void OnBeginDrag(PointerEventData eventData)
@@ -360,12 +388,18 @@ public abstract class Card : Draggable, ISelectable
 
     public string GetHoverTooltip()
     {
-        return "Cards can be played on hexagons to create buildings, units or events";
+        return "Cards can be played on tiles to create buildings, units or events";
+    }
+
+    public CardState GetState()
+    {
+        return State;
     }
 
     public void OnAssignedToCollection(CardCollection Target)
     {
         Collection = Target;
+        State = Collection.ShouldUpdateCardState() ? Collection.GetState() : State;
 
         // card selection has drag and drop, skip animations
         if (Game.IsIn(Game.GameState.CardSelection))
@@ -394,6 +428,7 @@ public abstract class Card : Draggable, ISelectable
     protected bool bCanBeHovered = false;
     protected bool bWasUsedUp = false;
     protected int PinnedIndex = -1;
+    protected CardState State = CardState.DEFAULT;
     protected TextMeshProUGUI NameText;
     protected RectTransform CostTransform, SymbolTransform, UsagesTransform, EffectTransform;
     protected Image CardBaseImage, CardImage;

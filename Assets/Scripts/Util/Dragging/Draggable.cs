@@ -53,7 +53,6 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         CanvasGroup.alpha = 1;
         CanvasGroup.blocksRaycasts = true;
         Manager.EndDrag(this, EventData);
-        HandleHighlight();
     }
     
     public virtual void SetDragParent(RectTransform NewParent, int Index)
@@ -61,7 +60,8 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         RectTransform Target;
         if (NewParent)
         {
-            Target = Manager.GetContentFromViewport(NewParent);
+            IDragTarget DragTarget = NewParent.GetComponent<IDragTarget>();
+            Target = DragTarget.GetTargetContainer();
         }
         else
         {
@@ -71,20 +71,6 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     }
 
     public void OnPointerDown(PointerEventData eventData) { }
-
-    private void HandleHighlight()
-    {
-        GameObject Parent = transform.parent.gameObject;
-        if (Parent == null) 
-            return;
-
-        CardContainerUI UI = Parent.GetComponent<CardContainerUI>();
-        if (UI == null)
-            return;
-
-        CanvasGroup.alpha = UI.bIsActiveCards ? 1 : 0.8f;
-    }
-
 
     public Canvas Canvas;
 

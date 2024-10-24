@@ -143,12 +143,14 @@
     <Compile Include="Assets\Scripts\Player\CardDeck.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreviewScreen.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardGroupManager.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedBuildingsQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
+    <Compile Include="Assets\Scripts\Cards\CardGroup.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
@@ -160,6 +162,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantBuyScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CardGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
@@ -186,6 +189,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\ScoutTilesQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\DecorationVisualization.cs" />
+    <Compile Include="Assets\Scripts\Util\Dragging\IDragTarget.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTileQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
@@ -225,6 +229,7 @@
     <Compile Include="Assets\Scripts\Player\CardHand.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />
     <Compile Include="Assets\Scripts\Unit\StarvableUnitEntity.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\CardGroupsScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\DTOs\CardDTO.cs" />
     <Compile Include="Assets\Scripts\Cards\EventCard.cs" />
     <Compile Include="Assets\Scripts\Generation\DecorationEntity.cs" />

@@ -36,6 +36,7 @@ public class CardFactory : GameService
             if (!Game.TryGetService(out MeshFactory TileFactory))
                 return;
 
+            // todo: memory leak?
             this.DTO = BuildingCardDTO.CreateFromBuildingData(TileFactory.CreateDataFromType(Type));
             this.Index = Index;
             this.Parent = Parent;
@@ -175,7 +176,7 @@ public class CardFactory : GameService
 
         CardObject.name = "Card " + EventData.Type.ToString();
         EventCard Card = CardObject.AddComponent<EventCard>();
-        Card.Init(EventData, Info.Index);
+        Card.Init(EventData, Info.DTO, Info.Index);
         Card.SetPinned(Info.DTO.PinnedIndex);
 
         return Card;
@@ -187,7 +188,7 @@ public class CardFactory : GameService
 
         CardObject.name = "Card " + BuildingData.BuildingType;
         BuildingCard Card = CardObject.AddComponent<BuildingCard>();
-        Card.Init(BuildingData, Info.Index);
+        Card.Init(BuildingData, Info.DTO, Info.Index);
         Card.SetPinned(Info.DTO.PinnedIndex);
 
         return Card;

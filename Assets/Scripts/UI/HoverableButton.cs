@@ -27,7 +27,12 @@ public class HoverableButton : Button, UIElement
         return name.Equals((other as HoverableButton).name);
     }
 
-    public void SetHovered(bool Hovered){}
+    public void SetHovered(bool Hovered){
+        if (Parent == null || Parent is not UIElement)
+            return;
+        
+        ((UIElement)Parent).SetHoveredAsParent(Hovered);
+    }
 
     public void SetSelected(bool Selected){}
 
@@ -37,4 +42,5 @@ public class HoverableButton : Button, UIElement
     }
 
     public string HoverText;
+    public MonoBehaviour Parent;
 }

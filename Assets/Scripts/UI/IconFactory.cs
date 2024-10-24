@@ -17,6 +17,7 @@ public class IconFactory : GameService
     private GameObject ProduceConsumeEffectPrefab;
     private GameObject UpgradeButtonPrefab;
     private GameObject RelicIconPrefab, RelicGroupPrefab, RelicIconPreviewPrefab;
+    private GameObject CardGroupPrefab;
 
     private Sprite PlaceholderSprite;
 
@@ -68,6 +69,8 @@ public class IconFactory : GameService
         RelicIconPrefab = Resources.Load("UI/Relics/RelicIcon") as GameObject;
         RelicIconPreviewPrefab = Resources.Load("UI/Relics/RelicIconPreview") as GameObject;
         RelicGroupPrefab = Resources.Load("UI/Relics/RelicGroup") as GameObject;
+
+        CardGroupPrefab = Resources.Load("UI/CardGroup") as GameObject;
     }
     private void LoadResources()
     {
@@ -347,6 +350,14 @@ public class IconFactory : GameService
         RelicIcon.Initialize(Relic, bIsPreview);
         RelicIcon.transform.SetParent(Container, false);
         return RelicIcon;
+    }
+
+    public CardGroupScreen CreateCardGroupScreen(Transform Container)
+    {
+        GameObject GO = Instantiate(CardGroupPrefab);
+        CardGroupScreen CardGroup = GO.GetComponent<CardGroupScreen>();
+        CardGroup.transform.SetParent(Container, false);
+        return CardGroup;
     }
 
     public GameObject GetVisualsForRemoveMalaiseEffect(RemoveMalaiseEventData EventData, ISelectable Parent)

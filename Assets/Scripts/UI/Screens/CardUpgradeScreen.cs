@@ -88,6 +88,12 @@ public class CardUpgradeScreen : GameService
 
     private void ShowUpgradeButtonAtCard(Card Card, bool bIsVisible)
     {
+        if (Card == null)
+        {
+            HideCardButtons();
+            return;
+        }
+
         bool bIsBuildingCard = Card is BuildingCard;
         bool bHaveEnoughUpgrades = Game.TryGetService(out Stockpile Stockpile) && Stockpile.CanAffordUpgrade(1);
         bool bCanBeUpgraded = Card.CanBeUpgraded();
@@ -105,8 +111,14 @@ public class CardUpgradeScreen : GameService
 
     private void ShowPinButtonAtCard(Card Card, bool bIsVisible)
     {
+        if (Card == null)
+        {
+            HideCardButtons();
+            return;
+        }
+
         CardContainerUI Container = Card.GetCurrentCollection() as CardContainerUI;
-        bool bIsActive = Container != null && Container.bIsActiveCards;
+        bool bIsActive = Container != null;
         bIsVisible = bIsVisible && bIsActive;
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
