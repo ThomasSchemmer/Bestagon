@@ -113,6 +113,10 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
 
         Type = (EventType)bType;
     }
+    public bool ShouldBeDeleted()
+    {
+        return bIsTemporary;
+    }
 
     public abstract Vector3 GetOffset();
     public abstract Quaternion GetRotation();

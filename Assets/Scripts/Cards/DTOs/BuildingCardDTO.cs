@@ -73,4 +73,9 @@ public class BuildingCardDTO : CardDTO
         BuildingCardDTO DTO = new();
         return DTO;
     }
+
+    public override bool ShouldBeDeleted()
+    {
+        return false;
+    }
 }

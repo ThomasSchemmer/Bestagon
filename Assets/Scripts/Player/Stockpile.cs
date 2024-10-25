@@ -251,6 +251,11 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         StockpileScreen.Show(bShow);
     }
 
+    public void OnBeforeSaved()
+    {
+        Reset();
+    }
+
     public Production Resources;
     public Production SimulatedResources;
     public Production SimulatedGains;

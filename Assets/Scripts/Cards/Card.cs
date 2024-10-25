@@ -40,6 +40,7 @@ public abstract class Card : Draggable, ISelectable
         ID = System.Guid.NewGuid();
         transform.SetSiblingIndex(Index);
         State = DTO.State;
+        bWasUsedUp = DTO.bWasUsedUp;
         gameObject.layer = LayerMask.NameToLayer(Selectors.UILayerName);
         GenerateCard();
         Init();

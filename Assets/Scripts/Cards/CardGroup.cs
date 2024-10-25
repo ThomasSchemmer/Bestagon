@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Collections;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using static UnityEditor.PlayerSettings;
+using System.Linq;
+using System;
 
 /** 
  * Container for a group of cards
@@ -269,6 +268,107 @@ public class CardGroup : ISaveableData
             List.Add(DTO);
         }
         return Pos;
+    }
+
+    public void CleanUpCards()
+    {
+        CardDeck.AddRange(DiscardDeck);
+        DiscardDeck.Clear();
+        CardDeck.AddRange(CardHand);
+        CardHand.Clear();
+
+        RefreshAllUsages(ref CardDeck);
+        RefreshAllUsages(ref CardStash);
+        DeleteAllCardsConditionally((Card) =>
+        {
+            return Card.ShouldBeDeleted();
+        }, ref CardStash);
+        MoveAllCardsConditionallyTo(ref CardStash, ref CardDeck, (Card) =>
+        {
+            return Card.bWasUsedUp;
+        });
+        RefreshAllUsedUps(ref CardDeck);
+    }
+
+    private void RefreshAllUsages(ref List<CardDTO> Cards)
+    {
+        foreach (var Card in Cards)
+        {
+            if (Card is not BuildingCardDTO)
+                continue;
+
+            (Card as BuildingCardDTO).BuildingData.RefreshUsage();
+        }
+    }
+
+    private void RefreshAllUsedUps(ref List<CardDTO> Cards)
+    {
+        foreach (var Card in Cards)
+        {
+            Card.bWasUsedUp = false;
+        }
+    }
+
+    private void DeleteAllCardsConditionally(Func<CardDTO, bool> Check, ref List<CardDTO> Cards)
+    {
+        for (int i = Cards.Count - 1; i >= 0; i--)
+        {
+            CardDTO Card = Cards[i];
+            if (Check(Card))
+            {
+                Cards.Remove(Card);
+            }
+        }
+    }
+
+    private void MoveAllCardsConditionallyTo(ref List<CardDTO> Source, ref List<CardDTO> Target, Func<CardDTO, bool> Check)
+    {
+        for (int i = Source.Count - 1; i >= 0; i--)
+        {
+            CardDTO DTO = Source[i];
+            if (Check(DTO))
+            {
+                Source.Remove(DTO);
+                Target.Add(DTO);
+            }
+        }
+    }
+
+    public void ApplyPinnedPosition()
+    {
+        ApplyPinnedPosition(ref CardDeck);
+        ApplyPinnedPosition(ref CardHand);
+        ApplyPinnedPosition(ref CardStash);
+        ApplyPinnedPosition(ref DiscardDeck);
+    }
+    
+    private void ApplyPinnedPosition(ref List<CardDTO> Cards) { 
+
+        CardDTO[] PinnedCardOrder = new CardDTO[Cards.Count];
+        List<CardDTO> NonPinnedCards = new();
+        foreach (CardDTO DTO in Cards)
+        {
+            DTO.PinnedIndex = Mathf.Min(DTO.PinnedIndex, PinnedCardOrder.Length - 1);
+            if (DTO.PinnedIndex == -1 || PinnedCardOrder[DTO.PinnedIndex] != null)
+            {
+                NonPinnedCards.Add(DTO);
+                continue;
+            }
+
+            PinnedCardOrder[DTO.PinnedIndex] = DTO;
+        }
+
+        for (int i = 0; i < PinnedCardOrder.Length; i++)
+        {
+            if (PinnedCardOrder[i] != null)
+                continue;
+
+            CardDTO DTO = NonPinnedCards[0];
+            NonPinnedCards.Remove(DTO);
+            PinnedCardOrder[i] = DTO;
+        }
+
+        Cards = PinnedCardOrder.ToList();
     }
 
     public bool ShouldLoadWithLoadedSize() { return true; }

@@ -21,11 +21,6 @@ public class DiscardDeck : CardCollection {
         });
     }
 
-    public override void OnLoaded()
-    {
-        base.OnLoaded();
-
-    }
 
     public override bool ShouldCardsBeDisplayed()
     {

@@ -138,7 +138,7 @@ public class BuildingCard : Card
 
     public void RefreshUsage()
     {
-        BuildingData.CurrentUsages = BuildingData.MaxUsages;
+        BuildingData.RefreshUsage();
         UpdateUsageText();
     }
 

@@ -31,19 +31,6 @@ public class CardDeck : CardCollection
         Text.text = "" + Cards.Count;
     }
 
-    public override void OnLoaded()
-    {
-        base.OnLoaded();
-        foreach (Card Card in Cards)
-        {
-            Card.Show(Card.Visibility.Hidden);
-        }
-
-        UpdateText();
-        _OnInit?.Invoke(this);
-    }
-
-
     public override void AddCard(Card Card)
     {
         base.AddCard(Card);

@@ -3595,7 +3595,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.25881916, y: 0.00000004470348, z: -0, w: 0.9659258}
   m_LocalPosition: {x: -0, y: 0, z: 55}
-  m_LocalScale: {x: 300, y: 200, z: 1}
+  m_LocalScale: {x: 500, y: 300, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 577026642}
@@ -6735,8 +6735,8 @@ MonoBehaviour:
   MovementSpeed: 0.03
   PanningSpeed: 8
   MinimumZoom: 30
-  MaximumZoom: 80
-  ZoomSteps: 5
+  MaximumZoom: 110
+  ZoomSteps: 10
 --- !u!1 &584659841
 GameObject:
   m_ObjectHideFlags: 0

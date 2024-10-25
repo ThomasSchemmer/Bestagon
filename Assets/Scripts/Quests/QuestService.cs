@@ -277,7 +277,7 @@ public class QuestService : GameService, ISaveableService
         return QuestsToUnlock.Count;
     }
 
-    public void HandleTutorialInit()
+    private void HandleTutorialInit()
     {
         if (!Game.TryGetService(out TutorialSystem TutorialSystem))
             return;
@@ -454,7 +454,11 @@ public class QuestService : GameService, ISaveableService
     {
         _OnInit?.Invoke(this);
     }
-    
+    public void OnBeforeSaved()
+    {
+        HandleTutorialInit();
+    }
+
     public QuestUIElement MainQuest;
     public QuestUIElement NegativeQuest;
     public List<QuestUIElement> PositiveQuests = new();

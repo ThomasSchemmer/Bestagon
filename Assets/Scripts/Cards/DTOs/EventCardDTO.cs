@@ -62,4 +62,9 @@ public class EventCardDTO : CardDTO
     {
         return CardDTO.GetStaticSize() + EventData.GetStaticSize();
     }
+
+    public override bool ShouldBeDeleted()
+    {
+        return EventData.ShouldBeDeleted();
+    }
 }

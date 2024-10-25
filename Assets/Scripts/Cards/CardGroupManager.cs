@@ -49,17 +49,23 @@ public class CardGroupManager : GameService, ISaveableService
         });
     }
 
-    protected override void StopServiceInternal()
-    {
-
-    }
+    protected override void StopServiceInternal() {}
 
     public void Reset()
     {
         // delete groups
     }
 
+    private void CleanUpCards()
+    {
+        foreach (var CardGroup in CardGroups)
+        {
+            CardGroup.CleanUpCards();
+        }
+    }
+
     public void OnLoaded() {
+        ApplyPinnedPosition();
         CardGroupsScreen.CreateCardGroupScreens(this, ActiveGroupIndex != -1 ? ActiveGroupIndex : 0);
         _OnInit?.Invoke(this);
     }
@@ -112,6 +118,14 @@ public class CardGroupManager : GameService, ISaveableService
         }
 
         return false;
+    }
+
+    private void ApplyPinnedPosition()
+    {
+        foreach (var CardGroup in CardGroups)
+        {
+            CardGroup.ApplyPinnedPosition();
+        }
     }
 
     private void CreateBaseGroups()
@@ -199,6 +213,7 @@ public class CardGroupManager : GameService, ISaveableService
     public void OnBeforeSaved()
     {
         SwitchTo(-1);
+        CleanUpCards();
     }
 
     public static int GroupCount = 4;

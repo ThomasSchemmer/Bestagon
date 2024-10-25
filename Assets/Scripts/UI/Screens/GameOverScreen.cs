@@ -14,25 +14,11 @@ public class GameOverScreen : ScreenUI
 
     public void Leave()
     {
-        if (!Game.TryGetServices(out SaveGameManager SaveGameManager, out Statistics Statistics))
+        if (!Game.TryGetService(out SaveGameManager SaveGameManager))
             return;
-
-        ResetResources();
-        UpdateCards();
-        HandleTutorialInit();
-
-        Statistics.ResetCurrentStats();
 
         string SaveGame = SaveGameManager.Save();
         Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
-    }
-
-    private void HandleTutorialInit()
-    {
-        if (!Game.TryGetService(out QuestService QuestService))
-            return;
-
-        QuestService.HandleTutorialInit();
     }
 
     private void DisplayCurrentRun(Statistics Statistics)
@@ -51,37 +37,6 @@ public class GameOverScreen : ScreenUI
         BestRun.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = Statistics.BestUnits + "";
         BestRun.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = Statistics.BestResources + "";
         BestRun.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = Statistics.BestHighscore + "";
-    }
-
-    private void ResetResources()
-    {
-        if (!Game.TryGetService(out Stockpile Stockpile))
-            return;
-
-        Stockpile.Reset();
-    }
-
-    private void UpdateCards()
-    {
-        if (!Game.TryGetServices(out CardHand CardHand, out CardStash CardStash, out DiscardDeck DiscardDeck))
-            return;
-        if (!Game.TryGetService(out CardDeck CardDeck))
-            return;
-
-        DiscardDeck.MoveAllCardsTo(CardDeck);
-        CardHand.MoveAllCardsTo(CardDeck);
-
-        CardDeck.RefreshAllUsages();
-        CardStash.RefreshAllUsages();
-        CardStash.DeleteAllCardsConditionally((Card) =>
-        {
-            return Card.ShouldBeDeleted();
-        });
-        CardStash.MoveAllCardsConditionallyTo(CardDeck, (Card) =>
-        {
-            return Card.WasUsedUpThisTurn();
-        });
-        CardDeck.RefreshAllUsedUps();
     }
 
     public static void GameOver(string Message = null)

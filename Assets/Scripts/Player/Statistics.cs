@@ -241,7 +241,7 @@ public class Statistics : GameService, ISaveableService
         CurrentResources = 0;
     }
 
-    public void ResetCurrentStats()
+    private void ResetCurrentStats()
     {
         CurrentBuildings = 0;
         CurrentMoves = 0;
@@ -251,6 +251,11 @@ public class Statistics : GameService, ISaveableService
 
     protected override void StopServiceInternal() {
         Subscribe(false);
+    }
+
+    public void OnBeforeSaved()
+    {
+        ResetCurrentStats();
     }
 
     private static int POINTS_BUILDINGS = 5;

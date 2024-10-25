@@ -18,7 +18,7 @@ public class EventCard : Card
 
     public override bool ShouldBeDeleted()
     {
-        return EventData.bIsTemporary;
+        return EventData.ShouldBeDeleted();
     }
 
     protected override void GenerateVisuals()

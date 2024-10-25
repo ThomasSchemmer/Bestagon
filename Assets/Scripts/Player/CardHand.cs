@@ -93,17 +93,6 @@ public class CardHand : CardCollection, IQuestRegister<Card>
         Sort(false);
     }
 
-    public override void OnLoaded()
-    {
-        base.OnLoaded();
-        Sort(false);
-        Game.RunAfterServiceInit((CardDeck Deck) =>
-        {
-            HandleDelayedFilling();
-            _OnInit?.Invoke(this);
-        });
-    }
-
     public void HandleDelayedFilling()
     {
         if (!Game.TryGetService(out CardDeck Deck))

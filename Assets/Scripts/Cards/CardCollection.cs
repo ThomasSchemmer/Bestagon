@@ -142,37 +142,6 @@ public abstract class CardCollection : GameService
         gameObject.SetActive(bShow);
     }
 
-    public virtual void OnLoaded()
-    {
-        Card[] PinnedCardOrder = new Card[Cards.Count];
-        List<Card> NonPinnedCards = new();
-        foreach (Card Card in Cards)
-        {
-            if (!Card.IsPinned())
-            {
-                NonPinnedCards.Add(Card);
-                continue;
-            }
-
-            PinnedCardOrder[Card.GetPinnedIndex()] = Card;
-        }
-
-        for (int i = 0; i < PinnedCardOrder.Length; i++)
-        {
-            if (PinnedCardOrder[i] == null)
-            {
-                Card Card = NonPinnedCards[0];
-                SetIndex(Card, i);
-                NonPinnedCards.Remove(Card);
-                PinnedCardOrder[i] = Card;
-            }
-            else
-            {
-                SetIndex(PinnedCardOrder[i], i);
-            }
-        }
-    }
-
     public abstract bool ShouldUpdateCardState();
     public abstract Card.CardState GetState();
     public abstract bool ShouldCardsBeDisplayed();

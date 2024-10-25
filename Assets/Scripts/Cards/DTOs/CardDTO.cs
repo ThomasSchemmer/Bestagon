@@ -14,6 +14,7 @@ public abstract class CardDTO : ISaveableData
 
     public int PinnedIndex = -1;
     public Card.CardState State = Card.CardState.DEFAULT;
+    public bool bWasUsedUp = false;
 
     public virtual byte[] GetData()
     {
@@ -23,6 +24,7 @@ public abstract class CardDTO : ISaveableData
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GetCardType());
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)State);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, bWasUsedUp);
         Pos = SaveGameManager.AddInt(Bytes, Pos, PinnedIndex);
         return Bytes.ToArray();
     }
@@ -34,8 +36,8 @@ public abstract class CardDTO : ISaveableData
 
     public static int GetStaticSize()
     {
-        // type + pinned index + state
-        return sizeof(byte) * 2 + sizeof(int);
+        // type + pinned index + state, UsedUp
+        return sizeof(byte) * 2 + sizeof(int) + sizeof(byte);
     }
 
     public virtual void SetData(NativeArray<byte> Bytes)
@@ -44,6 +46,7 @@ public abstract class CardDTO : ISaveableData
         // skip card type, its already checked in @CreateForSaveable
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bCardType);
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bState);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bWasUsedUp);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out PinnedIndex);
 
         State = (Card.CardState)bState;
@@ -70,6 +73,7 @@ public abstract class CardDTO : ISaveableData
 
         DTO.PinnedIndex = Card.GetPinnedIndex();
         DTO.State = Card.GetState();
+        DTO.bWasUsedUp = Card.WasUsedUpThisTurn();
 
         return DTO;
     }
@@ -86,5 +90,7 @@ public abstract class CardDTO : ISaveableData
             default: return null;
         }
     }
+
+    public abstract bool ShouldBeDeleted();
 
 }

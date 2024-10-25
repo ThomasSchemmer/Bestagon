@@ -14,19 +14,11 @@ public class CardStash : CardCollection
         _OnInit?.Invoke(this);
     }
 
-    public override void OnLoaded()
-    {
-        base.OnLoaded();
-        foreach (Card Card in Cards)
-        {
-            Card.gameObject.SetActive(false);
-        }
-    }
-
     public override void AddCard(Card Card)
     {
         base.AddCard(Card);
         Card.Show(Card.Visibility.Hidden);
+        Card.gameObject.SetActive(false);
     }
 
     public override bool ShouldCardsBeDisplayed()

@@ -349,6 +349,11 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return this.Location; 
     }
 
+    public void RefreshUsage()
+    {
+        CurrentUsages = MaxUsages;
+    }
+
     public override bool IsAboutToBeMalaised()
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
