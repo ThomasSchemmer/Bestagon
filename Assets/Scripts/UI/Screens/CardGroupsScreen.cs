@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
  */
 public class CardGroupsScreen : ScreenUI
 {
+    public GameObject ShowScreenButton;
     public Transform CardGroupContainer;
 
     protected List<CardGroupScreen> Screens;
@@ -97,6 +98,14 @@ public class CardGroupsScreen : ScreenUI
         {
             Show();
         }
+    }
+
+    public void DisplayScreenButton(bool bShow)
+    {
+        if (ShowScreenButton == null)
+            return;
+
+        ShowScreenButton.SetActive(bShow);
     }
 
     public static Vector2 CardSelectionPosition = new(50, 250);

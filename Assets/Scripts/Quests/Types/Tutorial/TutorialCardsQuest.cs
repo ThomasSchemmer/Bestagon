@@ -80,7 +80,7 @@ public class TutorialCardsQuest : Quest<Card>
             return;
 
         GrantResourceEventData EventData = (GrantResourceEventData) ECard.EventData;
-        EventData.GrantedResource = new(Production.Type.Wood, 5);
+        EventData.GrantedResource = new(Production.Type.Wood, 10);
         Card.GenerateCard();
 
         CardHand.AddCard(Card);

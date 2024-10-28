@@ -283,7 +283,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         {
             Block.SetFloat("_Malaised", Data.IsMalaised() ? 1 : 0);
             Block.SetFloat("_PreMalaised", Data.IsPreMalaised() ? 1 : 0);
-            Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, 16) + 1);
+            Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, HexagonConfig.MaxTypeIndex + 1) + 1);
             Block.SetFloat("_Value", Data.DebugValue);
         }
         if (!Renderer)

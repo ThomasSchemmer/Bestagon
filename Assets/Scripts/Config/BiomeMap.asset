@@ -82,14 +82,14 @@ MonoBehaviour:
       y: 0
       width: 15
       height: 30
-    HexagonType: 32
+    HexagonType: 65568
   - Rect:
       serializedVersion: 2
       x: 60
       y: 30
       width: 15
       height: 20
-    HexagonType: 16416
+    HexagonType: 81952
   - Rect:
       serializedVersion: 2
       x: 60

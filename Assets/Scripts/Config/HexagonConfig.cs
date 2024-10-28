@@ -44,9 +44,7 @@ public class HexagonConfig {
     public static int DefaultMapMaxChunk = 5;
     public static int DefaultLoadedChunkVisualizations = 3;
 
-    public static int MaxTypeIndex = 15;
     public static int MaxDecorationIndex = 1;
-    public static int MaxHeightIndex = 4;
 
     public enum HexagonHeight : uint
     {
@@ -57,6 +55,8 @@ public class HexagonConfig {
         Hill = 3,
         Mountain = 4
     }
+
+    public static int MaxHeightIndex = 4;
 
     [Flags]
     public enum HexagonType : uint
@@ -78,7 +78,17 @@ public class HexagonConfig {
         Swamp = 1 << 13,
         Taiga = 1 << 14,
         DeepOcean = 1 << 15,
+        Steppe = 1 << 16,
     }
+
+    public static int MaxTypeIndex = 16;
+
+    public static HexagonType SpecialTypes = HexagonType.Mountain | HexagonType.Ocean | HexagonType.DeepOcean;
+    public static HexagonType MeadowTypes = HexagonType.Meadow | HexagonType.Forest | HexagonType.Plains | HexagonType.Shrubland;
+    public static HexagonType DesertTypes = HexagonType.Desert | HexagonType.Savanna | HexagonType.Steppe ;
+    public static HexagonType SwampTypes = HexagonType.Swamp | HexagonType.RainForest | HexagonType.DarkForest | HexagonType.SparseRainForest;
+    public static HexagonType IceTypes = HexagonType.Ice | HexagonType.Taiga | HexagonType.Tundra;
+
 
     // lookup table whether a specific type can have a higher tile 
     public static HexagonType CanHaveHeight = HexagonType.Forest | HexagonType.Mountain | HexagonType.Desert | HexagonType.Tundra;
@@ -300,6 +310,7 @@ public class HexagonConfig {
             case HexagonType.Shrubland: return 1;
             case HexagonType.Swamp: return 2;
             case HexagonType.Taiga: return 1;
+            case HexagonType.Steppe: return 1;
             case HexagonType.DeepOcean: return -2;
         }
         return -1;

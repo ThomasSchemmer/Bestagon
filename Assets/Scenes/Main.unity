@@ -18595,6 +18595,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7131f2b41a0e494a8bd2a3871727aa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowScreenButton: {fileID: 907814433}
   CardGroupContainer: {fileID: 728228111}
 --- !u!1 &1730421129
 GameObject:

@@ -128,6 +128,11 @@ public class TutorialSystem : GameService
             bool bShouldShow = CurrentTutorial >= TutorialType.Turns;
             DiscardDeck.Show(bShouldShow);
         });
+        Game.RunAfterServiceInit((CardGroupManager CardGroupManager) =>
+        {
+            bool bShouldShow = CurrentTutorial >= TutorialType.AbandonRun;
+            CardGroupManager.CardGroupsScreen.DisplayScreenButton(bShouldShow);
+        });
 
         bool bShouldShow = CurrentTutorial > TutorialType.Camera ||
             (CurrentTutorial == TutorialType.Camera && CurrentIndex > 1);

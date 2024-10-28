@@ -169,11 +169,11 @@ public class SaveGameManager : GameService
 
         string FileName = SaveGameName;
         string FullPath = GetSavegamePath() + FileName;
-        // @GetMostRecentSave needs this
-        File.SetCreationTime(FullPath, DateTime.Now);
         File.WriteAllBytes(FullPath, Bytes.ToArray());
         FileInfo fileInfo = new FileInfo(FullPath);
         fileInfo.IsReadOnly = false;
+        // @GetMostRecentSave needs this
+        fileInfo.CreationTime = DateTime.Now;
         return FileName;
     }
 
