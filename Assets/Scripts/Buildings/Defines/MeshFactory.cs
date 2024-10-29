@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using static UnitEntity;
 
@@ -13,7 +14,8 @@ public class MeshFactory : GameService
     public SerializedDictionary<HexagonConfig.HexagonType, Mesh> AvailableTiles = new();
     public SerializedDictionary<BuildingConfig.Type, Tuple<BuildingEntity, Mesh>> AvailableBuildings = new();
     public SerializedDictionary<DecorationEntity.DType, Tuple<DecorationEntity, GameObject>> AvailableDecorations = new();
-    public SerializedDictionary<UType, Tuple<UnitEntity, GameObject>> AvailableUnits = new();
+    // units can have alternative skins for the same type
+    public SerializedDictionary<UType, Tuple<UnitEntity, List<GameObject>>> AvailableUnits = new();
     public Mesh UnknownMesh, UnknownBuildingMesh;
     public GameObject BuildingPrefab, UnitPrefab, DecorationPrefab;
 
@@ -121,19 +123,7 @@ public class MeshFactory : GameService
             if (!UnitData)
                 continue;
 
-            GameObject UnitObject = Resources.Load("Units/Prefabs/" + UnitType) as GameObject;
-            Mesh Mesh = null;
-            if (UnitType != UType.Worker)
-            {
-                if (!UnitObject || !UnitObject.GetComponent<MeshFilter>())
-                    continue;
-
-                Mesh = UnitObject.GetComponent<MeshFilter>().sharedMesh;
-                if (!Mesh)
-                    continue;
-            }
-
-            AvailableUnits.Add(UnitType, new(UnitData, UnitObject));
+            AvailableUnits.Add(UnitType, new(UnitData, UnitData.Prefabs));
         }
     }
 
@@ -186,7 +176,12 @@ public class MeshFactory : GameService
         if (!AvailableUnits.ContainsKey(Type))
             return null;
 
-        GameObject UnitObject = AvailableUnits[Type].Value;
+        UnitEntity Entity = AvailableUnits[Type].Key;
+        int Index = Entity.GetTargetMeshIndex();
+        if (Index < 0)
+            return null;
+
+        GameObject UnitObject = AvailableUnits[Type].Value[Index];
         return UnitObject.GetComponent<MeshFilter>().sharedMesh;
     }
 
@@ -204,7 +199,12 @@ public class MeshFactory : GameService
         if (!AvailableUnits.ContainsKey(Type))
             return null;
 
-        return AvailableUnits[Type].Value;
+        UnitEntity Entity = AvailableUnits[Type].Key;
+        int Index = Entity.GetTargetMeshIndex();
+        if (Index < 0)
+            return null;
+
+        return AvailableUnits[Type].Value[Index];
     }
 
     public Mesh GetMeshFromType(BuildingConfig.Type Type)

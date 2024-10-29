@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EntityType: 0
   UnitType: 1
+  Prefabs:
+  - {fileID: 2794737047199554117, guid: 60507886ee61b1140bf3e9d6eea2ea83, type: 3}
+  - {fileID: 2794737047199554117, guid: 2be3732ba3308b54984125ffa0de0d30, type: 3}
   CurrentFoodCount: 1
   SimulatedFoodCount: 1
   MovementPerTurn: 1

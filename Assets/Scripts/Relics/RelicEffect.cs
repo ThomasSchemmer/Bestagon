@@ -15,7 +15,6 @@ public class RelicEffect : GameplayEffect
 {
     public RelicType Type;
     public Sprite Image;
-    public string Tooltip;
 
     public void BroadcastDiscoveryChanged(Unlockables.State State)
     {
@@ -24,10 +23,10 @@ public class RelicEffect : GameplayEffect
 
     public ActionList<Unlockables.State> OnDiscoveryChanged = new();
 
-    public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle | RelicType.Abacus;
+    public static RelicType CategoryMeadow = RelicType.WoodenMallet | RelicType.Calligulae | RelicType.Cradle | RelicType.Abacus | RelicType.DogBowl;
     public static RelicType CategoryDesert = RelicType.Trowel | RelicType.Purse | RelicType.PrayerBeads;
     public static int CategoryCount = 2;
-    public static int MaxIndex = 6;
+    public static int MaxIndex = 7;
 }
 
 [Flags]
@@ -42,5 +41,6 @@ public enum RelicType : uint
     Trowel = 1 << 4, 
     Purse = 1 << 5,
     PrayerBeads = 1 << 6,
+    DogBowl = 1 << 7,
 }
 

@@ -21,5 +21,5 @@ public enum AttributeType
     MaximumRelicCount,
     BuildingReach,
     MarketCosts,
-
+    ScoutDogAmount,
 }

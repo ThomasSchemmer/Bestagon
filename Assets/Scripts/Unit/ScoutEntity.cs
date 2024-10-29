@@ -143,6 +143,16 @@ public class ScoutEntity : TokenizedUnitEntity
         return true;
     }
 
+    public override int GetTargetMeshIndex()
+    {
+        return HasDog() ? 1 : 0;
+    }
+
+    public bool HasDog()
+    {
+        return AttributeSet.Get()[AttributeType.ScoutDogAmount].CurrentValue > 0;
+    }
+
     [HideInInspector]
     public string Name;
     [HideInInspector]

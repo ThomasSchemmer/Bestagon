@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c13dab23a8d32b34698922e5ec295061, type: 3}
   m_Name: Worker
   m_EditorClassIdentifier: 
-  Type: 0
-  FoodCount: 1
+  EntityType: 0
+  UnitType: 0
+  Prefabs: []
+  CurrentFoodCount: 1
+  SimulatedFoodCount: 1

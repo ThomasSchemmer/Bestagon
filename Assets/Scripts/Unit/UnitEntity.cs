@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 /** 
@@ -15,12 +16,14 @@ public abstract class UnitEntity : ScriptableEntity
     }
 
     public UType UnitType;
+    public List<GameObject> Prefabs = new();
 
     public virtual void Init(){
         EntityType = ScriptableEntity.EType.Unit;
     }
 
     public abstract bool TryInteractWith(HexagonVisualization Hex);
+    public abstract int GetTargetMeshIndex();
 
     public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Unit)
     {

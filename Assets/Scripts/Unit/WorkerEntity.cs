@@ -127,4 +127,9 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
 
         return Hex.IsPreMalaised();
     }
+
+    public override int GetTargetMeshIndex()
+    {
+        return -1;
+    }
 }

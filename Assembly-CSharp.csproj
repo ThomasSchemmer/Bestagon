@@ -110,6 +110,7 @@
     <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantSellScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
+    <Compile Include="Assets\Scripts\Util\Particles\ParticleService.cs" />
     <Compile Include="Assets\Scripts\UI\IndicatorService.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialResourceQuest.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraController.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
     <Compile Include="Assets\Scripts\Player\Stockpile.cs" />
     <Compile Include="Assets\Scripts\Cards\CardFactory.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\DogPettingScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Visualization\EntityVisualization.cs" />
     <Compile Include="Assets\Scripts\Visualization\ChunkVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\EditorFeatures\MapSizeEditor.cs" />
