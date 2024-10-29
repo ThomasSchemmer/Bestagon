@@ -18,6 +18,7 @@ public class IconFactory : GameService
     private GameObject UpgradeButtonPrefab;
     private GameObject RelicIconPrefab, RelicGroupPrefab, RelicIconPreviewPrefab;
     private GameObject CardGroupPrefab;
+    private GameObject SpriteIndicatorPrefab, NumberedIndicatorPrefab;
 
     private Sprite PlaceholderSprite;
 
@@ -51,7 +52,6 @@ public class IconFactory : GameService
         LoadPrefabs();
     }
 
-
     private void LoadPrefabs()
     {
         ProductionGroupPrefab = Resources.Load("UI/ProductionGroup") as GameObject;
@@ -65,13 +65,16 @@ public class IconFactory : GameService
         ProduceConsumeEffectPrefab = Resources.Load("UI/Cards/ProduceConsumeEffect") as GameObject;
         UpgradeButtonPrefab = Resources.Load("UI/UpgradeButton") as GameObject;
 
-
         RelicIconPrefab = Resources.Load("UI/Relics/RelicIcon") as GameObject;
         RelicIconPreviewPrefab = Resources.Load("UI/Relics/RelicIconPreview") as GameObject;
         RelicGroupPrefab = Resources.Load("UI/Relics/RelicGroup") as GameObject;
 
         CardGroupPrefab = Resources.Load("UI/CardGroup") as GameObject;
+
+        SpriteIndicatorPrefab = Resources.Load("UI/Indicators/SpriteIndicator") as GameObject;
+        NumberedIndicatorPrefab = Resources.Load("UI/Indicators/NumberedIndicator") as GameObject;
     }
+
     private void LoadResources()
     {
         AvailableResources.Clear();
@@ -269,6 +272,20 @@ public class IconFactory : GameService
         Transform TypeContainer = MerchantEffect.transform.GetChild(3);
         DestroyImmediate(TypeContainer.gameObject);
         return MerchantEffect;
+    }
+
+    public GameObject GetVisualsForSpriteIndicator(Transform Parent)
+    {
+        GameObject Indicator = Instantiate(SpriteIndicatorPrefab);
+        Indicator.transform.SetParent(Parent);
+        return Indicator;
+    }
+
+    public GameObject GetVisualsForNumberedIndicator(Transform Parent)
+    {
+        GameObject Indicator = Instantiate(NumberedIndicatorPrefab);
+        Indicator.transform.SetParent(Parent);
+        return Indicator;
     }
 
     public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect, ISelectable Parent)

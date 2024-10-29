@@ -98,6 +98,7 @@
     <Compile Include="Assets\Scripts\Util\Location\Location.cs" />
     <Compile Include="Assets\Scripts\Visualization\HexagonVisualization.cs" />
     <Compile Include="Assets\Scripts\Cards\CardMoveAnimation.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\ProductionIndicator.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\GameplayEffectModifier.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Relics\RelicGroupScreen.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Assets\Scripts\Util\Dragging\DraggableManager.cs" />
     <Compile Include="Assets\Scripts\Unit\ScoutEntity.cs" />
     <Compile Include="Assets\Scripts\Util\Tuple.cs" />
+    <Compile Include="Assets\Scripts\Visualization\Indicators\SpriteIndicatorComponent.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\GatherResourceQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitPathScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Message.cs" />

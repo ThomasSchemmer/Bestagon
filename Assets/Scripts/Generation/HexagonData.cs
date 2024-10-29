@@ -23,7 +23,7 @@ public class HexagonData : ISaveableData
     public HexagonType Type;
     public HexagonHeight HexHeight;
     public MalaiseState MalaisedState = MalaiseState.None;
-    private DiscoveryState Discovery = DiscoveryState.Visited;
+    private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
     public delegate void OnDiscoveryStateHex(HexagonData Data, DiscoveryState State);

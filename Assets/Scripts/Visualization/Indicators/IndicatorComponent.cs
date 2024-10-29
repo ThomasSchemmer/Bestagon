@@ -1,6 +1,10 @@
 using Unity.VectorGraphics;
 using UnityEngine;
 
+/** 
+ * Represents a collection of Indicators that is assigned to the target gameobject.
+ * Handles creation of @IndicatorUIElements which all get information from this 
+ */
 public abstract class IndicatorComponent : MonoBehaviour 
 {
     protected RectTransform[] Indicators;
@@ -13,10 +17,26 @@ public abstract class IndicatorComponent : MonoBehaviour
         Service.Register(this);
     }
 
+    public void OnDisable()
+    {
+        SetIndicatorsActive(false);
+    }
+
+    public void SetIndicatorsActive(bool bIsActive) {
+        if (Indicators == null)
+            return;
+
+        foreach (var Indicator in Indicators)
+        {
+            if (Indicator == null)
+                continue;
+
+            Indicator.gameObject.SetActive(bIsActive);
+        }
+    }
+
     protected virtual void OnDestroy()
     {
-        if (!Service)
-            return;
 
         for (int i = Indicators.Length - 1; i >= 0; i--)
         {
@@ -26,6 +46,9 @@ public abstract class IndicatorComponent : MonoBehaviour
             Destroy(Indicators[i].gameObject);
             Indicators[i] = null;
         }
+
+        if (!Service)
+            return;
 
         Service.Deregister(this);
     }
@@ -39,8 +62,9 @@ public abstract class IndicatorComponent : MonoBehaviour
     protected abstract int GetIndicatorAmount();
 
     protected abstract void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform);
-    protected abstract Sprite GetIndicatorSprite(int i);
     protected abstract void Initialize();
+    protected abstract GameObject InstantiateIndicator(int i, RectTransform Parent);
+    public abstract IndicatorService.IndicatorType GetIndicatorType();
 
     protected Vector3 GetIndicatorScreenOffset(int i)
     {
@@ -59,25 +83,18 @@ public abstract class IndicatorComponent : MonoBehaviour
 
     protected void CreateIndicator(int i, RectTransform Parent)
     {
-        GameObject Indicator = Instantiate(Service.IndicatorPrefab);
+        GameObject Indicator = InstantiateIndicator(i, Parent);
         Indicator.layer = GetTargetLayer();
         RectTransform RectTrans = Indicator.GetComponent<RectTransform>();
-        RectTrans.SetParent(Parent);
         Indicators[i] = RectTrans;
-        UpdateSpritePosition(i);
-        UpdateSpriteVisuals(i);
+        UpdateIndicatorPosition(i);
+        UpdateIndicatorVisuals(i);
     }
 
-    protected void UpdateSpriteVisuals(int i)
-    {
-        if (Indicators[i] == null)
-            return;
+    protected abstract void UpdateIndicatorVisuals(int i);
+    public abstract bool NeedsVisualUpdate();
 
-        SVGImage Image = Indicators[i].GetComponent<SVGImage>();
-        Image.sprite = GetIndicatorSprite(i);
-    }
-
-    protected void UpdateSpritePosition(int i)
+    private void UpdateIndicatorPosition(int i)
     {
         // not yet deleted, as marking takes a bit
         if (Indicators[i] == null)
@@ -86,11 +103,11 @@ public abstract class IndicatorComponent : MonoBehaviour
         ApplyIndicatorScreenPosition(i, Indicators[i]);
     }
 
-    public void UpdateSpritesVisuals()
+    public void UpdateIndicatorVisuals()
     {
         for (int i = 0; i < Indicators.Length; i++)
         {
-            UpdateSpriteVisuals(i);
+            UpdateIndicatorVisuals(i);
         }
     }
 
@@ -104,11 +121,11 @@ public abstract class IndicatorComponent : MonoBehaviour
         }
     }
 
-    public void UpdateVisuals()
+    public void UpdateIndicatorPositions()
     {
         for (int i = 0; i <  Indicators.Length; i++)
         {
-            UpdateSpritePosition(i);
+            UpdateIndicatorPosition(i);
         }
     }
 

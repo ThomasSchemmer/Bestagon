@@ -3,6 +3,12 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
+/** 
+ * Describes a Location for a Hexagon tile.
+ * Divided into Chunk Index (X, Y) and Tile index (Z, W),
+ * with conversion into global space
+ * Ranges from 0 to max tile space (see @HexagonConfig)
+ */
 public class Location : ISaveableData
 {
     public Location(Vector2Int ChunkLocation, Vector2Int HexLocation) {
@@ -98,6 +104,14 @@ public class Location : ISaveableData
     public static Location Zero {
         get {
             return CreateChunk(0, 0);
+        }
+    }
+
+    public static Location Invalid
+    {
+        get
+        {
+            return new(-1, -1, -1, -1);
         }
     }
 

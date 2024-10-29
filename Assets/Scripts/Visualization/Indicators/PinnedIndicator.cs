@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Card))]
-public class PinnedIndicator : IndicatorComponent
+public class PinnedIndicator : SpriteIndicatorComponent
 {
     private Card Card;
 
@@ -41,4 +41,9 @@ public class PinnedIndicator : IndicatorComponent
         IndicatorTransform.anchoredPosition = IndicatorTransform.anchoredPosition + (Vector2)OffsetLocal;
     }
 
+    public override bool NeedsVisualUpdate()
+    {
+        // static image, the "negative" is simply hidden
+        return false;
+    }
 }

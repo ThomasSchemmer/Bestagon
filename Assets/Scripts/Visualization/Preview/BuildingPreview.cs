@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BuildingPreview : MeshPreview
 {
+    ProductionIndicator Indicator;
+
     public override void Init(Card Card)
     {
         base.Init(Card);
@@ -14,7 +16,10 @@ public class BuildingPreview : MeshPreview
         Previewable = BCard.GetBuildingData();
         
         InitRendering();
+
+        Indicator = gameObject.AddComponent<ProductionIndicator>();
     }
+
 
     public override Mesh GetPreviewMesh()
     {

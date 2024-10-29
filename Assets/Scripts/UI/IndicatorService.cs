@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class IndicatorService : GameService
 {
-    public GameObject IndicatorPrefab;
+    public enum IndicatorType
+    {
+        Sprite,
+        NumberedIcon
+    }
+
     public GameObject IndicatorContainerPrefab;
 
     private Dictionary<IndicatorComponent, RectTransform> IndicatorMap = new();
@@ -19,17 +24,21 @@ public class IndicatorService : GameService
 
     public void FixedUpdate()
     {
-        foreach (var Key in IndicatorMap.Keys)
-        {
-            Key.UpdateVisuals();
-        }
-
         foreach (var Key in MarkedToDelete)
         {
             DestroyImmediate(IndicatorMap[Key].gameObject);
             IndicatorMap.Remove(Key);
         }
         MarkedToDelete.Clear();
+
+        foreach (var Key in IndicatorMap.Keys)
+        {
+            if (Key.NeedsVisualUpdate())
+            {
+                Key.UpdateIndicatorVisuals();
+            }
+            Key.UpdateIndicatorPositions();
+        }
     }
 
     public void Register(IndicatorComponent IndComp) {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BuildingVisualization))]
-public class WorkerIndicator : IndicatorComponent
+public class WorkerIndicator : SpriteIndicatorComponent
 {
     private BuildingVisualization Visualization;
 
@@ -51,7 +51,7 @@ public class WorkerIndicator : IndicatorComponent
         if (!IsFor(Location))
             return;
 
-        UpdateSpritesVisuals();
+        UpdateIndicatorVisuals();
     }
 
     protected override void OnDestroy()
@@ -59,6 +59,9 @@ public class WorkerIndicator : IndicatorComponent
         base.OnDestroy();
         Workers._OnWorkersAssigned -= OnWorkerChanged;
     }
-
-
+    public override bool NeedsVisualUpdate()
+    {
+        // static image: only updates when a worker is changed, which already triggers a callback
+        return false;
+    }
 }

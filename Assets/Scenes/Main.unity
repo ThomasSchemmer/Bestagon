@@ -14214,8 +14214,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  IndicatorPrefab: {fileID: 4242072080842183509, guid: 455a48252d7bb7f41b577d3e9db5251b,
-    type: 3}
   IndicatorContainerPrefab: {fileID: 6594987263394821832, guid: af82c0c860c072f479cd00aa018c91ec,
     type: 3}
 --- !u!1 &1375078345
