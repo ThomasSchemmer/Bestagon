@@ -1263,6 +1263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  HexMat: {fileID: 2100000, guid: f39c1608bef32fa489c762d147707c55, type: 2}
 --- !u!1 &134338587
 GameObject:
   m_ObjectHideFlags: 0

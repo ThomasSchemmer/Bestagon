@@ -167,6 +167,7 @@ public abstract class Card : Draggable, ISelectable
         transform.localPosition = CurrentPos;
         CardHand.Sort(isHovered);
         SetColor();
+        SetUsable();
 
         if (!Selected || !Game.TryGetService(out Selectors Selectors))
             return;
@@ -200,6 +201,17 @@ public abstract class Card : Draggable, ISelectable
         transform.parent.localPosition = isHovered ? CardHand.HoverPosition : CardHand.NormalPosition;
         CardHand.Sort(isHovered);
         SetColor();
+    }
+
+    private void SetUsable()
+    {
+        BuildingCard BCard = this as BuildingCard;
+        if (BCard == null || Game.IsIn(Game.GameState.CardSelection))
+            return;
+
+        HexMat.SetFloat("_CheckUsable", isSelected ? 1 : 0);
+        HexMat.SetInt("_UsableOnMask", (int)BCard.GetBuildingData().BuildableOn);
+        HexMat.SetInt("_AdjacentWithMask", (int)BCard.GetBuildingData().Effect.TileType);
     }
 
     public void ClickOn(Vector2 PixelPos) {}
@@ -304,6 +316,11 @@ public abstract class Card : Draggable, ISelectable
     public CardCollection GetCurrentCollection()
     {
         return Collection;
+    }
+
+    public void SetHexMaterial(Material HexMat)
+    {
+        this.HexMat = HexMat;
     }
 
     public void Use()
@@ -435,6 +452,7 @@ public abstract class Card : Draggable, ISelectable
     protected Image CardBaseImage, CardImage;
     protected CardHand CardHand;
     protected CardCollection Collection;
+    protected Material HexMat;
 
     protected CardCollection OldCollection;
     public List<CardMoveAnimation> Animations = new();

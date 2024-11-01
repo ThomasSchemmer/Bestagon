@@ -63,6 +63,10 @@ public class CheatService : ScreenUI
         {
             GiveCard(Cheats);
         }
+        if (Cheats[0].Equals(CARDS_CODE))
+        {
+            GiveCards();
+        }
         if (Cheats[0].Equals(RESOURCE_CODE))
         {
             GiveResource(Cheats);
@@ -314,6 +318,20 @@ public class CheatService : ScreenUI
         Debug.Log("Unlocked " + TargetType);
     }
 
+    private void GiveCards()
+    {
+        if (!Game.TryGetServices(out CardFactory CardFactory, out CardHand CardHand))
+            return;
+
+        CardFactory.CreateCard(UnitEntity.UType.Worker, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(UnitEntity.UType.Scout, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Mine, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Sawmill, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Quarry, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Merchant, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Bakery, 0, CardHand.transform, CardHand.AddCard);
+    }
+
     private void ActiveRelic(string[] Cheats)
     {
         string TargetName = GetTargetName(Cheats);
@@ -351,6 +369,7 @@ public class CheatService : ScreenUI
     private static string UNLOCK_CODE = "unlock";
     private static string ACTIVATE_CODE = "activate";
     private static string CARD_CODE = "givecard";
+    private static string CARDS_CODE = "givecards";
     private static string RESOURCE_CODE = "giveresource";
     private static string QUEST_CODE = "givequest";
     private static string DESTROY_CARDS_CODE = "destroyallcards";

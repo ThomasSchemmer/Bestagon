@@ -47,6 +47,9 @@ public class CardGroup : ISaveableData
         if (!Game.TryGetService(out CardHand Hand))
             return;
 
+        if (Hand.Cards.Count > 0)
+            return;
+
         Hand.HandleDelayedFilling();
     }
 

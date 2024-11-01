@@ -32,6 +32,12 @@ Shader"Custom/HexagonShader"
         [Header(Globals)][Space]
         _WorldSize("World Size", Vector) = (0, 0, 0, 0)
         _Desaturation("Desaturation", Float) = 0
+        
+        [Header(UsableWith)][Space]
+        _UnusableDesaturation("Unusable Desaturation", Float) = 0
+        _UsableOnMask("UsableOn Mask", Int) = 0
+        _AdjacentWithMask("AdjacentWith Mask", Int) = 0
+        _CheckUsable("Check Usable", Int) = 0
             
     }
 
@@ -48,8 +54,12 @@ Shader"Custom/HexagonShader"
 
         // contains size of world in (x, y, 0, 0)
         float4 _WorldSize;
-
         float _Desaturation;
+        
+        float _UnusableDesaturation;
+        int _UsableOnMask;
+        int _AdjacentWithMask;
+        int _CheckUsable;
 
         //painterly
         float _VoronoiScale;
@@ -322,6 +332,14 @@ Shader"Custom/HexagonShader"
                 return info;
             }
 
+            bool IsUnusable(){
+                int Type = (int)_Type - 1;
+                bool bIsUsableOn = (_UsableOnMask & (1 << Type)) > 0;
+                bool bIsAdjacent = (_AdjacentWithMask & (1 << Type)) > 0;
+                bool bCheckForUsable = _CheckUsable > 0;
+                return bCheckForUsable && !bIsUsableOn && !bIsAdjacent;
+            }
+
             half4 frag(g2f i) : SV_Target
             {
                 painterlyInfo info = getPainterlyInfo(i);
@@ -339,12 +357,14 @@ Shader"Custom/HexagonShader"
                 float4 color = baseColor * painterlyLight * globalLight;
     
                 float Desaturated = dot(color.rgb, float3(0.2126, 0.7152, 0.0722));
+                float TargetDesaturation = IsUnusable() ? _UnusableDesaturation : _Desaturation;
                 color.rgb = float3(
-                    lerp(color.r, Desaturated, _Desaturation),
-                    lerp(color.g, Desaturated, _Desaturation),
-                    lerp(color.b, Desaturated, _Desaturation)
+                    lerp(color.r, Desaturated, TargetDesaturation),
+                    lerp(color.g, Desaturated, TargetDesaturation),
+                    lerp(color.b, Desaturated, TargetDesaturation)
                 );
                 color.a = 1;
+
     
                 VertexPositionInputs vertexInput = (VertexPositionInputs)0;
                 vertexInput.positionWS = i.vertexWS;

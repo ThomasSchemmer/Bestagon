@@ -81,6 +81,8 @@ public class CardFactory : GameService
         }
     }
 
+    public Material HexMat;
+
     private List<DelayedCardInfo> CardsToCreate = new();
 
     public void CreateCard(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card> Callback)
@@ -188,6 +190,7 @@ public class CardFactory : GameService
 
         CardObject.name = "Card " + BuildingData.BuildingType;
         BuildingCard Card = CardObject.AddComponent<BuildingCard>();
+        Card.SetHexMaterial(HexMat);
         Card.Init(BuildingData, Info.DTO, Info.Index);
         Card.SetPinned(Info.DTO.PinnedIndex);
 

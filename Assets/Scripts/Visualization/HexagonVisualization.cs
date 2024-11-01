@@ -274,8 +274,13 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         }
     }
 
-    public void VisualizeSelection() {
+    public void VisualizeSelection()
+    {
+        if (!Renderer)
+            return;
+
         MaterialPropertyBlock Block = new MaterialPropertyBlock();
+
         Block.SetFloat("_Selected", isSelected ? 1 : 0);
         Block.SetFloat("_Hovered", isHovered ? 1 : 0);
         Block.SetFloat("_Adjacent", isAdjacent || isReachable ? 1 : 0);
@@ -286,8 +291,6 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, HexagonConfig.MaxTypeIndex + 1) + 1);
             Block.SetFloat("_Value", Data.DebugValue);
         }
-        if (!Renderer)
-            return;
 
         Renderer.SetPropertyBlock(Block);
     }

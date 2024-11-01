@@ -37,6 +37,8 @@ public abstract class IndicatorComponent : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
+        if (Indicators == null)
+            return;
 
         for (int i = Indicators.Length - 1; i >= 0; i--)
         {
