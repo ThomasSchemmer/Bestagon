@@ -31,6 +31,7 @@ public class ConvertTilePreview : IconPreview
         HexagonConfig.HexagonType OtherType = ((Card as EventCard).EventData as ConvertTileEventData).TargetHexType;
         return GrantedType == OtherType;
     }
+
     protected override GameObject CreateVisuals()
     {
         if (!Game.TryGetService(out IconFactory IconFactory))

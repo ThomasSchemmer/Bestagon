@@ -195,7 +195,12 @@ public class CheatService : ScreenUI
         int TargetValue = GetTargetValue(Cheats);
         int TargetIndex = GetTargetIndex(TargetName, typeof(Production.Type));
         if (TargetIndex < 0)
-            return;
+        {
+            if (!TargetName.ToLower().Equals("upgrades"))
+                return;
+
+            Stockpile.AddUpgrades(TargetValue);
+        }
 
         Production.Type TargetType = (Production.Type)(TargetIndex);
         Stockpile.AddResources(new Production(TargetType, TargetValue));

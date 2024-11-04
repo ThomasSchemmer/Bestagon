@@ -209,9 +209,12 @@ public abstract class Card : Draggable, ISelectable
         if (BCard == null || Game.IsIn(Game.GameState.CardSelection))
             return;
 
+        BuildingEntity Building = BCard.GetBuildingData();
+        bool bIsAdjacent = Building.Effect.Range > 0;
+        HexagonConfig.HexagonType Type = bIsAdjacent ? Building.BuildableOn : 0;
         HexMat.SetFloat("_CheckUsable", isSelected ? 1 : 0);
         HexMat.SetInt("_UsableOnMask", (int)BCard.GetBuildingData().BuildableOn);
-        HexMat.SetInt("_AdjacentWithMask", (int)BCard.GetBuildingData().Effect.TileType);
+        HexMat.SetInt("_AdjacentWithMask", (int)Type);
     }
 
     public void ClickOn(Vector2 PixelPos) {}

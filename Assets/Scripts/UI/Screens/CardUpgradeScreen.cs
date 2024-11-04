@@ -23,7 +23,6 @@ public class CardUpgradeScreen : GameService
 
     public enum UpgradeableAttributes
     {
-        AffectedTiles,
         Production,
         Range,
         BuildableTiles,
@@ -167,6 +166,7 @@ public class CardUpgradeScreen : GameService
         ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetMaxWorkerTransform(), UpgradeableAttributes.MaxWorker);
         ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetUsagesTransform(), UpgradeableAttributes.MaxUsages);
         ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetProductionTransform(), UpgradeableAttributes.Production);
+        ConvertToButton(LastBuildingCard.GetBuildingData(), CopyCard.GetBuildableOnTransform(), UpgradeableAttributes.BuildableTiles);
         EnableConfirmButton(false);
     }
 

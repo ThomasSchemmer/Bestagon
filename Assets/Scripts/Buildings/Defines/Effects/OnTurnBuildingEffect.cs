@@ -17,15 +17,19 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
     public Type EffectType = Type.Produce;
     public UnitEntity.UType UnitType = UnitEntity.UType.Worker;
-    public HexagonConfig.HexagonType TileType = 0;
     public Production Production = new Production();
     public Production Consumption = new Production();
     public int Range = 0;
 
-    public HexagonConfig.HexagonType UpgradeTileType = 0;
     public Production UpgradeProduction = new Production();
     public int UpgradeRange = 0;
 
+    protected BuildingEntity Building;
+
+    public void Init(BuildingEntity Building)
+    {
+        this.Building = Building;
+    }
 
     public Production GetProduction(int Worker, Location Location, bool bIsSimulated)
     {
@@ -86,12 +90,15 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
     {
         Bonus = new Dictionary<HexagonConfig.HexagonType, Production>();
+        if (Building == null)
+            return false;
+
         if (EffectType != Type.Produce)
             return false;
 
         foreach (var RawEnum in Enum.GetValues(typeof(HexagonConfig.HexagonType))) {
             HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)RawEnum;
-            if (TileType.HasFlag(Type))
+            if (Building.BuildableOn.HasFlag(Type))
                 Bonus.Add(Type, Production);
         }
         return true;
@@ -112,12 +119,15 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
     public GameObject GetEffectVisuals(ISelectable Parent)
     {
+        if (Building == null)
+            return null;
+
         if (!Game.TryGetService(out IconFactory IconFactory))
             return null;
 
         switch (EffectType)
         {
-            case Type.Produce: return IconFactory.GetVisualsForProduceEffect(this, Parent);
+            case Type.Produce: return IconFactory.GetVisualsForProduceEffect(Building, Parent);
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(this, Parent);
             case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
@@ -152,7 +162,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
 
     public static int GetStaticSize()
     {
-        return 1 + sizeof(int) * 4 + Production.GetStaticSize() * 3;
+        return 1 + sizeof(int) * 2 + Production.GetStaticSize() * 3;
     }
 
     public byte[] GetData()
@@ -160,12 +170,10 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
         int Pos = 0;
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EffectType);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)TileType);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
 
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeTileType);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, UpgradeProduction);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeRange);
 
@@ -176,17 +184,13 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
     {
         int Pos = 0;
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEffectType);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iTileType);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Consumption);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
 
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeTileType);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, UpgradeProduction);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeRange);
 
         EffectType = (Type)bEffectType;
-        TileType = (HexagonConfig.HexagonType)iTileType;
-        UpgradeTileType = (HexagonConfig.HexagonType)iUpgradeTileType;
     }
 }

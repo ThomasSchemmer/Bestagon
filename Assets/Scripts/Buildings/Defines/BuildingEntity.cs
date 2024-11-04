@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using static CardUpgradeScreen;
-using static UnitEntity;
-using static UnityEngine.UI.CanvasScaler;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
@@ -32,15 +30,16 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     public BuildingEntity() {
         // used on creating ScriptableObjects, don't delete!
         EntityType = EType.Building;
-        Init();
         Cost = new();
         Effect = new();
+        Init();
     }
 
     public void Init()
     {
         Location = Location.Zero;
         AssignedWorkers = new WorkerEntity[MaxWorker];
+        Effect.Init(this);
     }
 
     public virtual Vector3 GetOffset() {
@@ -298,6 +297,9 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             case UpgradeableAttributes.Production:
                 UpgradeProduction();
                 return;
+            case UpgradeableAttributes.BuildableTiles:
+                UpgradeBuildableTiles();
+                return;
         }
     }
 
@@ -311,6 +313,37 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
             Effect.Production[Tuple.Key]++;
             return;
+        }
+    }
+
+    private void UpgradeBuildableTiles()
+    {
+        HexagonConfig.HexagonType[] GroupMasks = { 
+            HexagonConfig.SpecialTypes, HexagonConfig.MeadowTypes, HexagonConfig.DesertTypes,
+            HexagonConfig.SwampTypes, HexagonConfig.IceTypes
+        };
+
+        // theoretically inefficient, as we have to loop for each of the groups
+        // but since we rarely call it its okay
+        foreach (var GroupMask in GroupMasks)
+        {
+            for (int i = 0; i <= HexagonConfig.MaxTypeIndex; i++)
+            {
+                // already unlocked
+                if (((int)BuildableOn & (1 << i)) > 0)
+                    continue;
+
+                // not available in this group
+                if (((int)GroupMask & (1 << i)) == 0)
+                    continue;
+
+                // not available to upgrade
+                if (((int)UpgradeBuildableOn & (1 << i)) == 0)
+                    continue;
+
+                BuildableOn |= (HexagonConfig.HexagonType)(1 << i);
+                return;
+            }
         }
     }
 
@@ -334,6 +367,8 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
                 return MaxUsages < UpgradeMaxUsages;
             case UpgradeableAttributes.MaxWorker:
                 return MaxWorker < UpgradeMaxWorker;
+            case UpgradeableAttributes.BuildableTiles:
+                return BuildableOn != UpgradeBuildableOn;
             case UpgradeableAttributes.Production:
                 return Effect.Production.SmallerThanAny(Effect.UpgradeProduction);
         }

@@ -19,6 +19,7 @@ public class IconFactory : GameService
     private GameObject RelicIconPrefab, RelicGroupPrefab, RelicIconPreviewPrefab;
     private GameObject CardGroupPrefab;
     private GameObject SpriteIndicatorPrefab, NumberedIndicatorPrefab;
+    private GameObject UsableOnPrefab;
 
     private Sprite PlaceholderSprite;
 
@@ -73,6 +74,8 @@ public class IconFactory : GameService
 
         SpriteIndicatorPrefab = Resources.Load("UI/Indicators/SpriteIndicator") as GameObject;
         NumberedIndicatorPrefab = Resources.Load("UI/Indicators/NumberedIndicator") as GameObject;
+
+        UsableOnPrefab = Resources.Load("UI/Cards/UsableOn") as GameObject;
     }
 
     private void LoadResources()
@@ -220,15 +223,22 @@ public class IconFactory : GameService
         return AvailableBuildingTypes[Type];
     }
 
+    private void SetTransformByGroup(int WidthPerElement, int ElementCount, out Vector2 Size, out Vector2 Position, out float Offset)
+    {
+        Size = new(WidthPerElement * ElementCount, 30);
+        Position = new Vector2(Size.x / 2f, 0);
+        Offset = (ElementCount % 2) == 0 ? -WidthPerElement / 2f : 0;
+    }
+
     public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
         int Width = 62;
-        GroupTransform.sizeDelta = new(Width * Tuples.Count, 30);
-        GroupTransform.anchoredPosition = new Vector2(GroupTransform.sizeDelta.x / 2f, 0);
-        float XOffset = (Tuples.Count % 2) == 0 ? -Width / 2f : 0;
+        SetTransformByGroup(Width, Tuples.Count, out Vector2 SizeDelta, out Vector2 Position, out float XOffset);
+        GroupTransform.sizeDelta = SizeDelta;
+        GroupTransform.anchoredPosition = Position;
 
         for (int i = 0; i < Tuples.Count; i++)
         {
@@ -250,17 +260,20 @@ public class IconFactory : GameService
         return ProductionGroup;
     }
 
-    public GameObject GetVisualsForProduceEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    public GameObject GetVisualsForProduceEffect(BuildingEntity Building, ISelectable Parent)
     {
         GameObject ProductionEffect = Instantiate(ProduceEffectPrefab);
         Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        AdjacentText.text = Effect.GetDescription();
+        AdjacentText.text = Building.Effect.GetDescription();
         Transform TypeContainer = ProductionEffect.transform.GetChild(3);
-        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent, false);
+
+        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false);
         ProductionGO.transform.SetParent(ProductionContainer, false);
-        GameObject HexTypesGO = GetVisualsForHexTypes(Effect.TileType, Parent);
-        HexTypesGO.transform.SetParent(TypeContainer, false);
+
+        GameObject UsableOnGO = GetVisualsForHexTypes(Building.BuildableOn, Parent, false);
+        UsableOnGO.transform.SetParent(TypeContainer, false);
+
         return ProductionEffect;
     }
 
@@ -424,21 +437,37 @@ public class IconFactory : GameService
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetVisualsForHexTypes(EventData.TargetHexType, Parent);
+        GameObject UnitTypeGO = GetTileTypeVisuals(EventData.TargetHexType);
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
     }
 
+    public GameObject GetTileTypeVisuals(HexagonConfig.HexagonType TypeMask)
+    {
+        // todo: possible mem leak
+        GameObject UsableOnGO = Instantiate(UsableOnPrefab);
+        Image Image = UsableOnGO.GetComponent<Image>();
+        Material Mat = Instantiate(Image.material);
+        Mat.SetFloat("_TypeMask", (int)TypeMask);
+        Image.material = Mat;
+        return UsableOnGO;
+    }
+
     public GameObject GetVisualsForHexTypes(HexagonConfig.HexagonType Types, ISelectable Parent, bool bIgnore = false)
     {
+        int Width = 30;
+        int Count = HexagonConfig.GetSetBitsAmount((int)Types);
+
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
-        int Width = 30;
-        int XOffset = Width / 2;
-        int Count = HexagonConfig.GetSetBitsAmount((int)Types);
-        GroupTransform.sizeDelta = new(Width * Count, 30);
+
+        SetTransformByGroup(Width, Count, out Vector2 SizeDelta, out Vector2 Position, out float Offset);
+        GroupTransform.sizeDelta = SizeDelta;
+        GroupTransform.anchoredPosition = Position;
+        Offset = Width / 2f;
+
         int Index = 0;
         for (int i = 0; i < 32; i++)
         {
@@ -449,7 +478,7 @@ public class IconFactory : GameService
             GameObject SimpleIcon = Instantiate(SimpleIconPrefab);
             RectTransform IconTransform = SimpleIcon.GetComponent<RectTransform>();
             IconTransform.SetParent(GroupTransform, false);
-            IconTransform.localPosition = new(XOffset + Index * Width, 0, 0);
+            IconTransform.anchoredPosition = new(Offset + Index * Width, 0);
             SimpleIconScreen IconScreen = SimpleIcon.GetComponent<SimpleIconScreen>();
             IconScreen.SetIgnored(bIgnore);
 

@@ -80,6 +80,12 @@ public class BuildingCard : Card
         Screen.UpdateVisuals(BuildingData.CurrentUsages);
     }
 
+
+    public Transform GetBuildableOnTransform()
+    {
+        return transform.GetChild(6).GetChild(0).GetChild(3);
+    }
+
     protected override CardCollection GetTargetAfterUse()
     {
         if (!Game.TryGetServices(out CardStash CardStash, out DiscardDeck DiscardDeck))

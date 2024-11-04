@@ -45,18 +45,11 @@ public class BuildingEffectDrawer : PropertyDrawer
 
     private void PrintYieldProduce(Rect Position, SerializedProperty Property, GUIContent Label)
     {
-        SerializedProperty TileTypeProperty = Property.FindPropertyRelative("TileType");
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
         SerializedProperty UpgradeProductionProperty = Property.FindPropertyRelative("UpgradeProduction");
         SerializedProperty RangeProperty = Property.FindPropertyRelative("Range");
 
         EditorGUILayout.BeginVertical("window");
-        string[] Hexagons = Enum.GetNames(typeof(HexagonConfig.HexagonType));
-        TileTypeProperty.intValue = EditorGUILayout.MaskField(
-            "Tile",
-            TileTypeProperty.intValue,
-            Hexagons
-        );
         EditorGUILayout.PropertyField(ProductionProperty);
         EditorGUILayout.PropertyField(RangeProperty);
         EditorGUILayout.PropertyField(UpgradeProductionProperty);
