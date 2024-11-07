@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static MapGenerator;
 using UnityEngine.Profiling;
+using System;
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -14,6 +15,18 @@ using UnityEngine.Profiling;
  */ 
 public class HexagonVisualization : MonoBehaviour, ISelectable
 {
+    [Flags]
+    /** Describes the current interaction state of the visualization
+    * Anything further down overrides further up (?)
+    */
+    public enum State : uint
+    {
+        None = 0,
+        Hovered = 1,
+        Selected = 1 << 1,
+        
+    }
+
     public void Init(ChunkVisualization ChunkVis, ChunkData ChunkData, Location Location, Material Mat)
     {
         Profiler.BeginSample("Init");
@@ -202,7 +215,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
         Unit.MoveTo(this.Location, Costs);
 
-        if (!Generator.TryGetHexagon(Unit.GetLocation(), out HexagonVisualization NewHex))
+        if (!Generator.TryGetHexagon(Unit.GetLocations().GetMainLocation(), out HexagonVisualization NewHex))
             return;
 
         Selector.SelectHexagon(NewHex);
@@ -253,8 +266,8 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        HashSet<Location> DirectNeighbours = GetNeighbourTileLocationsInRange(this.Location, true, VisitingRange);
-        HashSet<Location> OtherNeighbours = GetNeighbourTileLocationsInRange(this.Location, false, ScoutingRange);
+        HashSet<Location> DirectNeighbours = GetNeighbourTileLocationsInRange(this.Location.ToSet(), true, VisitingRange);
+        HashSet<Location> OtherNeighbours = GetNeighbourTileLocationsInRange(this.Location.ToSet(), false, ScoutingRange);
         OtherNeighbours.ExceptWith(DirectNeighbours);
 
         foreach (Location Location in DirectNeighbours)

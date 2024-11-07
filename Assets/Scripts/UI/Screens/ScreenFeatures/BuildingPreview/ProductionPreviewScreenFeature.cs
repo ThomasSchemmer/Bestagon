@@ -7,8 +7,10 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
         if (!Target.HasFeatureObject())
             return false;
 
-        BuildingEntity CurrentBuilding = Target.GetFeatureObject();
-        return CurrentBuilding != null && Game.TryGetService(out IconFactory IconFactory);
+        if (!Game.TryGetServices(out IconFactory _, out Selectors _))
+            return false;
+
+        return Target.GetFeatureObject() != null;
     }
 
     public override void ShowAt(float YOffset)
@@ -16,14 +18,20 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
         if (!bIsInit)
             return;
 
-        base.ShowAt(YOffset);
-        Game.TryGetService(out IconFactory IconFactory);
+        Game.TryGetServices(out IconFactory IconFactory, out Selectors Selectors);
 
-        BuildingPreviewScreen PreviewScreen = (BuildingPreviewScreen)Target;
-        Location PreviewLocation = PreviewScreen.GetPreviewLocation();
+        var Hex = Selectors.GetHoveredHexagon();
+        if (Hex == null)
+            return;
+
+        Location PreviewLocation = Hex.Location;
 
         BuildingEntity CurrentBuilding = Target.GetFeatureObject();
-        Production Production = CurrentBuilding.GetProductionPreview(PreviewLocation);
+        if (!LocationSet.TryGetAround(PreviewLocation, CurrentBuilding.Area, out var Area))
+            return;
+
+        base.ShowAt(YOffset);
+        Production Production = CurrentBuilding.GetProductionPreview(Area);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
         Visuals.transform.SetParent(TargetTransform, false);
     }

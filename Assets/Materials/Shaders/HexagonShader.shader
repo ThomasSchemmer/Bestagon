@@ -76,6 +76,12 @@ Shader"Custom/HexagonShader"
     {
         LOD 100
         
+        // do not render if a building/unit/.. is at this pixel
+        // otherwise they will be hidden in trees etc
+        Stencil{
+            Ref 1
+            Comp Greater
+        }
         
         /************************ BEGIN HEX SHADER *************************/
 

@@ -121,6 +121,9 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
 
     public void ShowFeatures()
     {
+        if (!ShouldFeatureGroupBeDisplayed())
+            return;
+
         gameObject.SetActive(true);
         UpdateLayout();
 
@@ -139,6 +142,16 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
             Feature.ShowAt(YOffset);
             PrevHeight = CurrentHeight;
         }
+    }
+
+    private bool ShouldFeatureGroupBeDisplayed()
+    {
+        foreach (ScreenFeature Feature in ScreenFeatures)
+        {
+            if (Feature.ShouldBeDisplayed())
+                return true;
+        }
+        return false;
     }
 
     private float GetOverallHeight()
@@ -163,6 +176,7 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
             Feature.Hide();
         }
         gameObject.SetActive(false);
+        UpdateLayout();
     }
 
     public abstract bool HasFeatureObject();

@@ -122,12 +122,12 @@ public class CheatService : ScreenUI
             return;
 
         ScoutEntity Scout = Entity as ScoutEntity;
-        if (!MapGenerator.TryGetHexagon(Scout.GetLocation(), out HexagonVisualization Vis))
+        if (!MapGenerator.TryGetHexagon(Scout.GetLocations(), out List<HexagonVisualization> Viss))
             return;
 
-        Vis.UpdateDiscoveryState(Value, Value + 1);
+        Viss.ForEach(Vis => Vis.UpdateDiscoveryState(Value, Value + 1));
     }
-
+    
     private void GiveQuest(string[] Cheats)
     {
         if (!Game.TryGetService(out QuestService QuestService))

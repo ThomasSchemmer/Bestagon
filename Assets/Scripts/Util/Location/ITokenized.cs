@@ -8,9 +8,7 @@ using UnityEngine;
  */
 public interface ITokenized 
 {
-    public Location GetLocation();
-    public void SetLocation(Location Location);
-
-    public void SetVisualization(EntityVisualization Vis);
+    public LocationSet GetLocations();
+    public void SetLocation(LocationSet Location);
 
 }

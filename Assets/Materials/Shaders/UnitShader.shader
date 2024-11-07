@@ -38,12 +38,11 @@ Shader"Custom/UnitShader"
     {
         LOD 100
         
-        
         /************************ BEGIN UNIT SHADER *************************/
 
         Pass 
         {
-        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry+0" "LightMode" = "UniversalForward"}
+        Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry-1" "LightMode" = "UniversalForward"}
         
             HLSLPROGRAM
 

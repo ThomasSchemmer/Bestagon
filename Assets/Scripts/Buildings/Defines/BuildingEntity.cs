@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using static CardUpgradeScreen;
@@ -22,10 +23,11 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     public HexagonConfig.HexagonType UpgradeBuildableOn = 0;
     public int UpgradeMaxUsages = 1;
 
-    [HideInInspector]
-    public BuildingVisualization Visualization;
+    public LocationSet.AreaSize Area = LocationSet.AreaSize.Single;
 
-    protected Location Location;
+    // can be a multi-tile location
+    protected LocationSet Locations;
+    protected int Angle;
 
     public BuildingEntity() {
         // used on creating ScriptableObjects, don't delete!
@@ -37,7 +39,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public void Init()
     {
-        Location = Location.Zero;
+        Locations = new(Location.Invalid);
         AssignedWorkers = new WorkerEntity[MaxWorker];
         Effect.Init(this);
     }
@@ -47,7 +49,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     }
 
     public virtual Quaternion GetRotation() {
-        return Quaternion.Euler(0, 180, 0);
+        return Quaternion.Euler(0, 180 + Angle * 60, 0);
     }
 
     public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
@@ -85,7 +87,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public Production GetProduction(bool bIsSimulated)
     {
-        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Location, bIsSimulated);
+        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Locations, bIsSimulated);
     }
 
     public void SimulateCurrentFood()
@@ -101,12 +103,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public Production GetTheoreticalMaximumProduction()
     {
-        return Effect.GetProduction(AssignedWorkers.Length, Location, false);
+        return Effect.GetProduction(AssignedWorkers.Length, Locations, false);
     }
 
-    public Production GetProductionPreview(Location Location)
+    public Production GetProductionPreview(LocationSet Locations)
     {
-        return Effect.GetProduction(GetMaximumWorkerCount(), Location, false);
+        return Effect.GetProduction(GetMaximumWorkerCount(), Locations, false);
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
@@ -115,25 +117,53 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     }
 
     public bool CanBeBuildOn(HexagonVisualization Hex, bool bShouldCheckCosts, out string Reason) {
-        if (!Hex)
+        if (!LocationSet.TryGetAround(Hex.Location, Area, out LocationSet NewLocations))
+        {
+            Reason = "not enough space";
+            return false;
+        }
+
+        foreach (Location Location in NewLocations)
+        {
+            if (!CanBeBuildOn(Location, bShouldCheckCosts, out Reason))
+                return false;
+        }
+
+        if (!Game.TryGetService(out Stockpile Stockpile))
+        {
+            Reason = "Invalid";
+            return false;
+        }
+
+        if (bShouldCheckCosts && !Stockpile.CanAfford(GetCosts()))
+        {
+            Reason = "insufficient resources";
+            return false;
+        }
+
+        Reason = string.Empty;
+        return true;
+    }
+
+    private bool CanBeBuildOn(Location Location, bool bShouldCheckCosts, out string Reason)
+    {
+        Reason = "Invalid";
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return false;
+
+        if (!MapGenerator.TryGetHexagonData(Location, out var Hex))
         {
             Reason = "Invalid Hex";
             return false;
         }
 
-        if (Hex.Data == null)
+        if (!BuildableOn.HasFlag(Hex.Type))
         {
-            Reason = "Invalid Hex";
+            Reason = "not buildable on " + Hex.Type;
             return false;
         }
 
-        if (!BuildableOn.HasFlag(Hex.Data.Type))
-        {
-            Reason = "not buildable on " + Hex.Data.Type;
-            return false;
-        }
-
-        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+        if (Hex.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
         {
             Reason = "only buildable on scouted hexes";
             return false;
@@ -151,15 +181,9 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             return false;
         }
 
-        if (!Game.TryGetServices(out Stockpile Stockpile, out BuildingService Buildings))
+        if (!Game.TryGetService(out BuildingService Buildings))
         {
             Reason = "Invalid Hex";
-            return false;
-        }
-
-        if (bShouldCheckCosts && !Stockpile.CanAfford(GetCosts()))
-        {
-            Reason = "insufficient resources";
             return false;
         }
 
@@ -174,17 +198,16 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             Reason = "hex is malaised";
             return false;
         }
-
-        Reason = string.Empty;
         return true;
     }
 
-    public void BuildAt(Location Location)
+    public void BuildAt(LocationSet Location, int Angle)
     {
         if (!Game.TryGetService(out MapGenerator Generator))
             return;
 
-        this.Location = Location.Copy();
+        this.Locations = Location.Copy();
+        this.Angle = Angle;
         Generator.AddBuilding(this);
     }
 
@@ -249,25 +272,16 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     {
         AssignedWorkers[i] = null;
     }
-
-    public void SetVisualization(EntityVisualization Vis)
-    {
-        if (Vis is not BuildingVisualization)
-            return;
-
-        Visualization = Vis as BuildingVisualization;
-    }
-
     public override bool Equals(object Other) {
         if (Other is not BuildingEntity) 
             return false;
 
         BuildingEntity OtherBuilding = (BuildingEntity)Other;
-        return Location.Equals(OtherBuilding.Location);
+        return Locations.Equals(OtherBuilding.Locations);
     }
 
     public override int GetHashCode() {
-        return Location.GetHashCode() + "Building".GetHashCode();
+        return Locations.GetHashCode() + "Building".GetHashCode();
     }
 
     public bool IsFoodProductionBuilding()
@@ -375,13 +389,18 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return false;
     }
 
-    public void SetLocation(Location Location)
+    public void SetLocation(LocationSet Location)
     {
-        this.Location = Location;
+        this.Locations = Location;
     }
 
-    public Location GetLocation() { 
-        return this.Location; 
+    public LocationSet GetLocations() { 
+        return this.Locations; 
+    }
+
+    public void SetAngle(int Angle)
+    {
+        this.Angle = Angle;
     }
 
     public void RefreshUsage()
@@ -394,10 +413,22 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return false;
 
-        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData Hex))
+        if (!MapGenerator.TryGetHexagonData(Locations, out List<HexagonData> Hexes))
             return false;
 
-        return Hex.IsPreMalaised();
+        return Hexes.Any(Hex => Hex.IsPreMalaised());
+    }
+
+    public Location GetLocationAboutToBeMalaised()
+    {
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return Location.Invalid;
+
+        if (!MapGenerator.TryGetHexagonData(Locations, out List<HexagonData> Hexes))
+            return Location.Invalid;
+
+        List<HexagonData> PreMalaisedHexes = (List<HexagonData>)Hexes.Where(Hex => Hex.IsPreMalaised());
+        return PreMalaisedHexes.Count > 0 ? PreMalaisedHexes[0].Location : Location.Invalid;
     }
 
     public override int GetSize()
@@ -410,11 +441,11 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         // BuildingType Type and buildable on, max workers
         // Workers themselfs will be assigned later
         return ScriptableEntity.GetStaticSize() +
-            Location.GetStaticSize() +
+            LocationSet.GetStaticSize(LocationSet.MaxCount) +
             Production.GetStaticSize() +
             OnTurnBuildingEffect.GetStaticSize() +
             sizeof(byte) * 1 +
-            sizeof(int) * 7;
+            sizeof(int) * 8;
     }
 
     public override byte[] GetData()
@@ -424,7 +455,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         int Pos = base.GetSize();
         byte TypeAsByte = (byte)HexagonConfig.MaskToInt((int)BuildingType, 32);
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, TypeAsByte);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Locations);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
@@ -434,6 +465,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxWorker);
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeBuildableOn);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxUsages);
+        Pos = SaveGameManager.AddInt(Bytes, Pos, Angle);
 
 
         return Bytes.ToArray();
@@ -445,7 +477,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         int Pos = base.GetSize();
 
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Locations);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
@@ -455,6 +487,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxWorker);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
+        Pos = SaveGameManager.GetInt(Bytes, Pos, out Angle);
 
         BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;

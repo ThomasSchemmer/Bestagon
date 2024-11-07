@@ -35,20 +35,20 @@ public class WorkerIndicator : SpriteIndicatorComponent
 
     protected override void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform)
     {
-        Location Location = Visualization.Entity.GetLocation();
+        Location Location = Visualization.Entity.GetLocations().GetMainLocation();
         Vector3 WorldPos = HexagonConfig.TileSpaceToWorldSpace(Location.GlobalTileLocation);
         IndicatorTransform.position = Service.WorldPosToScreenPos(WorldPos);
         IndicatorTransform.position += GetIndicatorScreenOffset(i);
     }
 
-    public override bool IsFor(Location Location)
+    public override bool IsFor(LocationSet Location)
     {
-        return Visualization.Entity.GetLocation().Equals(Location);
+        return Visualization.Entity.GetLocations().Equals(Location);
     }
 
-    public void OnWorkerChanged(Location Location)
+    public void OnWorkerChanged(LocationSet Locations)
     {
-        if (!IsFor(Location))
+        if (!IsFor(Locations))
             return;
 
         UpdateIndicatorVisuals();

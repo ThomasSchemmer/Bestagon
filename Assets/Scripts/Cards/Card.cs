@@ -337,7 +337,11 @@ public abstract class Card : Draggable, ISelectable
     protected abstract void UseInternal();
     protected abstract CardCollection GetTargetAfterUse();
 
+    //area around the actual entity from this card that is still affected
     public abstract int GetAdjacencyRange();
+
+    // area that is representing the entity from this card directly
+    public abstract LocationSet.AreaSize GetAreaSize();
     public abstract bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus);
 
     public abstract bool ShouldShowAdjacency(HexagonVisualization Hex);

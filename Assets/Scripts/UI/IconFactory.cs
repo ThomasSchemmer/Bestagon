@@ -39,7 +39,12 @@ public class IconFactory : GameService
         Pin,
         PinActive,
         UnknownRelic,
-        Relic
+        Relic,
+        Lightning,
+        SingleTile,
+        DoubleTile,
+        TripleLineTile,
+        TripleCircleTile
     }
 
     public void Refresh()

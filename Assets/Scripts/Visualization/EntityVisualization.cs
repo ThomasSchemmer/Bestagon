@@ -18,13 +18,12 @@ public abstract class EntityVisualization<T> : EntityVisualization where T: Scri
     public virtual void Init(T Entity)
     {
         this.Entity = Entity;
-        Entity.SetVisualization(this);
     }
 
-    public static EntityVisualization CreateFromData(T Entity) 
+    public static EntityVisualization CreateFromDataAt(T Entity, Location Location) 
     {
         GameObject EntityObject = GetGameObjectFromEntity(Entity);
-        EntityObject.transform.position = Entity.GetLocation().WorldLocation + Entity.GetOffset();
+        EntityObject.transform.position = Entity.GetLocations().GetMainLocation().WorldLocation + Entity.GetOffset();
         EntityObject.transform.localRotation = Entity.GetRotation();
 
         EntityVisualization Vis = AddVisualization(EntityObject, Entity);

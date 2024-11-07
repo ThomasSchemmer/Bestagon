@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 //todo: highly inefficient
@@ -111,8 +112,17 @@ public class ReachVisualization : GameService
 
     private void AddReach(BuildingEntity AddedBuilding)
     {
-        BuildingLocations.Add(AddedBuilding.GetLocation());
-        AddReach(AddedBuilding.GetLocation());
+        LocationSet NewLocations = AddedBuilding.GetLocations();
+        List<Location> NewLocationsList = NewLocations.ToList();
+        BuildingLocations.UnionWith(NewLocations);
+
+        for (int i = 0; i < NewLocations.Count() - 1; i++)
+        {
+            //don't trigger updating the borders for intermediate steps
+            AddReach(NewLocationsList[i], false);
+        }
+
+        AddReach(NewLocationsList[NewLocations.Count() - 1]);
     }
 
     private void AddReach(Location Location, bool bShouldUpdateBorders = true)
@@ -160,7 +170,7 @@ public class ReachVisualization : GameService
 
     private void RemoveReach(BuildingEntity RemovedBuilding)
     {
-        BuildingLocations.Remove(RemovedBuilding.GetLocation());
+        BuildingLocations.ExceptWith(RemovedBuilding.GetLocations());
         Set = new();
         // dont auto update everytime
         foreach (Location ReachLocation in BuildingLocations)

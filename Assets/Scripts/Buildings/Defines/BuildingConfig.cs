@@ -44,4 +44,5 @@ public class BuildingConfig
     public static Type[] Categories = new Type[4] { CategoryMeadow, CategoryDesert, CategorySwamp, CategoryIce};
 
     public static Type UnlockOnStart = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut ;
+
 }

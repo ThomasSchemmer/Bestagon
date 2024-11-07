@@ -88,6 +88,16 @@ public class Selectors : GameService
         HexagonSelector.DeSelect(true);
     }
 
+    public void ReHoverHexagon()
+    {
+        HexagonVisualization Vis = HexagonSelector.Hovered;
+        if (Vis == null)
+            return;
+
+        HexagonSelector.DeSelect(false);
+        HexagonSelector.Hover(Vis);
+    }
+
     public void ForceDeselect()
     {
         DeselectCard();

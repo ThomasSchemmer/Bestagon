@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using Unity.Collections;
 using UnityEngine;
@@ -75,7 +76,7 @@ public class MalaiseData : ISaveableData
 
         for (int LocationIndex = 0; LocationIndex < StartLocations.Count; LocationIndex++) 
         {
-            List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(StartLocations[LocationIndex], false);
+            List<HexagonData> Neighbours = MapGenerator.GetNeighboursData(StartLocations[LocationIndex].ToSet(), false).ToList();
             int RandomNeighbourIndex = Random.Range(0, Neighbours.Count);
             int MaxSearchCount = Mathf.Min(GlobalMaxSearchCount, Neighbours.Count);
 

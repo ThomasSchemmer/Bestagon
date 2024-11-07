@@ -65,11 +65,11 @@ public class MalaisedBuildingsQuest : Quest<BuildingEntity>
             return;
 
         int Distance = 6;
-        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.GetLocation(), Distance);
+        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.GetLocations().GetMainLocation(), Distance);
         HexagonData Target = null;
         foreach (Location Location in Locations)
         {
-            var Path = Pathfinding.FindPathFromTo(Scout.GetLocation(), Location);
+            var Path = Pathfinding.FindPathFromTo(Scout.GetLocations().GetMainLocation(), Location);
             if (Path.Count < Distance - 1)
                 continue;
 
@@ -85,7 +85,7 @@ public class MalaisedBuildingsQuest : Quest<BuildingEntity>
         if (Target == null)
             return;
 
-        var Neighbours = MapGen.GetNeighboursData(Target.Location, true);
+        var Neighbours = MapGen.GetNeighboursData(Target.Location.ToSet(), true);
         foreach (var Neighbour in Neighbours)
         {
             Neighbour.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);

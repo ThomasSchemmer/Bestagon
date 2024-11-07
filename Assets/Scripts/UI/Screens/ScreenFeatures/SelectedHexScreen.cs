@@ -72,7 +72,6 @@ public class SelectedHexScreen : ScreenFeatureGroup<HexagonData>
     }
 
     public Selector<HexagonVisualization> Selector;
-    public GameObject UnitPrefab;
 
     private HexagonData SelectedHexTile;
 

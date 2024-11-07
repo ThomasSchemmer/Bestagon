@@ -40,10 +40,11 @@ MonoBehaviour:
           Value: 2
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5123
+  BuildableOn: 4098
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 7171
+  UpgradeBuildableOn: 6146
   UpgradeMaxUsages: 2
+  Size: 0
   Visualization: {fileID: 0}

@@ -26,7 +26,6 @@ MonoBehaviour:
   Effect:
     EffectType: 1
     UnitType: 0
-    TileType: 4
     Production:
       _Production:
         Tuples:
@@ -35,8 +34,7 @@ MonoBehaviour:
     Consumption:
       _Production:
         Tuples: []
-    Range: 1
-    UpgradeTileType: 0
+    Range: 0
     UpgradeProduction:
       _Production:
         Tuples:
@@ -44,10 +42,10 @@ MonoBehaviour:
           Value: 2
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 5123
+  BuildableOn: 4
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 0
+  UpgradeBuildableOn: 65556
   UpgradeMaxUsages: 3
-  Visualization: {fileID: 0}
+  Area: 1

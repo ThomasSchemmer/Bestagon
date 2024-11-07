@@ -20,7 +20,7 @@ public class ScoutEntity : TokenizedUnitEntity
         base.Init();
         SetName(GetPrefabName() + " " + ID);
         ID = MAX_SCOUT_ID++;
-        SetLocation(Location.Zero);
+        SetLocation(Location.Zero.ToSet());
     }
 
     public override string GetPrefabName()

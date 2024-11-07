@@ -31,7 +31,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         this.Building = Building;
     }
 
-    public Production GetProduction(int Worker, Location Location, bool bIsSimulated)
+    public Production GetProduction(int Worker, LocationSet Location, bool bIsSimulated)
     {
         switch(EffectType)
         {
@@ -44,12 +44,12 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         }
     }
 
-    private Production GetProductionAt(int Worker, Location Location) {
+    private Production GetProductionAt(int Worker, LocationSet Location) {
         if (!Game.TryGetServices(out MapGenerator MapGenerator, out BuildingService Buildings))
             return new();
 
         bool bShouldAddOrigin = Range == 0;
-        List<HexagonData> NeighbourData = MapGenerator.GetNeighboursData(Location, bShouldAddOrigin, Range);
+        HashSet<HexagonData> NeighbourData = MapGenerator.GetNeighboursData(Location, bShouldAddOrigin, Range);
         Production Production = new();
 
         if (!TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus))
@@ -65,7 +65,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         return Production * Worker;
     }
 
-    private Production GetConsumeProductionAt(int Worker, Location Location, bool bIsSimulated)
+    private Production GetConsumeProductionAt(int Worker, LocationSet Location, bool bIsSimulated)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
             return new();

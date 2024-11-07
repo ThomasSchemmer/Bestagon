@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VectorGraphics;
 using UnityEngine;
 
 public class BuildingCard : Card
@@ -33,6 +34,7 @@ public class BuildingCard : Card
         base.DeleteVisuals();
         DeleteVisuals(MaxWorkerTransform);
         DeleteVisuals(EffectTransform);
+        DeleteVisuals(SymbolTransform);
     }
 
     public override void Show(Visibility Visibility)
@@ -59,6 +61,22 @@ public class BuildingCard : Card
 
         GameObject EffectObject = BuildingData.Effect.GetEffectVisuals(this);
         EffectObject.transform.SetParent(EffectTransform, false);
+
+        SVGImage Image = SymbolTransform.GetComponent<SVGImage>();
+        Image.sprite = IconFactory.GetIconForMisc(GetMiscBuildingSize());
+        Image.color = new(1, 1, 1, 1);
+    }
+
+    private IconFactory.MiscellaneousType GetMiscBuildingSize()
+    {
+        switch (BuildingData.Area)
+        {
+            case LocationSet.AreaSize.Single: return IconFactory.MiscellaneousType.SingleTile;
+            case LocationSet.AreaSize.Double: return IconFactory.MiscellaneousType.DoubleTile;
+            case LocationSet.AreaSize.TripleLine: return IconFactory.MiscellaneousType.TripleLineTile;
+            case LocationSet.AreaSize.TripleCircle: return IconFactory.MiscellaneousType.TripleCircleTile;
+        }
+        return default;
     }
 
     protected override void UseInternal()
@@ -133,9 +151,16 @@ public class BuildingCard : Card
             return;
         }
 
+        if (!LocationSet.TryGetAround(Hex.Location, BuildingData.Area, out LocationSet NewLocation))
+        {
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough space for its size");
+            return;
+        }
+
         // avoids "doubling" the actual building (including workers) when building a second time
         BuildingEntity Copy = Instantiate(BuildingData);
-        Copy.BuildAt(Hex.Location);
+
+        Copy.BuildAt(NewLocation, LocationSet.GetAngle());
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);
 
@@ -171,6 +196,11 @@ public class BuildingCard : Card
     public override int GetAdjacencyRange()
     {
         return GetBuildingData().Effect.Range;
+    }
+
+    public override LocationSet.AreaSize GetAreaSize()
+    {
+        return GetBuildingData().Area;
     }
 
     public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

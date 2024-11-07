@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BuildingPreview : MeshPreview
 {
-    ProductionIndicator Indicator;
+    protected ProductionIndicator Indicator;
 
     public override void Init(Card Card)
     {
@@ -18,6 +18,7 @@ public class BuildingPreview : MeshPreview
         InitRendering();
 
         Indicator = gameObject.AddComponent<ProductionIndicator>();
+        LocationSet.ResetAngle();
     }
 
 
@@ -48,6 +49,26 @@ public class BuildingPreview : MeshPreview
 
         BuildingCard BCard = (BuildingCard)Card;
         return GetPreviewableAs<BuildingEntity>().BuildingType == BCard.GetBuildingData().BuildingType;
+    }
+
+    public void Update()
+    {
+        if (!Input.GetKeyDown(KeyCode.R))
+            return;
+
+        BuildingEntity PreviewEntity = GetPreviewableAs<BuildingEntity>();
+        if (PreviewEntity == null)
+            return;
+
+        if (PreviewEntity.Area == LocationSet.AreaSize.Single)
+            return;
+
+        LocationSet.IncreaseAngle();
+        PreviewEntity.SetAngle(LocationSet.GetAngle());
+        if (!Game.TryGetService(out Selectors Selectors))
+            return;
+
+        Selectors.ReHoverHexagon();
     }
 
 }

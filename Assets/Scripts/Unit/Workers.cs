@@ -19,7 +19,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         Worker.RemoveFromBuilding();
         Building.RemoveWorker(i);
         _OnWorkersChanged?.Invoke();
-        _OnWorkersAssigned?.Invoke(Building.GetLocation());
+        _OnWorkersAssigned?.Invoke(Building.GetLocations());
         _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
@@ -28,7 +28,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         Worker.AssignToBuilding(Building, i);
         Building.PutWorkerAt(Worker, i);
         _OnWorkersChanged?.Invoke();
-        _OnWorkersAssigned?.Invoke(Building.GetLocation());
+        _OnWorkersAssigned?.Invoke(Building.GetLocations());
         _OnWorkerAssignedList.ForEach(_ => _.Invoke(Worker));
     }
 
@@ -127,7 +127,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
     protected override void StopServiceInternal() {}
 
     public delegate void OnWorkersChanged();
-    public delegate void OnWorkersAssigned(Location Location);
+    public delegate void OnWorkersAssigned(LocationSet Locations);
     public static OnWorkersChanged _OnWorkersChanged;
     public static OnWorkersAssigned _OnWorkersAssigned;
 

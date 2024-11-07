@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 
@@ -70,7 +71,7 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)CurrentFoodCount);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)AssignedBuildingSlot);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocation() : Location.Zero);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocations() : Location.Zero);
 
         return Bytes.ToArray();
     }
@@ -122,10 +123,10 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return false;
 
-        if (!MapGenerator.TryGetHexagonData(GetAssignedBuilding().GetLocation(), out HexagonData Hex))
+        if (!MapGenerator.TryGetHexagonData(GetAssignedBuilding().GetLocations(), out List<HexagonData> Hexs))
             return false;
 
-        return Hex.IsPreMalaised();
+        return Hexs.Any(Hex => Hex.IsPreMalaised());
     }
 
     public override int GetTargetMeshIndex()

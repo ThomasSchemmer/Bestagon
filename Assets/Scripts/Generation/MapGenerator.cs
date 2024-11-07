@@ -5,6 +5,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 using static HexagonData;
+using static UnityEditor.FilePathAttribute;
 
 /** 
  * Main service to generate and display @HexagonVisualizations.
@@ -224,7 +225,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (Hex == null)
             return Neighbours;
 
-        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Hex.Location, bShouldAddOrigin, Range);
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Hex.Location.ToSet(), bShouldAddOrigin, Range);
 
         foreach (Location NeighbourLocation in NeighbourTileLocations) {
             if (!TryGetHexagon(NeighbourLocation, out HexagonVisualization Neighbour))
@@ -237,8 +238,24 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
 
     }
 
-    public List<HexagonData> GetNeighboursData(Location Location, bool bShouldAddOrigin, int Range = 1) {
-        List<HexagonData> NeighbourDatas = new List<HexagonData>();
+    public HashSet<HexagonVisualization> GetNeighbours(LocationSet Locations, bool bShouldAddOrigin, int Range = 1)
+    {
+        HashSet<HexagonVisualization> NeighbourViss = new HashSet<HexagonVisualization>();
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Locations, bShouldAddOrigin, Range);
+
+        foreach (Location NeighbourTile in NeighbourTileLocations)
+        {
+            if (!TryGetHexagon(NeighbourTile, out HexagonVisualization Vis))
+                continue;
+
+            NeighbourViss.Add(Vis);
+        }
+
+        return NeighbourViss;
+    }
+
+    public HashSet<HexagonData> GetNeighboursData(LocationSet Location, bool bShouldAddOrigin, int Range = 1) {
+        HashSet<HexagonData> NeighbourDatas = new HashSet<HexagonData>();
         HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Location, bShouldAddOrigin, Range);
 
         foreach (Location NeighbourTile in NeighbourTileLocations) {
@@ -281,13 +298,13 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
      * Returns the locations of all neighbouring tiles in a radius around the target. 
      * Since this returns a HashSet its possible to easily check for duplicates
      */
-    public static HashSet<Location> GetNeighbourTileLocationsInRange(Location Origin, bool bShouldAddOrigin, int Range = 1) {
+    public static HashSet<Location> GetNeighbourTileLocationsInRange(LocationSet Origin, bool bShouldAddOrigin, int Range = 1) {
         HashSet<Location> NeighbourLocations = new();
         HashSet<Location> Origins = new();
-        Origins.Add(Origin);
+        Origins.UnionWith(Origin.ToHashSet());
         if (bShouldAddOrigin)
         {
-            NeighbourLocations.Add(Origin);
+            NeighbourLocations.UnionWith(Origin.ToHashSet());
         }
 
         for (int i = 0; i < Range; i++)
@@ -308,6 +325,13 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             }
             Origins = NewAdds;
         }
+
+        // we need to actively remove origins cause they are each others neighbours!
+        if (!bShouldAddOrigin)
+        {
+            NeighbourLocations.ExceptWith(Origin.ToHashSet());
+        }
+
         return NeighbourLocations;
     }
 
@@ -322,6 +346,20 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             return false;
 
         return ChunkVis.TryGetHex(Location, out Hex);
+    }
+
+
+    public bool TryGetHexagon(LocationSet Locations, out List<HexagonVisualization> Hexs)
+    {
+        Hexs = new();
+
+        foreach(var Location in Locations) {
+            if (!TryGetHexagon(Location, out var Hex))
+                continue;
+
+            Hexs.Add(Hex);
+        }
+        return Hexs.Count > 0;
     }
 
     public bool TryGetHexagonData(Location Location, out HexagonData HexData, bool bTakeRawData = false) {
@@ -342,6 +380,65 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             return false;
 
         return HexData != null;
+    }
+
+    public bool TryGetChunkData(Location Location, out ChunkData Chunk)
+    {
+        Chunk = null;
+
+        if (Chunks == null)
+            return false;
+
+        if (!HexagonConfig.IsValidChunkIndex(Location.ChunkLocation))
+            return false;
+
+        Chunk = Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y];
+        return true;
+    }
+
+    public bool TryGetChunkVis(Location Location, out ChunkVisualization Visualization)
+    {
+        Visualization = null;
+        if (ChunkVis == null)
+            return false;
+
+        return ChunkVis.TryGetValue(Location.ChunkLocation, out Visualization);
+    }
+
+    public bool TryGetHexagonData(LocationSet Locations, out List<HexagonData> HexDatas, bool bTakeRawData = false)
+    {
+        HexDatas = new(Locations.Count());
+        bool bWasSuccessful = true;
+        foreach (Location Location in Locations)
+        {
+            bWasSuccessful &= TryGetHexagonData(Location, out var HexData, bTakeRawData);
+            HexDatas.Add(HexData);
+        }
+        return bWasSuccessful;
+    }
+
+    public bool TryGetChunkData(LocationSet Locations, out List<ChunkData> ChunkDatas)
+    {
+        ChunkDatas = new(Locations.Count());
+        bool bWasSuccessful = true;
+        foreach (Location Location in Locations)
+        {
+            bWasSuccessful &= TryGetChunkData(Location, out var ChunkData);
+            ChunkDatas.Add(ChunkData);
+        }
+        return bWasSuccessful;
+    }
+
+    public bool TryGetChunkVis(LocationSet Locations, out List<ChunkVisualization> ChunkVis)
+    {
+        ChunkVis = new(Locations.Count());
+        bool bWasSuccessful = true;
+        foreach (Location Location in Locations)
+        {
+            bWasSuccessful &= TryGetChunkVis(Location, out var Vis);
+            ChunkVis.Add(Vis);
+        }
+        return bWasSuccessful;
     }
 
     public bool TrySetHexagonData(Location Location, HexagonConfig.HexagonHeight Height, HexagonConfig.HexagonType Type)
@@ -371,16 +468,13 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (!Game.TryGetService(out BuildingService Buildings))
             return;
 
-        if (!TryGetChunkData(BuildingData.GetLocation(), out ChunkData Chunk))
-            return;
-
         Buildings.AddBuilding(BuildingData);
 
         // if the chunk is currently being shown, force create the building
-        if (!TryGetChunkVis(BuildingData.GetLocation(), out ChunkVisualization ChunkVis))
+        if (!TryGetChunkVis(BuildingData.GetLocations(), out List<ChunkVisualization> ChunkVis))
             return;
 
-        ChunkVis.CreateBuilding(BuildingData);
+        ChunkVis[0].CreateBuilding(BuildingData);
     }
 
     public Production GetProductionPerTurn(bool bIsSimulated) {
@@ -398,28 +492,6 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         Vector2Int TileSpace = HexagonConfig.WorldSpaceToTileSpace(HexWorldPos);
         Vector2Int ChunkSpace = HexagonConfig.TileSpaceToChunkSpace(TileSpace);
         return new Location(ChunkSpace, new(0, 0));
-    }
-
-    public bool TryGetChunkData(Location Location, out ChunkData Chunk) {
-        Chunk = null;
-
-        if (Chunks == null)
-            return false;
-
-        if (!HexagonConfig.IsValidChunkIndex(Location.ChunkLocation)) 
-            return false;
-
-        Chunk = Chunks[Location.ChunkLocation.x, Location.ChunkLocation.y];
-        return true;
-    }
-
-    public bool TryGetChunkVis(Location Location, out ChunkVisualization Visualization)
-    {
-        Visualization = null;
-        if (ChunkVis == null)
-            return false;
-
-        return ChunkVis.TryGetValue(Location.ChunkLocation, out Visualization);
     }
 
     public void UpdateMapBounds(Location MinDiscoveredLoc, Location MaxDiscoveredLoc) {

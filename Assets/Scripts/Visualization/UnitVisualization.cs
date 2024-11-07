@@ -4,7 +4,7 @@ using UnityEngine;
 public class UnitVisualization : EntityVisualization<TokenizedUnitEntity>
 {
     public void UpdateLocation() {
-        transform.position = Entity.GetLocation().WorldLocation + Entity.GetOffset();
+        transform.position = Entity.GetLocations().GetMainLocation().WorldLocation + Entity.GetOffset();
     }
 
 }

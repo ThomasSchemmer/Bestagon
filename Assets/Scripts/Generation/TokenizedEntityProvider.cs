@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /** Provides functionality to query entities based on their location */
@@ -10,7 +11,7 @@ public class TokenizedEntityProvider<T> : EntityProvider<T> where T : Scriptable
         Entity = null;
         foreach (T ActiveEntity in Entities)
         {
-            if (!ActiveEntity.GetLocation().Equals(Location))
+            if (!ActiveEntity.GetLocations().Contains(Location))
                 continue;
 
             Entity = ActiveEntity;
@@ -30,7 +31,7 @@ public class TokenizedEntityProvider<T> : EntityProvider<T> where T : Scriptable
         EntitiesInChunk = new();
         foreach (T Entity in Entities)
         {
-            if (!Entity.GetLocation().ChunkLocation.Equals(ChunkLocation.ChunkLocation))
+            if (Entity.GetLocations().Count(Location => Location.ChunkLocation.Equals(ChunkLocation.ChunkLocation)) == 0)
                 continue;
 
             EntitiesInChunk.Add(Entity);

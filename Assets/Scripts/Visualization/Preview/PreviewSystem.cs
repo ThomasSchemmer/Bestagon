@@ -58,11 +58,16 @@ public class PreviewSystem : GameService
 
         bool bIsVisible = SelectedCard ? SelectedCard.ShouldShowAdjacency(SelectedHex) : false;
 
+        // neighbours are self-area and affected tiles
         // check for each neighbour if it should be highlighted
         int Range = SelectedCard ? SelectedCard.GetAdjacencyRange() : MaxAdjacencyRange;
-        bool bIsAdjacentCard = Range > 0;
+        LocationSet.AreaSize AreaSize = SelectedCard ? SelectedCard.GetAreaSize() : 0;
+        bool bIncludeOrigin = Range == 0 || !bIsVisible;
         Range = Mathf.Min(Range, MaxAdjacencyRange);
-        List<HexagonVisualization> Neighbours = Generator.GetNeighbours(SelectedHex, !bIsAdjacentCard, Range);
+        if (!LocationSet.TryGetAround(PreviewLocation, AreaSize, out var Area))
+            return;
+
+        HashSet<HexagonVisualization> Neighbours = Generator.GetNeighbours(Area, bIncludeOrigin, Range);
         Dictionary<HexagonConfig.HexagonType, Production> Boni = new();
         if (SelectedCard && !SelectedCard.TryGetAdjacencyBonus(out Boni))
             return;

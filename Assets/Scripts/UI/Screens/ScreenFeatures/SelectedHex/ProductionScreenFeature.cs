@@ -45,7 +45,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
     private bool AreWorkersAssigned()
     {
         return TryGetBuildingData(out BuildingEntity Building) &&
-            Building.GetWorkingWorkerCount(true) > 0;
+            Building.GetAssignedWorkerCount() > 0;
     }
 
     private bool TryGetBuildingData(out BuildingEntity Building)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VectorGraphics;
 using UnityEngine;
 
 public class EventCard : Card
@@ -35,12 +36,20 @@ public class EventCard : Card
         EffectObject.transform.SetParent(EffectTransform, false);
 
         CostTransform.gameObject.SetActive(false);
+
+        if (!EventData.bIsTemporary)
+            return;
+
+        SVGImage Image = SymbolTransform.GetComponent<SVGImage>();
+        Image.sprite = IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Lightning);
+        Image.color = new(1, 1, 1, 1);
     }
 
     protected override void DeleteVisuals()
     {
         base.DeleteVisuals();
         DeleteVisuals(EffectTransform);
+        DeleteVisuals(SymbolTransform);
 
     }
 
@@ -100,6 +109,11 @@ public class EventCard : Card
     public override int GetAdjacencyRange()
     {
         return EventData.GetAdjacencyRange();
+    }
+
+    public override LocationSet.AreaSize GetAreaSize()
+    {
+        return LocationSet.AreaSize.Single;
     }
 
     public override bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

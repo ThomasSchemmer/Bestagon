@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -66,11 +67,11 @@ public class Turn : GameService, IQuestRegister<int>
         {
             WorkerEntity MalaisedWorker = MalaisedEntity as WorkerEntity;
             BuildingEntity AssignedBuilding = MalaisedWorker.GetAssignedBuilding();
-            TargetLocation = AssignedBuilding != null ? AssignedBuilding.GetLocation() : null;
+            TargetLocation = AssignedBuilding != null ? AssignedBuilding.GetLocationAboutToBeMalaised() : null;
         }
         if (MalaisedEntity is TokenizedUnitEntity)
         {
-            TargetLocation = (MalaisedEntity as TokenizedUnitEntity).GetLocation();
+            TargetLocation = (MalaisedEntity as TokenizedUnitEntity).GetLocations().GetMainLocation();
         }
 
         if (TargetLocation == null)

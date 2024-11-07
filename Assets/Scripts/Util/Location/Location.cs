@@ -121,6 +121,11 @@ public class Location : ISaveableData
         }
     }
 
+    public LocationSet ToSet()
+    {
+        return new LocationSet(this);
+    }
+
     public static Location operator+(Location A, Location B) {
         HexagonConfig.GlobalTileToChunkAndTileSpace(A.GlobalTileLocation + B.GlobalTileLocation, out Location AB);
         return AB;

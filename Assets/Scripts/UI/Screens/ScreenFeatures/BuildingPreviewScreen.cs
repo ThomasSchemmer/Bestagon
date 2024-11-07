@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * UI info that shows more data about the building the player might be going to build
+ * Needs to be hooked to preview, as Card only triggers on actually selecting a card - 
+ * not every time the cursor has hovered another hex!
+ */
 public class BuildingPreviewScreen : ScreenFeatureGroup<BuildingEntity>
 {
     private PreviewSystem Previews;

@@ -33,6 +33,9 @@ public class IndicatorService : GameService
 
         foreach (var Key in IndicatorMap.Keys)
         {
+            if (!Key.gameObject.activeSelf)
+                continue;
+
             if (Key.NeedsVisualUpdate())
             {
                 Key.UpdateIndicatorVisuals();

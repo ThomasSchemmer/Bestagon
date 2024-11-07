@@ -131,7 +131,7 @@ public abstract class IndicatorComponent : MonoBehaviour
         }
     }
 
-    public virtual bool IsFor(Location Location)
+    public virtual bool IsFor(LocationSet Locations)
     {
         //overwritten in subclasses
         return false;

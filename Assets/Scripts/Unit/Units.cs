@@ -20,10 +20,10 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
         _OnUnitCountChanged?.Invoke();
         _OnEntityCreated.ForEach(_ => _.Invoke(Unit));
 
-        if (!MapGenerator.TryGetChunkVis(Unit.GetLocation(), out ChunkVisualization ChunkVis))
+        if (!MapGenerator.TryGetChunkVis(Unit.GetLocations(), out List<ChunkVisualization> ChunkViss))
             return;
 
-        ChunkVis.RefreshTokens();
+        ChunkViss.ForEach(ChunkVis => ChunkVis.RefreshTokens());
     }
 
     private void CheckForGameOver()

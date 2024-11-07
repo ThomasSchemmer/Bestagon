@@ -23,20 +23,21 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
     public DType DecorationType;
     public DecorationVisualization Visualization;
 
+    // decorations can only be in one spot
     private Location Location;
 
     public DecorationEntity() {
         EntityType = EType.Decoration;
     }
 
-    public void SetLocation(Location Location)
+    public void SetLocation(LocationSet Location)
     {
-        this.Location = Location;
+        this.Location = Location.GetMainLocation();
     }
 
-    public Location GetLocation()
+    public LocationSet GetLocations()
     {
-        return this.Location;
+        return Location.ToSet();
     }
 
     public void SetVisualization(EntityVisualization Vis)

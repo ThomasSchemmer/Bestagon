@@ -117,7 +117,7 @@ public class MalaisedSpawnQuestMove : Quest<TokenizedUnitEntity>
 
     public override int CheckSuccess(TokenizedUnitEntity Unit)
     {
-        return Unit.GetLocation().Equals(MalaisedSpawnQuest.TargetLocation) ? 1 : 0;
+        return Unit.GetLocations().Contains(MalaisedSpawnQuest.TargetLocation) ? 1 : 0;
     }
 
     public override void OnCreated() { }

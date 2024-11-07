@@ -22,11 +22,7 @@ public class ProductionIndicator : IndicatorComponent
 
     protected override int GetIndicatorAmount()
     {
-        BuildingEntity Building = Preview.GetPreviewable() as BuildingEntity;
-        if (Building == null)
-            return 0;
-
-        return Building.Effect.Range > 0 ? 6 : 1;
+        return GetNeighbourLocations().Count;
     }
 
     public override IndicatorService.IndicatorType GetIndicatorType()
@@ -48,9 +44,12 @@ public class ProductionIndicator : IndicatorComponent
         if (Building == null)
             return new();
 
+        if (!LocationSet.TryGetAround(HoveredHex.Location, Building.Area, out var Area))
+            return new();
+
         int Range = Building.Effect.Range;
         bool bIsAdjacentCard = Range > 0;
-        return MapGenerator.GetNeighbourTileLocationsInRange(HoveredHex.Location, !bIsAdjacentCard, Range);
+        return MapGenerator.GetNeighbourTileLocationsInRange(Area, !bIsAdjacentCard, Range);
     }
 
     protected override GameObject InstantiateIndicator(int i, RectTransform Parent)

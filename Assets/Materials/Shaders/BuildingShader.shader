@@ -18,7 +18,8 @@ Shader "Custom/BuildingShader"
     ENDHLSL
     SubShader
     {
-        Tags { "RenderType"="Opaque" "Queue" = "Geometry+1" "RenderPipeline" = "UniversalPipeline" "LightMode" = "UniversalForward"}
+
+        Tags { "RenderType"="Opaque" "Queue" = "Geometry-1" "RenderPipeline" = "UniversalPipeline" "LightMode" = "UniversalForward"}
         LOD 100
 
         Pass

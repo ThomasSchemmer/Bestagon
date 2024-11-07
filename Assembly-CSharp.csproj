@@ -68,6 +68,8 @@
     <Compile Include="Assets\Scripts\Player\DiscardDeck.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTags.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCardsQuest.cs" />
+    <Compile Include="Assets\Scripts\Util\Location\LocationSet.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedCard\RotatePreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
@@ -155,6 +157,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardGroup.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedCardScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />

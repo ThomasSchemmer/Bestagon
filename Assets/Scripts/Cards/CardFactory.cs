@@ -207,6 +207,7 @@ public class CardFactory : GameService
 
     protected override void StartServiceInternal()
     {
+        ResetUsableMat();
         Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory TileFactory) =>
         {
             CreateDelayedCards();
@@ -214,5 +215,12 @@ public class CardFactory : GameService
         });
     }
 
-    protected override void StopServiceInternal() {}
+    protected override void StopServiceInternal() { }
+
+    public void ResetUsableMat()
+    {
+        HexMat.SetFloat("_CheckUsable", 0);
+        HexMat.SetInt("_UsableOnMask", -1);
+        HexMat.SetInt("_AdjacentWithMask", -1);
+    }
 }

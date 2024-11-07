@@ -83,7 +83,7 @@ public class ChunkVisualization : MonoBehaviour
     }
 
     public void CreateBuilding(BuildingEntity BuildingData) {
-        BuildingVisualization Vis = (BuildingVisualization)BuildingVisualization.CreateFromData(BuildingData);
+        BuildingVisualization Vis = (BuildingVisualization)BuildingVisualization.CreateFromDataAt(BuildingData, BuildingData.GetLocations().GetMainLocation());
         Vis.transform.parent = transform;
         BuildingVisualizations.Add(Vis);
     }
@@ -98,7 +98,7 @@ public class ChunkVisualization : MonoBehaviour
 
         foreach (DecorationEntity Decoration in Decorations)
         {
-            DecorationVisualization DecorationVis = (DecorationVisualization)DecorationVisualization.CreateFromData(Decoration);
+            DecorationVisualization DecorationVis = (DecorationVisualization)DecorationVisualization.CreateFromDataAt(Decoration, Decoration.GetLocations().GetMainLocation());
             DecorationVis.transform.parent = transform;
             DecorationVisualizations.Add(DecorationVis);
         }
@@ -114,7 +114,7 @@ public class ChunkVisualization : MonoBehaviour
 
         foreach (TokenizedUnitEntity Unit in Units)
         {
-            UnitVisualization UnitVis = (UnitVisualization)UnitVisualization.CreateFromData(Unit);
+            UnitVisualization UnitVis = (UnitVisualization)UnitVisualization.CreateFromDataAt(Unit, Unit.GetLocations().GetMainLocation());
             UnitVis.transform.parent = transform;
             UnitVisualizations.Add(UnitVis);
         }

@@ -6,6 +6,7 @@
         _YesColor("YesColor", Color) = (0, 1, 0, 0.5)
         _NoColor("NoColor", Color) = (1, 0, 0, 0.5)
     }
+    
     SubShader
     {
         Tags { "RenderType"="Transparent" "Queue" = "Transparent" }
@@ -15,13 +16,15 @@
 
         Pass
         {
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #include "UnityCG.cginc"
             #include "UnityLightingCommon.cginc" // for _LightColor0
-
+            
+    
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -38,7 +41,7 @@
 
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Allowed)
-                UNITY_INSTANCING_BUFFER_END(Props)
+            UNITY_INSTANCING_BUFFER_END(Props)
 
             float4 _YesColor, _NoColor;
 
@@ -67,4 +70,5 @@
             ENDCG
         }
     }
+
 }

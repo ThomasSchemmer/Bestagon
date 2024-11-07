@@ -162,14 +162,14 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
         ScoutingRange = bScoutingRage;
     }
 
-    public Location GetLocation()
+    public LocationSet GetLocations()
     {
-        return Location;
+        return Location.ToSet();
     }
     
-    public void SetLocation(Location Location)
+    public void SetLocation(LocationSet Location)
     {
-        this.Location = Location;
+        this.Location = Location.GetMainLocation();
     }
 
     public override bool IsAboutToBeMalaised()
@@ -186,7 +186,9 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
     public int MovementPerTurn = 1;
     [HideInInspector]
     public int RemainingMovement = 0;
+
     [HideInInspector]
+    // units can only be at one location at a time, so keep simple
     protected Location Location;
 
     // should always be greater than the MovementPerTurn!

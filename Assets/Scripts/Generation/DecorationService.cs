@@ -10,7 +10,7 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
             return;
 
         DecorationEntity Decoration = MeshFactory.CreateDataFromType(Type);
-        Decoration.SetLocation(Location);
+        Decoration.SetLocation(Location.ToSet());
         AddDecoration(Decoration);
     }
 
@@ -21,10 +21,10 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
 
-        if (!MapGenerator.TryGetChunkVis(Decoration.GetLocation(), out var Vis))
+        if (!MapGenerator.TryGetChunkVis(Decoration.GetLocations(), out var Viss))
             return;
 
-        Vis.RefreshTokens();
+        Viss.ForEach(Vis => Vis.RefreshTokens());
     }
     protected override void StartServiceInternal()
     {
