@@ -46,6 +46,6 @@ MonoBehaviour:
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 1
-  UpgradeBuildableOn: 0
+  UpgradeBuildableOn: 82977
   UpgradeMaxUsages: 2
   Area: 0

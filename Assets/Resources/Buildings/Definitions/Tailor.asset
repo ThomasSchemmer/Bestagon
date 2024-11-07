@@ -18,16 +18,24 @@ MonoBehaviour:
   BuildingType: 524288
   Cost:
     _Production:
-      Tuples: []
+      Tuples:
+      - Key: 4
+        Value: 3
+      - Key: 3
+        Value: 2
   Effect:
-    EffectType: 1
+    EffectType: 2
     UnitType: 0
     Production:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 13
+          Value: 1
     Consumption:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 18
+          Value: 2
     Range: 0
     UpgradeProduction:
       _Production:
@@ -37,7 +45,7 @@ MonoBehaviour:
   BuildableOn: 1025
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 1
+  UpgradeMaxWorker: 2
   UpgradeBuildableOn: 91185
-  UpgradeMaxUsages: 1
+  UpgradeMaxUsages: 2
   Area: 1

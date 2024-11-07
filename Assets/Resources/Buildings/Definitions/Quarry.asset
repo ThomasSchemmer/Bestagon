@@ -33,7 +33,9 @@ MonoBehaviour:
           Value: 1
     Consumption:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 0
+          Value: 0
     Range: 0
     UpgradeProduction:
       _Production:

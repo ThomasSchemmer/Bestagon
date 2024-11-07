@@ -442,9 +442,9 @@ public class IconFactory : GameService
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetTileTypeVisuals(EventData.TargetHexType);
-        UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
-        UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
+        GameObject TypeGO = GetVisualsForHexTypes(EventData.TargetHexType, Parent);
+        TypeGO.transform.SetParent(UnitTypeContainer, false);
+        TypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
         return ProduceUnitEffect;
     }

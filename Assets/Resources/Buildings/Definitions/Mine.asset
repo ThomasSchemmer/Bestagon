@@ -32,7 +32,7 @@ MonoBehaviour:
       _Production:
         Tuples:
         - Key: 22
-          Value: 0
+          Value: 1
     Consumption:
       _Production:
         Tuples: []

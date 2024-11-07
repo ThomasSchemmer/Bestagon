@@ -42,7 +42,7 @@ MonoBehaviour:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 1025
+  BuildableOn: 1041
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
