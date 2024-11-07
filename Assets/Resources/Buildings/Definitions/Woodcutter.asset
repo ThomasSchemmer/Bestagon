@@ -44,7 +44,6 @@ MonoBehaviour:
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 6146
+  UpgradeBuildableOn: 7042
   UpgradeMaxUsages: 2
-  Size: 0
-  Visualization: {fileID: 0}
+  Area: 0
