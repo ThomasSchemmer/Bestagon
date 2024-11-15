@@ -70,24 +70,9 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     private void LoadUnlockableRelics()
     {
-        LoadUnlockableRelicCategory((int)RelicEffect.CategoryMeadow);
-        LoadUnlockableRelicCategory((int)RelicEffect.CategoryDesert);
+        UnlockableRelics.AddCategory(RelicEffect.CategoryMeadow, RelicEffect.MaxIndex);
+        UnlockableRelics.AddCategory(RelicEffect.CategoryDesert, RelicEffect.MaxIndex);
     }
-
-    private void LoadUnlockableRelicCategory(int Mask)
-    {
-        SerializedDictionary<RelicType, Unlockables.State> Category = new();
-        for (int i = 0; i <= RelicEffect.MaxIndex; i++)
-        {
-            if ((Mask & (1 << i)) == 0)
-                continue;
-
-            Category.Add((RelicType)(1 << i), Unlockables.State.Locked);
-        }
-        UnlockableRelics.AddCategory(Category);
-
-    }
-
 
     public GameplayAbilityBehaviour GetPlayerBehavior()
     {
@@ -188,12 +173,17 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     public int GetValueAsInt(RelicType Type)
     {
-        return HexagonConfig.MaskToInt((int)Type, 32);
+        return (int)Type;
     }
 
     public RelicType GetValueAsT(int Value)
     {
-        return (RelicType)HexagonConfig.IntToMask(Value);
+        return (RelicType)Value;
+    }
+
+    public RelicType Combine(RelicType A, RelicType B)
+    {
+        return A |= B;
     }
 
     public ActionList<RelicType, Unlockables.State> OnRelicDiscoveryChanged = new();

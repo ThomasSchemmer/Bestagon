@@ -44,7 +44,9 @@ public class IconFactory : GameService
         SingleTile,
         DoubleTile,
         TripleLineTile,
-        TripleCircleTile
+        TripleCircleTile,
+        Sacrifice,
+        Offering
     }
 
     public void Refresh()
@@ -265,17 +267,39 @@ public class IconFactory : GameService
         return ProductionGroup;
     }
 
+    public GameObject GetVisualsForWorkerCost(int Amount, ISelectable Parent, bool bIgnoreClicks = false)
+    {
+        GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
+        RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
+        int Width = 62;
+        SetTransformByGroup(Width, 1, out Vector2 SizeDelta, out Vector2 Position, out float XOffset);
+        GroupTransform.sizeDelta = SizeDelta;
+        GroupTransform.anchoredPosition = Position;
+
+        GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
+        RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
+        UnitTransform.SetParent(GroupTransform, false);
+        UnitTransform.localPosition = new(Width + XOffset, 0, 0);
+        NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
+
+        UnitScreen.Initialize(GetIconForMisc(MiscellaneousType.Worker), "Worker", Parent);
+        UnitScreen.SetIgnored(bIgnoreClicks);
+        UnitScreen.UpdateVisuals(1);
+
+        return ProductionGroup;
+    }
+
     public GameObject GetVisualsForProduceEffect(BuildingEntity Building, ISelectable Parent)
     {
         GameObject ProductionEffect = Instantiate(ProduceEffectPrefab);
         Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Building.Effect.GetDescription();
-        Transform TypeContainer = ProductionEffect.transform.GetChild(3);
 
         GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false);
         ProductionGO.transform.SetParent(ProductionContainer, false);
 
+        Transform TypeContainer = ProductionEffect.transform.GetChild(3);
         GameObject UsableOnGO = GetVisualsForHexTypes(Building.BuildableOn, Parent, false);
         UsableOnGO.transform.SetParent(TypeContainer, false);
 
@@ -332,18 +356,24 @@ public class IconFactory : GameService
         return ProduceUnitEffect;
     }
 
-    public GameObject GetVisualsForProduceConsumeEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    public GameObject GetVisualsForProduceConsumeEffect(BuildingEntity Building, ISelectable Parent)
     {
-        GameObject ProductionEffect = Instantiate(ProduceConsumeEffectPrefab);
-        Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
-        TextMeshProUGUI ConsumptionText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        ConsumptionText.text = Effect.GetDescription();
-        Transform ConsumptionContainer = ProductionEffect.transform.GetChild(3);
-        GameObject ProductionGO = GetVisualsForProduction(Effect.Production, Parent, false);
+        GameObject ProdConsEffect = Instantiate(ProduceConsumeEffectPrefab);
+        TextMeshProUGUI ConsumptionText = ProdConsEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        ConsumptionText.text = Building.Effect.GetDescription();
+
+        Transform ProductionContainer = ProdConsEffect.transform.GetChild(1);
+        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false);
         ProductionGO.transform.SetParent(ProductionContainer, false);
-        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent, true);
+
+        Transform ConsumptionContainer = ProdConsEffect.transform.GetChild(3);
+        GameObject ConsumptionGO = GetVisualsForProduction(Building.Effect.Consumption, Parent, true);
         ConsumptionGO.transform.SetParent(ConsumptionContainer, false);
-        return ProductionEffect;
+
+        Transform TypeContainer = ProdConsEffect.transform.GetChild(5);
+        GameObject UsableOnGO = GetVisualsForHexTypes(Building.BuildableOn, Parent, false);
+        UsableOnGO.transform.SetParent(TypeContainer, false);
+        return ProdConsEffect;
     }
 
     public GameObject GetVisualsForGrantUnitEffect(GrantUnitEventData EventData, ISelectable Parent)

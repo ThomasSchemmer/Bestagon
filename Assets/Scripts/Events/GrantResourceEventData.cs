@@ -16,10 +16,11 @@ public class GrantResourceEventData : EventData
         if (!Game.TryGetService(out BuildingService Unlockables))
             return;
 
-        if (!Unlockables.TryGetRandomUnlockedResource(out Production.Type GrantedType))
+        int Seed = Random.Range(0, 100);
+        if (!Unlockables.TryGetRandomResource(Seed, global::Unlockables.State.Unlocked, false, out Production.Type GrantedType))
             return;
 
-        int GrantedAmount = UnityEngine.Random.Range(MinAmountGranted, MaxAmountGranted);
+        int GrantedAmount = Random.Range(MinAmountGranted, MaxAmountGranted);
         GrantedResource = new Production(GrantedType, GrantedAmount);
     }
 

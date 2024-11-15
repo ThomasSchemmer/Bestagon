@@ -129,9 +129,15 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
                 return false;
         }
 
-        if (!Game.TryGetService(out Stockpile Stockpile))
+        if (!Game.TryGetServices(out Stockpile Stockpile, out DecorationService Decorations))
         {
             Reason = "Invalid";
+            return false;
+        }
+
+        if (Decorations.IsEntityAt(NewLocations))
+        {
+            Reason = "blocked by decoration";
             return false;
         }
 
@@ -332,10 +338,10 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     private void UpgradeBuildableTiles()
     {
-        HexagonConfig.HexagonType[] GroupMasks = { 
-            HexagonConfig.SpecialTypes, HexagonConfig.MeadowTypes, HexagonConfig.DesertTypes,
-            HexagonConfig.SwampTypes, HexagonConfig.IceTypes
-        };
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        HexagonConfig.HexagonType[] GroupMasks = MapGenerator.UnlockableTypes.GetCategoryMasks();
 
         // theoretically inefficient, as we have to loop for each of the groups
         // but since we rarely call it its okay
@@ -427,7 +433,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         if (!MapGenerator.TryGetHexagonData(Locations, out List<HexagonData> Hexes))
             return Location.Invalid;
 
-        List<HexagonData> PreMalaisedHexes = (List<HexagonData>)Hexes.Where(Hex => Hex.IsPreMalaised());
+        List<HexagonData> PreMalaisedHexes = Hexes.Where(Hex => Hex.IsPreMalaised()).ToList();
         return PreMalaisedHexes.Count > 0 ? PreMalaisedHexes[0].Location : Location.Invalid;
     }
 
@@ -444,7 +450,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             LocationSet.GetStaticSize(LocationSet.MaxCount) +
             Production.GetStaticSize() +
             OnTurnBuildingEffect.GetStaticSize() +
-            sizeof(byte) * 1 +
+            sizeof(byte) * 2 +
             sizeof(int) * 8;
     }
 
@@ -466,6 +472,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeBuildableOn);
         Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxUsages);
         Pos = SaveGameManager.AddInt(Bytes, Pos, Angle);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Area);
 
 
         return Bytes.ToArray();
@@ -488,10 +495,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out Angle);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bArea);
 
         BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
         BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
         UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
+        Area = (LocationSet.AreaSize)bArea;
 
         AssignedWorkers = new WorkerEntity[MaxWorker];
     }

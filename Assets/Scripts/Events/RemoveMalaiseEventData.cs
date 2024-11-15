@@ -12,7 +12,7 @@ public class RemoveMalaiseEventData : EventData
 
     public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        if (Hex.Data.MalaisedState == HexagonData.MalaiseState.None)
+        if (!Hex.Data.IsAnyMalaised())
         {
             if (!bIsPreview)
             {
@@ -59,7 +59,7 @@ public class RemoveMalaiseEventData : EventData
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        Hex.Data.MalaisedState = HexagonData.MalaiseState.None;
+        Hex.Data.RemoveMalaise();
         Hex.Chunk.Malaise.UnmarkToMalaise(Hex.Location);
         Hex.VisualizeSelection();
 

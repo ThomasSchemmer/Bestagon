@@ -1,6 +1,9 @@
 using static HexagonConfig;
 using Unity.Collections;
 using static HexagonData;
+using System.Collections.Generic;
+using System;
+using System.Numerics;
 
 /** Includes all data necessary to display and update a hexagon */
 public class HexagonData : ISaveableData
@@ -12,17 +15,34 @@ public class HexagonData : ISaveableData
         Visited = 2     // been very close -> visible
     }
 
-    public enum MalaiseState
+    [Flags]
+    /** 
+     * Describes the current interaction state of the hexagon (and its Visualization) 
+     * Needs to be kept in sync with @HexagonShader
+     */
+    public enum State : uint
     {
-        None,
-        PreMalaise,
-        Malaised
+        Default = 0,
+        Hovered = 1 << 0,
+        Selected = 1 << 1,
+        PreMalaised = 1 << 2,
+        Malaised = 1 << 3,
+        // fully highlighted, next to a building
+        Adjacent = 1 << 4,
+        // fully highlighted, neext to a unit
+        Reachable = 1 << 5,
+        // only outer rim will be highlighted, needs to have a @AoESource set!
+        AoeAffected = 1 << 6,
     }
 
     public Location Location;
     public HexagonType Type;
     public HexagonHeight HexHeight;
-    public MalaiseState MalaisedState = MalaiseState.None;
+
+    // only for visual highlights
+    private Location AoESource = Location.Invalid;
+
+    private State _State = State.Default;
     private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
@@ -30,12 +50,10 @@ public class HexagonData : ISaveableData
     public OnDiscovery _OnDiscovery;
     public static OnDiscoveryStateHex _OnDiscoveryStateHex;
 
-    // copied from HexagonInfo struct
-    public float Temperature;
-    public float Humidity;
-    public float Height;
-
-    public float DebugValue;
+    // copied/filled from HexagonInfo struct
+    private float Temperature;
+    private float Humidity;
+    private float Height;
 
     public HexagonData(HexagonHeight HexHeight, HexagonType HexType)
     {
@@ -57,7 +75,7 @@ public class HexagonData : ISaveableData
     public HexagonDTO GetDTO() {
 
         uint uType = (uint)MaskToInt((int)Type, 16) + 1;
-        uint Malaise = (uint)(MalaisedState == MalaiseState.Malaised ? 1 : 0) << 7;
+        uint Malaise = (uint)(GetState(State.Malaised) ? 1 : 0) << 7;
         uint uDiscovery = (uint)(Discovery > DiscoveryState.Unknown ? 1 : 0) << 6;
 
         return new HexagonDTO() {
@@ -94,7 +112,7 @@ public class HexagonData : ISaveableData
 
     public bool IsMalaised()
     {
-        return MalaisedState == MalaiseState.Malaised;
+        return GetState(State.Malaised);
     }
 
     public bool IsScouted()
@@ -109,13 +127,83 @@ public class HexagonData : ISaveableData
 
     public bool IsPreMalaised()
     {
-        return MalaisedState == MalaiseState.PreMalaise;
+        return GetState(State.PreMalaised);
     }
     
 
     public bool CanDecorationSpawn()
     {
         return HexHeight > HexagonHeight.Sea && HexHeight < HexagonHeight.Mountain;
+    }
+
+    public void AddState(State State)
+    {
+        _State |= State;
+    }
+
+    public void RemoveState(State State)
+    {
+        _State &= ~State;
+    }
+
+    public void SetState(State State, bool bIsAdded)
+    {
+        if (bIsAdded)
+        {
+            AddState(State);
+            return;
+        }
+        RemoveState(State);
+    }
+
+    public bool GetState(State State)
+    {
+        return (_State & State) > 0;
+    }
+
+    public State GetState()
+    {
+        return _State;
+    }
+
+    public void SetMalaised()
+    {
+        SetState(State.PreMalaised, false);
+        SetState(State.Malaised, true);
+    }
+
+    public void SetPreMalaised()
+    {
+        SetState(State.PreMalaised, true);
+        SetState(State.Malaised, false);
+    }
+
+    public void RemoveMalaise()
+    {
+        SetState(State.PreMalaised, false);
+        SetState(State.Malaised, false);
+    }
+
+    public bool IsAnyMalaised()
+    {
+        return GetState(State.Malaised) || GetState(State.PreMalaised);
+    }
+
+    public UnityEngine.Vector4 GetSourceLocationVector()
+    {
+        return new(
+            Location.WorldLocation.x,
+            Location.WorldLocation.z,
+            AoESource.WorldLocation.x,
+            AoESource.WorldLocation.z
+        );
+    }
+
+    public void SetAoESourceLocation(Location Location)
+    {
+        bool bHasValidSource = !Location.Equals(Location.Invalid);
+        SetState(State.AoeAffected, bHasValidSource);
+        AoESource = Location;
     }
         
     public static HexagonData CreateFromInfo(WorldGenerator.HexagonInfo Info)
@@ -170,9 +258,10 @@ public class HexagonData : ISaveableData
         Type = (HexagonType)iType;
         HexHeight = (HexagonHeight)iHeight;
         Discovery = (DiscoveryState)iDiscovery;
-        MalaisedState = bIsMalaised ? MalaiseState.Malaised : MalaiseState.None;
         Height = (float)dHeight;
         Temperature = (float)dTemperature;
         Humidity = (float)dHumidity;
+
+        SetState(State.Malaised, bIsMalaised);
     }
 }

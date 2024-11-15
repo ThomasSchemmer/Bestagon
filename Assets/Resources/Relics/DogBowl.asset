@@ -15,7 +15,7 @@ MonoBehaviour:
   DurationPolicy: 0
   InstancingPolicy: 2
   Modifiers:
-  - AttributeType: 18
+  - AttributeType: 19
     Operation: 0
     Period: 0
     Value: 1
@@ -43,4 +43,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 128
   Image: {fileID: 3286163911610860551, guid: 5746d34635b64ba4aa59d459d33ec546, type: 3}
-  Tooltip: Increases maximum handcards

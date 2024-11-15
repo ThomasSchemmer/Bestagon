@@ -19,4 +19,6 @@ public interface IUnlockableService<T> where T : struct, IConvertible
     /** Allows type casting with templated values */
     public int GetValueAsInt(T Value);
     public T GetValueAsT(int Value);
+
+    public T Combine(T A, T B);
 }

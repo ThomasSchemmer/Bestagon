@@ -14,6 +14,13 @@ public class CardSelectionUI : MonoBehaviour
         {
             UpdateText(Stockpile.GetUpgradePoints());
         });
+
+        Stockpile._OnUpgradesChanged += UpdateText;
+    }
+
+    private void OnDestroy()
+    {
+        Stockpile._OnUpgradesChanged -= UpdateText;
     }
 
     public void OnConfirm()

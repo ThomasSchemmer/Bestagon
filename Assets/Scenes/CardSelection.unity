@@ -4993,6 +4993,54 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &869271675
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 869271676}
+  - component: {fileID: 869271677}
+  m_Layer: 0
+  m_Name: MapGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &869271676
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869271675}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1745459820}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &869271677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869271675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc2ab8da5788294cb1df30ba6d95d03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  HexMat: {fileID: 0}
+  bAreMalaiseDTOsDirty: 1
 --- !u!1 &883881820
 GameObject:
   m_ObjectHideFlags: 0
@@ -5848,6 +5896,9 @@ MonoBehaviour:
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 758688903}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 869271677}
 --- !u!4 &1030420838
 Transform:
   m_ObjectHideFlags: 0
@@ -6665,6 +6716,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
+  HexMat: {fileID: 0}
 --- !u!1 &1363294348
 GameObject:
   m_ObjectHideFlags: 0
@@ -7325,8 +7377,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsRunning: 0
   IsInit: 0
-  IndicatorPrefab: {fileID: 4242072080842183509, guid: 455a48252d7bb7f41b577d3e9db5251b,
-    type: 3}
   IndicatorContainerPrefab: {fileID: 6594987263394821832, guid: af82c0c860c072f479cd00aa018c91ec,
     type: 3}
 --- !u!1 &1548550544
@@ -7928,6 +7978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7131f2b41a0e494a8bd2a3871727aa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowScreenButton: {fileID: 0}
   CardGroupContainer: {fileID: 1376495101}
 --- !u!1 &1745459819
 GameObject:
@@ -7965,6 +8016,7 @@ Transform:
   - {fileID: 1999662650}
   - {fileID: 535139813}
   - {fileID: 758688902}
+  - {fileID: 869271676}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1745459821
@@ -8330,6 +8382,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RelicGroups: []
+  ToHide:
+    Tuples:
+    - Key: {fileID: 815291109}
+      Value: 0
   RelicContainer: {fileID: 2024900277}
 --- !u!1 &1999662648
 GameObject:

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 using static HexagonData;
-using static UnityEditor.FilePathAttribute;
 
 /** 
  * Main service to generate and display @HexagonVisualizations.
  * Creates @Chunk's out of the @Map data that then get displayed according to the camera position. 
  * Also provides general access functions to get @HexagonData by @Location
  */
-public class MapGenerator : GameService, ISaveableService, IQuestRegister<DiscoveryState>
+public class MapGenerator : GameService, ISaveableService, IQuestRegister<DiscoveryState>, IUnlockableService<HexagonConfig.HexagonType>
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -42,6 +42,11 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         MinBottomLeft = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
         MaxTopRight = new Location(HexagonConfig.mapMinChunk, HexagonConfig.mapMinChunk, 0, 0);
 
+        if (Game.IsIn(Game.GameState.CardSelection)){
+            InitInCardSelection();
+            return;
+        }
+
         Game.RunAfterServicesInit((Map Map, MeshFactory Factory) =>
         {
             Game.RunAfterServiceInit((SaveGameManager Manager) =>
@@ -56,9 +61,18 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
                 {
                     MalaiseData.bHasStarted = false;
                     MalaiseData.SpreadInitially();
+
+                    UnlockableTypes = new();
+                    UnlockableTypes.Init(this);
                 }
             });
         });
+    }
+
+    private void InitInCardSelection()
+    {
+        UnlockableTypes = new();
+        UnlockableTypes.Init(this);
     }
 
     protected override void StopServiceInternal(){}
@@ -648,6 +662,43 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         }
     }
 
+
+    bool IUnlockableService<HexagonConfig.HexagonType>.IsInit()
+    {
+        return IsInit;
+    }
+
+    public int GetValueAsInt(HexagonConfig.HexagonType Type)
+    {
+        return (int)Type;
+    }
+
+    public HexagonConfig.HexagonType GetValueAsT(int Value)
+    {
+        return (HexagonConfig.HexagonType)Value;
+    }
+
+    public void OnLoadUnlockable(HexagonConfig.HexagonType Type, Unlockables.State State)
+    {
+        // don't need to do anything, all should be unlocked anyway
+    }
+
+    public void InitUnlockables()
+    {
+        UnlockableTypes.AddCategory(HexagonConfig.MeadowTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.AddCategory(HexagonConfig.DesertTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.AddCategory(HexagonConfig.SwampTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.AddCategory(HexagonConfig.IceTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.AddCategory(HexagonConfig.SpecialTypes, HexagonConfig.MaxTypeIndex);
+
+        // all has to be unlocked to guarantee world generation
+        UnlockableTypes.UnlockCategory(HexagonConfig.MeadowTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.UnlockCategory(HexagonConfig.DesertTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.UnlockCategory(HexagonConfig.SwampTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.UnlockCategory(HexagonConfig.IceTypes, HexagonConfig.MaxTypeIndex);
+        UnlockableTypes.UnlockCategory(HexagonConfig.SpecialTypes, HexagonConfig.MaxTypeIndex);
+    }
+
     public int GetSize()
     {
         // Tile count and chunk count, overall size
@@ -683,6 +734,10 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         if (!Game.TryGetService(out Map Map))
             return;
 
+        // don't need to save these, they are always unlocked!
+        UnlockableTypes = new();
+        UnlockableTypes.Init(this);
+
         //load as temporary chunk data, write the hex data into the map and then create new chunks from the map
         int Pos = sizeof(int);
         Pos = SaveGameManager.GetInt(Bytes, Pos, out int TileCount);
@@ -707,7 +762,10 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
     public void Reset()
     {
         DestroyChunks();
-        
+
+        UnlockableTypes = new();
+        UnlockableTypes.Init(this);
+
         if (!Game.TryGetService(out Selectors Selector))
             return;
 
@@ -716,9 +774,16 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
 
     public bool ShouldLoadWithLoadedSize() { return true; }
 
+    public HexagonConfig.HexagonType Combine(HexagonConfig.HexagonType A, HexagonConfig.HexagonType B)
+    {
+        return A |= B;
+    }
 
     public ChunkData[,] Chunks;
     public Dictionary<Vector2Int, ChunkVisualization> ChunkVis;
+
+
+    public Unlockables<HexagonConfig.HexagonType> UnlockableTypes = new();
 
     public Material HexMat;
 

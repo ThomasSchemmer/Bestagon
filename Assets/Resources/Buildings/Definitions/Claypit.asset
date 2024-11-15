@@ -28,16 +28,16 @@ MonoBehaviour:
       _Production:
         Tuples:
         - Key: 1
-          Value: 1
+          Value: 2
     Consumption:
       _Production:
         Tuples: []
-    Range: 1
+    Range: 0
     UpgradeProduction:
       _Production:
         Tuples:
         - Key: 1
-          Value: 2
+          Value: 4
     UpgradeRange: 0
   MaxWorker: 1
   BuildableOn: 4096

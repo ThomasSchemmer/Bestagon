@@ -18,6 +18,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         Ruins = 1,
         Tribe = 2,
         Treasure = 3,
+        Altar = 4
     }
 
     public DType DecorationType;
@@ -25,9 +26,55 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 
     // decorations can only be in one spot
     private Location Location;
+    private bool bIsActivated = false;
+    private CollectableChoice.ChoiceType ChoiceType;
 
     public DecorationEntity() {
         EntityType = EType.Decoration;
+    }
+
+    public void ApplyEffect(CollectableChoice.ChoiceType ChoiceType)
+    {
+        this.ChoiceType = ChoiceType;
+        bIsActivated = true;
+        if (!Game.TryGetService(out DecorationService Decorations))
+            return;
+
+        LocalizedGameplayEffect TargetEffect =
+            ChoiceType == CollectableChoice.ChoiceType.Sacrifice ? Decorations.MalaiseImmunityEffect :
+            ChoiceType == CollectableChoice.ChoiceType.Offering ? Decorations.ProductionIncreaseEffect :
+            null; 
+        
+        if (TargetEffect == null)
+            return;
+
+        TargetEffect.ApplyToLocation(Location, 1);
+    }
+
+    private void RemoveEffect()
+    {
+        if (!Game.TryGetService(out DecorationService Decorations))
+            return;
+
+        LocalizedGameplayEffect TargetEffect =
+            ChoiceType == CollectableChoice.ChoiceType.Sacrifice ? Decorations.MalaiseImmunityEffect :
+            ChoiceType == CollectableChoice.ChoiceType.Offering ? Decorations.ProductionIncreaseEffect :
+            null;
+
+        if (TargetEffect == null)
+            return;
+
+        TargetEffect.RemoveFromLocation(Location);
+    }
+
+    public void OnDestroy()
+    {
+        RemoveEffect();
+    }
+
+    public bool ShouldBeKilledOnCollection()
+    {
+        return DecorationType != DType.Altar;
     }
 
     public void SetLocation(LocationSet Location)
@@ -55,8 +102,25 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
             case DType.Ruins: return "Contains ancient ruins";
             case DType.Tribe: return "Contains unknown tribe";
             case DType.Treasure: return "Contains treasure chest";
+            case DType.Altar: return GetAltarText();
             default: return "";
         }
+    }
+
+    public bool IsActivated()
+    {
+        return bIsActivated;
+    }
+
+    private string GetAltarText()
+    {
+        if (!bIsActivated)
+            return "Contains mysterious altar";
+
+        if (ChoiceType == CollectableChoice.ChoiceType.Offering)
+            return "Altar increases productivity";
+
+        return "Altar inhibits malaise spread";
     }
 
     public override int GetSize()
@@ -66,7 +130,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 
     public static new int GetStaticSize()
     {
-        return ScriptableEntity.GetStaticSize() + Location.GetStaticSize() + sizeof(byte);
+        return ScriptableEntity.GetStaticSize() + Location.GetStaticSize() + sizeof(byte) * 3;
     }
 
     public override byte[] GetData()
@@ -75,6 +139,8 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 
         int Pos = base.GetSize();
         Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)DecorationType);
+        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)ChoiceType);
+        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsActivated);
         Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
 
         return Bytes.ToArray();
@@ -86,9 +152,17 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         int Pos = base.GetSize();
         Location = new();
         Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bDecorationType);
+        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bChoiceType);
+        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsActivated);
         Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
 
         DecorationType = (DType)bDecorationType;
+        ChoiceType = (CollectableChoice.ChoiceType)bChoiceType;
+
+        if (bIsActivated)
+        {
+            ApplyEffect(ChoiceType);
+        }
     }
 
     public virtual Vector3 GetOffset()

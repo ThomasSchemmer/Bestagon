@@ -17861,6 +17861,12 @@ MonoBehaviour:
     - Key: 2
       Value: {fileID: 4494726817561328335, guid: 0b4aa6f649b33294ab4cc66f27242a3f,
         type: 3}
+    - Key: 4
+      Value: {fileID: 4795802766347879577, guid: 062971f6f667cea4aa0919049a8a06f8,
+        type: 3}
+    - Key: 3
+      Value: {fileID: 4795802766347879577, guid: 062971f6f667cea4aa0919049a8a06f8,
+        type: 3}
 --- !u!1 &1174939601
 GameObject:
   m_ObjectHideFlags: 0
@@ -25787,6 +25793,10 @@ MonoBehaviour:
   IsRunning: 0
   IsInit: 0
   Entities: []
+  MalaiseImmunityEffect: {fileID: 11400000, guid: d85ca3f9b08e49e46be01930b60aaf78,
+    type: 2}
+  ProductionIncreaseEffect: {fileID: 11400000, guid: 9315f0ed21448df4c819df7cd4db4f81,
+    type: 2}
 --- !u!1 &1876166692
 GameObject:
   m_ObjectHideFlags: 0

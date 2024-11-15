@@ -108,7 +108,8 @@ public class ProductionIndicator : IndicatorComponent
         if (!Boni.TryGetValue(Hex.Type, out Production Bonus))
             return Production.Empty;
 
-        return Bonus;
+        float Multiplier = AttributeSet.Get()[AttributeType.ProductionRate].GetAt(Location);
+        return Multiplier * Bonus;
     }
 
     protected override void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform)

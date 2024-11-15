@@ -48,6 +48,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     
     public Production CalculateResources(bool bIsSimulated)
     {
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return Production.Empty;
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return Production.Empty;
 
@@ -179,6 +181,8 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
             bShouldReset = true;
             Refill();
             _OnInit?.Invoke(this);
+            _OnResourcesChanged?.Invoke();
+            _OnUpgradesChanged?.Invoke();
         });
     }
 
@@ -224,6 +228,19 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     {
         Refill();
         _OnInit?.Invoke(this);
+        _OnResourcesChanged?.Invoke();
+        _OnUpgradesChanged?.Invoke();
+    }
+
+    public void OnBeforeSaved()
+    {
+        if (!Game.TryGetService(out TutorialSystem Tutorials))
+            return;
+
+        if (!Tutorials.IsInTutorial())
+            return;
+
+        Reset();
     }
 
     public void Refill()
@@ -249,11 +266,6 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
     public void Show(bool bShow)
     {
         StockpileScreen.Show(bShow);
-    }
-
-    public void OnBeforeSaved()
-    {
-        Reset();
     }
 
     public Production Resources;

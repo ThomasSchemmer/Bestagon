@@ -71,7 +71,7 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)CurrentFoodCount);
         Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
         Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)AssignedBuildingSlot);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocations() : Location.Zero);
+        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocations().GetMainLocation() : Location.Zero);
 
         return Bytes.ToArray();
     }

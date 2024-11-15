@@ -36,11 +36,19 @@ public class MalaiseData : ISaveableData
         if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData Hex))
             return;
 
-        Hex.MalaisedState = HexagonData.MalaiseState.Malaised;
+        if (IsImmune(Location))
+        {
+            Hex.RemoveMalaise();
+        }
+        else
+        {
+            Hex.SetMalaised();
+            Chunk.DestroyTokensAt(Location);
+        }
 
-        Chunk.DestroyTokensAt(Location);
         if (!MapGenerator.TryGetChunkVis(Location, out ChunkVisualization ChunkVis))
             return;
+
         ChunkVis.RefreshTokens();
 
         if (!MapGenerator.TryGetHexagon(Location, out HexagonVisualization HexVis))
@@ -93,7 +101,7 @@ public class MalaiseData : ISaveableData
 
     private bool MarkToMalaise(HexagonData Hex, ChunkData TargetChunk = null)
     {
-        if (Hex.MalaisedState != HexagonData.MalaiseState.None)
+        if (Hex.IsAnyMalaised())
             return false;
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
@@ -102,7 +110,10 @@ public class MalaiseData : ISaveableData
         if (TargetChunk == null && !MapGenerator.TryGetChunkData(Hex.Location, out TargetChunk))
             return false;
 
-        Hex.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+        if (IsImmune(Hex.Location))
+            return false;
+
+        Hex.SetPreMalaised();
         TargetChunk.Malaise.LocationsToMalaise.Add(Hex.Location);
         TargetChunk.Malaise.Infect();
 
@@ -112,6 +123,12 @@ public class MalaiseData : ISaveableData
 
         HexVis.VisualizeSelection();
         return true;
+    }
+
+    private bool IsImmune(Location Location)
+    {
+        float MalaiseImmunity = AttributeSet.Get()[AttributeType.MalaiseImmunity].GetAt(Location);
+        return MalaiseImmunity > 0;
     }
 
     private List<Location> GetRandomMalaised()
@@ -138,7 +155,7 @@ public class MalaiseData : ISaveableData
                 if (!Chunk.TryGetHexAt(new(x, y), out HexagonData Hex))
                     continue;
 
-                if (Hex.MalaisedState != HexagonData.MalaiseState.Malaised)
+                if (!Hex.IsMalaised())
                     continue;
 
                 MalaisedHexes.Add(Hex.Location);
@@ -193,7 +210,7 @@ public class MalaiseData : ISaveableData
         if (!ChunkData.TryGetHexAt(Location.HexLocation, out HexagonData HexData))
             return;
 
-        HexData.MalaisedState = HexagonData.MalaiseState.PreMalaise;
+        HexData.SetPreMalaised();
         ChunkData.Malaise.LocationsToMalaise.Add(Location);
         ChunkData.Malaise.Infect();
 

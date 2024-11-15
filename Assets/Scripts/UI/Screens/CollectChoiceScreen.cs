@@ -9,46 +9,10 @@ using UnityEngine.UI;
  */
 public abstract class CollectChoiceScreen : ScreenUI
 {
-    public enum ChoiceType
-    {
-        Card,
-        Upgrade,
-        Relic
-    }
-
-    public class CollectableChoice
-    {
-        public ChoiceType Type;
-        public BuildingConfig.Type BuildingToUnlock = BuildingConfig.Type.DEFAULT;
-        public RelicType RelicToUnlock = RelicType.DEFAULT;
-        public Card GeneratedCard;
-
-        public CollectableChoice(Card GeneratedCard)
-        {
-            this.Type = ChoiceType.Card;
-            this.GeneratedCard = GeneratedCard;
-            if (GeneratedCard is not BuildingCard)
-                return;
-
-            BuildingCard Building = GeneratedCard as BuildingCard;
-            BuildingToUnlock = Building.GetBuildingData().BuildingType;
-        }
-
-        public CollectableChoice()
-        {
-            Type = ChoiceType.Upgrade;
-        }
-
-        public CollectableChoice(RelicType RelicType)
-        {
-            RelicToUnlock = RelicType;
-            Type = ChoiceType.Relic;
-        }
-    }
 
     public List<Transform> ChoiceContainers = new();
-    public List<ChoiceType> ChoiceTypes = new();
-    public SerializedDictionary<ChoiceType, GameObject> ChoicesPrefab = new();
+    public List<CollectableChoice.ChoiceType> ChoiceTypes = new();
+    public SerializedDictionary<CollectableChoice.ChoiceType, GameObject> ChoicesPrefab = new();
 
     protected CollectableChoice[] Choices;
     protected bool bCloseOnPick = true;
@@ -59,14 +23,18 @@ public abstract class CollectChoiceScreen : ScreenUI
         Choices = new CollectableChoice[ChoiceContainers.Count];
         for (int i = 0; i < ChoiceContainers.Count; i++)
         {
-            ChoiceContainers[i].gameObject.SetActive(true);
+            CreateChoiceAt(i);
+        }
+    }
 
-            switch (ChoiceTypes[i])
-            {
-                case ChoiceType.Card: CreateCardAt(i, GetCardTypeAt(i)); break;
-                case ChoiceType.Upgrade: CreateUpgradeAt(i); break;
-                case ChoiceType.Relic: CreateRelicAt(i); break;
-            }
+    protected virtual void CreateChoiceAt(int i)
+    {
+        ChoiceContainers[i].gameObject.SetActive(true);
+
+        // additional choices in subclasses
+        switch (ChoiceTypes[i])
+        {
+            case CollectableChoice.ChoiceType.Building: CreateCardAt(i, GetCardTypeAt(i)); break;
         }
     }
 
@@ -74,6 +42,7 @@ public abstract class CollectChoiceScreen : ScreenUI
     protected abstract bool ShouldCardBeUnlocked(int i);
     protected abstract Production GetCostsForChoice(int i);
     protected abstract int GetUpgradeCostsForChoice(int i);
+    protected abstract int GetWorkerCostsForChoice(int i);
     protected abstract CardCollection GetTargetCardCollection();
     protected abstract int GetSeed();
 
@@ -86,32 +55,12 @@ public abstract class CollectChoiceScreen : ScreenUI
         }
     }
 
-    protected void CreateUpgradeAt(int ChoiceIndex)
-    {
-        // keep the kinda clunky callback syntax to be similar to the CreateCardAt function
-        PrepareContainerForUpgrade(ChoiceIndex, out Action<Card, RelicType, int> Callback);
-        Callback(null, RelicType.DEFAULT, ChoiceIndex);
-    }
-
-    protected void CreateRelicAt(int ChoiceIndex)
-    {
-        if (!Game.TryGetServices(out RelicService RelicService, out IconFactory IconFactory))
-            return;
-
-        if (!RelicService.UnlockableRelics.TryUnlockNewType(GetSeed() + ChoiceIndex, out var RelicType, true))
-            return;
-
-        PrepareContainerForRelic(ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback);
-        IconFactory.CreateRelicIcon(RelicContainer, RelicService.Relics[RelicType], true);
-        Callback(null, RelicType, ChoiceIndex);
-    }
-
     private void CreateEventCardAt(int ChoiceIndex)
     {
         if (!Game.TryGetService(out CardFactory CardFactory))
             return;
 
-        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
+        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<int, Card> Callback);
         CardFactory.CreateCard(EventData.GetRandomType(GetSeed() + ChoiceIndex), ChoiceIndex, CardContainer, Callback);
     }
 
@@ -133,12 +82,11 @@ public abstract class CollectChoiceScreen : ScreenUI
             TargetBuilding = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex, Unlockables.State.Unlocked, true, false);
         }
 
-        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback);
+        PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out var Callback);
         CardFactory.CreateCard(TargetBuilding, ChoiceIndex, CardContainer, Callback);
     }
 
-
-    protected virtual void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<Card, RelicType, int> Callback)
+    protected virtual void PrepareContainerForCard(int ChoiceIndex, out Transform CardContainer, out Action<int, Card> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
         AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
@@ -150,37 +98,9 @@ public abstract class CollectChoiceScreen : ScreenUI
         });
         Button.interactable = CanAffordChoice(ChoiceIndex);
         CardContainer = TargetContainer.GetChild(0).GetChild(3);
-        Callback = SetChoiceCard;
+        Callback = SetChoiceBuilding;
     }
 
-    private void PrepareContainerForUpgrade(int ChoiceIndex, out Action<Card, RelicType, int> Callback)
-    {
-        Transform TargetContainer = ChoiceContainers[ChoiceIndex];
-        AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
-        Button Button = TargetContainer.GetChild(0).GetChild(2).GetComponent<Button>();
-        Button.onClick.RemoveAllListeners();
-        Button.onClick.AddListener(() =>
-        {
-            OnSelectOption(ChoiceIndex);
-        });
-        Button.interactable = CanAffordChoice(ChoiceIndex);
-        Callback = SetChoiceUpgrade;
-    }
-
-    private void PrepareContainerForRelic(int ChoiceIndex, out Transform RelicContainer, out Action<Card, RelicType, int> Callback)
-    {
-        Transform TargetContainer = ChoiceContainers[ChoiceIndex];
-        AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
-        Button Button = TargetContainer.GetChild(0).GetChild(2).GetComponent<Button>();
-        Button.onClick.RemoveAllListeners();
-        Button.onClick.AddListener(() =>
-        {
-            OnSelectOption(ChoiceIndex);
-        });
-        Button.interactable = CanAffordChoice(ChoiceIndex);
-        RelicContainer = TargetContainer.GetChild(0).GetChild(3);
-        Callback = SetChoiceRelic;
-    }
 
     public void UpdateSelectChoiceButtons()
     {
@@ -197,17 +117,31 @@ public abstract class CollectChoiceScreen : ScreenUI
         }
     }
 
-    private bool CanAffordChoice(int ChoiceIndex)
+    protected bool CanAffordChoice(int ChoiceIndex)
     {
-        if (!Game.TryGetService(out Stockpile Stockpile))
-            return false;
+        // cant enfore having workers, as they do not exist in CardSelection (but we still need unlocking)
+        Stockpile Stockpile = Game.GetService<Stockpile>();
+        Workers Workers = Game.GetService<Workers>();
 
-        Production Costs = GetCostsForChoice(ChoiceIndex);
-        int UpgradeCosts = GetUpgradeCostsForChoice(ChoiceIndex);
-        return Stockpile.CanAfford(Costs) && Stockpile.CanAffordUpgrade(UpgradeCosts);
+        GetCostsForChoice(ChoiceIndex, out var Costs, out var UpgradeCosts, out var WorkerCosts);
+
+        bool bCanPayStockpile = Stockpile != null && Stockpile.CanAfford(Costs) && Stockpile.CanAffordUpgrade(UpgradeCosts);
+        bool bStockpileFree = (UpgradeCosts + Costs.SumUp()) == 0;
+
+        bool bCanPayWorkers = Workers != null && Workers.GetTotalWorkerCount() >= WorkerCosts;
+        bool bWorkersFree = WorkerCosts == 0;
+
+        return (bStockpileFree || bCanPayStockpile) && (bWorkersFree || bCanPayWorkers);
     }
 
-    private void AddPrefabToContainer(Transform Container, GameObject Prefab)
+    protected void GetCostsForChoice(int ChoiceIndex, out Production Costs, out int UpgradeCosts, out int WorkerCosts)
+    {
+        Costs = GetCostsForChoice(ChoiceIndex);
+        UpgradeCosts = GetUpgradeCostsForChoice(ChoiceIndex);
+        WorkerCosts = GetWorkerCostsForChoice(ChoiceIndex);
+    }
+
+    protected void AddPrefabToContainer(Transform Container, GameObject Prefab)
     {
         if (Container.childCount > 0)
         {
@@ -217,34 +151,29 @@ public abstract class CollectChoiceScreen : ScreenUI
         Instantiate(Prefab, Container);
     }
 
-    protected virtual void SetChoiceCard(Card Card, RelicType RelicType, int i)
+    protected virtual void SetChoiceBuilding(int Index, Card Card)
     {
-        Choices[i] = new(Card);
-    }
-
-    protected virtual void SetChoiceUpgrade(Card Card, RelicType RelicType, int i)
-    {
-        // dont need to save anything, the upgrade definition is implicit
-        Choices[i] = new();
-    }
-
-    protected virtual void SetChoiceRelic(Card Card, RelicType RelicType, int i)
-    {
-        Choices[i] = new(RelicType);
+        Choices[Index] = new CollectableBuildingChoice(Card);
     }
 
     public virtual void OnSelectOption(int ChoiceIndex)
     {
-        if (!Game.TryGetService(out Stockpile Stockpile))
+        Stockpile Stockpile = Game.GetService<Stockpile>();
+        Workers Workers = Game.GetService<Workers>();
+
+        if (!CanAffordChoice(ChoiceIndex))
             return;
 
-        Production Costs = GetCostsForChoice(ChoiceIndex);
-        int UpgradeCosts = GetUpgradeCostsForChoice(ChoiceIndex);
-        if (!Stockpile.CanAfford(Costs) ||!Stockpile.CanAffordUpgrade(UpgradeCosts))
-            return;
-
-        Stockpile.Pay(Costs);
-        Stockpile.PayUpgrade(UpgradeCosts);
+        GetCostsForChoice(ChoiceIndex, out var Costs, out var UpgradeCosts, out var WorkerCosts);
+        if (Stockpile != null)
+        {
+            Stockpile.Pay(Costs);
+            Stockpile.PayUpgrade(UpgradeCosts);
+        }
+        if (Workers != null)
+        {
+            Workers.KillWorkers(WorkerCosts);
+        }
 
         CollectableChoice Choice = Choices[ChoiceIndex];
         List<CollectableChoice> OtherChoices = new();
@@ -253,9 +182,11 @@ public abstract class CollectChoiceScreen : ScreenUI
 
         switch (Choice.Type)
         {
-            case ChoiceType.Card: OnSelectCardChoice(Choice); break;
-            case ChoiceType.Upgrade: OnSelectUpgradeChoice(Choice); break;
-            case ChoiceType.Relic: OnSelectRelicChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Building: OnSelectBuildingChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Upgrade: OnSelectUpgradeChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Relic: OnSelectRelicChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Offering: // intentional fallthrough
+            case CollectableChoice.ChoiceType.Sacrifice: OnSelectAltarChoice(Choice); break;
         }
         DeactivateChoice(ChoiceIndex);
         Choices[ChoiceIndex] = null;
@@ -280,8 +211,12 @@ public abstract class CollectChoiceScreen : ScreenUI
         ChoiceContainers[ChoiceIndex].gameObject.SetActive(false);
     }
 
-    private void OnSelectCardChoice(CollectableChoice Choice)
+    private void OnSelectBuildingChoice(CollectableChoice Choice)
     {
+        CollectableBuildingChoice BuildingChoice = Choice as CollectableBuildingChoice;
+        if (BuildingChoice == null)
+            return;
+
         if (!Game.TryGetService(out BuildingService BuildingService))
             return;
 
@@ -289,23 +224,27 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (Collection == null)
             return;
 
-        Collection.AddCard(Choice.GeneratedCard);
+        Collection.AddCard(BuildingChoice.GeneratedCard);
 
-        if (Choice.BuildingToUnlock == BuildingConfig.Type.DEFAULT)
+        if (BuildingChoice.BuildingToUnlock == BuildingConfig.Type.DEFAULT)
             return;
 
-        BuildingService.UnlockableBuildings[Choice.BuildingToUnlock] = Unlockables.State.Unlocked;
+        BuildingService.UnlockableBuildings[BuildingChoice.BuildingToUnlock] = Unlockables.State.Unlocked;
     }
 
     private void OnSelectRelicChoice(CollectableChoice Choice)
     {
+        CollectableRelicChoice RelicChoice = Choice as CollectableRelicChoice;
+        if (RelicChoice == null)
+            return;
+
         if (!Game.TryGetService(out RelicService RelicService))
             return;
 
-        if (Choice.RelicToUnlock == RelicType.DEFAULT)
+        if (RelicChoice.RelicToUnlock == RelicType.DEFAULT)
             return;
 
-        RelicService.UnlockableRelics[Choice.RelicToUnlock] = Unlockables.State.Unlocked;
+        RelicService.UnlockableRelics[RelicChoice.RelicToUnlock] = Unlockables.State.Unlocked;
     }
 
     private void OnSelectUpgradeChoice(CollectableChoice Choice)
@@ -316,6 +255,10 @@ public abstract class CollectChoiceScreen : ScreenUI
         Stockpile.AddUpgrades(2);
     }
 
+    protected virtual void OnSelectAltarChoice(CollectableChoice Choice)
+    {
+        // overridden in subclasses
+    }
 
     private void Deselect()
     {
@@ -330,12 +273,14 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (Choice == null)
             return;
 
-        // updates dont have any created card objects
-        // TODO: fix for relic
-        if (Choice.Type != ChoiceType.Card)
+        if (Choice.Type != CollectableChoice.ChoiceType.Building)
             return;
 
-        Destroy(Choice.GeneratedCard.gameObject);
+        CollectableBuildingChoice BuildingChoice = Choice as CollectableBuildingChoice;
+        if (BuildingChoice == null)
+            return;
+
+        Destroy(BuildingChoice.GeneratedCard.gameObject);
     }
 
 

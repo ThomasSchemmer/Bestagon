@@ -16,13 +16,11 @@ public class CorruptionScreenFeature : ScreenFeature<HexagonData>
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        HexagonData.MalaiseState State = Target.GetFeatureObject().MalaisedState;
-        switch (State)
-        {
-            case HexagonData.MalaiseState.None: TargetText.text = ""; break;
-            case HexagonData.MalaiseState.PreMalaise: TargetText.text = "Will be corrupted"; break;
-            case HexagonData.MalaiseState.Malaised: TargetText.text = "Corrupted"; break;
-        }
+        HexagonData Hex = Target.GetFeatureObject();
+        TargetText.text =
+            Hex.GetState(HexagonData.State.PreMalaised) ? "Will be corrupted" :
+            Hex.GetState(HexagonData.State.Malaised) ? "Corrupted" : 
+            "";
     }
 
     public override void Hide()

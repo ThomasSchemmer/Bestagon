@@ -15,7 +15,7 @@ MonoBehaviour:
   DurationPolicy: 0
   InstancingPolicy: 2
   Modifiers:
-  - AttributeType: 16
+  - AttributeType: 17
     Operation: 0
     Period: 0
     Value: 1
@@ -43,4 +43,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 16
   Image: {fileID: 3286163911610860551, guid: bb1d5e4541ca6dc49a843562cd7e9a36, type: 3}
-  Tooltip: Increases building reach

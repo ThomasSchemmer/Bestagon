@@ -70,6 +70,26 @@ Shader"Custom/HexagonShader"
         float4 _BrushNormalTex_ST;
         float4 _BrushNormalTex_TexelSize;
     CBUFFER_END
+    
+        // implicit state enum
+        static uint DefaultState = 0;
+        static uint HoveredState = 1 << 0;
+        static uint SelectedState = 1 << 1;
+        static uint PreMalaisedState = 1 << 2;
+        static uint MalaisedState = 1 << 3;
+        static uint AdjacentState = 1 << 4;
+        static uint ReachableState = 1 << 5;
+        static uint AoEAffectedState = 1 << 6;
+
+        // describes the AoE outline indices per surrounding hex
+        static int BorderIndices[] = {
+            0, 1, 5,
+            0, 1, 2,
+            1, 2, 3,
+            2, 3, 4,
+            3, 4, 5,
+            4, 5, 0
+        };
     ENDHLSL
 
     SubShader
@@ -112,6 +132,9 @@ Shader"Custom/HexagonShader"
             #include "Assets/Materials/Shaders/Util/Util.cginc" //for snoise
             #include "Assets/Materials/Shaders/Util/Painterly.cginc" 
 
+            #define PI 3.14159265359
+            static float i60 = 1 / 60.0;
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -146,13 +169,13 @@ Shader"Custom/HexagonShader"
             SAMPLER(_BrushNormalTex);
 
             // each hexagon mesh sets these values for itself, todo: should be bitmask
+            // hexes can be at the same time
+            // selected and pre malaised and AoE affected
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Type)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Selected)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Hovered)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Adjacent)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Malaised)
-                UNITY_DEFINE_INSTANCED_PROP(float, _PreMalaised)
+                UNITY_DEFINE_INSTANCED_PROP(uint, _State)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _SourceLocation)
+
             UNITY_INSTANCING_BUFFER_END(Props)
 
             inline bool IsWater(){
@@ -166,6 +189,10 @@ Shader"Custom/HexagonShader"
 
             inline bool IsDecoration(float2 uv){
                 return uv.y > 0.875;        // 14 / 16
+            }
+
+            inline bool Is(uint Flag){
+                return (_State & Flag) > 0;
             }
 
             float4 NormalLighting(float3 normal){
@@ -274,24 +301,75 @@ Shader"Custom/HexagonShader"
                 return color;
             }
 
+            float GetAngle(float2 Position){
+                return degrees(acos(dot(normalize(Position), float2(1, 0))));
+            }
+
+            float GetSignedAngle(float2 Position){
+                float Angle = -atan2(Position.y, Position.x) + radians(30);
+                Angle += Angle < 0 ? 2 * PI : 0;
+                Angle = degrees(Angle);
+                return Angle;
+            }
+
+            float GetOuterHullHighlight(g2f i){
+                // hex position relative to the source determines which borders should  
+                // be highlighted
+                VertexPositionInputs VertexInput = GetVertexPositionInputs(0);
+                float2 ToSelf = VertexInput.positionWS.xz - _SourceLocation.zw;
+
+                float Dis = length(ToSelf);
+                bool bIsSource = Dis < 0.1;
+                bool bIsHighlightable = IsBorder(i.uv) && !bIsSource;
+                if (!bIsHighlightable)
+                    return 0;
+                
+                float BorderAngle = GetSignedAngle(i.vertexOS.xz);
+                float HexAngle = GetSignedAngle(ToSelf);
+                int HexIndex = HexAngle * i60;
+                int BorderIndex = BorderAngle * i60;
+
+                bool bIsOuterBorder = 
+                    BorderIndices[HexIndex * 3 + 0] == BorderIndex ||
+                    BorderIndices[HexIndex * 3 + 1] == BorderIndex ||
+                    BorderIndices[HexIndex * 3 + 2] == BorderIndex;
+                if (!bIsOuterBorder)
+                    return 0;
+                
+                // invert to mix with pre-malaised 
+                int stepped = 1 - ((uint)(BorderAngle / 15) % 2);
+                return stepped * 2;
+            }
+
             int getHighlight(g2f i){
             
                 bool bIsHighlightable = IsBorder(i.uv) || IsDecoration(i.uv);
                 if (!bIsHighlightable)
                     return 0;
-                
+                    
+                int Value = 0;
+
                 // use OS vertex angle for dashed outline
-                if (_PreMalaised > 0){
-                    float angle = degrees(acos(dot(normalize(i.vertexOS.xz), float2(1, 0))));
-                    int stepped = ((uint)(angle / 15) % 2) == 0 ? 1 : 0;
-                    return stepped * 4;
+                if (Is(PreMalaisedState)){
+                    float angle = GetAngle(i.vertexOS.xz);
+                    int stepped = (uint)(angle / 15) % 2;
+                    Value = stepped * 4;
                 }
 
-                return  _Malaised > 0 ? 4 :
-                        _Selected > 0 ? 1 :
-                        _Adjacent > 0 ? 3 :
-                        _Hovered > 0 ? 2 :
-                         0;
+                // use border lookup for outer hull
+                if (Value == 0 && Is(AoEAffectedState)){
+                    Value = GetOuterHullHighlight(i);
+                }
+
+                // allow hovering etc to overwrite partial states
+                Value = Value != 0 ? Value :
+                    Is(MalaisedState) ? 4 :
+                    Is(SelectedState) ? 1 :
+                    Is(HoveredState) ? 2 :
+                    Is(ReachableState) || Is(AdjacentState) ? 3 :
+                    0;
+
+                return Value;
             }
 
             float4 getHighlightColor(int highlight){

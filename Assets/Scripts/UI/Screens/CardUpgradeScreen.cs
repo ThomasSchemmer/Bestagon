@@ -182,7 +182,7 @@ public class CardUpgradeScreen : GameService
 
     private void ConvertToButton(BuildingEntity BuildingData, Transform OldTransform, UpgradeableAttributes Type)
     {
-        if (!BuildingData.IsUpgradePossible(Type))
+        if (!BuildingData.IsUpgradePossible(Type) || OldTransform == null)
             return;
 
         if (!Game.TryGetService(out IconFactory IconFactory))

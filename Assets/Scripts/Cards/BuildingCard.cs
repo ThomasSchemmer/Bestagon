@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VectorGraphics;
@@ -101,7 +102,19 @@ public class BuildingCard : Card
 
     public Transform GetBuildableOnTransform()
     {
-        return transform.GetChild(6).GetChild(0).GetChild(3);
+        if (transform.childCount < 7)
+            return null;
+
+        Transform Temp = transform.GetChild(6);
+        if (Temp.childCount < 1)
+            return null;
+
+        Temp = Temp.GetChild(0);
+        int BuildableOnIndex = BuildingData.Effect.EffectType == OnTurnBuildingEffect.Type.ConsumeProduce ? 5 : 3;
+        if (Temp.childCount < BuildableOnIndex + 1)
+            return null;
+
+        return Temp.GetChild(BuildableOnIndex);
     }
 
     protected override CardCollection GetTargetAfterUse()

@@ -23,6 +23,7 @@ public class EntityProvider<T> : GameService, IQuestRegister<T>, ISaveableServic
     public virtual void KillEntity(T Entity)
     {
         Entities.Remove(Entity);
+        Destroy(Entity);
     }
 
     public void KillAllEntities()

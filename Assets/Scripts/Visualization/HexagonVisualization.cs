@@ -15,17 +15,16 @@ using System;
  */ 
 public class HexagonVisualization : MonoBehaviour, ISelectable
 {
-    [Flags]
-    /** Describes the current interaction state of the visualization
-    * Anything further down overrides further up (?)
-    */
-    public enum State : uint
-    {
-        None = 0,
-        Hovered = 1,
-        Selected = 1 << 1,
-        
-    }
+    public Location Location;
+    public ChunkData Chunk;
+    public HexagonData Data;
+
+    protected Vector3[] Vertices;
+    protected int[] Triangles;
+
+    private MeshRenderer Renderer;
+    private MapGenerator Generator;
+    private Material Mat;
 
     public void Init(ChunkVisualization ChunkVis, ChunkData ChunkData, Location Location, Material Mat)
     {
@@ -83,7 +82,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
     }
 
     public void SetSelected(bool Selected, bool bShowReachableLocations, bool bIsInitializing = false) {
-        isSelected = Selected;
+        Data.SetState(HexagonData.State.Selected, Selected);
         VisualizeSelection();
         if (bShowReachableLocations) {
             ShowReachableLocations(Selected);
@@ -104,7 +103,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
     }
 
     public void SetHovered(bool Hovered) {
-        isHovered = Hovered;
+        Data.SetState(HexagonData.State.Hovered, Hovered);
         VisualizeSelection();
 
         if (!Game.TryGetService(out PreviewSystem Preview))
@@ -115,7 +114,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
     public bool IsHovered()
     {
-        return isHovered;
+        return Data.GetState(HexagonData.State.Hovered);
     }
 
     public void ClickOn(Vector2 PixelPos) { }
@@ -229,13 +228,6 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         return Location.GlobalTileLocation.x == OtherHex.Location.GlobalTileLocation.x && Location.GlobalTileLocation.y == OtherHex.Location.GlobalTileLocation.y;
     }
 
-    public bool IsMalaised()
-    {
-        return Data.IsMalaised();
-    }
-
-    public ChunkData GetChunk() { return Chunk; }
-
     public void ShowReachableLocations(bool bShow)
     {
         if (!Game.TryGetServices(out Units UnitService, out Stockpile Stockpile))
@@ -256,7 +248,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             if (!Generator.TryGetHexagon(ReachableLocation, out HexagonVisualization ReachableHex))
                 continue;
 
-            ReachableHex.isReachable = bIsVisible;
+            ReachableHex.Data.SetState(HexagonData.State.Reachable, bIsVisible);
             ReachableHex.VisualizeSelection();
         }
     }
@@ -294,15 +286,11 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
         MaterialPropertyBlock Block = new MaterialPropertyBlock();
 
-        Block.SetFloat("_Selected", isSelected ? 1 : 0);
-        Block.SetFloat("_Hovered", isHovered ? 1 : 0);
-        Block.SetFloat("_Adjacent", isAdjacent || isReachable ? 1 : 0);
         if (Data != null)
         {
-            Block.SetFloat("_Malaised", Data.IsMalaised() ? 1 : 0);
-            Block.SetFloat("_PreMalaised", Data.IsPreMalaised() ? 1 : 0);
+            Block.SetInt("_State", (int)Data.GetState());
             Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, HexagonConfig.MaxTypeIndex + 1) + 1);
-            Block.SetFloat("_Value", Data.DebugValue);
+            Block.SetVector("_SourceLocation", Data.GetSourceLocationVector());
         }
 
         Renderer.SetPropertyBlock(Block);
@@ -315,24 +303,11 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
     public void SetAdjacent(bool bIsAdjacent)
     {
-        isAdjacent = bIsAdjacent;
+        Data.SetState(HexagonData.State.Adjacent, bIsAdjacent);
     }
 
     public string GetHoverTooltip()
     {
         return "This tile represents a part of the world, providing space for units or buildings. Can be used to produce resources";
     }
-
-    public Location Location;
-    public ChunkData Chunk;
-    public HexagonData Data;
-
-    protected bool isHovered, isSelected, isAdjacent, isReachable, isPathway;
-
-    protected Vector3[] Vertices;
-    protected int[] Triangles;
-
-    private MeshRenderer Renderer;
-    private MapGenerator Generator;
-    private Material Mat;
 }

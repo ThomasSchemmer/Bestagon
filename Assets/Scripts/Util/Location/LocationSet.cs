@@ -12,12 +12,12 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
  */
 public class LocationSet : ISaveableData, IEnumerable<Location>
 {
-    public enum AreaSize
+    public enum AreaSize : uint
     {
-        Single,
-        Double,
-        TripleLine,
-        TripleCircle
+        Single = 0,
+        Double = 1,
+        TripleLine = 2,
+        TripleCircle = 3
     }
 
     private List<Location> Locations;

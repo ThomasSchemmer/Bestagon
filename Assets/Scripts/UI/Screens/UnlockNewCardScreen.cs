@@ -63,4 +63,8 @@ public class UnlockNewCardScreen : CollectChoiceScreen
 
         return BuildingService.UnlockableBuildings.GetCountOfState(Unlockables.State.Unlocked);
     }
+    protected override int GetWorkerCostsForChoice(int i)
+    {
+        return 0;
+    }
 }

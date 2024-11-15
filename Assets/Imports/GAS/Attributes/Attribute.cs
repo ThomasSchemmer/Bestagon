@@ -10,11 +10,19 @@ public class Attribute
     public float BaseValue = 0;
     public float CurrentValue = 0;
 
+    public HashSet<Location> AffectedLocations = new();
+
     // called in the editor - do not delete!
     public Attribute()
     {
         Modifiers = new();
         Initialize();
+    }
+
+    public float GetAt(Location Location)
+    {
+        return AffectedLocations.Contains(Location) ? CurrentValue : BaseValue;
+
     }
 
     public Attribute(AttributeType Type)
@@ -53,6 +61,16 @@ public class Attribute
         {
             _OnAttributeChanged?.Invoke();
         }
+    }
+
+    public void ApplyTo(HashSet<Location> Locations)
+    {
+        AffectedLocations.UnionWith(Locations);
+    }
+
+    public void ResetLocations()
+    {
+        AffectedLocations = new();
     }
 
     public void AddModifier(GameplayEffectModifier Modifier)

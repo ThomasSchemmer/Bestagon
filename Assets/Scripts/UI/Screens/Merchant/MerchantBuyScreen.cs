@@ -64,9 +64,9 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return false;
     }
 
-    protected override void SetChoiceCard(Card Card, RelicType RelicType, int i)
+    protected override void SetChoiceBuilding(int i, Card Card)
     {
-        base.SetChoiceCard(Card, RelicType, i); 
+        base.SetChoiceBuilding(i, Card); 
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 
@@ -96,6 +96,11 @@ public class MerchantBuyScreen : CollectChoiceScreen
     {
         // TODO: check if this actually gives a wide enough range?
         return UnityEngine.Random.Range(0, 100);
+    }
+
+    protected override int GetWorkerCostsForChoice(int i)
+    {
+        return 0;
     }
 
     private static int REFRESH_COST = 10;

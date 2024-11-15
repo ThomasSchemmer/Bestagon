@@ -133,12 +133,12 @@ public class Production : ISaveableData
         return Production;
     }
 
-    public static Production operator *(int A, Production B)
+    public static Production operator *(float A, Production B)
     {
         Production Production = new Production();
         foreach (Type Type in Enum.GetValues(typeof(Type)))
         {
-            Production._Production.Add(Type, A * B[Type]);
+            Production._Production.Add(Type, (int)(A * B[Type]));
         }
         return Production;
     }
@@ -234,6 +234,16 @@ public class Production : ISaveableData
         }
 
         return ProductionText;
+    }
+
+    public int SumUp()
+    {
+        int Sum = 0;
+        foreach (var Tuple in _Production)
+        {
+            Sum += Tuple.Value;
+        }
+        return Sum;
     }
 
     public string GetShortDescription(Type Type) {

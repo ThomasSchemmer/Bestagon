@@ -234,7 +234,17 @@ public abstract class Card : Draggable, ISelectable
 
     public Transform GetProductionTransform()
     {
-        return transform.GetChild(6).GetChild(0).GetChild(1);
+        if (transform.childCount < 7)
+            return null;
+
+        Transform Temp = transform.GetChild(6);
+        if (Temp.childCount < 1)
+            return null;
+
+        Temp = Temp.GetChild(0);
+        if (Temp.childCount < 2)
+            return null;
+        return Temp.GetChild(1);
     }
 
     public bool IsEqual(ISelectable other) {

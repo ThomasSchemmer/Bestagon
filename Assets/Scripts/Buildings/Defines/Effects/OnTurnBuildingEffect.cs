@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
-public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
+public class OnTurnBuildingEffect : Effect, ISaveableData
 {
     public enum Type
     {
@@ -59,9 +59,11 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         {
             if (Bonus.TryGetValue(Data.Type, out Production AdjacentProduction))
             {
-                Production += AdjacentProduction;
+                float Multiplier = AttributeSet.Get()[AttributeType.ProductionRate].GetAt(Data.Location);
+                Production += Multiplier * AdjacentProduction;
             }
         }
+
         return Production * Worker;
     }
 
@@ -129,7 +131,7 @@ public class OnTurnBuildingEffect : BuildingEffect, ISaveableData
         {
             case Type.Produce: return IconFactory.GetVisualsForProduceEffect(Building, Parent);
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
-            case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(this, Parent);
+            case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(Building, Parent);
             case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
             default: return null;
         }

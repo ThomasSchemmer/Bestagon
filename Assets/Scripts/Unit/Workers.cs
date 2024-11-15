@@ -46,6 +46,25 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         CheckForGameOver();
     }
 
+    public void KillWorkers(int Count)
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            KillRandomWorker(); 
+        }
+    }
+
+    private void KillRandomWorker()
+    {
+        // take unemployed first to minimize player annoyance
+        var Worker = GetUnemployedWorker();
+        if (Worker == null)
+        {
+            Worker = (WorkerEntity)Entities[0];
+        }
+        KillWorker(Worker);
+    }
+
     private void CheckForGameOver()
     {
         if (Entities.Count != 0)

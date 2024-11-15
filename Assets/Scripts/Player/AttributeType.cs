@@ -15,6 +15,7 @@ public enum AttributeType
     DecorationSpawnRate,
     CardNewUsability,
     MalaiseSpreadRate,
+    MalaiseImmunity,
     CardUnlockCost,
     ConstructionCostRecoveryRate,
     ResourceBankRate,

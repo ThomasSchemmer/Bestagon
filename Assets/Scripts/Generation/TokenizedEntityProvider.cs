@@ -26,6 +26,11 @@ public class TokenizedEntityProvider<T> : EntityProvider<T> where T : Scriptable
         return TryGetEntityAt(Location, out T _);
     }
 
+    public bool IsEntityAt(LocationSet Locations)
+    {
+        return Locations.Any(_ => IsEntityAt(_));
+    }
+
     public bool TryGetEntitiesInChunk(Location ChunkLocation, out List<T> EntitiesInChunk)
     {
         EntitiesInChunk = new();

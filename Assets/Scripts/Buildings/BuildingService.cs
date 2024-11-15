@@ -57,7 +57,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         _OnBuildingsChanged?.Invoke();
     }
 
-    public bool TryGetRandomUnlockedResource(out Production.Type RandomType)
+    public bool TryGetRandomResource(int Seed, Unlockables.State TargetState, bool bCanBeHigher, out Production.Type RandomType)
     {
         RandomType = default;
         if (!IsInit)
@@ -67,8 +67,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
             return false;
 
         Production UnlockedCost = new();
-        int Seed = UnityEngine.Random.Range(0, 100);
-        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, Unlockables.State.Unlocked, true, false);
+        BuildingConfig.Type UnlockedType = UnlockableBuildings.GetRandomOfState(Seed, TargetState, bCanBeHigher, false);
         BuildingEntity Building = MeshFactory.CreateDataFromType(UnlockedType);
         UnlockedCost += Building.Cost;
         Destroy(Building);
@@ -130,12 +129,12 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     }
     public int GetValueAsInt(BuildingConfig.Type Type)
     {
-        return HexagonConfig.MaskToInt((int)Type, 32);
+        return (int)Type;
     }
 
     public BuildingConfig.Type GetValueAsT(int Value)
     {
-        return (BuildingConfig.Type)HexagonConfig.IntToMask(Value);
+        return (BuildingConfig.Type)Value;
     }
 
     public void OnLoadUnlockable(BuildingConfig.Type Type, Unlockables.State State)
@@ -145,39 +144,14 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
 
     public void InitUnlockables()
     {
-        AddBuildingCategory(BuildingConfig.CategoryMeadow);
-        AddBuildingCategory(BuildingConfig.CategoryDesert);
-        AddBuildingCategory(BuildingConfig.CategorySwamp);
-        AddBuildingCategory(BuildingConfig.CategoryIce);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategoryMeadow, BuildingConfig.MaxIndex);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategoryDesert, BuildingConfig.MaxIndex);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategorySwamp, BuildingConfig.MaxIndex);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategoryIce, BuildingConfig.MaxIndex);
 
-        UnlockBuildingCategory(BuildingConfig.UnlockOnStart);
+        UnlockableBuildings.UnlockCategory(BuildingConfig.UnlockOnStart, BuildingConfig.MaxIndex);
     }
 
-    private void UnlockBuildingCategory(BuildingConfig.Type CategoryType)
-    {
-        int Mask = (int)CategoryType;
-        for (int i = 0; i < BuildingConfig.MaxIndex; i++)
-        {
-            if ((Mask & (1 << i)) == 0)
-                continue;
-
-            UnlockableBuildings[(BuildingConfig.Type)(1 << i)] = Unlockables.State.Unlocked;
-        }
-    }
-
-    private void AddBuildingCategory(BuildingConfig.Type CategoryType)
-    {
-        SerializedDictionary<BuildingConfig.Type, Unlockables.State> Category = new();
-        int Mask = (int)CategoryType;
-        for (int i = 0; i < BuildingConfig.MaxIndex; i++)
-        {
-            if ((Mask & (1 << i)) == 0)
-                continue;
-
-            Category.Add((BuildingConfig.Type)(1 << i), Unlockables.State.Locked);
-        }
-        UnlockableBuildings.AddCategory(Category);
-    }
 
     public override int GetSize()
     {
@@ -224,6 +198,11 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     public override void OnLoaded()
     {
         _OnInit?.Invoke(this);
+    }
+
+    public BuildingConfig.Type Combine(BuildingConfig.Type A, BuildingConfig.Type B)
+    {
+        return A |= B;
     }
 
     public delegate void OnBuildingsChanged();

@@ -65,14 +65,73 @@ public class SpawnService : GameService, ISaveableService
 
         DiscoveredCount -= CountToSpawnDecoration;
         CountToSpawnDecoration += CountToSpawnDecorationIncrease;
-        Random.InitState(Data.Location.GetHashCode() + Data.Type.GetHashCode());
-        float Chance = Random.Range(0f, 1f);
+        CountToSpawnDecoration = Mathf.Min(CountToSpawnDecoration, MaxCountToSpawn);
 
-        DecorationEntity.DType Decoration = Chance > RuinsChance ? 
-            DecorationEntity.DType.Tribe : Chance > TreasureChance ?
-            DecorationEntity.DType.Ruins :
-            DecorationEntity.DType.Treasure;
+        // this order is dependend on type spawn weight: high -> low!
+        List<DecorationEntity.DType> SpawnableTypes = new();
+        SpawnableTypes.Add(DecorationEntity.DType.Tribe);
+        SpawnableTypes.Add(DecorationEntity.DType.Ruins);
+        if (CanSpawnTreasure(Data.Type))
+        {
+            SpawnableTypes.Add(DecorationEntity.DType.Treasure);
+        }
+        SpawnableTypes.Add(DecorationEntity.DType.Altar);
+
+        DecorationEntity.DType Decoration = GetTypeToSpawn(Data, SpawnableTypes);
         DecorationService.CreateNewDecoration(Decoration, Data.Location);
+    }
+
+    private DecorationEntity.DType GetTypeToSpawn(HexagonData Data, List<DecorationEntity.DType> SpawnableTypes)
+    {
+        float TotalWeight = GetSpawnWeight(SpawnableTypes);
+
+        Random.InitState(Data.Location.GetHashCode() + Data.Type.GetHashCode());
+        float Chance = Random.Range(0f, TotalWeight);
+
+        foreach (var Type in SpawnableTypes)
+        {
+            float Weight = GetSpawnWeight(Type);
+            if (Chance < Weight)
+                return Type;
+
+            Chance -= Weight;
+        }
+
+        return DecorationEntity.DType.DEFAULT;
+    }
+
+    private float GetSpawnWeight(List<DecorationEntity.DType> SpawnableTypes)
+    {
+        float Sum = 0;
+        foreach (var Type in SpawnableTypes)
+        {
+            Sum += GetSpawnWeight(Type);
+        }
+        return Sum;
+    }
+
+    private float GetSpawnWeight(DecorationEntity.DType Type)
+    {
+        switch (Type)
+        {
+            case DecorationEntity.DType.Altar: return AltarWeight;
+            case DecorationEntity.DType.Ruins: return RuinsWeight;
+            case DecorationEntity.DType.Tribe: return TribeWeight;
+            case DecorationEntity.DType.Treasure: return TreasureWeight;
+            default: return 0;
+        }
+    }
+
+    private bool CanSpawnTreasure(HexagonConfig.HexagonType Type)
+    {
+        if (!Game.TryGetServices(out RelicService Relics, out MapGenerator MapGenerator))
+            return false;
+
+        int CategoryIndex = MapGenerator.UnlockableTypes.GetCategoryIndexOf(Type);
+        if (CategoryIndex >= Relics.UnlockableRelics.GetCategoryCount())
+            return false;
+
+        return !Relics.UnlockableRelics.HasCategoryAllUnlocked(CategoryIndex);
     }
 
     protected override void StopServiceInternal() {}
@@ -108,6 +167,10 @@ public class SpawnService : GameService, ISaveableService
     private int DiscoveredCount = 0;
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;
-    private float RuinsChance = 0.5f;
-    private float TreasureChance = 0.2f;
+    private int MaxCountToSpawn = 15;
+
+    private float TribeWeight = 0.75f;
+    private float RuinsWeight = 0.5f;
+    private float TreasureWeight = 0.2f;
+    private float AltarWeight = 0.1f;
 }

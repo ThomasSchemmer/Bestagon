@@ -38,6 +38,7 @@ public class RelicScreen : ScreenUI
     public override void Hide()
     {
         base.Hide();
+
         ClearRelics();
     }
 

@@ -161,6 +161,7 @@
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />
     <Compile Include="Assets\Scripts\Util\BiomeMap\BiomeMap.cs" />
+    <Compile Include="Assets\Scripts\Util\Choices\CollectableChoice.cs" />
     <Compile Include="Assets\Scripts\Buildings\BuildingService.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
@@ -193,6 +194,7 @@
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
+    <Compile Include="Assets\Imports\GAS\Effects\LocalizedGameplayEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\ScoutTilesQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\DecorationVisualization.cs" />
@@ -206,6 +208,7 @@
     <Compile Include="Assets\Scripts\Unit\WorkerEntity.cs" />
     <Compile Include="Assets\Scripts\Player\Production.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\StockpileScreen.cs" />
+    <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Effect.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagToken.cs" />
     <Compile Include="Assets\Scripts\Cards\BuildingCard.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\NumberedIconScreen.cs" />
@@ -257,7 +260,6 @@
     <Compile Include="Assets\Scripts\Quests\Interfaces\IQuestRegister.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialMalaiseQuest.cs" />
-    <Compile Include="Assets\Scripts\Buildings\Defines\Effects\BuildingEffect.cs" />
     <Compile Include="Assets\Scripts\Generation\EntityProvider.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
     <Compile Include="Assets\Imports\GAS\Attributes\AttributeSet.cs" />

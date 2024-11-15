@@ -15,7 +15,7 @@ MonoBehaviour:
   DurationPolicy: 0
   InstancingPolicy: 2
   Modifiers:
-  - AttributeType: 17
+  - AttributeType: 18
     Operation: 0
     Period: 0
     Value: -1
@@ -43,4 +43,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 32
   Image: {fileID: 3286163911610860551, guid: 87e39f733c131db44a22f858a00163b4, type: 3}
-  Tooltip: Reduces market card costs

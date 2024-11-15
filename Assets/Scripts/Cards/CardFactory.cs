@@ -13,7 +13,7 @@ public class CardFactory : GameService
         public Action<Card> Callback;
 
         // used for @CollectChoiceScreen
-        public Action<Card, RelicType, int> CallbackChoice;
+        public Action<int, Card> CallbackChoice;
 
         public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<Card> Callback)
         {
@@ -23,7 +23,7 @@ public class CardFactory : GameService
             this.Callback = Callback;
         }
 
-        public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+        public DelayedCardInfo(CardDTO DTO, int Index, Transform Parent, Action<int, Card> Callback)
         {
             this.DTO = DTO;
             this.Index = Index;
@@ -43,7 +43,7 @@ public class CardFactory : GameService
             this.Callback = Callback;
         }
 
-        public DelayedCardInfo(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+        public DelayedCardInfo(BuildingConfig.Type Type, int Index, Transform Parent, Action<int, Card> Callback)
         {
             if (!Game.TryGetService(out MeshFactory TileFactory))
                 return;
@@ -62,7 +62,7 @@ public class CardFactory : GameService
             this.Callback = Callback;
         }
 
-        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+        public DelayedCardInfo(EventData.EventType Type, int Index, Transform Parent, Action<int, Card> Callback)
         {
             this.DTO = EventCardDTO.CreateFromEventData(EventData.CreateRandom(Type));
             this.Index = Index;
@@ -91,7 +91,7 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
-    public void CreateCard(BuildingConfig.Type Type, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+    public void CreateCard(BuildingConfig.Type Type, int Index, Transform Parent, Action<int, Card> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
@@ -102,7 +102,7 @@ public class CardFactory : GameService
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
     }
-    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+    public void CreateCard(EventData.EventType Type, int Index, Transform Parent, Action<int, Card> Callback)
     {
         DelayedCardInfo Info = new(Type, Index, Parent, Callback);
         CreateCard(Info);
@@ -120,7 +120,7 @@ public class CardFactory : GameService
         CreateCard(Info);
     }
 
-    public void CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent, Action<Card, RelicType, int> Callback)
+    public void CreateCardFromDTO(CardDTO DTO, int Index, Transform Parent, Action<int, Card> Callback)
     {
         DelayedCardInfo Info = new(DTO, Index, Parent, Callback);
         CreateCard(Info);
@@ -157,8 +157,7 @@ public class CardFactory : GameService
         GameObject GO = Instantiate(CardPrefab, Info.Parent);
         Card Card = InitDelayedCardByType(GO, Info);
         Info.Callback?.Invoke(Card);
-        // TODO: relic is never a card, refactor/remove
-        Info.CallbackChoice?.Invoke(Card, RelicType.DEFAULT, Info.Index);
+        Info.CallbackChoice?.Invoke(Info.Index, Card);
     }
 
     private Card InitDelayedCardByType(GameObject CardObject, DelayedCardInfo Info)
@@ -219,6 +218,12 @@ public class CardFactory : GameService
 
     public void ResetUsableMat()
     {
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return;
+
+        if (HexMat == null)
+            return;
+
         HexMat.SetFloat("_CheckUsable", 0);
         HexMat.SetInt("_UsableOnMask", -1);
         HexMat.SetInt("_AdjacentWithMask", -1);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 /** 
  * Regulates unlocking of different things, should always be contained in a @IUnlockableService 
@@ -107,7 +108,40 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         return TargetTypes[RandomType];
     }
 
-    private bool HasCategoryAllUnlocked(int CategoryIndex)
+    public void UnlockCategory(T CategoryType, int MaxIndex)
+    {
+        int Mask = Service.GetValueAsInt(CategoryType);
+        for (int i = 0; i <= MaxIndex; i++)
+        {
+            if ((Mask & (1 << i)) == 0)
+                continue;
+
+            this[Service.GetValueAsT(1 << i)] = State.Unlocked;
+        }
+    }
+
+    public T GetCategoryMask(int CategoryIndex)
+    {
+        T Mask = default;
+        for (int i = 0; i < Categories[CategoryIndex].Count; i++)
+        {
+            T Key = Categories[CategoryIndex].GetKeyAt(i);
+            Mask = Service.Combine(Mask, Key);
+        }
+        return Mask;
+    }
+
+    public T[] GetCategoryMasks()
+    {
+        T[] Masks = new T[Categories.Count];
+        for (int i =0; i < Categories.Count; i++)
+        {
+            Masks[i] = GetCategoryMask(i);
+        }
+        return Masks;
+    }
+
+    public bool HasCategoryAllUnlocked(int CategoryIndex)
     {
         foreach (var Tuple in Categories[CategoryIndex])
         {
@@ -115,6 +149,16 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
                 return false;
         }
         return true;
+    }
+
+    public int GetCategoryIndexOf(T Unlockable)
+    {
+        for (int i = 0; i < Categories.Count; i++)
+        {
+            if (Categories[i].ContainsKey(Unlockable))
+                return i;
+        }
+        return -1;
     }
 
     private bool HasCategoryAnyInState(int CategoryIndex, State TargetState, bool bCanBeHigher)
@@ -129,6 +173,7 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
         }
         return false;
     }
+
 
     public override byte[] GetData()
     {
@@ -261,6 +306,20 @@ public class Unlockables<T> : Unlockables, IQuestRegister<T> where T : struct, I
     public void AddCategory(SerializedDictionary<T, State> Category)
     {
         Categories.Add(Category);
+    }
+
+    public void AddCategory(T CategoryType, int MaxIndex)
+    {
+        SerializedDictionary<T, State> Category = new();
+        int Mask = Service.GetValueAsInt(CategoryType);
+        for (int i = 0; i <= MaxIndex; i++)
+        {
+            if ((Mask & (1 << i)) == 0)
+                continue;
+
+            Category.Add(Service.GetValueAsT(1 << i), State.Locked);
+        }
+        AddCategory(Category);
     }
 
     public State this[T Type]
