@@ -7,7 +7,7 @@ using UnityEngine;
 /** 
  * Wrapper for all event related info. Also used to create a random event 
  */
-public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
+public abstract class EventData : ScriptableObject, IPreviewable
 {
     public enum EventType
     {
@@ -17,11 +17,16 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
         RemoveMalaise
     }
 
+    [SaveableEnum]
     public EventType Type;
+    [SaveableEnum]
     public UnitEntity.UType GrantedUnitType;
+    [SaveableClass]
     public Production GrantedResource;
+    [SaveableEnum]
     public HexagonConfig.HexagonType TargetHexType;
 
+    [SaveableBaseType]
     // Temporary cards will be deleted once played
     public bool bIsTemporary = true;
 
@@ -41,11 +46,6 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
             case EventType.ConvertTile: return CreateInstance<ConvertTileEventData>();
             default: return null;
         }
-    }
-
-    public virtual int GetSize()
-    {
-        return GetStaticSize();
     }
 
     public abstract string GetDescription();
@@ -74,45 +74,6 @@ public abstract class EventData : ScriptableObject, ISaveableData, IPreviewable
         return Bonus;
     }
 
-
-
-    public static int GetStaticSize()
-    {
-        // type and temporary
-        // unit type, HexType
-        return sizeof(byte) * 4 + Production.GetStaticSize();
-    }
-
-    public virtual byte[] GetData()
-    {
-        // use StaticSize here, as Size will get overriden - and only the base size is important
-        NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsTemporary);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GrantedUnitType);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)TargetHexType);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, GrantedResource ?? Production.Empty);
-
-        return Bytes.ToArray();
-    }
-
-    public virtual void SetData(NativeArray<byte> Bytes)
-    {
-        GrantedResource = Production.Empty;
-
-        int Pos = 0;
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsTemporary);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bGrantedType);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bTargetType);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, GrantedResource);
-
-        GrantedUnitType = (UnitEntity.UType)bGrantedType;
-        TargetHexType = (HexagonConfig.HexagonType)bTargetType;
-
-        Type = (EventType)bType;
-    }
     public bool ShouldBeDeleted()
     {
         return bIsTemporary;

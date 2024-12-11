@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 
 [Serializable]
-public class OnTurnBuildingEffect : Effect, ISaveableData
+public class OnTurnBuildingEffect : Effect
 {
     public enum Type
     {
@@ -15,13 +15,20 @@ public class OnTurnBuildingEffect : Effect, ISaveableData
         Merchant,
     }
 
+    [SaveableEnum]
     public Type EffectType = Type.Produce;
+    [SaveableEnum]
     public UnitEntity.UType UnitType = UnitEntity.UType.Worker;
+    [SaveableClass]
     public Production Production = new Production();
+    [SaveableClass]
     public Production Consumption = new Production();
+    [SaveableBaseType]
     public int Range = 0;
 
+    [SaveableClass]
     public Production UpgradeProduction = new Production();
+    [SaveableBaseType]
     public int UpgradeRange = 0;
 
     protected BuildingEntity Building;
@@ -157,42 +164,4 @@ public class OnTurnBuildingEffect : Effect, ISaveableData
         return "and consumes";
     }
 
-    public int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static int GetStaticSize()
-    {
-        return 1 + sizeof(int) * 2 + Production.GetStaticSize() * 3;
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)EffectType);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Production);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Consumption);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Range);
-
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UpgradeProduction);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeRange);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bEffectType);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Production);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Consumption);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out Range);
-
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UpgradeProduction);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeRange);
-
-        EffectType = (Type)bEffectType;
-    }
 }

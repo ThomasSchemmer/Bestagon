@@ -17,7 +17,7 @@ public class GameOverScreen : ScreenUI
         if (!Game.TryGetService(out SaveGameManager SaveGameManager))
             return;
 
-        string SaveGame = SaveGameManager.Save();
+        string SaveGame = SaveGameManager.Save(true);
         Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
     }
 

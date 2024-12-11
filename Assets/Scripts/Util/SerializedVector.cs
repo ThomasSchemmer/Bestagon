@@ -6,7 +6,9 @@ using UnityEngine;
 [Serializable]
 public class SerializedVector2<T>
 {
+    [SaveableClass]
     public T x;
+    [SaveableClass]
     public T y;
 
     public SerializedVector2(T x, T y)
@@ -14,4 +16,6 @@ public class SerializedVector2<T>
         this.x = x;
         this.y = y;
     }
+
+    public SerializedVector2() { }
 }

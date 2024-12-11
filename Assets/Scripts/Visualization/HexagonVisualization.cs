@@ -303,6 +303,9 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
     public void SetAdjacent(bool bIsAdjacent)
     {
+        if (Data == null)
+            return;
+
         Data.SetState(HexagonData.State.Adjacent, bIsAdjacent);
     }
 

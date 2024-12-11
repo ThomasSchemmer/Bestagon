@@ -13,14 +13,20 @@ using System;
  * @CardDTO instead of the GameObject
  * Visually represented by @CardGroupScreens
  */
-public class CardGroup : ISaveableData
+public class CardGroup
 {
+    [SaveableList]
     public List<CardDTO> CardDeck;
+    [SaveableList]
     public List<CardDTO> CardHand;
+    [SaveableList]
     public List<CardDTO> CardStash;
+    [SaveableList]
     public List<CardDTO> DiscardDeck;
 
+    [SaveableBaseType]
     public int GroupIndex;
+    [SaveableBaseType]
     private string GroupName;
 
     public CardGroup(int Index)
@@ -34,12 +40,15 @@ public class CardGroup : ISaveableData
         SetName(BaseName + Index);
     }
 
+    // necessary for reflection loading
+    public CardGroup() { }
+
     public void InsertCards()
     {
-        InsertCards(CardDeck, GetCollection<CardDeck>());
-        InsertCards(CardHand, GetCollection<CardHand>());
-        InsertCards(CardStash, GetCollection<CardStash>());
-        InsertCards(DiscardDeck, GetCollection<DiscardDeck>());
+        MoveCardsFromTo(CardDeck, GetCollection<CardDeck>());
+        MoveCardsFromTo(CardHand, GetCollection<CardHand>());
+        MoveCardsFromTo(CardStash, GetCollection<CardStash>());
+        MoveCardsFromTo(DiscardDeck, GetCollection<DiscardDeck>());
 
         if (Game.IsIn(Game.GameState.CardSelection))
             return;
@@ -55,10 +64,10 @@ public class CardGroup : ISaveableData
 
     public void RemoveCards()
     {
-        RemoveCards(GetCollection<CardDeck>(), CardDeck);
-        RemoveCards(GetCollection<CardHand>(), CardHand);
-        RemoveCards(GetCollection<CardStash>(), CardStash);
-        RemoveCards(GetCollection<DiscardDeck>(), DiscardDeck);
+        MoveCardsFromTo(GetCollection<CardDeck>(), CardDeck);
+        MoveCardsFromTo(GetCollection<CardHand>(), CardHand);
+        MoveCardsFromTo(GetCollection<CardStash>(), CardStash);
+        MoveCardsFromTo(GetCollection<DiscardDeck>(), DiscardDeck);
     }
 
     public CardCollection GetCollection<T>() where T : CardCollection
@@ -77,7 +86,7 @@ public class CardGroup : ISaveableData
         return Manager.CardContainer;
     }
 
-    private void RemoveCards(CardCollection SourceCollection, List<CardDTO> DTOs)
+    private void MoveCardsFromTo(CardCollection SourceCollection, List<CardDTO> DTOs)
     {
         if (SourceCollection == null)
             return;
@@ -94,7 +103,7 @@ public class CardGroup : ISaveableData
         SourceCollection.DeleteAllCardsConditionally((Card Card) => { return true; });
     }
 
-    private void InsertCards(List<CardDTO> DTOs, CardCollection TargetCollection) {
+    private void MoveCardsFromTo(List<CardDTO> DTOs, CardCollection TargetCollection) {
         if (TargetCollection == null)
             return;
 
@@ -132,36 +141,9 @@ public class CardGroup : ISaveableData
         }
     }
 
-
-    public int GetSize()
-    {
-        //overall bytecount and index
-        int Size = sizeof(int) * 2;
-        // name
-        Size += MAX_NAME_LENGTH * sizeof(byte);
-        Size += GetCardsSize(CardDeck);
-        Size += GetCardsSize(CardHand);
-        Size += GetCardsSize(CardStash);
-        Size += GetCardsSize(DiscardDeck);
-        return Size;
-    }
-
     public void InvokeCardRemoved()
     {
         _OnCardRemoved.ForEach(_ => _?.Invoke(GetCardCount()));
-    }
-
-    private int GetCardsSize(List<CardDTO> Cards)
-    {
-        int Size = 0;
-        //internal count
-        Size += sizeof(int);
-        foreach (CardDTO Card in Cards)
-        {
-            Size += GetCardSize(Card);
-        }
-
-        return Size;
     }
 
     public int GetCardCount()
@@ -188,34 +170,6 @@ public class CardGroup : ISaveableData
         return Count;
     }
 
-    private int GetCardSize(CardDTO DTO)
-    {
-        if (DTO is BuildingCardDTO)
-            return BuildingCardDTO.GetStaticSize();
-
-        if (DTO is EventCardDTO)
-            return EventCardDTO.GetStaticSize();
-
-        return CardDTO.GetStaticSize();
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GroupIndex);
-        Pos = SaveGameManager.AddString(Bytes, Pos, GroupName);
-
-        Pos = GetCardListData(Bytes, Pos, ref CardDeck);
-        Pos = GetCardListData(Bytes, Pos, ref CardHand);
-        Pos = GetCardListData(Bytes, Pos, ref CardStash);
-        Pos = GetCardListData(Bytes, Pos, ref DiscardDeck);
-
-        return Bytes.ToArray();
-    }
-
     public void SetName(string NewName)
     {
         if (NewName.Length > MAX_NAME_LENGTH)
@@ -232,45 +186,6 @@ public class CardGroup : ISaveableData
     public string GetName()
     {
         return GroupName.Replace(Divider, "");
-    }
-
-    private int GetCardListData(NativeArray<byte> Bytes, int Pos, ref List<CardDTO> List)
-    {
-        Pos = SaveGameManager.AddInt(Bytes, Pos, List.Count);
-        foreach (var DTO in List)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
-        }
-        return Pos;
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        CardDeck.Clear();
-        CardHand.Clear();
-        CardStash.Clear();
-        DiscardDeck.Clear();
-
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out GroupIndex);
-        Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out GroupName);
-
-        Pos = SetCardListData(Bytes, Pos, ref CardDeck);
-        Pos = SetCardListData(Bytes, Pos, ref CardHand);
-        Pos = SetCardListData(Bytes, Pos, ref CardStash);
-        Pos = SetCardListData(Bytes, Pos, ref DiscardDeck);
-    }
-
-    private int SetCardListData(NativeArray<byte> Bytes, int Pos, ref List<CardDTO> List)
-    {
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int CardCount);
-        for (int i = 0; i < CardCount; i++)
-        {
-            CardDTO DTO = CardDTO.CreateForSaveable(Bytes, Pos);
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
-            List.Add(DTO);
-        }
-        return Pos;
     }
 
     public void CleanUpCards()
@@ -373,8 +288,6 @@ public class CardGroup : ISaveableData
 
         Cards = PinnedCardOrder.ToList();
     }
-
-    public bool ShouldLoadWithLoadedSize() { return true; }
 
     public ActionList<int> _OnCardAdded = new();
     public ActionList<int> _OnCardRemoved = new();

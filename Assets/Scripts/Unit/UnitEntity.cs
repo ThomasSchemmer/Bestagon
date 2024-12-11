@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 /** 
  * Base class for any unit. Is extended (with middle classes) for worker and scouts 
  * Any unit class only contains data, but does not have to be visualized
@@ -15,7 +16,9 @@ public abstract class UnitEntity : ScriptableEntity
         Scout
     }
 
+    [SaveableEnum]
     public UType UnitType;
+    // only filled in the actual definition, not instances
     public List<GameObject> Prefabs = new();
 
     public virtual void Init(){
@@ -24,20 +27,5 @@ public abstract class UnitEntity : ScriptableEntity
 
     public abstract bool TryInteractWith(HexagonVisualization Hex);
     public abstract int GetTargetMeshIndex();
-
-    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Unit)
-    {
-        Unit = null;
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return -1;
-
-        // ignore first EntityType byte
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bUnitType);
-        UType Type = (UType)bUnitType;
-
-        Unit = MeshFactory.CreateDataFromType(Type);
-        return Pos;
-    }
 
 }

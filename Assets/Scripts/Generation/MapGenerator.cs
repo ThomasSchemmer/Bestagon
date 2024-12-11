@@ -5,14 +5,16 @@ using System.Threading;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.XR;
 using static HexagonData;
+using static UnityEditor.PlayerSettings;
 
 /** 
  * Main service to generate and display @HexagonVisualizations.
  * Creates @Chunk's out of the @Map data that then get displayed according to the camera position. 
  * Also provides general access functions to get @HexagonData by @Location
  */
-public class MapGenerator : GameService, ISaveableService, IQuestRegister<DiscoveryState>, IUnlockableService<HexagonConfig.HexagonType>
+public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUnlockableService<HexagonConfig.HexagonType>
 {
     private static Location[] DirectionA = new Location[] {
         Location.CreateHex(+0, +1),
@@ -52,7 +54,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
             Game.RunAfterServiceInit((SaveGameManager Manager) =>
             {
                 // already loaded then - OnInit will be invoked through chunk visualization callbacks
-                if (Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
+                if (Manager.HasDataFor(SaveableService.SaveGameType.MapGenerator))
                     return;
 
                 GenerateMap();
@@ -678,7 +680,7 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         return (HexagonConfig.HexagonType)Value;
     }
 
-    public void OnLoadUnlockable(HexagonConfig.HexagonType Type, Unlockables.State State)
+    public void OnLoadedUnlockable(HexagonConfig.HexagonType Type, Unlockables.State State)
     {
         // don't need to do anything, all should be unlocked anyway
     }
@@ -699,68 +701,39 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         UnlockableTypes.UnlockCategory(HexagonConfig.SpecialTypes, HexagonConfig.MaxTypeIndex);
     }
 
-    public int GetSize()
+    public override void OnBeforeLoaded()
     {
-        // Tile count and chunk count, overall size
-        int Size = sizeof(int) * 3;
-        foreach (ChunkData Chunk in Chunks)
-        {
-            Size += Chunk.GetSize();
-        }
-        return Size;
+        UnlockableTypes = new();
+        UnlockableTypes.Init(this);
     }
 
-    public byte[] GetData()
+    public override void OnAfterLoaded()
     {
-        if (!Game.TryGetService(out Map Map))
-            return new byte[0];
+        if (Chunks.Length == 0)
+            return;
 
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Map.MapData.Length);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Chunks.Length);
-        foreach (ChunkData Chunk in Chunks)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Chunk);
-        }
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
+        // create temporary chunks, assign them to the map to "load" it
         if (!Game.TryGetService(out Map Map))
             return;
 
-        // don't need to save these, they are always unlocked!
-        UnlockableTypes = new();
-        UnlockableTypes.Init(this);
+        int ChunksPerSide = Chunks.GetLength(0);
+        int TilesPerChunk = Chunks[0, 0].GetHexCount();
+        int TilesPerChunkSide = (int)Mathf.Sqrt(TilesPerChunk);
+        Map.OverwriteSettings(TilesPerChunkSide, ChunksPerSide);
 
-        //load as temporary chunk data, write the hex data into the map and then create new chunks from the map
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int TileCount);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int ChunkCount);
-        int ChunksPerSide = (int)Mathf.Sqrt(ChunkCount);
-
-        Map.OverwriteSettings(TileCount, ChunksPerSide);
-
-        for (int i = 0; i < ChunkCount; i++)
+        for (int i = 0; i < ChunksPerSide; i++)
         {
-            ChunkData Temp = new();
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Temp);
-            Map.SetDataFromChunk(Temp);
+            for (int j = 0; j < ChunksPerSide; j++)
+            {
+                Map.SetDataFromChunk(Chunks[i, j]);
+            }
         }
-    }
-
-    public void OnLoaded()
-    {
         GenerateMap();
     }
 
-    public void Reset()
+    public override void Reset()
     {
+        base.Reset();
         DestroyChunks();
 
         UnlockableTypes = new();
@@ -772,17 +745,33 @@ public class MapGenerator : GameService, ISaveableService, IQuestRegister<Discov
         Selector.ForceDeselect();
     }
 
-    public bool ShouldLoadWithLoadedSize() { return true; }
+    public GameObject GetGameObject() { return gameObject; }
 
     public HexagonConfig.HexagonType Combine(HexagonConfig.HexagonType A, HexagonConfig.HexagonType B)
     {
         return A |= B;
     }
 
+    public void OnLoadedUnlockables()
+    {
+        Game.RunAfterServiceInit((MapGenerator Service) =>
+        {
+            for (int i = 0; i < Service.UnlockableTypes.GetCategoryCount(); i++)
+            {
+                var Category = Service.UnlockableTypes.GetCategory(i);
+                foreach (var Tuple in Category)
+                {
+                    Service.OnLoadedUnlockable(Tuple.Key, Category[Tuple.Key]);
+                }
+            }
+        });
+    }
+
+    [SaveableArray]
     public ChunkData[,] Chunks;
     public Dictionary<Vector2Int, ChunkVisualization> ChunkVis;
 
-
+    // don't need to save these, they are always unlocked!
     public Unlockables<HexagonConfig.HexagonType> UnlockableTypes = new();
 
     public Material HexMat;

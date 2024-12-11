@@ -9,10 +9,14 @@ using UnityEngine;
  * Not visualized apart from indicators!
  */
 [CreateAssetMenu(fileName = "Worker", menuName = "ScriptableObjects/Worker", order = 5)]
-public class WorkerEntity : StarvableUnitEntity, ISaveableData
+public class WorkerEntity : StarvableUnitEntity
 {
+    // will be queried on save/load
     private BuildingEntity AssignedBuilding = null;
+    [SaveableBaseType]
     private int AssignedBuildingSlot = -1;
+    [SaveableClass]
+    private Location AssignedLocation = null;
 
     public bool IsEmployed()
     {
@@ -23,12 +27,14 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
     {
         AssignedBuilding = Building;
         AssignedBuildingSlot = i;
+        AssignedLocation = Building.GetLocations().GetMainLocation();
     }
 
     public void RemoveFromBuilding()
     {
         AssignedBuilding = null;
         AssignedBuildingSlot = -1;
+        AssignedLocation = null;
     }
 
     public BuildingEntity GetAssignedBuilding()
@@ -41,11 +47,6 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         return AssignedBuildingSlot;
     }
 
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
     protected override bool IsInFoodProductionBuilding()
     {
         BuildingEntity AssignedBuilding = GetAssignedBuilding();
@@ -55,48 +56,21 @@ public class WorkerEntity : StarvableUnitEntity, ISaveableData
         return AssignedBuilding.IsFoodProductionBuilding();
     }
 
-    public static new int GetStaticSize()
+    public void OnLoaded()
     {
-        // foodcount, employed, assigned building slot
-        return StarvableUnitEntity.GetStaticSize() + sizeof(byte) * 3 + Location.GetStaticSize();
-    }
-
-    public override byte[] GetData()
-    {
-        int TotalSize = GetStaticSize();
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(TotalSize, base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        bool bIsEmployed = AssignedBuilding != null;
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)CurrentFoodCount);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsEmployed);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)AssignedBuildingSlot);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, bIsEmployed ? AssignedBuilding.GetLocations().GetMainLocation() : Location.Zero);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        if (!Game.TryGetServices(out BuildingService Buildings, out Workers Workers))
+        if (AssignedBuildingSlot == -1)
             return;
 
-        int Pos = base.GetSize();
-        Location Location = Location.Zero;
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bFoodCount);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bool bIsEmployed);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bAssignedBuildingSlot);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
+        Game.RunAfterServiceInit((BuildingService Buildings) =>
+        {
+            if (!Buildings.TryGetEntityAt(AssignedLocation, out BuildingEntity Building))
+                return;
 
-        CurrentFoodCount = bFoodCount;
-        if (!bIsEmployed)
-            return;
-
-        if (!Buildings.TryGetEntityAt(Location, out BuildingEntity Building))
-            return;
-
-        Workers.AssignWorkerTo(this, Building, bAssignedBuildingSlot);
+            Game.RunAfterServiceInit((Workers Workers) =>
+            {
+                Workers.AssignWorkerTo(this, Building, AssignedBuildingSlot);
+            });
+        });
     }
 
     protected override int GetFoodConsumption()

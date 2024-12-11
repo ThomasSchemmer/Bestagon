@@ -145,6 +145,13 @@ public class Workers : EntityProvider<StarvableUnitEntity>
 
     protected override void StopServiceInternal() {}
 
+    public override void OnAfterLoaded()
+    {
+        base.OnAfterLoaded();
+        _OnInit?.Invoke(this);
+        _OnWorkersChanged?.Invoke();
+    }
+
     public delegate void OnWorkersChanged();
     public delegate void OnWorkersAssigned(LocationSet Locations);
     public static OnWorkersChanged _OnWorkersChanged;

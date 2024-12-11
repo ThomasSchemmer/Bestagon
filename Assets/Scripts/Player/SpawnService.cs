@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class SpawnService : GameService, ISaveableService
+public class SpawnService : GameService
 {
     protected override void StartServiceInternal()
     {
@@ -136,35 +136,15 @@ public class SpawnService : GameService, ISaveableService
 
     protected override void StopServiceInternal() {}
 
-    public void Reset() {}
-
-    public int GetSize()
-    {
-        return sizeof(int) * 2;
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, DiscoveredCount);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CountToSpawnDecoration);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out DiscoveredCount);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CountToSpawnDecoration);
-    }
+    public GameObject GetGameObject() { return gameObject; }
 
     public Vector4 StartLocation;
     public int StartVisibilityRange = 2;
     public int StartScoutingRange = 1;
-    
+
+    [SaveableBaseType]
     private int DiscoveredCount = 0;
+    [SaveableBaseType]
     private int CountToSpawnDecoration = 5;
     private int CountToSpawnDecorationIncrease = 3;
     private int MaxCountToSpawn = 15;

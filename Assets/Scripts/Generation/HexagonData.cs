@@ -6,7 +6,7 @@ using System;
 using System.Numerics;
 
 /** Includes all data necessary to display and update a hexagon */
-public class HexagonData : ISaveableData
+public class HexagonData
 {
     public enum DiscoveryState
     {
@@ -35,25 +35,25 @@ public class HexagonData : ISaveableData
         AoeAffected = 1 << 6,
     }
 
+    [SaveableClass]
     public Location Location;
+    [SaveableEnum]
     public HexagonType Type;
+    [SaveableEnum]
     public HexagonHeight HexHeight;
 
     // only for visual highlights
     private Location AoESource = Location.Invalid;
 
+    [SaveableEnum]
     private State _State = State.Default;
+    [SaveableEnum]
     private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
     public delegate void OnDiscoveryStateHex(HexagonData Data, DiscoveryState State);
     public OnDiscovery _OnDiscovery;
     public static OnDiscoveryStateHex _OnDiscoveryStateHex;
-
-    // copied/filled from HexagonInfo struct
-    private float Temperature;
-    private float Humidity;
-    private float Height;
 
     public HexagonData(HexagonHeight HexHeight, HexagonType HexType)
     {
@@ -102,12 +102,6 @@ public class HexagonData : ISaveableData
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;
         MapGenerator.InvokeDiscovery(Discovery);
-    }
-
-    public int GetSize()
-    {
-        // Height, discovery and malaise each get a byte, type cant be smaller than int
-        return Location.GetStaticSize() + 3 + sizeof(double) * 3 + sizeof(int);
     }
 
     public bool IsMalaised()
@@ -212,9 +206,6 @@ public class HexagonData : ISaveableData
 
         return new()
         {
-            Height = Info.Height,
-            Humidity = Info.Humidity,
-            Temperature = Info.Temperature,
             HexHeight = (HexagonHeight)Info.HexHeightIndex,
             Type = TempType,
         };
@@ -225,43 +216,4 @@ public class HexagonData : ISaveableData
         return new(Height, Type);
     }
 
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)HexHeight);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Discovery);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)Type);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, IsMalaised());
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, Height);
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, Temperature);
-        Pos = SaveGameManager.AddDouble(Bytes, Pos, Humidity);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        Location = Location.Zero;
-
-        int Pos = 0;
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iHeight);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iDiscovery);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iType);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bool bIsMalaised);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHeight);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dTemperature);
-        Pos = SaveGameManager.GetDouble(Bytes, Pos, out double dHumidity);
-
-        Type = (HexagonType)iType;
-        HexHeight = (HexagonHeight)iHeight;
-        Discovery = (DiscoveryState)iDiscovery;
-        Height = (float)dHeight;
-        Temperature = (float)dTemperature;
-        Humidity = (float)dHumidity;
-
-        SetState(State.Malaised, bIsMalaised);
-    }
 }

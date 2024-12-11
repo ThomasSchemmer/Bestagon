@@ -8,7 +8,7 @@ using UnityEngine;
  * - WhorleyCompute: calculates 4 different noises (1 simplex, 3 WhorleyCompute) and compresses them into a single int
  * - CloudShader: Takes the noise data and screen space position to render clouds as a post-processing effect
  */
-public class CloudRenderer : GameService, ISaveableService
+public class CloudRenderer : SaveableService
 {
     public Dictionary<Vector2Int, MalaiseData> ActiveMalaises = new();
 
@@ -36,6 +36,12 @@ public class CloudRenderer : GameService, ISaveableService
     private ComputeBuffer MinMaxBuffer;
 
     private MapGenerator MapGen;
+
+#pragma warning disable CS0414
+    [SaveableBaseType]
+    // not actually used, just there to trigger OnLoaded
+    private int SaveInfo = 0;
+#pragma warning restore CS0414
 
     public void OnDestroy()
     {
@@ -266,12 +272,13 @@ public class CloudRenderer : GameService, ISaveableService
         MinMaxBuffer?.Release();
     }
 
-    public void Reset()
+    public override void Reset()
     {
+        base.Reset();
         ActiveMalaises = new();
     }
 
-    public void OnLoaded()
+    public override void OnAfterLoaded()
     {
         Game.RunAfterServiceInit((MapGenerator MapGenerator) =>
         {
@@ -280,19 +287,7 @@ public class CloudRenderer : GameService, ISaveableService
             PassMaterialBuffer();
         });
     }
-
-    /** Doesn't actually save anything, only in the list to force a clear on load! */
-    public int GetSize()
-    {
-        return 0;
-    }
-
-    public byte[] GetData() { 
-        return new byte[0]; 
-    }
-
-    public void SetData(NativeArray<byte> Bytes) {}
-
+    
     private static Vector3[] DIRECTIONS3D = new Vector3[27]{
         new Vector3(+0, +0, -1),
         new Vector3(+1, +0, -1),
@@ -334,6 +329,8 @@ public class CloudRenderer : GameService, ISaveableService
         new Vector3(+0, +1, +0),
         new Vector3(+1, +1, +0)
     };
+
+    public GameObject GetGameObject() { return gameObject; }
 
     private static Vector3[] DIRECTIONS = DIRECTIONS3D;
     private static int THREAD_AMOUNT = 8;

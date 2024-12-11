@@ -7,8 +7,9 @@ using UnityEngine;
  * Handles loading and applying of relics
  * Since the relics are GAS-effects, the actual gameplay logic is handled in GAS
  */
-public class RelicService : GameService, ISaveableService, IUnlockableService<RelicType>
+public class RelicService : SaveableService, IUnlockableService<RelicType>
 {
+    [SaveableClass]
     public Unlockables<RelicType> UnlockableRelics;
     public Dictionary<RelicType, RelicEffect> Relics = new();
 
@@ -16,39 +17,17 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
 
     public int MaxActiveRelics = 3;
     public int CurrentActiveRelics = 0;
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UnlockableRelics);
-
-        return Bytes.ToArray();
-    }
-
-    public int GetSize()
-    {
-        return Unlockables<RelicType>.GetStaticSize(RelicEffect.CategoryCount, GetOverallRelicAmount());
-    }
-
+    
     public int GetOverallRelicAmount()
     {
         return Resources.LoadAll("Relics/", typeof(RelicEffect)).Length;
     }
 
-    public void Reset()
+    public override void Reset()
     {
-        //todo
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        // will be overwritten by the loading
-        UnlockableRelics = new();
-        UnlockableRelics.Init(this);
-        int Pos = 0;
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UnlockableRelics);
+        base.Reset();
+        UnlockableRelics.Reset();
+        Relics.Clear();
     }
 
     private void LoadRelicTypes()
@@ -83,7 +62,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
     {
         Game.RunAfterServicesInit((GameplayAbilitySystem GAS, SaveGameManager Manager) =>
         {
-            if (Manager.HasDataFor(ISaveableService.SaveGameType.Relics))
+            if (Manager.HasDataFor(SaveableService.SaveGameType.Relics))
                 return;
 
             UnlockableRelics = new();
@@ -92,8 +71,9 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
         });
     }
 
-    public void OnLoaded()
+    public override void OnAfterLoaded()
     {
+        LoadRelicTypes();
         _OnInit?.Invoke(this);
     }
 
@@ -139,7 +119,7 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
         });
     }
 
-    public void OnLoadUnlockable(RelicType Type, Unlockables.State State)
+    public void OnLoadedUnlockable(RelicType Type, Unlockables.State State)
     {
         // need to force as relics will be loaded into "active" state, but not applied!
         SetRelic(Type, State, true);
@@ -184,6 +164,26 @@ public class RelicService : GameService, ISaveableService, IUnlockableService<Re
     public RelicType Combine(RelicType A, RelicType B)
     {
         return A |= B;
+    }
+
+    public GameObject GetGameObject()
+    {
+        return gameObject;
+    }
+
+    public void OnLoadedUnlockables()
+    {
+        Game.RunAfterServiceInit((RelicService Service) =>
+        {
+            for (int i = 0; i < Service.UnlockableRelics.GetCategoryCount(); i++)
+            {
+                var Category = Service.UnlockableRelics.GetCategory(i);
+                for (int j = 0; j < Category.Count; j++) {
+                    var Key = Category.GetKeyAt(j);
+                    Service.OnLoadedUnlockable(Key, Category[Key]);
+                }
+            }
+        });
     }
 
     public ActionList<RelicType, Unlockables.State> OnRelicDiscoveryChanged = new();

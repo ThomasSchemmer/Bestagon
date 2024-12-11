@@ -57,61 +57,19 @@ public abstract class QuestTemplate
  * Use this mini-class instead, should just contain the TemplateID for lookup and the current progress
  * Will be used to recreate the actual Quest from the found template
  */
-public class QuestTemplateDTO : ISaveableData
+public class QuestTemplateDTO
 {
-    public string TypeName;
+    [SaveableBaseType]
+    public Type QuestType;
+    [SaveableBaseType]
     public int CurrentProgress;
-
-    public int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static int GetStaticSize()
-    {
-        // name and current progress
-        return sizeof(byte) * MAX_NAME_LENGTH + sizeof(int);
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddString(Bytes, Pos, TypeName);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentProgress);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out TypeName);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentProgress);
-        TypeName = TypeName.Replace(NAME_PADDING_CHAR+ "", "");
-    }
 
     public static QuestTemplateDTO CreateFromQuest(QuestTemplate QuestT)
     {
         QuestTemplateDTO DTO = new();
         DTO.CurrentProgress = QuestT.GetCurrentProgress();
-        DTO.TypeName = GetReplacedName(QuestT.GetType());
+        DTO.QuestType = QuestT.GetType();
         return DTO;
     }
 
-    private static string GetReplacedName(Type Type)
-    {
-        string TypeName = GetCutName(Type);
-        int Offset = Mathf.Max(TypeName.Length, MAX_NAME_LENGTH);
-        return TypeName.PadRight(Offset, NAME_PADDING_CHAR);
-    }
-
-    public static string GetCutName(Type Type)
-    {
-        int Offset = Mathf.Min(Type.Name.Length, MAX_NAME_LENGTH);
-        return Type.Name[..Offset];
-    }
-
-    public static int MAX_NAME_LENGTH = 20;
-    public static char NAME_PADDING_CHAR = '=';
 }

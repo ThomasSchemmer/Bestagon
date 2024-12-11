@@ -14,7 +14,9 @@ public interface IUnlockableService<T> where T : struct, IConvertible
     public void InitUnlockables();
 
     /** Is called whenever an Unlockable has been loaded, to allow for callbacks*/
-    public void OnLoadUnlockable(T Type, Unlockables.State State);
+    public void OnLoadedUnlockable(T Type, Unlockables.State State);
+
+    public void OnLoadedUnlockables();
 
     /** Allows type casting with templated values */
     public int GetValueAsInt(T Value);

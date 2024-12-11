@@ -14,6 +14,7 @@ public class Game : MonoBehaviour
             return _Mode;
         }
     }
+
     private GameMode _Mode;
     public bool bIsPaused = false;
     public int TargetFramerate = 60;
@@ -165,6 +166,17 @@ public class Game : MonoBehaviour
             return null;
 
         return Instance.ServicesInternal[typeof(T)].TargetScript as T;
+    }
+
+    public static GameService GetService(Type Type)
+    {
+        if (!Instance)
+            return null;
+
+        if (!Instance.ServicesInternal.ContainsKey(Type))
+            return null;
+
+        return Instance.ServicesInternal[Type].TargetScript;
     }
 
     public static bool TryGetServiceByType(Type Type, out GameService Service)

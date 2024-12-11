@@ -1,15 +1,15 @@
 
 using System;
-using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
+using UnityEngine;
 using static HexagonConfig;
 
 /** 
  * Container for the actual map data. 
  * Should not be accessed directly, but queried via MapGenerator to also update the visualization
  */
-public class Map : GameService
+public class Map : SaveableService
 {
+    [SaveableArray]
     /** 
      * Contains height and temperature map data 
      * Filled by compute shader with correct size
@@ -33,11 +33,10 @@ public class Map : GameService
         return GetWorldHeightFromTile(Hex);
     }
 
-    public void OverwriteSettings(int TileCount, int ChunkCount)
+    public void OverwriteSettings(int TilesPerChunkSide, int ChunkCount)
     {
-        MapData = new HexagonData[TileCount];
-        int TilesPerSide = (int)MathF.Sqrt(TileCount);
-        HexagonConfig.ChunkSize = TilesPerSide / ChunkCount;
+        MapData = new HexagonData[TilesPerChunkSide * TilesPerChunkSide * ChunkCount * ChunkCount];
+        HexagonConfig.ChunkSize = TilesPerChunkSide;
         HexagonConfig.MapMaxChunk = ChunkCount;
     }
 
@@ -56,7 +55,7 @@ public class Map : GameService
         // we still need to query the manager object to ensure its already loaded at that point!
         Game.RunAfterServicesInit((WorldGenerator WorldGenerator, SaveGameManager Manager) =>
         {
-            if (!Manager.HasDataFor(ISaveableService.SaveGameType.MapGenerator))
+            if (!Manager.HasDataFor(SaveableService.SaveGameType.MapGenerator))
             {
                 FindValidStartingSeed(WorldGenerator);
             }
@@ -110,5 +109,16 @@ public class Map : GameService
         return LocationsCount >= MinimumReachableTiles;
     }
 
+    public override void Reset()
+    {
+        base.Reset();
+        Game.RunAfterServiceInit((WorldGenerator WorldGenerator) =>
+        {
+            MapData = WorldGenerator.EmptyLand();
+        });
+    }
+
     protected override void StopServiceInternal() { }
+
+    public GameObject GetGameObject() { return gameObject; }
 }

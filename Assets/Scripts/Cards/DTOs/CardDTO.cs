@@ -4,7 +4,7 @@ using UnityEngine;
 /** Helper class to transfer the cards between scenes. Only contains actually important data 
  * aka no visuals (as this is unnecessary to save and will be regenerated anyway) 
  */
-public abstract class CardDTO : ISaveableData
+public abstract class CardDTO
 {      
     public enum Type
     {
@@ -12,48 +12,14 @@ public abstract class CardDTO : ISaveableData
         Event
     }
 
+    [SaveableBaseType]
     public int PinnedIndex = -1;
+    [SaveableEnum]
     public Card.CardState State = Card.CardState.DEFAULT;
+    [SaveableBaseType]
     public bool bWasUsedUp = false;
-
-    public virtual byte[] GetData()
-    {
-        // save the type to allow for correct creation on load
-        // use StaticSize to force only creating the base info struct!
-        NativeArray<byte> Bytes = new(GetStaticSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)GetCardType());
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)State);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bWasUsedUp);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, PinnedIndex);
-        return Bytes.ToArray();
-    }
-
-    public virtual int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static int GetStaticSize()
-    {
-        // type + pinned index + state, UsedUp
-        return sizeof(byte) * 2 + sizeof(int) + sizeof(byte);
-    }
-
-    public virtual void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        // skip card type, its already checked in @CreateForSaveable
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bCardType);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bState);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bWasUsedUp);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out PinnedIndex);
-
-        State = (Card.CardState)bState;
-    }
-
-    // declare from interface so that children can override
-    public virtual bool ShouldLoadWithLoadedSize() { return false; }
+    [SaveableEnum]
+    public Type CardType;
 
     public abstract Type GetCardType();
 
@@ -74,21 +40,9 @@ public abstract class CardDTO : ISaveableData
         DTO.PinnedIndex = Card.GetPinnedIndex();
         DTO.State = Card.GetState();
         DTO.bWasUsedUp = Card.WasUsedUpThisTurn();
+        DTO.CardType = DTO.GetCardType();
 
         return DTO;
-    }
-
-    public static CardDTO CreateForSaveable(NativeArray<byte> Bytes, int Pos)
-    {
-        SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bType);
-        Type CardType = (Type)bType;
-
-        switch (CardType)
-        {
-            case Type.Building: return new BuildingCardDTO(); 
-            case Type.Event: return new EventCardDTO(); 
-            default: return null;
-        }
     }
 
     public abstract bool ShouldBeDeleted();

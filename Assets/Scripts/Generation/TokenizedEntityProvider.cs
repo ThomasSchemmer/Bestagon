@@ -59,4 +59,27 @@ public class TokenizedEntityProvider<T> : EntityProvider<T> where T : Scriptable
         return false;
     }
 
+    public override void OnAfterLoaded()
+    {
+        base.OnAfterLoaded();
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        HashSet<ChunkVisualization> ChunksToRefresh = new();
+        foreach (var Entity in Entities)
+        {
+            if (!MapGenerator.TryGetChunkVis(Entity.GetLocations(), out var Chunks))
+                continue;
+
+            foreach (var Chunk in Chunks)
+            {
+                ChunksToRefresh.Add(Chunk);
+            }
+        }
+        foreach(var Chunk in ChunksToRefresh)
+        {
+            Chunk.RefreshTokens();
+        }
+    }
+
 }

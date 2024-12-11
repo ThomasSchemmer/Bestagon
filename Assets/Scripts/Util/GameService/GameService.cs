@@ -33,6 +33,12 @@ public abstract class GameService : MonoBehaviour
         IsInit = true;
     }
 
+    /** Deletes all internal data so that it can be loaded from the save or initialized safely*/
+    public virtual void Reset()
+    {
+        IsInit = false;
+    }
+
     protected abstract void StartServiceInternal();
     protected abstract void StopServiceInternal();
 

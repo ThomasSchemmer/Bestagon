@@ -92,38 +92,7 @@ public abstract class StarvableUnitEntity : UnitEntity
         return false;
     }
 
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        // unit type and foodcount
-        return ScriptableEntity.GetStaticSize() + sizeof(byte) * 1 + sizeof(int);
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(StarvableUnitEntity.GetStaticSize(), base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)UnitType);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentFoodCount);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bUnitType);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentFoodCount);
-
-        UnitType = (UType)bUnitType;
-    }
-
+    [SaveableBaseType]
     [HideInInspector]
     public int CurrentFoodCount = 1;
     [HideInInspector]

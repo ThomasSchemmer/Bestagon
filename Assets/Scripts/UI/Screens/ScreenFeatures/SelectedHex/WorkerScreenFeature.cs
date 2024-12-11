@@ -43,7 +43,7 @@ public class WorkerScreenFeature : ScreenFeature<HexagonData>
 
         TryGetBuilding(out BuildingEntity BuildingData);
 
-        for (int i = 0; i < BuildingData.MaxWorker; i++)
+        for (int i = 0; i < BuildingData.GetMaximumWorkerCount(); i++)
         {
             CreateWorkerUI(BuildingData, i);
         }

@@ -7,6 +7,7 @@ using UnityEngine;
  */
 public class BuildingCardDTO : CardDTO
 {
+    [SaveableClass]
     public BuildingEntity BuildingData;
 
     public BuildingCardDTO(Card Card)
@@ -26,33 +27,6 @@ public class BuildingCardDTO : CardDTO
     public override Type GetCardType()
     {
         return Type.Building;
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(BuildingCardDTO.GetStaticSize(), base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, BuildingData);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, BuildingData);
-    }
-
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        return CardDTO.GetStaticSize() + BuildingEntity.GetStaticSize();
     }
 
     public static BuildingCardDTO CreateFromBuildingData(BuildingEntity Data)

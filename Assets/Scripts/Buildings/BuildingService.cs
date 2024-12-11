@@ -3,19 +3,21 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using static BuildingService;
 
 /** 
  * Provides access to any building entity and keeps track of which buildings types the player has unlocked
  */
 public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlockableService<BuildingConfig.Type>
 {
+    [SaveableClass]
     public Unlockables<BuildingConfig.Type> UnlockableBuildings = new();
 
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {
-            if (Manager.HasDataFor(ISaveableService.SaveGameType.Buildings))
+            if (Manager.HasDataFor(SaveableService.SaveGameType.Buildings))
                 return;
 
             UnlockableBuildings = new();
@@ -137,9 +139,24 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         return (BuildingConfig.Type)Value;
     }
 
-    public void OnLoadUnlockable(BuildingConfig.Type Type, Unlockables.State State)
+    public void OnLoadedUnlockable(BuildingConfig.Type Type, Unlockables.State State)
     {
         // don't need to do anything, as its handled with the card loading
+    }
+
+    public void OnLoadedUnlockables()
+    {
+        Game.RunAfterServiceInit((BuildingService Service) =>
+        {
+            for (int i = 0; i < Service.UnlockableBuildings.GetCategoryCount(); i++)
+            {
+                var Category = Service.UnlockableBuildings.GetCategory(i);
+                foreach (var Tuple in Category)
+                {
+                    Service.OnLoadedUnlockable(Tuple.Key, Category[Tuple.Key]);
+                }
+            }
+        });
     }
 
     public void InitUnlockables()
@@ -152,52 +169,23 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         UnlockableBuildings.UnlockCategory(BuildingConfig.UnlockOnStart, BuildingConfig.MaxIndex);
     }
 
-
-    public override int GetSize()
-    {
-        return base.GetSize() + GetSelfSize();
-    }
-
-    private int GetSelfSize()
-    {
-        return UnlockableBuildings.GetSize();
-    }
-
-    public override byte[] GetData()
-    {
-        // Note: this should really use GetStaticSize(), but static isn't possible for runtime dependent
-        // EntityProvider. Since GetSize() would get overriden, the SGM has no way of getting the actual size
-        // could be fixed by a workaround with indirect Saveable loading, but its a service, not an easy entity
-        // when overriding BuildingService make sure you update this!
-        NativeArray<byte> BaseBytes = new(base.GetSize(), Allocator.Temp);
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(GetSize(), base.GetSize(), base.GetData(BaseBytes));
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, UnlockableBuildings);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
+    public override void OnBeforeLoaded()
     {
         // will be overwritten by the loading
         UnlockableBuildings = new();
         UnlockableBuildings.Init(this);
-
-        base.SetData(Bytes);
-        int Pos = base.GetSize(); ;
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, UnlockableBuildings);
-
-        // kill all buildings, but leave the unlocks untouched
-        if (Game.IsIn(Game.GameState.CardSelection))
-        {
-            base.Reset();
-        }
     }
 
-    public override void OnLoaded()
+    public override void OnAfterLoaded()
     {
+        base.OnAfterLoaded();
+        if (Game.IsIn(Game.GameState.CardSelection))
+        {
+            // kill all buildings, but leave the unlocks untouched
+            base.Reset();
+        }
         _OnInit?.Invoke(this);
+        _OnBuildingsChanged?.Invoke();
     }
 
     public BuildingConfig.Type Combine(BuildingConfig.Type A, BuildingConfig.Type B)

@@ -16,6 +16,7 @@ public class CollectableChoice
         Offering
     }
 
+    [SaveableEnum]
     public ChoiceType Type;
 }
 

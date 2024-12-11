@@ -99,7 +99,13 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
         return false;
     }
 
+    public override void OnAfterLoaded()
+    {
+        base.OnAfterLoaded();
+        _OnInit?.Invoke(this);
+        _OnUnitCountChanged?.Invoke();
 
+    }
 
     protected override void StopServiceInternal() { }
 

@@ -7,7 +7,7 @@ using UnityEngine;
 /**
  * Wrapper to have defined access to production data
  */ 
-public class Production : ISaveableData
+public class Production
 {
     [Serializable]
     public enum Type : uint
@@ -340,31 +340,8 @@ public class Production : ISaveableData
         return Enum.GetValues(typeof(Type)).Length * 2;
     }
 
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        foreach (Type Type in Enum.GetValues(typeof(Type)))
-        {
-            Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Type);
-            Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)this[Type]);
-        }
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes) {
-        int Pos = 0;
-        for (int i = 0; i < Enum.GetValues(typeof(Type)).Length; i++)
-        {
-            Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte iType);
-            Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bValue);
-            Type Type = (Type)iType;
-            this[Type] = (int)bValue;
-        }
-    }
-
     [SerializeField]
+    [SaveableDictionary]
     protected SerializedDictionary<Type, int> _Production;
 
     public int this[Type Type]

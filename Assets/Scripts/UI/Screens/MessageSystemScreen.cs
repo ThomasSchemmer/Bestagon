@@ -84,6 +84,11 @@ public class MessageSystemScreen : ScreenUI
         }
     }
 
+    protected override bool CountsAsPopup()
+    {
+        return false;
+    }
+
     public List<Message> Messages = new();
     public GameObject MessagePrefab;
 

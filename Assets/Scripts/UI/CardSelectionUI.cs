@@ -52,7 +52,7 @@ public class CardSelectionUI : MonoBehaviour
             return;
 
         // write into temp and then trigger a reload through the scene load
-        string FileToLoad = Manager.Save();
+        string FileToLoad = Manager.Save(true);
         Game.LoadGame(FileToLoad, Game.MainSceneName);
     }
 

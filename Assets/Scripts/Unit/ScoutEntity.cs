@@ -27,36 +27,6 @@ public class ScoutEntity : TokenizedUnitEntity
     {
         return "Scout";
     }
-
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-    
-    public static new int GetStaticSize()
-    {
-        return TokenizedUnitEntity.GetStaticSize() + MAX_NAME_LENGTH * sizeof(byte) + sizeof(int);
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(ScoutEntity.GetStaticSize(), base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddString(Bytes, Pos, Name);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.GetString(Bytes, Pos, MAX_NAME_LENGTH, out Name);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
-    }
-
     public string GetName()
     {
         return Name.Replace(" ", "");
@@ -153,9 +123,11 @@ public class ScoutEntity : TokenizedUnitEntity
         return AttributeSet.Get()[AttributeType.ScoutDogAmount].CurrentValue > 0;
     }
 
+    [SaveableBaseType]
     [HideInInspector]
     public string Name;
     [HideInInspector]
+    [SaveableBaseType]
     public int ID = 0;
 
     public static int MAX_NAME_LENGTH = 10;

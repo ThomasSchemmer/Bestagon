@@ -7,36 +7,36 @@ using static HexagonData;
  * Tracks how many things were created / moved etc during each playphase as well as overall
  * Also creates quests for those things tracked
  */
-public class Statistics : GameService, ISaveableService
+public class Statistics : SaveableService
 {
     // how many are counting towards the next upgrade
     // gets reset after each upgrade point
-    [HideInInspector]public int BuildingsBuilt = 0;
-    [HideInInspector]public int MovesDone = 0;
-    [HideInInspector]public int UnitsCreated = 0;
-    [HideInInspector]public int ResourcesCollected = 0;
+    [HideInInspector][SaveableBaseType] public int BuildingsBuilt = 0;
+    [HideInInspector][SaveableBaseType] public int MovesDone = 0;
+    [HideInInspector][SaveableBaseType] public int UnitsCreated = 0;
+    [HideInInspector][SaveableBaseType] public int ResourcesCollected = 0;
 
     // used by their respective quests as target values
-    [HideInInspector]public int BuildingsNeeded = 0;
-    [HideInInspector]public int MovesNeeded = 0;
-    [HideInInspector]public int UnitsNeeded = 0;
-    [HideInInspector]public int ResourcesNeeded = 0;
+    [HideInInspector][SaveableBaseType] public int BuildingsNeeded = 0;
+    [HideInInspector][SaveableBaseType] public int MovesNeeded = 0;
+    [HideInInspector][SaveableBaseType] public int UnitsNeeded = 0;
+    [HideInInspector][SaveableBaseType] public int ResourcesNeeded = 0;
 
-    [HideInInspector]public int BuildingsIncrease = 0;
-    [HideInInspector]public int MovesIncrease = 0;
-    [HideInInspector]public int UnitsIncrease = 0;
-    [HideInInspector]public int ResourcesIncrease = 0;
+    [HideInInspector][SaveableBaseType] public int BuildingsIncrease = 0;
+    [HideInInspector][SaveableBaseType] public int MovesIncrease = 0;
+    [HideInInspector][SaveableBaseType] public int UnitsIncrease = 0;
+    [HideInInspector][SaveableBaseType] public int ResourcesIncrease = 0;
 
-    [HideInInspector]public int BestHighscore = 0;
-    [HideInInspector]public int BestBuildings = 0;
-    [HideInInspector]public int BestMoves = 0;
-    [HideInInspector]public int BestUnits = 0;
-    [HideInInspector]public int BestResources = 0;
+    [HideInInspector][SaveableBaseType] public int BestHighscore = 0;
+    [HideInInspector][SaveableBaseType] public int BestBuildings = 0;
+    [HideInInspector][SaveableBaseType] public int BestMoves = 0;
+    [HideInInspector][SaveableBaseType] public int BestUnits = 0;
+    [HideInInspector][SaveableBaseType] public int BestResources = 0;
 
-    [HideInInspector]public int CurrentBuildings = 0;
-    [HideInInspector]public int CurrentMoves = 0;
-    [HideInInspector]public int CurrentUnits = 0;
-    [HideInInspector]public int CurrentResources = 0;
+    [HideInInspector][SaveableBaseType] public int CurrentBuildings = 0;
+    [HideInInspector][SaveableBaseType] public int CurrentMoves = 0;
+    [HideInInspector][SaveableBaseType] public int CurrentUnits = 0;
+    [HideInInspector][SaveableBaseType] public int CurrentResources = 0;
 
     public int GetHighscore()
     {
@@ -97,51 +97,6 @@ public class Statistics : GameService, ISaveableService
         BestMoves = Math.Max(CurrentMoves, BestMoves);
     }
 
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingsBuilt);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MovesDone);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UnitsCreated);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, ResourcesCollected);
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingsNeeded);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MovesNeeded);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UnitsNeeded);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, ResourcesNeeded);
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BuildingsIncrease);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MovesIncrease);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UnitsIncrease);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, ResourcesIncrease);
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BestHighscore);
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BestBuildings);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BestMoves);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BestUnits);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, BestResources);
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentBuildings);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentMoves);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentUnits);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentResources);
-
-        return Bytes.ToArray();
-    }
-
-    public int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public int GetStaticSize()
-    {
-        return sizeof(int) * 21;
-    }
-
     private void Subscribe(bool bSubscribe)
     {
         if (bSubscribe)
@@ -161,44 +116,12 @@ public class Statistics : GameService, ISaveableService
             BuildingService._OnBuildingBuilt.Remove(CountBuilding);
         }
     }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BuildingsBuilt);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MovesDone);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UnitsCreated);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out ResourcesCollected);
-
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BuildingsNeeded);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MovesNeeded);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UnitsNeeded);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out ResourcesNeeded);
-
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BuildingsIncrease);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MovesIncrease);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UnitsIncrease);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out ResourcesIncrease);
-
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestHighscore);
-
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestBuildings);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestMoves);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestUnits);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out BestResources);
-
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentBuildings);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentMoves);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentUnits);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentResources);
-    }
-
     protected override void StartServiceInternal()
     {
         Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {
             Subscribe(true);
-            if (!Manager.HasDataFor(ISaveableService.SaveGameType.Statistics))
+            if (!Manager.HasDataFor(SaveableService.SaveGameType.Statistics))
             {
                 ResetAllStats();
             }
@@ -206,10 +129,18 @@ public class Statistics : GameService, ISaveableService
         });
     }
 
-    public void Reset()
+    public override void Reset()
     {
+        base.Reset();
         ResetAllStats();
         Subscribe(false);
+    }
+
+    public override void OnAfterLoaded()
+    {
+        base.OnAfterLoaded();
+        Subscribe(true);
+        _OnInit?.Invoke(this);
     }
 
     private void ResetAllStats()
@@ -253,10 +184,12 @@ public class Statistics : GameService, ISaveableService
         Subscribe(false);
     }
 
-    public void OnBeforeSaved()
+    public override void OnBeforeSaved(bool bShouldReset)
     {
         ResetCurrentStats();
     }
+
+    public GameObject GetGameObject() { return gameObject; }
 
     private static int POINTS_BUILDINGS = 5;
     private static int POINTS_UNITS = 3;

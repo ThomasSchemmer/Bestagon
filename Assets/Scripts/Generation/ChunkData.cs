@@ -9,7 +9,7 @@ using UnityEngine;
  * Should be a fixed size and should never get overwritten
  */
 [System.Serializable]
-public class ChunkData : ISaveableData
+public class ChunkData
 {
     public void GenerateData(Location Location)
     {
@@ -37,6 +37,11 @@ public class ChunkData : ISaveableData
                 }
             }
         }
+    }
+
+    public int GetHexCount()
+    {
+        return HexDatas.Length;
     }
 
     public override bool Equals(object obj) {
@@ -154,66 +159,11 @@ public class ChunkData : ISaveableData
         ChunkVis.RefreshTokens();
     }
 
-    public int GetSize()
-    {
-        int HexagonSize = HexDatas.Length > 0 ? HexDatas.Length * HexDatas[0, 0].GetSize() : 0;
-        // Location and malaise, data of hexes, as well as size info for hex and overall size
-        return HexagonSize + 2 * sizeof(int) + Location.GetStaticSize() + Malaise.GetSize();
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-
-        int Pos = 0;
-        // save the size to make reading it easier
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, HexDatas.Length);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-
-        foreach (HexagonData Hexagon in HexDatas)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Hexagon);
-        }
-
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Malaise);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        // this can only be called for temporary chunks from map loading
-        // will be destroyed!
-        Location = Location.Zero;
-        Malaise = new();
-        Malaise.Init(this);
-
-        // skip overall size info at the beginning
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HexLength);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-
-        int SqrtLength = (int)Mathf.Sqrt(HexLength);
-
-        HexDatas = new HexagonData[SqrtLength, SqrtLength];
-        for (int x = 0; x < SqrtLength; x++)
-        {
-            for (int y = 0; y < SqrtLength; y++)
-            {
-                HexDatas[x, y] = new HexagonData();
-                Pos = SaveGameManager.SetSaveable(Bytes, Pos, HexDatas[x, y]);
-            }
-        }
-
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Malaise);
-        Malaise = null;
-    }
-
-    public bool ShouldLoadWithLoadedSize() {  return true; }
-
+    [SaveableClass]
     public Location Location;
+    [SaveableClass]
     public MalaiseData Malaise;
 
+    [SaveableArray]
     protected HexagonData[,] HexDatas;
 }

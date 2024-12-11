@@ -11,7 +11,7 @@ using UnityEngine;
  * Will propagate to other chunks (through turns), increasing infection speed 
  * Note: Doesn't actually store which hexes are malaised, thats in the @HexagonData
  */
-public class MalaiseData : ISaveableData
+public class MalaiseData
 {
     public void Init(ChunkData InData) {
         Chunk = InData;
@@ -220,65 +220,14 @@ public class MalaiseData : ISaveableData
         HexVis.VisualizeSelection();
     }
 
-    public int GetSize()
-    {
-        // overall size, location count and active flag + ID, spread count and increase
-        return sizeof(int) * 5 + sizeof(byte) + LocationsToMalaise.Count * Location.GetStaticSize();
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, ID);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsActive);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, LocationsToMalaise.Count);
-        for (int i = 0; i <  LocationsToMalaise.Count; i++)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, LocationsToMalaise[i]);
-        }
-        Pos = SaveGameManager.AddInt(Bytes, Pos, SpreadCountPerRound);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, SpreadCountIncrease);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        // the only way this can be called is for temporary chunks created for map writing 
-        // do not register these! They will be deleted
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out ID);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsActive);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int Count);
-        for (int i = 0; i < Count; i++)
-        {
-            Location Location = new();
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-            if (!Chunk.TryGetHexAt(Location.HexLocation, out HexagonData TargetHex))
-                continue;
-
-            // we can force the current chunk here, cause we are directly writing to it anyway
-            MarkToMalaise(TargetHex, Chunk);
-        }
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountPerRound);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out SpreadCountIncrease);
-
-        // remove pointer
-        Chunk = null;
-    }
-
-    public bool ShouldLoadWithLoadedSize()
-    {
-        return true;
-    }
-
     public ChunkData Chunk;
+    [SaveableBaseType]
     public bool bIsActive = false;
+    [SaveableBaseType]
     public int ID = -1;
     public static int CURRENT_MAX_ID = 0;
 
+    [SaveableList]
     public List<Location> LocationsToMalaise = new();
 
     public static List<Location> StartLocations = new() {
@@ -286,7 +235,9 @@ public class MalaiseData : ISaveableData
         new Location(0, 0, 0, 1),
     };
     public static bool bHasStarted = false;
+    [SaveableBaseType]
     public static int SpreadCountPerRound = 5;
+    [SaveableBaseType]
     public static int SpreadCountIncrease = 1;
     public static int GlobalMaxSearchCount = 6;
 }

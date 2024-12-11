@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 /**
  * A collection of Locations that are representing the same entity (for now building)
  * Provides access and comparing functions 
  * Main one is always at position 0!
  */
-public class LocationSet : ISaveableData, IEnumerable<Location>
+public class LocationSet : IEnumerable<Location>
 {
     public enum AreaSize : uint
     {
@@ -20,6 +19,7 @@ public class LocationSet : ISaveableData, IEnumerable<Location>
         TripleCircle = 3
     }
 
+    [SaveableList]
     private List<Location> Locations;
 
     public LocationSet(Location Location)
@@ -30,8 +30,8 @@ public class LocationSet : ISaveableData, IEnumerable<Location>
         };
     }
 
-    // intentionally protected, only for internal handling/saving
-    protected LocationSet()
+    // only for internal handling/saving
+    public LocationSet()
     {
         Locations = new();
     }
@@ -136,52 +136,6 @@ public class LocationSet : ISaveableData, IEnumerable<Location>
     {
         return Locations.Count;
     }
-
-    public int GetSize()
-    {
-        return GetStaticSize(Locations.Count);
-    }
-
-    public static int GetStaticSize(int Count)
-    {
-        //overall bytecount and location count
-        int Size = sizeof(int) * 2;
-        Size += Count * Location.GetStaticSize();
-        return Size;
-    }
-
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Locations.Count);
-
-        foreach (var Location in Locations)
-        {
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-        }
-
-        return Bytes.ToArray();
-    }
-
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int LocationCount);
-        Locations = new(LocationCount);
-
-        for (int i = 0; i < LocationCount; i++)
-        {
-            Location Location = Location.Zero;
-            Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-            Locations.Add(Location);
-        }
-    }
-
-    public bool ShouldLoadWithLoadedSize() { return true; }
 
     public HashSet<Location> ToHashSet()
     {

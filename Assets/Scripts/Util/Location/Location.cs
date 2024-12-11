@@ -9,7 +9,7 @@ using UnityEngine;
  * with conversion into global space
  * Ranges from 0 to max tile space (see @HexagonConfig)
  */
-public class Location : ISaveableData
+public class Location
 {
     public Location(Vector2Int ChunkLocation, Vector2Int HexLocation) {
         _ChunkLocation = new (ChunkLocation.x, ChunkLocation.y);
@@ -97,8 +97,10 @@ public class Location : ISaveableData
     }
 
     [SerializeField]
+    [SaveableClass]
     protected SerializedVector2<int> _ChunkLocation;
     [SerializeField]
+    [SaveableClass]
     protected SerializedVector2<int> _HexLocation;
 
     public static Location Zero {
@@ -181,26 +183,4 @@ public class Location : ISaveableData
         return sizeof(int) * 4;
     }
 
-    public byte[] GetData()
-    {
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        Pos = SaveGameManager.AddInt(Bytes, Pos, _ChunkLocation.x);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, _ChunkLocation.y);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, _HexLocation.x);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, _HexLocation.y);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int CX);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int CY);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HX);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int HY);
-        _ChunkLocation = new (CX, CY);
-        _HexLocation = new (HX, HY);
-    }
 }

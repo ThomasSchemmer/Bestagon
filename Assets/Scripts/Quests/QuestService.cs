@@ -6,7 +6,7 @@ using System.Reflection;
 using Unity.Collections;
 using UnityEngine;
 
-public class QuestService : GameService, ISaveableService
+public class QuestService : SaveableService
 { 
     public QuestUIElement AddQuest(Type Type) {
 
@@ -20,6 +20,9 @@ public class QuestService : GameService, ISaveableService
      */
     private void ActivateQuest(QuestUIElement QuestUI, bool bForceAfterLoad = false)
     {
+        if (Game.IsIn(Game.GameState.CardSelection))
+            return;
+
         QuestTemplate QuestT = QuestUI.GetQuestObject();
         if (!QuestT.AreRequirementsFulfilled() && !bForceAfterLoad)
         {
@@ -228,7 +231,7 @@ public class QuestService : GameService, ISaveableService
     {
         Game.RunAfterServicesInit((IconFactory IconFactory, SaveGameManager Manager) =>
         {
-            if (!Game.IsIn(Game.GameState.CardSelection) && !Manager.HasDataFor(ISaveableService.SaveGameType.Quests))
+            if (!Game.IsIn(Game.GameState.CardSelection) && !Manager.HasDataFor(SaveableService.SaveGameType.Quests))
             {
                 LoadTemplates();
             }
@@ -239,8 +242,10 @@ public class QuestService : GameService, ISaveableService
 
     protected override void StopServiceInternal() { }
 
-    public void Reset()
+    public override void Reset()
     {
+        base.Reset();
+        RemoveAllQuests();
         if (MainQuest != null)
         {
             MainQuest.InvokeDestroy();
@@ -255,15 +260,12 @@ public class QuestService : GameService, ISaveableService
         {
             Quest.InvokeDestroy();
         }
+        foreach (QuestUIElement Quest in QuestsToUnlock)
+        {
+            Quest.InvokeDestroy();
+        }
         PositiveQuests.Clear();
-    }
-
-    public int GetSize()
-    {
-        // add normal and inactive count and overall size and main/negative flag
-        return QuestTemplateDTO.GetStaticSize() * GetQuestCount() +
-            QuestTemplateDTO.GetStaticSize() * GetInactiveQuestCount() +
-            sizeof(int) * 3 + sizeof(byte); 
+        QuestsToUnlock.Clear();
     }
 
     private int GetQuestCount()
@@ -289,97 +291,15 @@ public class QuestService : GameService, ISaveableService
         LoadTemplates();
     }
 
-    public byte[] GetData()
-    {
-        bool bHasMain = MainQuest != null;
-        bool bHasNegative = NegativeQuest != null;
-        byte QuestFlag = (byte)((bHasMain ? 2 : 0) + (bHasNegative ? 1 : 0));
-
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-        // save the size to make reading it easier
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetSize());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetQuestCount());
-        Pos = SaveGameManager.AddInt(Bytes, Pos, GetInactiveQuestCount());
-        Pos = SaveGameManager.AddByte(Bytes, Pos, QuestFlag);
-
-        foreach (QuestUIElement Quest in PositiveQuests)
-        {
-            QuestTemplateDTO DTO = QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject());
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
-        }
-        foreach (QuestUIElement Quest in QuestsToUnlock)
-        {
-            QuestTemplateDTO DTO = QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject());
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, DTO);
-        }
-        if (bHasMain)
-        {
-            QuestTemplateDTO MainDTO = QuestTemplateDTO.CreateFromQuest(MainQuest.GetQuestObject());
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, MainDTO);
-        }
-
-        if (bHasNegative)
-        {
-            QuestTemplateDTO NegativeDTO = QuestTemplateDTO.CreateFromQuest(NegativeQuest.GetQuestObject());
-            Pos = SaveGameManager.AddSaveable(Bytes, Pos, NegativeDTO);
-        }
-
-        return Bytes.ToArray();
-    }
-
-    public bool ShouldLoadWithLoadedSize() { return true; }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        LoadQuestTemplates(false);
-
-        // skip overall size info at the beginning
-        int Pos = sizeof(int);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int QuestLength);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int InactiveQuestLength);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte QuestFlag);
-
-        bool bHasMain = ((QuestFlag >> 1) & 0x1) == 1;
-        bool bHasNegative = ((QuestFlag >> 0) & 0x1) == 1;
-        int Offset = (bHasMain ? 1 : 0) + (bHasNegative ? 1 : 0);
-
-        PositiveQuests = new();
-        for (int i = 0; i < QuestLength - Offset; i++)
-        {
-            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement Quest);
-            ActivateQuest(Quest, true);
-        }
-        for (int i = 0; i < InactiveQuestLength; i++)
-        {
-            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement Quest);
-            ActivateQuest(Quest);
-        }
-        if (bHasMain)
-        {
-            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement MainQuest);
-            ActivateQuest(MainQuest, true);
-        }
-        if (bHasNegative)
-        {
-            Pos = LoadQuestFromSavegame(Bytes, Pos, out QuestUIElement NegativeQuest);
-            ActivateQuest(NegativeQuest, true);
-        }
-    }
-
-    private int LoadQuestFromSavegame(NativeArray<byte> Bytes, int Pos, out QuestUIElement Quest)
+    private void LoadQuestFromSavegame(QuestTemplateDTO DTO, out QuestUIElement Quest)
     {
         Quest = default;
-        QuestTemplateDTO DTO = new();
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, DTO);
-
         int CurrentProgress = DTO.CurrentProgress;
         if (!TryGetQuestType(DTO, out Type FoundType))
-            return Pos;
+            return;
 
         Quest = CreateQuest(FoundType);
         Quest.GetQuestObject().SetCurrentProgress(CurrentProgress);
-        return Pos;
     }
 
     private bool TryGetQuestType(QuestTemplateDTO DTO, out Type FoundType)
@@ -387,7 +307,7 @@ public class QuestService : GameService, ISaveableService
         FoundType = default;
         foreach (var Type in QuestTypes)
         {
-            if (!QuestTemplateDTO.GetCutName(Type).Equals(DTO.TypeName))
+            if (Type != DTO.QuestType)
                 continue;
 
             FoundType = Type;
@@ -450,19 +370,83 @@ public class QuestService : GameService, ISaveableService
         transform.GetChild(0).gameObject.SetActive(bShow);
     }
 
-    public void OnLoaded()
+    public override void OnAfterLoaded()
     {
+        LoadQuestTemplates(false);
+        PositiveQuests = new();
+
+        if (MainQuestDTO != null)
+        {
+            LoadQuestFromSavegame(MainQuestDTO, out QuestUIElement Quest);
+            ActivateQuest(Quest, false);
+        }
+        if (NegativeQuestDTO != null)
+        {
+            LoadQuestFromSavegame(NegativeQuestDTO, out QuestUIElement Quest);
+            ActivateQuest(Quest, false);
+        }
+        foreach (var QuestDTO in PositiveQuestsDTO)
+        {
+            LoadQuestFromSavegame(QuestDTO, out QuestUIElement Quest);
+            ActivateQuest(Quest, false);
+        }
+        foreach (var QuestDTO in QuestsToUnlockDTO)
+        {
+            LoadQuestFromSavegame(QuestDTO, out QuestUIElement Quest);
+            ActivateQuest(Quest, false);
+        }
+
         _OnInit?.Invoke(this);
     }
-    public void OnBeforeSaved()
+
+    public override void OnBeforeSaved(bool bShouldReset)
     {
         HandleTutorialInit();
+
+        // if the user saves multiple times, this has to be reset
+        // in card selection the user can't save and the quests are also not actually loaded
+        // => keeep DTOs
+        if (!Game.IsIn(Game.GameState.CardSelection))
+        {
+            MainQuestDTO = null;
+            NegativeQuestDTO = null;
+            PositiveQuestsDTO.Clear();
+            QuestsToUnlockDTO.Clear();
+        }
+
+        if (MainQuest != null)
+        {
+            MainQuestDTO = QuestTemplateDTO.CreateFromQuest(MainQuest.GetQuestObject());
+        }
+        if (NegativeQuest != null)
+        {
+            NegativeQuestDTO = QuestTemplateDTO.CreateFromQuest(NegativeQuest.GetQuestObject());
+        }
+        foreach (var Quest in PositiveQuests)
+        {
+            PositiveQuestsDTO.Add(QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject()));
+        }
+        foreach (var Quest in QuestsToUnlock)
+        {
+            QuestsToUnlockDTO.Add(QuestTemplateDTO.CreateFromQuest(Quest.GetQuestObject()));
+        }
     }
+
+    public GameObject GetGameObject() { return gameObject; }
 
     public QuestUIElement MainQuest;
     public QuestUIElement NegativeQuest;
     public List<QuestUIElement> PositiveQuests = new();
     public List<QuestUIElement> QuestsToUnlock = new();
+
+    [SaveableClass]
+    public QuestTemplateDTO MainQuestDTO;
+    [SaveableClass]
+    public QuestTemplateDTO NegativeQuestDTO;
+    [SaveableList]
+    public List<QuestTemplateDTO> PositiveQuestsDTO = new();
+    [SaveableList]
+    public List<QuestTemplateDTO> QuestsToUnlockDTO = new();
 
     protected HashSet<Type> QuestTypes = new();
 

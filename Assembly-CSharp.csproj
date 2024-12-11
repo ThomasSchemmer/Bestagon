@@ -106,6 +106,7 @@
     <Compile Include="Assets\Scripts\Relics\RelicGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
     <Compile Include="Assets\Scripts\Events\GrantUnitEventData.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableClass.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedSpawnQuest.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreviewScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardGroupManager.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\ProductionScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableUnlockable.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
@@ -164,6 +166,7 @@
     <Compile Include="Assets\Scripts\Util\Choices\CollectableChoice.cs" />
     <Compile Include="Assets\Scripts\Buildings\BuildingService.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableArray.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
@@ -182,7 +185,6 @@
     <Compile Include="Assets\Scripts\Util\Location\ITokenized.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\GameplayEffect.cs" />
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
-    <Compile Include="Assets\Scripts\Util\Saving\ISaveableService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
@@ -193,6 +195,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableList.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\LocalizedGameplayEffect.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CollectDecorationScreen.cs" />
@@ -219,6 +222,7 @@
     <Compile Include="Assets\Scripts\Visualization\Indicators\PinnedIndicator.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCameraQuest.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableBaseType.cs" />
     <Compile Include="Assets\Scripts\Relics\RelicIconScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\RelicScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\LabelScreenFeature.cs" />
@@ -227,6 +231,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionLabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Main\BuildScoutQuest.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedVector.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableDictionary.cs" />
     <Compile Include="Assets\Scripts\Builds\MapContainer.cs" />
     <Compile Include="Assets\Scripts\Quests\QuestUIElement.cs" />
     <Compile Include="Assets\Scripts\Util\ActionList.cs" />
@@ -250,6 +255,7 @@
     <Compile Include="Assets\Scripts\Visualization\Indicators\WorkerIndicator.cs" />
     <Compile Include="Assets\Scripts\Generation\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\LoadMenuScreen.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\SaveableService.cs" />
     <Compile Include="Assets\Scripts\Util\BackgroundRenderer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\RuinsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Positive\BuildBuildingsQuest.cs" />
@@ -258,8 +264,8 @@
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagMask.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\IndicatorComponent.cs" />
     <Compile Include="Assets\Scripts\Quests\Interfaces\IQuestRegister.cs" />
-    <Compile Include="Assets\Scripts\Util\Saving\ISaveableData.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialMalaiseQuest.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableEnum.cs" />
     <Compile Include="Assets\Scripts\Generation\EntityProvider.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ToolTipScreen.cs" />
     <Compile Include="Assets\Imports\GAS\Attributes\AttributeSet.cs" />
@@ -275,6 +281,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\ScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\QuestService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\MerchantScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableData.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\MeshFactory.cs" />
   </ItemGroup>
   <ItemGroup>

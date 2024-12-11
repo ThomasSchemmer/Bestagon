@@ -10,23 +10,37 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 {
     [HideInInspector]
     public WorkerEntity[] AssignedWorkers;
+    [SaveableEnum]
     public BuildingConfig.Type BuildingType = BuildingConfig.Type.DEFAULT;
+    [SaveableClass]
     public Production Cost = new Production();
+    [SaveableClass]
     public OnTurnBuildingEffect Effect = null;
-    public int MaxWorker = 1;
+    [SaveableBaseType]
+    [SerializeField]
+    protected int MaxWorker = 1;
+    [SaveableEnum]
     public HexagonConfig.HexagonType BuildableOn = 0;
     [HideInInspector]
+    [SaveableBaseType]
     public int CurrentUsages = 1;
+    [SaveableBaseType]
     public int MaxUsages = 1;
 
+    [SaveableBaseType]
     public int UpgradeMaxWorker = 1;
+    [SaveableEnum]
     public HexagonConfig.HexagonType UpgradeBuildableOn = 0;
+    [SaveableBaseType]
     public int UpgradeMaxUsages = 1;
 
+    [SaveableClass]
     public LocationSet.AreaSize Area = LocationSet.AreaSize.Single;
 
+    [SaveableClass]
     // can be a multi-tile location
     protected LocationSet Locations;
+    [SaveableBaseType]
     protected int Angle;
 
     public BuildingEntity() {
@@ -437,86 +451,10 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return PreMalaisedHexes.Count > 0 ? PreMalaisedHexes[0].Location : Location.Invalid;
     }
 
-    public override int GetSize()
+    public void OnLoaded()
     {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        // BuildingType Type and buildable on, max workers
-        // Workers themselfs will be assigned later
-        return ScriptableEntity.GetStaticSize() +
-            LocationSet.GetStaticSize(LocationSet.MaxCount) +
-            Production.GetStaticSize() +
-            OnTurnBuildingEffect.GetStaticSize() +
-            sizeof(byte) * 2 +
-            sizeof(int) * 8;
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(BuildingEntity.GetStaticSize(), base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        byte TypeAsByte = (byte)HexagonConfig.MaskToInt((int)BuildingType, 32);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, TypeAsByte);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Locations);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Cost);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)BuildableOn);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Effect);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxWorker);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, CurrentUsages);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, MaxUsages);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxWorker);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, (int)UpgradeBuildableOn);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradeMaxUsages);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, Angle);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)Area);
-
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Locations);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Cost);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iBuildableOn);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Effect);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxWorker);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out CurrentUsages);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out MaxUsages);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxWorker);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out int iUpgradeBuildableOn);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradeMaxUsages);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out Angle);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bArea);
-
-        BuildingType = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
-        BuildableOn = (HexagonConfig.HexagonType)iBuildableOn;
-        UpgradeBuildableOn = (HexagonConfig.HexagonType)iUpgradeBuildableOn;
-        Area = (LocationSet.AreaSize)bArea;
-
         AssignedWorkers = new WorkerEntity[MaxWorker];
-    }
-
-    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Building)
-    {
-        Building = default;
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return -1;
-
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bBuildingType);
-        BuildingConfig.Type Type = (BuildingConfig.Type)HexagonConfig.IntToMask(bBuildingType);
-
-        Building = MeshFactory.CreateDataFromType(Type);
-        return Pos;
+        Effect.Init(this);
     }
 
 }

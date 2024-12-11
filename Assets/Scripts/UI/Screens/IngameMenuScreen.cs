@@ -32,7 +32,7 @@ public class IngameMenuScreen : ScreenUI
             return;
 
         string FileName = SaveGameManager.GetCompleteSaveGameName(ConfirmScreen.GetInputText());
-        Manager.Save(FileName);
+        Manager.Save(false, FileName);
         MessageSystemScreen.CreateMessage(Message.Type.Success, "Saved successfully");
         Hide();
     }

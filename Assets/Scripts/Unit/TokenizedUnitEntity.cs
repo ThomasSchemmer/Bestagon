@@ -119,49 +119,6 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
         return RemainingMovement > 0;
     }
 
-    public override int GetSize()
-    {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        // 4 bytes, one each for MovementPerTurn, RemainingMovement, VisitingRange, ScoutingRange,
-        return StarvableUnitEntity.GetStaticSize() + 4 * sizeof(byte) + Location.GetStaticSize();
-    }
-
-    public override byte[] GetData()
-    {
-        int TotalSize = TokenizedUnitEntity.GetStaticSize();
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(TotalSize, base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)MovementPerTurn);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)RemainingMovement);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)VisitingRange);
-        Pos = SaveGameManager.AddByte(Bytes, Pos, (byte)ScoutingRange);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        Location = new();
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bMovementPerTurn);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bRemainingMovement);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bVisitingRange);
-        Pos = SaveGameManager.GetByte(Bytes, Pos, out byte bScoutingRage);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-
-        MovementPerTurn = bMovementPerTurn;
-        RemainingMovement = bRemainingMovement;
-        VisitingRange = bVisitingRange;
-        ScoutingRange = bScoutingRage;
-    }
-
     public LocationSet GetLocations()
     {
         return Location.ToSet();
@@ -183,16 +140,21 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
         return Hex.IsPreMalaised();
     }
 
+    [SaveableBaseType]
     public int MovementPerTurn = 1;
     [HideInInspector]
+    [SaveableBaseType]
     public int RemainingMovement = 0;
 
     [HideInInspector]
+    [SaveableClass]
     // units can only be at one location at a time, so keep simple
     protected Location Location;
 
+    [SaveableBaseType]
     // should always be greater than the MovementPerTurn!
     public int VisitingRange = 3;
+    [SaveableBaseType]
     public int ScoutingRange = 4;
 
     // don't save, its only temporarily constructed anyway

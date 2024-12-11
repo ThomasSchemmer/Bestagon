@@ -21,12 +21,16 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         Altar = 4
     }
 
+    [SaveableEnum]
     public DType DecorationType;
     public DecorationVisualization Visualization;
 
+    [SaveableClass]
     // decorations can only be in one spot
     private Location Location;
+    [SaveableBaseType]
     private bool bIsActivated = false;
+    [SaveableEnum]
     private CollectableChoice.ChoiceType ChoiceType;
 
     public DecorationEntity() {
@@ -123,42 +127,8 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         return "Altar inhibits malaise spread";
     }
 
-    public override int GetSize()
+    public void OnLoaded()
     {
-        return GetStaticSize();
-    }
-
-    public static new int GetStaticSize()
-    {
-        return ScriptableEntity.GetStaticSize() + Location.GetStaticSize() + sizeof(byte) * 3;
-    }
-
-    public override byte[] GetData()
-    {
-        NativeArray<byte> Bytes = SaveGameManager.GetArrayWithBaseFilled(DecorationEntity.GetStaticSize(), base.GetSize(), base.GetData());
-
-        int Pos = base.GetSize();
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)DecorationType);
-        Pos = SaveGameManager.AddEnumAsByte(Bytes, Pos, (byte)ChoiceType);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bIsActivated);
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Location);
-
-        return Bytes.ToArray();
-    }
-
-    public override void SetData(NativeArray<byte> Bytes)
-    {
-        base.SetData(Bytes);
-        int Pos = base.GetSize();
-        Location = new();
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bDecorationType);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bChoiceType);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bIsActivated);
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Location);
-
-        DecorationType = (DType)bDecorationType;
-        ChoiceType = (CollectableChoice.ChoiceType)bChoiceType;
-
         if (bIsActivated)
         {
             ApplyEffect(ChoiceType);
@@ -186,17 +156,4 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         throw new NotImplementedException();
     }
 
-    public new static int CreateFromSave(NativeArray<byte> Bytes, int Pos, out ScriptableEntity Decoration)
-    {
-        Decoration = default;
-        if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return -1;
-
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte _);
-        Pos = SaveGameManager.GetEnumAsByte(Bytes, Pos, out byte bDecorationType);
-        DType Type = (DType)bDecorationType;
-
-        Decoration = MeshFactory.CreateDataFromType(Type);
-        return Pos;
-    }
 }

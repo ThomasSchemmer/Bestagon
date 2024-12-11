@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 
-public class Stockpile : GameService, ISaveableService, IQuestRegister<Production>, IQuestRegister<int>
+public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegister<int>
 {
 
     public bool Pay(Production Costs) {
@@ -175,7 +175,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
             BuildingService._OnBuildingsChanged += OnSimulateResources;
             _OnResourcesChanged += OnSimulateResources; 
 
-            if (Manager.HasDataFor(ISaveableService.SaveGameType.Stockpile))
+            if (Manager.HasDataFor(SaveableService.SaveGameType.Stockpile))
                 return;
 
             bShouldReset = true;
@@ -195,36 +195,7 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         _OnResourcesChanged -= OnSimulateResources;
     }
 
-    public int GetSize()
-    {
-        // flag for refreshing resources, upgrade points
-        return Resources.GetSize() + sizeof(int) + sizeof(byte); 
-    }
-
-    public byte[] GetData()
-    {
-        bShouldReset = Game.IsIn(Game.GameState.CardSelection);
-
-        NativeArray<byte> Bytes = new(GetSize(), Allocator.Temp);
-        int Pos = 0;
-
-        Pos = SaveGameManager.AddSaveable(Bytes, Pos, Resources);
-        Pos = SaveGameManager.AddInt(Bytes, Pos, UpgradePoints);
-        Pos = SaveGameManager.AddBool(Bytes, Pos, bShouldReset);
-
-        return Bytes.ToArray();
-    }
-
-    public void SetData(NativeArray<byte> Bytes)
-    {
-        int Pos = 0;
-        Resources = new Production();
-        Pos = SaveGameManager.SetSaveable(Bytes, Pos, Resources);
-        Pos = SaveGameManager.GetInt(Bytes, Pos, out UpgradePoints);
-        Pos = SaveGameManager.GetBool(Bytes, Pos, out bShouldReset);
-    }
-
-    public void OnLoaded()
+    public override void OnAfterLoaded()
     {
         Refill();
         _OnInit?.Invoke(this);
@@ -232,8 +203,10 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         _OnUpgradesChanged?.Invoke();
     }
 
-    public void OnBeforeSaved()
+    public override void OnBeforeSaved(bool bShouldReset)
     {
+        this.bShouldReset = Game.IsIn(Game.GameState.CardSelection);
+
         if (!Game.TryGetService(out TutorialSystem Tutorials))
             return;
 
@@ -258,9 +231,14 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         bShouldReset = false;
     }
 
-    public void Reset()
+    public override void Reset()
     {
         Resources = new();
+
+        StockpileScreen = GetComponent<StockpileScreen>();
+        Workers._OnWorkersChanged -= OnSimulateResources;
+        BuildingService._OnBuildingsChanged -= OnSimulateResources;
+        _OnResourcesChanged -= OnSimulateResources;
     }
 
     public void Show(bool bShow)
@@ -268,16 +246,21 @@ public class Stockpile : GameService, ISaveableService, IQuestRegister<Productio
         StockpileScreen.Show(bShow);
     }
 
+    public GameObject GetGameObject() { return gameObject; }
+
+    [SaveableClass]
     public Production Resources;
     public Production SimulatedResources;
     public Production SimulatedGains;
 
     public Production StartingResources;
+    [SaveableBaseType]
     protected int UpgradePoints = 0;
 
     private StockpileScreen StockpileScreen;
 
-    protected bool bShouldReset = false;
+    [SaveableBaseType]
+    protected bool bShouldReset;
 
     public delegate void OnResourcesChanged();
     public static OnResourcesChanged _OnResourcesChanged;
