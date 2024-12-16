@@ -157,6 +157,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedBuildingsQuest.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\GameOverScreen.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\SSAORendererFeature.cs" />
     <Compile Include="Assets\Scripts\Cards\CardGroup.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedCardScreen.cs" />
@@ -187,7 +188,6 @@
     <Compile Include="Assets\Scripts\Camera\MiniMap.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
-    <Compile Include="Assets\Scripts\Util\Rendering\CopyDepthRender.cs" />
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\BuildingPreview.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
@@ -294,6 +294,7 @@
     <None Include="Assets\Materials\Shaders\ProgressShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\Materials\Shaders\PostProcessing\SSAOShader.shader" />
     <None Include="Assets\Materials\Shaders\UsableOnShader.shader" />
     <None Include="Assets\Materials\Shaders\UnitShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
