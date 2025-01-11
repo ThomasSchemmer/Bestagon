@@ -98,14 +98,14 @@ public class GrantUnitEventData : EventData
         return UnitData.GetRotation();
     }
 
-    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         TokenizedUnitEntity UnitData = (GetUnitData() as TokenizedUnitEntity);
         //for now can only be worker, which can always be interacted with
         if (UnitData == null)
             return true;
 
-        return UnitData.IsPreviewInteractableWith(Hex, bIsPreview);
+        return UnitData.IsInteractableWith(Hex, bIsPreview);
     }
 
     public override int GetAdjacencyRange()

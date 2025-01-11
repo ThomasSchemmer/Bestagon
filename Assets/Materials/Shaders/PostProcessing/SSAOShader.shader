@@ -91,7 +91,7 @@ sampler2D _CameraDepthTexture;
                 float3 rightDir = mul((float3x3)unity_CameraToWorld, float3(1,0,0));
                 float depth = 1 - tex2D(_CameraDepthTexture, input.uv).r;
                 float planeDepth = _ProjectionParams.z - _ProjectionParams.y;
-                
+
                 if (depth > 0.9999)
                     return 0;
 

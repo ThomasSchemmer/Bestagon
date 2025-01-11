@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa470879f9ff40242b9354acde5b5f4f, type: 3}
+  m_Name: Boat
+  m_EditorClassIdentifier: 
+  EntityType: 0
+  UnitType: 2
+  Prefabs:
+  - {fileID: 2794737047199554117, guid: bedc1fb607fbb1047bb85c8353a2f4be, type: 3}
+  CurrentFoodCount: 1
+  SimulatedFoodCount: 1
+  MovementPerTurn: 2
+  RemainingMovement: 1
+  VisitingRange: 2
+  ScoutingRange: 3
+  Visualization: {fileID: 0}
+  Name: 
+  ID: 0

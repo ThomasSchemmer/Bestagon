@@ -19,7 +19,7 @@ MonoBehaviour:
   Cost:
     _Production:
       Tuples:
-      - Key: 4
+      - Key: 0
         Value: 2
       - Key: 3
         Value: 3
@@ -27,7 +27,7 @@ MonoBehaviour:
         Value: 1
   Effect:
     EffectType: 3
-    UnitType: 0
+    UnitType: 2
     Production:
       _Production:
         Tuples: []
@@ -40,10 +40,11 @@ MonoBehaviour:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 8
+  BuildableOn: 1041
+  ExtendableOn: 32776
   CurrentUsages: 1
   MaxUsages: 1
-  UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 32776
-  UpgradeMaxUsages: 2
-  Area: 0
+  UpgradeMaxWorker: 1
+  UpgradeBuildableOn: 97297
+  UpgradeMaxUsages: 3
+  Area: 1

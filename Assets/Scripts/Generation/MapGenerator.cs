@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.XR;
 using static HexagonData;
+using static Pathfinding;
 using static UnityEditor.PlayerSettings;
 
 /** 
@@ -378,12 +379,14 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
         return Hexs.Count > 0;
     }
 
-    public bool TryGetHexagonData(Location Location, out HexagonData HexData, bool bTakeRawData = false) {
+    public bool TryGetHexagonData(Location Location, out HexagonData HexData, Parameters Params = null) {
+        Params ??= Parameters.Standard;
+
         HexData = null;
         if (!HexagonConfig.IsValidHexIndex(Location.HexLocation))
             return false;
 
-        if (bTakeRawData && Game.TryGetService(out Map Map))
+        if (Params.bTakeRawData && Game.TryGetService(out Map Map))
         {
             HexData = Map.GetHexagonAtLocation(Location);
             return true;
@@ -421,13 +424,14 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
         return ChunkVis.TryGetValue(Location.ChunkLocation, out Visualization);
     }
 
-    public bool TryGetHexagonData(LocationSet Locations, out List<HexagonData> HexDatas, bool bTakeRawData = false)
+    public bool TryGetHexagonData(LocationSet Locations, out List<HexagonData> HexDatas, Parameters Params = null)
     {
+        Params ??= Pathfinding.Parameters.Standard;
         HexDatas = new(Locations.Count());
         bool bWasSuccessful = true;
         foreach (Location Location in Locations)
         {
-            bWasSuccessful &= TryGetHexagonData(Location, out var HexData, bTakeRawData);
+            bWasSuccessful &= TryGetHexagonData(Location, out var HexData, Params);
             HexDatas.Add(HexData);
         }
         return bWasSuccessful;

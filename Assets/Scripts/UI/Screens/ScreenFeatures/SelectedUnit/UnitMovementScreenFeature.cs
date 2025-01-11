@@ -19,8 +19,9 @@ public class UnitMovementScreenFeature : ScreenFeature<UnitEntity>
         TokenizedUnitEntity UnitData = GetTargetAsTokenized();
 
         TryGetHexagons(out HexagonVisualization StartHex, out HexagonVisualization TargetHex);
-        List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location);
-        int Costs = Pathfinding.GetCostsForPath(Path);
+        var Params = UnitData.GetPathfindingParams();
+        List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location, Params);
+        int Costs = Pathfinding.GetCostsForPath(Path, Params);
         int Remaining = UnitData.RemainingMovement;
         Color Color = Costs > Remaining || Costs < 0 ? ColorForbidden : ColorAllowed;
 

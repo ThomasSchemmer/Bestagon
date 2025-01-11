@@ -128,7 +128,8 @@ public class ReachVisualization : GameService
     private void AddReach(Location Location, bool bShouldUpdateBorders = true)
     {
         int Reach = (int)AttributeSet.Get()[AttributeType.BuildingReach].CurrentValue;
-        Set.UnionWith(Pathfinding.FindReachableLocationsFrom(Location, Reach, false));
+        Pathfinding.Parameters Params = new(true, false, false);
+        Set.UnionWith(Pathfinding.FindReachableLocationsFrom(Location, Reach, Params));
         if (!bShouldUpdateBorders)
             return;
 

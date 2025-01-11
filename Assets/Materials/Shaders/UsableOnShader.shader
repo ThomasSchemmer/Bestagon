@@ -100,7 +100,7 @@ Shader "Custom/UsableOnShader"
                 */
                 int x = round(uv.x * maxX - 0.5);
                 int y = round(1 - uv.y * maxY + 0.5);
-                int index = y * 2 + (int)(x / 2) * 4 + x % 2;
+                int index = y * 2 + (int)(x / 2.0) * 4 + x % 2u;
                 return index;
             }
 
@@ -112,7 +112,7 @@ Shader "Custom/UsableOnShader"
                 Type += 1;
                 // as we have a split uv map we need to wrap around
                 float u = Type >= 16 ? 0.505 : 0.005;
-                float v = (Type % 16) / 16.0;
+                float v = (Type % 16u) / 16.0;
                 float2 uv = float2(u, v);
                 float4 color = tex2D(_TypeTex, uv);
                 return color;

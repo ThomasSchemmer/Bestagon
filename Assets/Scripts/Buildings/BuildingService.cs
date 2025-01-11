@@ -162,7 +162,8 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     public void InitUnlockables()
     {
         UnlockableBuildings.AddCategory(BuildingConfig.CategoryMeadow, BuildingConfig.MaxIndex);
-        UnlockableBuildings.AddCategory(BuildingConfig.CategoryDesert, BuildingConfig.MaxIndex);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategoryDesertA, BuildingConfig.MaxIndex);
+        UnlockableBuildings.AddCategory(BuildingConfig.CategoryDesertB, BuildingConfig.MaxIndex);
         UnlockableBuildings.AddCategory(BuildingConfig.CategorySwamp, BuildingConfig.MaxIndex);
         UnlockableBuildings.AddCategory(BuildingConfig.CategoryIce, BuildingConfig.MaxIndex);
 

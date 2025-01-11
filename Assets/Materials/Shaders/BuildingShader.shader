@@ -87,5 +87,9 @@ Shader "Custom/BuildingShader"
         
         // shadow casting support
         UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
+
+        // depth passes
+        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
+        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
     }
 }

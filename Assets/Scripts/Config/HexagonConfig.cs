@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using static Pathfinding;
 
 public class HexagonConfig {
 
@@ -269,29 +270,43 @@ public class HexagonConfig {
         return Origin + Direction * d;
     }
 
-    public static int GetCostsFromTo(Location locationA, Location locationB, bool bTakeRawData = false)
+    /** 
+     * Returns the movement costs between two tiles
+     * @param bIsForLand: if true only land connection are valid, only water connections otherwise
+     * @param bTakeRawData: if true uses the raw map data directly and does not go through chunk vis
+     *      thats faster and does not require existing visualizations, but might not update
+     */
+    public static int GetCostsFromTo(Location locationA, Location locationB, Parameters Params)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return -1;
 
-        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA, bTakeRawData))
+        if (!MapGenerator.TryGetHexagonData(locationA, out HexagonData DataA, Params))
             return -1;
 
-        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB, bTakeRawData))
+        if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB, Params))
             return -1;
 
         if (DataB.IsMalaised())
             return -1;
 
-        int CostsA = GetTraversingCosts(DataA.Type);
-        int CostsB = GetTraversingCosts(DataB.Type);
+        int CostsA = GetTraversingCosts(DataA.Type, Params);
+        int CostsB = GetTraversingCosts(DataB.Type, Params);
         if (CostsA < 0 || CostsB < 0)
             return -1;
 
         return Mathf.CeilToInt((CostsA + CostsB) / 2.0f);
     }
 
-    public static int GetTraversingCosts(HexagonType Type)
+    public static int GetTraversingCosts(HexagonType Type, Parameters Params)
+    {
+        if (Params.bIsForLand)
+            return GetLandTraversingCosts(Type);
+
+        return GetOceanTraversingCosts(Type);
+    }
+
+    private static int GetLandTraversingCosts(HexagonType Type)
     {
         switch (Type)
         {
@@ -316,6 +331,25 @@ public class HexagonConfig {
         return -1;
     }
 
+    private static int GetOceanTraversingCosts(HexagonType Type)
+    {
+        switch (Type)
+        {
+            case HexagonType.Ocean:
+            case HexagonType.DeepOcean: return 1;
+            default: return -1;
+        }
+    }
+
+    public static bool IsOceanType(HexagonType Type)
+    {
+        switch (Type)
+        {
+            case HexagonType.Ocean:
+            case HexagonType.DeepOcean: return true;
+            default: return false;
+        }
+    }
 
     public static int GetMapPosFromLocation(Location Location)
     {

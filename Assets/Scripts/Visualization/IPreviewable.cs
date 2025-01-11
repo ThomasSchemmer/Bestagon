@@ -10,5 +10,5 @@ public interface IPreviewable
     public Quaternion GetRotation();
 
     /** Checks if the object is interactable with the passed in hex, will create warnings if not preview */
-    public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview);
+    public bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview);
 }

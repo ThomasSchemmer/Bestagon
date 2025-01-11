@@ -185,8 +185,9 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         if (!Stockpile.CanAfford(UnitOnTile.GetMovementRequirements()) || UnitOnTile.IsStarving(false))
             return;
 
-        List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location);
-        int PathCosts = Pathfinding.GetCostsForPath(Path);
+        var Params = UnitOnTile.GetPathfindingParams();
+        List<Location> Path = Pathfinding.FindPathFromTo(SelectedHex.Location, this.Location, Params);
+        int PathCosts = Pathfinding.GetCostsForPath(Path, Params);
         if (Path.Count == 0 || PathCosts > UnitOnTile.RemainingMovement)
             return;
 
@@ -195,7 +196,8 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         {
             if (!MapGenerator.TryGetHexagon(Path[i], out HexagonVisualization TargetHex))
                 return;
-            int StepCosts = HexagonConfig.GetCostsFromTo(Path[i - 1], Path[i]);
+
+            int StepCosts = HexagonConfig.GetCostsFromTo(Path[i - 1], Path[i], Params);
 
             TargetHex.InteractMoveUnit(UnitOnTile, StepCosts);
         }
@@ -241,8 +243,12 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         bool bIsVisible = Unit != null && bShow && bCanPay;
         int Range = Unit != null ? Unit.RemainingMovement : 0;
 
+        Pathfinding.Parameters Params = Unit != null ?
+            Unit.GetPathfindingParams() :
+            Pathfinding.Parameters.Standard;
+
         // check for each reachable tile if it should be highlighted
-        HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range);
+        HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range, Params);
 
         foreach (Location ReachableLocation in ReachableLocations) {
             if (!Generator.TryGetHexagon(ReachableLocation, out HexagonVisualization ReachableHex))
@@ -291,6 +297,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             Block.SetInt("_State", (int)Data.GetState());
             Block.SetFloat("_Type", HexagonConfig.MaskToInt((int)Data.Type, HexagonConfig.MaxTypeIndex + 1) + 1);
             Block.SetVector("_SourceLocation", Data.GetSourceLocationVector());
+            Block.SetInt("_Discovery", (int)Data.GetDiscoveryState());
         }
 
         Renderer.SetPropertyBlock(Block);

@@ -1,17 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Scout", menuName = "ScriptableObjects/Scout", order = 4)]
+[CreateAssetMenu(fileName = "Boat", menuName = "ScriptableObjects/Boat", order = 4)]
 [Serializable]
-/** 
- * Scout data, can be moved through the map to reveal new tiles and collect decorations
+/**
+ * Boat data, can be moved along the map but only on water
+ * Can also transports scouts
  */
-public class ScoutEntity : TokenizedUnitEntity
-{   
+public class BoatEntity : TokenizedUnitEntity
+{
     // only gets called once the scriptable object itself has been created!
-    public ScoutEntity() {
+    public BoatEntity()
+    {
         RemainingMovement = MovementPerTurn;
     }
 
@@ -19,14 +21,15 @@ public class ScoutEntity : TokenizedUnitEntity
     {
         base.Init();
         SetName(GetPrefabName() + " " + ID);
-        ID = MAX_SCOUT_ID++;
+        ID = MAX_BOAT_ID++;
         SetLocation(Location.Zero.ToSet());
     }
 
     public override string GetPrefabName()
     {
-        return "Scout";
+        return "Boat";
     }
+
     public override string GetName()
     {
         return Name.Replace(" ", "");
@@ -47,22 +50,7 @@ public class ScoutEntity : TokenizedUnitEntity
 
     public override Production GetMovementRequirements()
     {
-        Production Requirements = Production.Empty;
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return Requirements;
-
-        if (!MapGenerator.TryGetHexagonData(Location, out HexagonData HexData))
-            return Requirements;
-
-        switch (HexData.Type)
-        {
-            case HexagonConfig.HexagonType.Desert:
-            case HexagonConfig.HexagonType.Savanna:
-                Requirements += new Production(Production.Type.WaterSkins, 1);
-                break;
-        }
-
-        return Requirements;
+        return Production.Empty;
     }
 
     public override Vector3 GetOffset()
@@ -77,8 +65,7 @@ public class ScoutEntity : TokenizedUnitEntity
 
     protected override int GetFoodConsumption()
     {
-        AttributeSet Attributes = AttributeSet.Get();
-        return (int)Attributes[AttributeType.ScoutFoodConsumption].CurrentValue;
+        return 1;
     }
 
     public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
@@ -86,11 +73,11 @@ public class ScoutEntity : TokenizedUnitEntity
         if (!base.IsInteractableWith(Hex, bIsPreview))
             return false;
 
-        if (Hex.Data.HexHeight < HexagonConfig.HexagonHeight.Flat || Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Hill)
+        if (Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Sea)
         {
             if (!bIsPreview)
             {
-                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on Mountains or in the ocean");
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Can only place in the ocean");
             }
             return false;
         }
@@ -100,17 +87,12 @@ public class ScoutEntity : TokenizedUnitEntity
 
     public override int GetTargetMeshIndex()
     {
-        return HasDog() ? 1 : 0;
-    }
-
-    public bool HasDog()
-    {
-        return AttributeSet.Get()[AttributeType.ScoutDogAmount].CurrentValue > 0;
+        return 0;
     }
 
     public override Pathfinding.Parameters GetPathfindingParams()
     {
-        return Pathfinding.Parameters.Standard;
+        return new(false, true, false);
     }
 
     [SaveableBaseType]
@@ -121,5 +103,5 @@ public class ScoutEntity : TokenizedUnitEntity
     public int ID = 0;
 
     public static int MAX_NAME_LENGTH = 10;
-    public static int MAX_SCOUT_ID = 0;
+    public static int MAX_BOAT_ID = 0;
 }

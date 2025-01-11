@@ -20,7 +20,7 @@ public abstract class CardPreview : MonoBehaviour
 
     protected void SetAllowed(HexagonVisualization Hex)
     {
-        SetAllowed(Previewable.IsPreviewInteractableWith(Hex, true));
+        SetAllowed(Previewable.IsInteractableWith(Hex, true));
     }
 
     protected abstract void SetAllowed(bool bIsAllowed);

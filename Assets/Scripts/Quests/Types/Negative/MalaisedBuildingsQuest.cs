@@ -65,11 +65,12 @@ public class MalaisedBuildingsQuest : Quest<BuildingEntity>
             return;
 
         int Distance = 6;
-        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.GetLocations().GetMainLocation(), Distance);
+        Pathfinding.Parameters Params = new(true, true, false);
+        HashSet<Location> Locations = Pathfinding.FindReachableLocationsFrom(Scout.GetLocations().GetMainLocation(), Distance, Params);
         HexagonData Target = null;
         foreach (Location Location in Locations)
         {
-            var Path = Pathfinding.FindPathFromTo(Scout.GetLocations().GetMainLocation(), Location);
+            var Path = Pathfinding.FindPathFromTo(Scout.GetLocations().GetMainLocation(), Location, Params);
             if (Path.Count < Distance - 1)
                 continue;
 

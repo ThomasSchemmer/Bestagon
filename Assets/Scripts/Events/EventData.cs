@@ -81,5 +81,5 @@ public abstract class EventData : ScriptableObject, IPreviewable
 
     public abstract Vector3 GetOffset();
     public abstract Quaternion GetRotation();
-    public abstract bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview);
+    public abstract bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview);
 }

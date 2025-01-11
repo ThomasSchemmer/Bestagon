@@ -10,7 +10,6 @@
  * - Desaturation (to make tokens more visible)
  * - Shadows
 
- * Note: Ignore syntax errors in VisualStudio, it doesn't like shaders :(
 */
 
 Shader"Custom/HexagonShader"
@@ -95,14 +94,7 @@ Shader"Custom/HexagonShader"
     SubShader
     {
         LOD 100
-        
-        // do not render if a building/unit/.. is at this pixel
-        // otherwise they will be hidden in trees etc
-        Stencil{
-            Ref 1
-            Comp Greater
-        }
-        
+                
         /************************ BEGIN HEX SHADER *************************/
         
         Tags { "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "Queue"="Geometry" "LightMode" = "UniversalForward"}
@@ -168,18 +160,22 @@ Shader"Custom/HexagonShader"
             SAMPLER(_NoiseTex);
             SAMPLER(_BrushNormalTex);
 
-            // each hexagon mesh sets these values for itself, todo: should be bitmask
-            // hexes can be at the same time
-            // selected and pre malaised and AoE affected
+            // each hexagon mesh sets these values for itself
+            // hexes can be at the same time selected and pre malaised and AoE affected
             UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float, _Type)
                 UNITY_DEFINE_INSTANCED_PROP(uint, _State)
+                UNITY_DEFINE_INSTANCED_PROP(uint, _Discovery)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _SourceLocation)
-
             UNITY_INSTANCING_BUFFER_END(Props)
 
+            inline bool IsVisited() {
+                // can be check in HexagonData.DiscoveryState
+                return _Discovery == 2;
+            }
+
             inline bool IsWater(){
-                // ocean value can be checked in hexagonconfig, currently 4
+                // ocean values can be checked in hexagonconfig
                 return _Type == 4 || _Type == 16;
             }
 
@@ -227,7 +223,7 @@ Shader"Custom/HexagonShader"
             }
 
             float3 HandleWaterDisplacement(float3 vertex, float2 uv){
-                if (!IsWater() || IsBorder(uv) || IsDecoration(uv))
+                if (!IsWater() || IsBorder(uv) || IsDecoration(uv) || !IsVisited())
                     return vertex;
                     
                 // displace ocean decoration vertices by their world location and time to create waves
@@ -461,105 +457,14 @@ Shader"Custom/HexagonShader"
             }
             ENDHLSL
         }
+        
+        /************************ END HEX SHADER *************************/
 
         // shadow casting support
         UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
 
-        /************************ END HEX SHADER *************************/
-        
-        /************************ START DEPTH / NORMAL SHADER *************************/
-        /** 
-        * Taken from Lit.shader, just to force the depth prepass to also render the hexes
-        * Thanks to BGolus
-        */
-        Pass
-        {
-            Name "DepthOnly"
-            Tags
-            {
-                "LightMode" = "DepthOnly"
-            }
-
-            // -------------------------------------
-            // Render State Commands
-            ZWrite On
-            ColorMask R
-
-            HLSLPROGRAM
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Shader Stages
-            #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
-
-            // -------------------------------------
-            // Material Keywords
-            #pragma shader_feature_local _ALPHATEST_ON
-            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            // -------------------------------------
-            // Includes
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
-            ENDHLSL
-        }
-
-        // This pass is used when drawing to a _CameraNormalsTexture texture
-        Pass
-        {
-            Name "DepthNormals"
-            Tags
-            {
-                "LightMode" = "DepthNormals"
-            }
-
-            // -------------------------------------
-            // Render State Commands
-            ZWrite On
-
-            HLSLPROGRAM
-            #pragma target 2.0
-
-            // -------------------------------------
-            // Shader Stages
-            #pragma vertex DepthNormalsVertex
-            #pragma fragment DepthNormalsFragment
-
-            // -------------------------------------
-            // Material Keywords
-            #pragma shader_feature_local _NORMALMAP
-            #pragma shader_feature_local _PARALLAXMAP
-            #pragma shader_feature_local _ _DETAIL_MULX2 _DETAIL_SCALED
-            #pragma shader_feature_local_fragment _ALPHATEST_ON
-            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-
-            // -------------------------------------
-            // Unity defined keywords
-            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-
-            // -------------------------------------
-            // Universal Pipeline keywords
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
-
-            //--------------------------------------
-            // GPU Instancing
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            // -------------------------------------
-            // Includes
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
-            ENDHLSL
-        }
-        
-        /************************ END DEPTH / NORMAL SHADER *************************/
+        // depth passes
+        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
+        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
     }
 }

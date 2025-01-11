@@ -151,7 +151,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         return false;
     }
 
-    public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         throw new NotImplementedException();
     }

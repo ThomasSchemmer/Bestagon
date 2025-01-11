@@ -13,16 +13,18 @@ using UnityEngine.Assertions;
 public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, ITokenized
 {
     public abstract string GetPrefabName();
+    public abstract string GetName();
 
     public int GetMovementCostTo(Location ToLocation)
     {
-        List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation);
-        return Pathfinding.GetCostsForPath(Path);
+        var Params = GetPathfindingParams();
+        List<Location> Path = Pathfinding.FindPathFromTo(Location, ToLocation, Params);
+        return Pathfinding.GetCostsForPath(Path, Params);
     }
 
     public void MoveTo(Location Location, int Costs)
     {
-        List<Location> Path = Pathfinding.FindPathFromTo(this.Location, Location);
+        List<Location> Path = Pathfinding.FindPathFromTo(this.Location, Location, GetPathfindingParams());
 
         Location OldLocation = this.Location;
         this.Location = Location;
@@ -81,14 +83,37 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
 
     public abstract Quaternion GetRotation();
 
-    public abstract bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview);
+    public abstract Pathfinding.Parameters GetPathfindingParams();
+
+    public virtual bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    {
+
+        if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
+        {
+            if (!bIsPreview)
+            {
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Can only place on scouted tiles");
+            }
+            return false;
+        }
+
+        if (Hex.Data.IsMalaised())
+        {
+            if (!bIsPreview)
+            {
+                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on corrupted tiles");
+            }
+            return false;
+        }
+        return true; 
+    }
 
     public override bool TryInteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetServices(out Units Units, out MapGenerator MapGenerator))
             return false;
 
-        if (!IsPreviewInteractableWith(Hex, false))
+        if (!IsInteractableWith(Hex, false))
             return false;
 
         if (Units.IsEntityAt(Hex.Location))

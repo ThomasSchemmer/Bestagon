@@ -118,5 +118,9 @@ Shader"Custom/BackgroundShader"
 }
             ENDCG
         }
+
+        // depth passes
+        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
+        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
     }
 }

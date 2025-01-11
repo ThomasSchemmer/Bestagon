@@ -43,5 +43,8 @@ Shader "Custom/Unlit"
             }
             ENDCG
         }
+        // depth passes
+        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
+        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
     }
 }

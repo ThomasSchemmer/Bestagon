@@ -50,7 +50,7 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
         int Count = 0;
         foreach (var Unit in Entities)
         {
-            if (Unit is not ScoutEntity)
+            if (Unit == null)
                 continue;
 
             if (!Unit.HasRemainingMovement())
@@ -66,7 +66,7 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
         int Count = 0;
         foreach (var Unit in Entities)
         {
-            if (Unit is not ScoutEntity)
+            if (Unit == null)
                 continue;
 
             Count++;

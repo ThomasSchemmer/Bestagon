@@ -65,7 +65,7 @@ public class GrantResourceEventData : EventData
         return Quaternion.identity;
     }
 
-    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
         {

@@ -13,7 +13,8 @@ public abstract class UnitEntity : ScriptableEntity
     public enum UType
     {
         Worker,
-        Scout
+        Scout,
+        Boat
     }
 
     [SaveableEnum]

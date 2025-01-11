@@ -10,7 +10,7 @@ public class RemoveMalaiseEventData : EventData
         Type = EventType.RemoveMalaise;
     }
 
-    public override bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         if (!Hex.Data.IsAnyMalaised())
         {

@@ -18,9 +18,11 @@ public class UnitPathScreenFeature : ScreenFeature<UnitEntity>
         base.ShowAt(YOffset);
 
         TokenizedUnitEntity Unit = GetTargetAsTokenized();
+        var Params = Unit.GetPathfindingParams();
+
         TryGetHexagons(out HexagonVisualization StartHex, out HexagonVisualization TargetHex);
-        List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location);
-        List<Location> AffordablePath = Pathfinding.GetAffordableSubPath(Path, Unit.RemainingMovement);
+        List<Location> Path = Pathfinding.FindPathFromTo(StartHex.Location, TargetHex.Location, Params);
+        List<Location> AffordablePath = Pathfinding.GetAffordableSubPath(Path, Unit.RemainingMovement, Params);
 
         Vector3[] WorldPositions = new Vector3[AffordablePath.Count];
         for (int i = 0; i < AffordablePath.Count; i++)

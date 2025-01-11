@@ -46,7 +46,8 @@ public class IconFactory : GameService
         TripleLineTile,
         TripleCircleTile,
         Sacrifice,
-        Offering
+        Offering,
+        Boat
     }
 
     public void Refresh()
@@ -461,6 +462,7 @@ public class IconFactory : GameService
         {
             case UnitEntity.UType.Worker: MiscType = MiscellaneousType.Worker; return true;
             case UnitEntity.UType.Scout: MiscType = MiscellaneousType.Scout; return true;
+            case UnitEntity.UType.Boat: MiscType = MiscellaneousType.Boat; return true;
             default: MiscType = MiscellaneousType.Worker; return false;
         }
     }

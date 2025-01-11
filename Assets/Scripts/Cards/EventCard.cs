@@ -80,7 +80,7 @@ public class EventCard : Card
 
     public override bool IsCardInteractableWith(HexagonVisualization Hex)
     {
-        return EventData.IsPreviewInteractableWith(Hex, false);
+        return EventData.IsInteractableWith(Hex, false);
     }
 
     public override void InteractWith(HexagonVisualization Hex) {

@@ -139,11 +139,14 @@ Shader"Custom/UnitShader"
             ENDHLSL
         }
 
+        /************************ END UNIT SHADER *************************/
+        
         // shadow casting support
         UsePass"Legacy Shaders/VertexLit/SHADOWCASTER"
 
-        /************************ END UNIT SHADER *************************/
-
+        // depth passes
+        UsePass "Universal Render Pipeline/Lit/DEPTHONLY"
+        UsePass "Universal Render Pipeline/Lit/DEPTHNORMALS"
         
     }
 }

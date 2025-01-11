@@ -103,7 +103,8 @@ public class Map : SaveableService
     {
         Location StartLocation = Location.CreateFromVector(SpawnSystem.StartLocation);
         MapData = WorldGenerator.NoiseLand(true, Seed);
-        var ReachableLocations = Pathfinding.FindReachableLocationsFrom(StartLocation, SpawnSystem.StartScoutingRange + 2, true, true);
+        Pathfinding.Parameters Params = new(true, true, true);
+        var ReachableLocations = Pathfinding.FindReachableLocationsFrom(StartLocation, SpawnSystem.StartScoutingRange + 2, Params);
         Seeds.Enqueue(ReachableLocations.Count, Seed);
         LocationsCount = ReachableLocations.Count;
         return LocationsCount >= MinimumReachableTiles;

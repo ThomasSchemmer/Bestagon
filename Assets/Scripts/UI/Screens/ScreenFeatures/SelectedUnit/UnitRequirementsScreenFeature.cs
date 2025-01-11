@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/** Displays the resources the unit requires to move, e.g. waterskins for a scout in a desert */
 public class UnitRequirementsScreenFeature : ScreenFeature<UnitEntity>
 {
 
@@ -17,35 +18,35 @@ public class UnitRequirementsScreenFeature : ScreenFeature<UnitEntity>
 
     public override bool ShouldBeDisplayed()
     {
-        ScoutEntity Scout = GetFeatureObjectAsScout();
-        if (Scout == null)
+        TokenizedUnitEntity ScoutTokenized = GetFeatureObjectAsTokenized();
+        if (ScoutTokenized == null)
             return false;
 
-        if (Scout.GetMovementRequirements().IsEmpty())
+        if (ScoutTokenized.GetMovementRequirements().IsEmpty())
             return false;
 
-        if (!Game.TryGetService(out IconFactory IconFactory))
+        if (!Game.TryGetService(out IconFactory _))
             return false;
 
         return true;
     }
 
-    private ScoutEntity GetFeatureObjectAsScout()
+    private TokenizedUnitEntity GetFeatureObjectAsTokenized()
     {
-        return (ScoutEntity)Target.GetFeatureObject();
+        return (TokenizedUnitEntity)Target.GetFeatureObject();
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        ScoutEntity Scout = GetFeatureObjectAsScout();
+        TokenizedUnitEntity Tokenized = GetFeatureObjectAsTokenized();
         Game.TryGetService(out IconFactory IconFactory);
 
         TextRect.gameObject.SetActive(true);
         ProductionRect.gameObject.SetActive(true);
         Cleanup();
 
-        Production Production = Scout.GetMovementRequirements();
+        Production Production = Tokenized.GetMovementRequirements();
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, true);
         Visuals.transform.SetParent(ProductionRect, false);
     }

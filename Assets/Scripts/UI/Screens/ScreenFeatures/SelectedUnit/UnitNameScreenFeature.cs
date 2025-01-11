@@ -2,23 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/** Displays the name of the currently selected unit */
 public class UnitNameScreenFeature : ScreenFeature<UnitEntity>
 {
     public override bool ShouldBeDisplayed()
     {
-        return GetFeatureObjectAsScout() != null;
+        return GetFeatureObjectAsToken() != null;
     }
 
-    private ScoutEntity GetFeatureObjectAsScout()
+    private TokenizedUnitEntity GetFeatureObjectAsToken()
     {
-        return (ScoutEntity)Target.GetFeatureObject();
+        return (TokenizedUnitEntity)Target.GetFeatureObject();
     }
 
     public override void ShowAt(float YOffset)
     {
         base.ShowAt(YOffset);
-        ScoutEntity SelectedUnit = GetFeatureObjectAsScout();
-        TargetText.text = SelectedUnit.GetName();
+        TokenizedUnitEntity TokenizedUnit = GetFeatureObjectAsToken();
+        TargetText.text = TokenizedUnit.GetName();
     }
 
     public override void Hide()

@@ -19,8 +19,13 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     [SaveableBaseType]
     [SerializeField]
     protected int MaxWorker = 1;
+
     [SaveableEnum]
     public HexagonConfig.HexagonType BuildableOn = 0;
+    [SaveableEnum]
+    public HexagonConfig.HexagonType ExtendableOn = 0;
+
+
     [HideInInspector]
     [SaveableBaseType]
     public int CurrentUsages = 1;
@@ -66,7 +71,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return Quaternion.Euler(0, 180 + Angle * 60, 0);
     }
 
-    public bool IsPreviewInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
         // ignore the preview parameter, as the error messages are only created in the BuildingCard
         return CanBeBuildOn(Hex, true, out string _);
@@ -137,9 +142,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             return false;
         }
 
+        int i = 0;
         foreach (Location Location in NewLocations)
         {
-            if (!CanBeBuildOn(Location, bShouldCheckCosts, out Reason))
+            bool bIsExtendedLocation = i > 0;
+            i++;
+            if (!CanBeBuildOn(Location, bIsExtendedLocation, out Reason))
                 return false;
         }
 
@@ -165,7 +173,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return true;
     }
 
-    private bool CanBeBuildOn(Location Location, bool bShouldCheckCosts, out string Reason)
+    private bool CanBeBuildOn(Location Location, bool bIsExtendedLocation, out string Reason)
     {
         Reason = "Invalid";
         if (!Game.TryGetService(out MapGenerator MapGenerator))
@@ -177,7 +185,10 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             return false;
         }
 
-        if (!BuildableOn.HasFlag(Hex.Type))
+        bool bHasExtendedTypes = (int)ExtendableOn != 0 && bIsExtendedLocation;
+        HexagonConfig.HexagonType FoundTypes = bHasExtendedTypes ? ExtendableOn : BuildableOn;
+
+        if (!FoundTypes.HasFlag(Hex.Type))
         {
             Reason = "not buildable on " + Hex.Type;
             return false;
