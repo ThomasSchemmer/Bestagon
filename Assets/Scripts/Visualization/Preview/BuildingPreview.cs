@@ -56,6 +56,11 @@ public class BuildingPreview : MeshPreview
         if (!Input.GetKeyDown(KeyCode.R))
             return;
 
+        RotatePreview();
+    }
+
+    public void RotatePreview()
+    {
         BuildingEntity PreviewEntity = GetPreviewableAs<BuildingEntity>();
         if (PreviewEntity == null)
             return;
@@ -69,6 +74,18 @@ public class BuildingPreview : MeshPreview
             return;
 
         Selectors.ReHoverHexagon();
+    }
+
+    public void OnDestroy()
+    {
+        BuildingEntity PreviewEntity = GetPreviewableAs<BuildingEntity>();
+        if (PreviewEntity == null)
+            return;
+
+        if (PreviewEntity.Area == LocationSet.AreaSize.Single)
+            return;
+
+        PreviewEntity.SetAngle(0);
     }
 
 }

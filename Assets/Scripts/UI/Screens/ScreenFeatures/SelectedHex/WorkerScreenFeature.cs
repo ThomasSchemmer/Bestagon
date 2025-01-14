@@ -32,11 +32,11 @@ public class WorkerScreenFeature : ScreenFeature<HexagonData>
     }
 
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        float Height = GetHeight();
-        YOffset += Height / 2.0f;
-        base.ShowAt(YOffset);
+        // worker symbolds should be reaching over the UI edge
+        YOffset += Height / 2f;
+        base.ShowAt(YOffset, Height);
 
         DeleteWorkerVisuals();
         SetConditionalPadding(Height);

@@ -81,6 +81,29 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         Filter.mesh = Mesh;
     }
 
+    private void HighlightBuildingLocations(bool Selected)
+    {
+        if (!Game.TryGetServices(out BuildingService Buildings, out MapGenerator MapGen))
+            return;
+
+        if (!Buildings.TryGetEntityAt(Location, out var Building))
+            return;
+
+        LocationSet Set = Building.GetLocations();
+        foreach (var Location in Set)
+        {
+            if (Location.Equals(this.Location))
+                continue;
+
+            if (!MapGen.TryGetHexagon(Location, out var OtherHexVis))
+                continue;
+
+            // never show reachable locations from other neighbour, and suppress recursion call
+            // with "initialising"
+            OtherHexVis.SetSelected(Selected, false, true);
+        }
+    }
+
     public void SetSelected(bool Selected, bool bShowReachableLocations, bool bIsInitializing = false) {
         Data.SetState(HexagonData.State.Selected, Selected);
         VisualizeSelection();
@@ -91,6 +114,8 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         // UpdatePreview doesn't need to be spammed
         if (bIsInitializing)
             return;
+
+        HighlightBuildingLocations(Selected);
 
         if (!Game.TryGetService(out PreviewSystem Preview))
             return;

@@ -109,6 +109,30 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
 
     protected override void StopServiceInternal() { }
 
+    public override void CreateNewEntity(int EntityCode, LocationSet Location)
+    {
+        UnitEntity.UType Code = (UnitEntity.UType)EntityCode;
+        if (!Game.TryGetServices(out MeshFactory MeshFactory, out MapGenerator MapGen))
+            return;
+
+        if (!MapGen.TryGetHexagon(Location.GetMainLocation(), out var Hex))
+            return;
+
+        var Unit = MeshFactory.CreateDataFromType(Code);
+        var TUnit = Unit as TokenizedUnitEntity;
+        if (!Unit.TryInteractWith(Hex) || TUnit == null)
+        {
+            Destroy(Unit);
+            return;
+        }
+
+        TUnit.Init();
+        TUnit.MoveTo(Hex.Location, 0);
+        TUnit.Refresh();
+
+        AddUnit(TUnit);
+    }
+
     public delegate void OnUnitCountChanged();
     public static event OnUnitCountChanged _OnUnitCountChanged;
     public static ActionList<TokenizedUnitEntity> _OnUnitMoved = new();

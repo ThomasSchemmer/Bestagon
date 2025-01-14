@@ -25,9 +25,9 @@ public class BuildingTypeScreenFeature : ScreenFeature<HexagonData>
         return true;
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
 
         TryGetBuilding(out BuildingEntity BuildingData);
         TargetText.text = BuildingData.BuildingType.ToString();

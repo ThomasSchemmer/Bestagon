@@ -77,7 +77,7 @@ public class TutorialAbandonRunQuest : Quest<int>
         CardFactory.CreateCard(EventData.EventType.GrantUnit, 0, null, AddCard);
 
         Stockpile.AddResources(new(Production.Type.Wood, 3));
-        Workers.CreateNewWorker();
+        Workers.CreateNewEntity((int)UnitEntity.UType.Worker, null);
     }
     private void AddCard(Card Card)
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 /** Provides functionality to query entities based on their location */
-public class TokenizedEntityProvider<T> : EntityProvider<T> where T : ScriptableEntity, ITokenized
+public abstract class TokenizedEntityProvider<T> : EntityProvider<T> where T : ScriptableEntity, ITokenized
 {
     public bool TryGetEntityAt(Location Location, out T Entity)
     {

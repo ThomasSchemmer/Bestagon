@@ -14,6 +14,7 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
 {
     public abstract string GetPrefabName();
     public abstract string GetName();
+    protected abstract bool TryGetMovementAttribute(out AttributeType Type);
 
     public int GetMovementCostTo(Location ToLocation)
     {
@@ -76,7 +77,9 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
             return;
 
         base.Refresh();
-        RemainingMovement = (int)PlayerAttributes[AttributeType.ScoutMovementRange].CurrentValue;
+        RemainingMovement = TryGetMovementAttribute(out var Type) ?
+            (int)PlayerAttributes[Type].CurrentValue :
+            MovementPerTurn;
     }
 
     public abstract Vector3 GetOffset();
@@ -122,12 +125,6 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
             return false;
         }
 
-        Init();
-        Units.AddUnit(this);
-
-        MoveTo(Hex.Location, 0);
-
-        Refresh();
         return true;
     }
 

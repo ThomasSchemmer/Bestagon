@@ -25,7 +25,7 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
         return true;
     }
 
-    public void ProduceWorkers()
+    public void ProduceUnits()
     {
         if (!Game.TryGetServices(out BuildingService BuildingService, out Workers WorkerService))
             return;
@@ -37,12 +37,23 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
             if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.ProduceUnit)
                 continue;
 
-            if (Building.GetWorkingWorkerCount(false) != 2)
+            if (!Building.Effect.CanProduceUnit(false))
                 continue;
 
-            Building.RequestRemoveWorkerAt(0);
-            Building.RequestRemoveWorkerAt(1);
-            WorkerService.CreateNewWorker();
+            Production Cost = Building.Effect.GetUnitProductionCost(false);
+            if (!CanAfford(Cost))
+                continue;
+
+            if (!Pay(Cost))
+                continue;
+
+            Building.Effect.ProduceUnit();
+
+            int MaxWorker = Building.GetMaximumWorkerCount();
+            for (int i = 0; i < MaxWorker; i++)
+            {
+                Building.RequestRemoveWorkerAt(i);
+            }
         }
     }
     
@@ -106,6 +117,7 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
     public void AddResources(Production Production)
     {
         Resources += Production;
+        SimulatedResources += Production;
         _OnResourcesChanged?.Invoke();
     }
 

@@ -13,9 +13,9 @@ public class CorruptionScreenFeature : ScreenFeature<HexagonData>
         return SelectedHex.IsMalaised() || SelectedHex.IsPreMalaised();
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         HexagonData Hex = Target.GetFeatureObject();
         TargetText.text =
             Hex.GetState(HexagonData.State.PreMalaised) ? "Will be corrupted" :

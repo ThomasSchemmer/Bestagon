@@ -12,9 +12,9 @@ public class UnitMovementScreenFeature : ScreenFeature<UnitEntity>
         return Unit != null && TryGetHexagons(out HexagonVisualization _, out HexagonVisualization _);
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         Game.TryGetService(out Selectors Selectors);
         TokenizedUnitEntity UnitData = GetTargetAsTokenized();
 

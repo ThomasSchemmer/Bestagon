@@ -185,12 +185,16 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
             return false;
         }
 
-        bool bHasExtendedTypes = (int)ExtendableOn != 0 && bIsExtendedLocation;
-        HexagonConfig.HexagonType FoundTypes = bHasExtendedTypes ? ExtendableOn : BuildableOn;
-
-        if (!FoundTypes.HasFlag(Hex.Type))
+        if (!bIsExtendedLocation && !BuildableOn.HasFlag(Hex.Type))
         {
             Reason = "not buildable on " + Hex.Type;
+            return false;
+        }
+
+        bool bHasExtendedTypes = (int)ExtendableOn != 0 && bIsExtendedLocation;
+        if (bHasExtendedTypes && !ExtendableOn.HasFlag(Hex.Type))
+        {
+            Reason = "non-start tiles have to be built on " + ExtendableOn;
             return false;
         }
 

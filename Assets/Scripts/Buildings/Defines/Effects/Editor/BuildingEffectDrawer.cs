@@ -59,9 +59,11 @@ public class BuildingEffectDrawer : PropertyDrawer
 
     private void PrintYieldProduceUnit(Rect Position, SerializedProperty Property, GUIContent Label)
     {
+        SerializedProperty ConsumptionProperty = Property.FindPropertyRelative("Consumption");
         SerializedProperty UnitProp = Property.FindPropertyRelative("UnitType");
 
         EditorGUILayout.BeginVertical("window");
+        EditorGUILayout.PropertyField(ConsumptionProperty);
         string[] Units = Enum.GetNames(typeof(UnitEntity.UType));
         EditorGUI.BeginProperty(Position, Label, UnitProp);
         UnitProp.intValue = EditorGUILayout.Popup(

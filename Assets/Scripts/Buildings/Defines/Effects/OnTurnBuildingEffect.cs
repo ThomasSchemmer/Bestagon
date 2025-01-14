@@ -38,6 +38,7 @@ public class OnTurnBuildingEffect : Effect
         this.Building = Building;
     }
 
+    /** Has to be provided Location instead of using building location, as preview might not work*/
     public Production GetProduction(int Worker, LocationSet Location, bool bIsSimulated)
     {
         switch(EffectType)
@@ -45,8 +46,10 @@ public class OnTurnBuildingEffect : Effect
             case Type.Produce:
                 return GetProductionAt(Worker, Location);
             case Type.ConsumeProduce:
-                return GetConsumeProductionAt(Worker, Location, bIsSimulated);
-            // ProduceUnit is handled on its own
+                return GetConsumeProductionAt(Worker, bIsSimulated);
+            // ProduceUnit is handled on its own as well
+            case Type.ProduceUnit:
+                return GetUnitProductionCost(bIsSimulated);
             default: return new();
         }
     }
@@ -74,7 +77,7 @@ public class OnTurnBuildingEffect : Effect
         return Production * Worker;
     }
 
-    private Production GetConsumeProductionAt(int Worker, LocationSet Location, bool bIsSimulated)
+    private Production GetConsumeProductionAt(int Worker, bool bIsSimulated)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
             return new();
@@ -94,6 +97,68 @@ public class OnTurnBuildingEffect : Effect
         Production Combined = MaxAmount * Production;
         Combined -= MaxAmount * Consumption;
         return Combined;
+    }
+
+    public Production GetUnitProductionCost(bool bIsSimulated)
+    {
+        return CanProduceUnit(bIsSimulated) ? Consumption : Production.Empty;
+    }
+
+    public void ProduceUnit()
+    {
+        EntityProvider Provider = GetUnitProvider();
+        Provider.CreateNewEntity((int)UnitType, GetUnitSpawnLocation());
+    }
+
+    private LocationSet GetUnitSpawnLocation()
+    {
+        if (this.EffectType != Type.ProduceUnit)
+            return null;
+
+        if (Building.ExtendableOn != 0)
+        {
+            return Building.GetLocations().GetExtendedLocation().ToSet();
+        }
+        return Building.GetLocations();
+    }
+
+    private EntityProvider GetUnitProvider()
+    {
+        switch (UnitType)
+        {
+            case UnitEntity.UType.Worker: return Game.GetService<Workers>();
+            case UnitEntity.UType.Scout:
+            case UnitEntity.UType.Boat: return Game.GetService<Units>();
+            default: return null;
+        }
+    }
+
+    public bool CanProduceUnit(bool bIsSimulated)
+    {
+        if (!Game.TryGetService(out Stockpile Stockpile) || Building == null)
+            return false;
+
+        Production Resources = bIsSimulated ? Stockpile.SimulatedResources : Stockpile.Resources;
+
+        // can only ever produce one per turn
+        int Worker = Building.GetWorkingWorkerCount(bIsSimulated);
+        int MaxAmount = Worker == Building.GetMaximumWorkerCount() ? 1 : 0;
+        foreach (var Tuple in Consumption.GetTuples())
+        {
+            if (Tuple.Value == 0)
+                continue;
+
+            int Amount = Mathf.Max(Resources[Tuple.Key], 0) / Consumption[Tuple.Key];
+            MaxAmount = Mathf.Min(Amount, MaxAmount);
+        }
+        if (MaxAmount == 0)
+            return false;
+
+        if (!Game.TryGetService(out Units Units))
+            return false;
+
+        var Location = GetUnitSpawnLocation();
+        return !Units.IsEntityAt(Location);
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

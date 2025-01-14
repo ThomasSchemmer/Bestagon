@@ -8,7 +8,17 @@ using UnityEngine;
  * Useful for shared saving/loading
  */
 // todo: save spatially effient, either chunks or quadtree etc
-public class EntityProvider<T> : SaveableService, IQuestRegister<T> where T : ScriptableEntity
+public abstract class EntityProvider : SaveableService
+{
+    protected override void StartServiceInternal() { }
+    protected override void StopServiceInternal() { }
+
+    // has to be int as all flags are 32 bit
+    public abstract void CreateNewEntity(int EntityCode, LocationSet Location);
+
+}
+
+public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> where T : ScriptableEntity
 {
 
     [SaveableList]
@@ -93,10 +103,6 @@ public class EntityProvider<T> : SaveableService, IQuestRegister<T> where T : Sc
 
         return false;
     }
-
-
-    protected override void StartServiceInternal() { }
-    protected override void StopServiceInternal() { }
 
     public static ActionList<T> _OnEntityCreated = new();
 }

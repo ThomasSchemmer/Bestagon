@@ -88,7 +88,7 @@ public class Turn : GameService, IQuestRegister<int>
         MalaisedEntity = null;
         MessageSystemScreen.DeleteAllMessages();
         Stockpile.GenerateResources();
-        Stockpile.ProduceWorkers();
+        Stockpile.ProduceUnits();
         TurnNr++;
         Units.RefreshEntities();
         MoveCards();

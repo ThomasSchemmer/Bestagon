@@ -139,7 +139,7 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
 
             float CurrentHeight = Feature.GetHeight();
             YOffset = YOffset - OffsetBetweenElements - PrevHeight / 2.0f - CurrentHeight / 2.0f;
-            Feature.ShowAt(YOffset);
+            Feature.ShowAt(YOffset, CurrentHeight);
             PrevHeight = CurrentHeight;
         }
     }

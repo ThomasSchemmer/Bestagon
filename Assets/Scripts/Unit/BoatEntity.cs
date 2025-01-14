@@ -95,6 +95,12 @@ public class BoatEntity : TokenizedUnitEntity
         return new(false, true, false);
     }
 
+    protected override bool TryGetMovementAttribute(out AttributeType Type)
+    {
+        Type = default;
+        return false;
+    }
+
     [SaveableBaseType]
     [HideInInspector]
     public string Name;

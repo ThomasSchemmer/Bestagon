@@ -341,7 +341,7 @@ public class CollectDecorationScreen : CollectChoiceScreen
         Image.sprite = IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Sacrifice);
 
         Transform CostContainer = TargetContainer.GetChild(0).GetChild(3);
-        GameObject Costs = IconFactory.GetVisualsForWorkerCost(GetWorkerCostsForChoice(1), null, true);
+        GameObject Costs = IconFactory.GetVisualsForWorkerCost(null, true);
         Costs.transform.SetParent(CostContainer, false);
 
         TMPro.TextMeshProUGUI ButtonText = TargetContainer.GetChild(0).GetChild(4).GetChild(0).GetComponent<TMPro.TextMeshProUGUI>();

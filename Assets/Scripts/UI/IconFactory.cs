@@ -231,11 +231,16 @@ public class IconFactory : GameService
         return AvailableBuildingTypes[Type];
     }
 
-    private void SetTransformByGroup(int WidthPerElement, int ElementCount, out Vector2 Size, out Vector2 Position, out float Offset)
+    private void SetTypeTransform(int WidthPerElement, int ElementCount, out Vector2 Size, out Vector2 Position)
     {
         Size = new(WidthPerElement * ElementCount, 30);
         Position = new Vector2(Size.x / 2f, 0);
-        Offset = (ElementCount % 2) == 0 ? -WidthPerElement / 2f : 0;
+    }
+
+    private void SetProductionTransform(int WidthPerElement, int ElementCount, out Vector2 Size, out Vector2 Position)
+    {
+        Size = new(WidthPerElement * ElementCount, 30);
+        Position = new Vector2(WidthPerElement / 2f, 0);
     }
 
     public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
@@ -244,7 +249,7 @@ public class IconFactory : GameService
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
         int Width = 62;
-        SetTransformByGroup(Width, Tuples.Count, out Vector2 SizeDelta, out Vector2 Position, out float XOffset);
+        SetProductionTransform(Width, Tuples.Count, out Vector2 SizeDelta, out Vector2 Position);
         GroupTransform.sizeDelta = SizeDelta;
         GroupTransform.anchoredPosition = Position;
 
@@ -254,7 +259,7 @@ public class IconFactory : GameService
             GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
             RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
             UnitTransform.SetParent(GroupTransform, false);
-            UnitTransform.localPosition = new(i * Width + XOffset, 0, 0);
+            UnitTransform.localPosition = new(i * Width, 0, 0);
             NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
 
             UnitScreen.Initialize(GetIconForProduction(Tuple.Key), Tuple.Key.ToString(), Parent);
@@ -268,19 +273,19 @@ public class IconFactory : GameService
         return ProductionGroup;
     }
 
-    public GameObject GetVisualsForWorkerCost(int Amount, ISelectable Parent, bool bIgnoreClicks = false)
+    public GameObject GetVisualsForWorkerCost(ISelectable Parent, bool bIgnoreClicks = false)
     {
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
         int Width = 62;
-        SetTransformByGroup(Width, 1, out Vector2 SizeDelta, out Vector2 Position, out float XOffset);
+        SetProductionTransform(Width, 1, out Vector2 SizeDelta, out Vector2 Position);
         GroupTransform.sizeDelta = SizeDelta;
         GroupTransform.anchoredPosition = Position;
 
         GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
         RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
         UnitTransform.SetParent(GroupTransform, false);
-        UnitTransform.localPosition = new(Width + XOffset, 0, 0);
+        UnitTransform.localPosition = new(Width, 0, 0);
         NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
 
         UnitScreen.Initialize(GetIconForMisc(MiscellaneousType.Worker), "Worker", Parent);
@@ -500,10 +505,10 @@ public class IconFactory : GameService
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
 
-        SetTransformByGroup(Width, Count, out Vector2 SizeDelta, out Vector2 Position, out float Offset);
+        SetTypeTransform(Width, Count, out Vector2 SizeDelta, out Vector2 Position);
         GroupTransform.sizeDelta = SizeDelta;
         GroupTransform.anchoredPosition = Position;
-        Offset = Width / 2f;
+        float Offset = Width / 2f;
 
         int Index = 0;
         for (int i = 0; i < 32; i++)

@@ -22,7 +22,7 @@ public abstract class ScreenFeature : MonoBehaviour
         bIsInit = true;
     }
 
-    public virtual void ShowAt(float YOffset)
+    public virtual void ShowAt(float YOffset, float Height)
     {
         if (!bIsInit)
             return;
@@ -33,6 +33,7 @@ public abstract class ScreenFeature : MonoBehaviour
         Vector3 Position = RectTransform.anchoredPosition;
         Position.y = YOffset;
         RectTransform.anchoredPosition = Position;
+        RectTransform.sizeDelta = new(RectTransform.sizeDelta.x, Height);
     }
 
     public virtual void Hide()

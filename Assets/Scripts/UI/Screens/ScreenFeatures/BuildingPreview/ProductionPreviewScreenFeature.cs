@@ -13,7 +13,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
         return Target.GetFeatureObject() != null;
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
         if (!bIsInit)
             return;
@@ -30,7 +30,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
         if (!LocationSet.TryGetAround(PreviewLocation, CurrentBuilding.Area, out var Area))
             return;
 
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         Production Production = CurrentBuilding.GetProductionPreview(Area);
         GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
         Visuals.transform.SetParent(TargetTransform, false);

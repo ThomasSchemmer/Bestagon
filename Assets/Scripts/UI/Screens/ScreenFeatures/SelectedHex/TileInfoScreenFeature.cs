@@ -18,9 +18,9 @@ public class TileInfoScreenFeature : ScreenFeature<HexagonData>
         return Target.GetFeatureObject() != null;
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         HexagonData SelectedHex = Target.GetFeatureObject();
         TileText.text =
             SelectedHex.Type.ToString() + "\n" +

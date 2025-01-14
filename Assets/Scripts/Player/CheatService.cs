@@ -221,7 +221,7 @@ public class CheatService : ScreenUI
             TargetIndex = HexagonConfig.IntToMask(TargetIndex - 1);
             BuildingConfig.Type TargetType = (BuildingConfig.Type)(TargetIndex);
             BuildingService.UnlockableBuildings[TargetType] = Unlockables.State.Unlocked;
-            CardFactory.CreateCard(TargetType, 0, CardHand.transform, CardHand.AddCard);
+            CardFactory.CreateCard(TargetType, 0, CardHand.transform, AddBuildingCard);
             return;
         }
         TargetIndex = GetTargetIndex(TargetName, typeof(UnitEntity.UType));
@@ -238,6 +238,16 @@ public class CheatService : ScreenUI
             CardFactory.CreateCard(TargetType, 0, CardHand.transform, CardHand.AddCard);
             return;
         }
+    }
+
+    private void AddBuildingCard(Card Card)
+    {
+        if (!Game.TryGetServices(out Stockpile Stockpile, out CardHand CardHand))
+            return;
+
+        BuildingCard BCard = Card as BuildingCard;
+        Stockpile.AddResources(BCard.GetBuildingData().Cost);
+        CardHand.AddCard(Card);
     }
 
     private string GetTargetName(string[] Cheats)

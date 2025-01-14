@@ -132,6 +132,14 @@ public class LocationSet : IEnumerable<Location>
         return Locations[0];
     }
 
+    public Location GetExtendedLocation()
+    {
+        if (Locations.Count < 2)
+            return null;
+
+        return Locations[1];
+    }
+
     public int Count()
     {
         return Locations.Count;

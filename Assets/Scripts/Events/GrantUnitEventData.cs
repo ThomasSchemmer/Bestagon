@@ -37,16 +37,10 @@ public class GrantUnitEventData : EventData
 
     public override void InteractWith(HexagonVisualization Hex)
     {
-        UnitEntity Unit = CreateUnitData();
-        if (!Unit.TryInteractWith(Hex))
-        {
-            Destroy(Unit);
-            return;
-        }
-
-        if (!Game.TryGetService(out Selectors Selectors))
+        if (!Game.TryGetServices(out Selectors Selectors, out Units Units))
             return;
 
+        Units.CreateNewEntity((int)GrantedUnitType, Hex.Location.ToSet());
         Selectors.SelectHexagon(Hex);
     }
 

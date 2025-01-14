@@ -16,9 +16,9 @@ public class RotatePreviewScreenFeature : ScreenFeature<BuildingCard>
         return CurrentBuilding != null && CurrentBuilding.Area != LocationSet.AreaSize.Single;
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         RotateButton.gameObject.SetActive(true);
     }
 
@@ -26,5 +26,17 @@ public class RotatePreviewScreenFeature : ScreenFeature<BuildingCard>
     {
         base.Hide();
         RotateButton.gameObject.SetActive(false);
+    }
+
+    public void RotatePreview()
+    {
+        if (!Game.TryGetService(out PreviewSystem Previews))
+            return;
+
+        var Preview = Previews.GetPreviewAs<BuildingPreview>();
+        if (Preview == null)
+            return;
+
+        Preview.RotatePreview();
     }
 }

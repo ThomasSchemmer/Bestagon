@@ -61,4 +61,10 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
         GameplayAbilityBehaviour Player = PlayerGO.GetComponent<GameplayAbilityBehaviour>();
         return Player;
     }
+
+    public override void CreateNewEntity(int EntityCode, LocationSet Location)
+    {
+        var Code = (DecorationEntity.DType)EntityCode;
+        CreateNewDecoration(Code, Location.GetMainLocation());
+    }
 }

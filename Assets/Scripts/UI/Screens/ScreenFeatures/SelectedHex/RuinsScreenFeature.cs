@@ -22,9 +22,9 @@ public class RuinsScreenFeature : ScreenFeature<HexagonData>
         return Entity;
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         TargetText.text = GetFeatureDecoration().GetDecorationText();
     }
 

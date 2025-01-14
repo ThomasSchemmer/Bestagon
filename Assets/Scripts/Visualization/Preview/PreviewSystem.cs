@@ -134,6 +134,11 @@ public class PreviewSystem : GameService
         return Previewable is T;
     }
 
+    public T GetPreviewAs<T>() where T : CardPreview
+    {
+        return Preview as T;
+    }
+
     public T GetPreviewableAs<T>() where T : IPreviewable
     {
         if (Preview == null)

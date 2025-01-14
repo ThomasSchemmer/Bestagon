@@ -170,10 +170,11 @@ public class BuildingCard : Card
             return;
         }
 
-        // avoids "doubling" the actual building (including workers) when building a second time
-        BuildingEntity Copy = Instantiate(BuildingData);
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return;
 
-        Copy.BuildAt(NewLocation, LocationSet.GetAngle());
+        Buildings.CreateNewEntity((int)BuildingData.BuildingType, NewLocation);
+
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);
 

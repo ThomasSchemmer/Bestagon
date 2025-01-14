@@ -113,6 +113,12 @@ public class ScoutEntity : TokenizedUnitEntity
         return Pathfinding.Parameters.Standard;
     }
 
+    protected override bool TryGetMovementAttribute(out AttributeType Type)
+    {
+        Type = AttributeType.ScoutMovementRange;
+        return true;
+    }
+
     [SaveableBaseType]
     [HideInInspector]
     public string Name;

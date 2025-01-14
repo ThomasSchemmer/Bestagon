@@ -16,9 +16,9 @@ public class UnitStarvingScreenFeature : ScreenFeature<UnitEntity>
     }
 
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
         TargetText.color = Color.red;
     }
 }

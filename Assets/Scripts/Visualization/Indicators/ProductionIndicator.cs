@@ -109,7 +109,8 @@ public class ProductionIndicator : IndicatorComponent
             return Production.Empty;
 
         float Multiplier = AttributeSet.Get()[AttributeType.ProductionRate].GetAt(Location);
-        return Multiplier * Bonus;
+        int Worker = Building.GetMaximumWorkerCount();
+        return Multiplier * Bonus * Worker;
     }
 
     protected override void ApplyIndicatorScreenPosition(int i, RectTransform IndicatorTransform)

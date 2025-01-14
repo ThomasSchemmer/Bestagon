@@ -13,9 +13,9 @@ public class UnitPathScreenFeature : ScreenFeature<UnitEntity>
         LineRenderer = GetComponent<LineRenderer>();
     }
 
-    public override void ShowAt(float YOffset)
+    public override void ShowAt(float YOffset, float Height)
     {
-        base.ShowAt(YOffset);
+        base.ShowAt(YOffset, Height);
 
         TokenizedUnitEntity Unit = GetTargetAsTokenized();
         var Params = Unit.GetPathfindingParams();
