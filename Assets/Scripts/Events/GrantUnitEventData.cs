@@ -37,10 +37,14 @@ public class GrantUnitEventData : EventData
 
     public override bool InteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out Selectors Selectors, out Units Units))
+        if (!Game.TryGetService(out Selectors Selectors))
+            return false;
+        if (!Game.TryGetServices(out Workers Workers, out Units Units))
             return false;
 
-        if (!Units.TryCreateNewEntity((int)GrantedUnitType, Hex.Location.ToSet()))
+        EntityProvider Provider = GrantedUnitType == UnitEntity.UType.Worker ? Workers : Units;
+
+        if (!Provider.TryCreateNewEntity((int)GrantedUnitType, Hex.Location.ToSet()))
             return false;
 
         Selectors.SelectHexagon(Hex);

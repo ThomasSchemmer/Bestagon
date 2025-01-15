@@ -246,11 +246,6 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
     public override void Reset()
     {
         Resources = new();
-
-        StockpileScreen = GetComponent<StockpileScreen>();
-        Workers._OnWorkersChanged -= OnSimulateResources;
-        BuildingService._OnBuildingsChanged -= OnSimulateResources;
-        _OnResourcesChanged -= OnSimulateResources;
     }
 
     public void Show(bool bShow)

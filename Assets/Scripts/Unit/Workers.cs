@@ -132,6 +132,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
     {
         Entities.Add(Worker);
         _OnEntityCreated.ForEach(_ => _.Invoke(Worker));
+        _OnWorkersChanged?.Invoke();
     }
     
     protected override void StartServiceInternal()

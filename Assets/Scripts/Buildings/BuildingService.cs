@@ -51,9 +51,10 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         UnlockableBuildings.Init(this);
     }
 
-    public void AddBuilding(BuildingEntity Building)
+    public void AddBuilding(BuildingEntity Building, LocationSet Location)
     {
         Entities.Add(Building);
+        Building.BuildAt(Location, LocationSet.GetAngle());
 
         _OnBuildingBuilt.ForEach(_ => _.Invoke(Building));
         _OnBuildingsChanged?.Invoke();
@@ -68,8 +69,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         if (Building == null)
             return false;
 
-        Building.BuildAt(Location, LocationSet.GetAngle());
-        AddBuilding(Building);
+        AddBuilding(Building, Location);
         return true;
     }
 

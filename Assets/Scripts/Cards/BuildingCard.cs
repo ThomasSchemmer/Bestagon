@@ -173,8 +173,9 @@ public class BuildingCard : Card
         if (!Game.TryGetService(out BuildingService Buildings))
             return false;
 
-        if (!Buildings.TryCreateNewEntity((int)BuildingData.BuildingType, NewLocation))
-            return false;
+        // force a copy in case the card gets played multiple times
+        var Copy = Instantiate(BuildingData);
+        Buildings.AddBuilding(Copy, NewLocation);
 
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);

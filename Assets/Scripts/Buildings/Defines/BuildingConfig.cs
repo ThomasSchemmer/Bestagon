@@ -37,9 +37,9 @@ public class BuildingConfig
 
     public static int CategoryAmount = 4;
     public static int MaxIndex = 24;
-    public static Type CategoryMeadow = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.HuntersHut | Type.Hut | Type.Merchant | Type.Well;
+    public static Type CategoryMeadow = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.HuntersHut | Type.Hut | Type.Well;
     public static Type CategoryDesertA = Type.Quarry | Type.Sawmill | Type.Harbour;
-    public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut;
+    public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut | Type.Merchant;
     public static Type CategorySwamp = Type.Mine | Type.Forge | Type.Smithy | Type.Barracks | Type.SmokeHut | Type.Mill | Type.Farm | Type.Weaver | Type.Tailor;
     public static Type CategoryIce = Type.Stonemason | Type.Bakery | Type.Brewer | Type.Scribe;
 
