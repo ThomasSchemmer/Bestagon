@@ -107,7 +107,7 @@ public class OnTurnBuildingEffect : Effect
     public void ProduceUnit()
     {
         EntityProvider Provider = GetUnitProvider();
-        Provider.CreateNewEntity((int)UnitType, GetUnitSpawnLocation());
+        Provider.TryCreateNewEntity((int)UnitType, GetUnitSpawnLocation());
     }
 
     private LocationSet GetUnitSpawnLocation()

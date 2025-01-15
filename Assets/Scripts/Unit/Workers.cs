@@ -115,16 +115,17 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         return Entities.Count;
     }
 
-    public override void CreateNewEntity(int EntityCode, LocationSet Location)
+    public override bool TryCreateNewEntity(int EntityCode, LocationSet Location)
     {
         if ((UnitEntity.UType)EntityCode != UnitEntity.UType.Worker)
-            return;
+            return false;
 
         if (!Game.TryGetService(out MeshFactory MeshFactory))
-            return;
+            return false;
 
         WorkerEntity Worker = (WorkerEntity)MeshFactory.CreateDataFromType(UnitEntity.UType.Worker);
         AddWorker(Worker);
+        return true;
     }
 
     public void AddWorker(WorkerEntity Worker)
@@ -140,7 +141,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
 
             for (int i = 0; i < AttributeSet.Get()[AttributeType.AmountStartWorkers].CurrentValue; i++)
             {
-                CreateNewEntity((int)UnitEntity.UType.Worker, null);
+                TryCreateNewEntity((int)UnitEntity.UType.Worker, null);
             }
             _OnInit?.Invoke(this);
         });

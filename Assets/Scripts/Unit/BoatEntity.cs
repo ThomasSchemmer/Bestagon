@@ -11,6 +11,17 @@ using UnityEngine;
  */
 public class BoatEntity : TokenizedUnitEntity
 {
+    [SaveableBaseType]
+    [HideInInspector]
+    public string Name;
+    [HideInInspector]
+    [SaveableBaseType]
+    public int ID = 0;
+
+    [HideInInspector]
+    [SaveableClass]
+    public ScoutEntity LoadedScout = null;
+
     // only gets called once the scriptable object itself has been created!
     public BoatEntity()
     {
@@ -68,9 +79,9 @@ public class BoatEntity : TokenizedUnitEntity
         return 1;
     }
 
-    public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public static new bool _IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        if (!base.IsInteractableWith(Hex, bIsPreview))
+        if (!TokenizedUnitEntity._IsInteractableWith(Hex, bIsPreview))
             return false;
 
         if (Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Sea)
@@ -100,13 +111,6 @@ public class BoatEntity : TokenizedUnitEntity
         Type = default;
         return false;
     }
-
-    [SaveableBaseType]
-    [HideInInspector]
-    public string Name;
-    [HideInInspector]
-    [SaveableBaseType]
-    public int ID = 0;
 
     public static int MAX_NAME_LENGTH = 10;
     public static int MAX_BOAT_ID = 0;

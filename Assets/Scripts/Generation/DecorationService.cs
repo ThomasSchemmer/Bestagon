@@ -62,9 +62,10 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
         return Player;
     }
 
-    public override void CreateNewEntity(int EntityCode, LocationSet Location)
+    public override bool TryCreateNewEntity(int EntityCode, LocationSet Location)
     {
         var Code = (DecorationEntity.DType)EntityCode;
         CreateNewDecoration(Code, Location.GetMainLocation());
+        return true;
     }
 }

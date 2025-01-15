@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-/** Provides functionality to query entities based on their location */
+/** 
+ * Provides functionality to query entities based on their location 
+ * TODO: make spatially efficient!
+ */
 public abstract class TokenizedEntityProvider<T> : EntityProvider<T> where T : ScriptableEntity, ITokenized
 {
-    public bool TryGetEntityAt(Location Location, out T Entity)
+    public bool TryGetEntityAt(Location Location, out T Entity, int Range = 0, int Type = -1)
     {
         Entity = null;
+        var Params = new Pathfinding.Parameters(true, false, false);
+        HashSet<Location> ReachableLocations = Pathfinding.FindReachableLocationsFrom(Location, Range, Params);
         foreach (T ActiveEntity in Entities)
         {
-            if (!ActiveEntity.GetLocations().Contains(Location))
+            if (Type != -1 && Type != (int)ActiveEntity.GetUType())
+                continue;
+
+            if (!ActiveEntity.GetLocations().ContainsAny(ReachableLocations))
                 continue;
 
             Entity = ActiveEntity;
@@ -21,9 +29,9 @@ public abstract class TokenizedEntityProvider<T> : EntityProvider<T> where T : S
         return false;
     }
 
-    public bool IsEntityAt(Location Location)
+    public bool IsEntityAt(Location Location, int Range = 0, int Type = -1)
     {
-        return TryGetEntityAt(Location, out T _);
+        return TryGetEntityAt(Location, out T _, Range, Type);
     }
 
     public bool IsEntityAt(LocationSet Locations)
@@ -80,6 +88,20 @@ public abstract class TokenizedEntityProvider<T> : EntityProvider<T> where T : S
         {
             Chunk.RefreshTokens();
         }
+    }
+
+    public override void RemoveEntity(T Entity)
+    {
+        LocationSet Location = Entity.GetLocations();
+        base.RemoveEntity(Entity);
+
+        if (!Game.TryGetService(out MapGenerator MapGen))
+            return;
+
+        if (!MapGen.TryGetChunkVis(Location, out var Chunks))
+            return;
+
+        Chunks.ForEach(Chunk => Chunk.RefreshTokens());
     }
 
 }

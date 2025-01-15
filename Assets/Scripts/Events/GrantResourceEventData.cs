@@ -42,12 +42,13 @@ public class GrantResourceEventData : EventData
         return IconFactory.GetVisualsForGrantResourceEffect(this, Parent);
     }
 
-    public override void InteractWith(HexagonVisualization Hex)
+    public override bool InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
-            return;
+            return false;
 
         Stockpile.AddResources(GrantedResource);
+        return true;
     }
 
     public override bool IsPreviewable()

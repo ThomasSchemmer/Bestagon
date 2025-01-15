@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using static CardUpgradeScreen;
+using static UnitEntity;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
@@ -470,6 +471,11 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     {
         AssignedWorkers = new WorkerEntity[MaxWorker];
         Effect.Init(this);
+    }
+
+    public UType GetUType()
+    {
+        return default;
     }
 
 }

@@ -35,13 +35,16 @@ public class GrantUnitEventData : EventData
         return Unit.UnitType.ToString();
     }
 
-    public override void InteractWith(HexagonVisualization Hex)
+    public override bool InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetServices(out Selectors Selectors, out Units Units))
-            return;
+            return false;
 
-        Units.CreateNewEntity((int)GrantedUnitType, Hex.Location.ToSet());
+        if (!Units.TryCreateNewEntity((int)GrantedUnitType, Hex.Location.ToSet()))
+            return false;
+
         Selectors.SelectHexagon(Hex);
+        return true;
     }
 
     public override bool IsPreviewable()

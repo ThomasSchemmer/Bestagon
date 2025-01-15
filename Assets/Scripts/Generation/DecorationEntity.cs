@@ -156,4 +156,8 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         throw new NotImplementedException();
     }
 
+    public UType GetUType()
+    {
+        return default;
+    }
 }

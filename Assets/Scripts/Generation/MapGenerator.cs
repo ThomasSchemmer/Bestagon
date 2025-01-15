@@ -486,7 +486,7 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
 
     public void AddBuilding(BuildingEntity BuildingData) {
         // if the chunk is currently being shown, force create the building
-        if (!TryGetChunkVis(BuildingData.GetLocations(), out List<ChunkVisualization> ChunkVis))
+        if (!TryGetChunkVis(BuildingData.GetLocations(), out var ChunkVis))
             return;
 
         ChunkVis[0].CreateBuilding(BuildingData);

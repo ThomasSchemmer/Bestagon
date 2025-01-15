@@ -56,6 +56,13 @@ public class LocationSet : IEnumerable<Location>
         return Locations.Any(Loc => Loc.Equals(Location));
     }
 
+    public bool ContainsAny(HashSet<Location> OtherLocations)
+    {
+        var Temp = Locations.ToHashSet();
+        Temp.IntersectWith(OtherLocations);
+        return Temp.Count > 0;
+    }
+
     public static bool TryGetAround(Location Location, AreaSize Type, out LocationSet Set)
     {
         return TryGetAround(Location, Type, Angle, out Set);

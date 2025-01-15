@@ -57,16 +57,17 @@ public class RemoveMalaiseEventData : EventData
         return Quaternion.identity;
     }
 
-    public override void InteractWith(HexagonVisualization Hex)
+    public override bool InteractWith(HexagonVisualization Hex)
     {
         Hex.Data.RemoveMalaise();
         Hex.Chunk.Malaise.UnmarkToMalaise(Hex.Location);
         Hex.VisualizeSelection();
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return;
+            return false;
 
         MapGenerator.bAreMalaiseDTOsDirty = true;
+        return true;
     }
 
     public override bool IsPreviewable()

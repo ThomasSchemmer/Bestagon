@@ -88,7 +88,7 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
 
     public abstract Pathfinding.Parameters GetPathfindingParams();
 
-    public virtual bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public static bool _IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
 
         if (Hex.Data.GetDiscoveryState() != HexagonData.DiscoveryState.Visited)
@@ -128,6 +128,17 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
         return true;
     }
 
+    public bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    {
+        if (this is BoatEntity)
+            return BoatEntity._IsInteractableWith(Hex, bIsPreview);
+
+        if (this is ScoutEntity)
+            return ScoutEntity._IsInteractableWith(Hex, bIsPreview);
+
+        throw new NotImplementedException("Every subclass needs its own entry here");
+    }
+
     public void SetVisualization(EntityVisualization Vis)
     {
         if (Vis is not UnitVisualization)
@@ -160,6 +171,11 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
             return false;
 
         return Hex.IsPreMalaised();
+    }
+
+    public UType GetUType()
+    {
+        return UnitType;
     }
 
     [SaveableBaseType]

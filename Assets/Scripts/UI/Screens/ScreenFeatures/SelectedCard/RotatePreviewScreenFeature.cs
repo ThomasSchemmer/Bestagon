@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/** Shows the "Press r to rotate" info whenever a rotatable building card is selected */
 public class RotatePreviewScreenFeature : ScreenFeature<BuildingCard>
 {
     public Button RotateButton;

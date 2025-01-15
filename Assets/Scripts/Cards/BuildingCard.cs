@@ -153,32 +153,34 @@ public class BuildingCard : Card
         return true;
     }
 
-    public override void InteractWith(HexagonVisualization Hex)
+    public override bool InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetServices(out Stockpile Stockpile, out Selectors Selector))
-            return;
+            return false;
 
         if (!Stockpile.Pay(BuildingData.GetCosts()))
         {
             MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough resources");
-            return;
+            return false;
         }
 
         if (!LocationSet.TryGetAround(Hex.Location, BuildingData.Area, out LocationSet NewLocation))
         {
             MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot create building here - not enough space for its size");
-            return;
+            return false;
         }
 
         if (!Game.TryGetService(out BuildingService Buildings))
-            return;
+            return false;
 
-        Buildings.CreateNewEntity((int)BuildingData.BuildingType, NewLocation);
+        if (!Buildings.TryCreateNewEntity((int)BuildingData.BuildingType, NewLocation))
+            return false;
 
         Selector.ForceDeselect();
         Selector.SelectHexagon(Hex);
 
         Use();
+        return true;
     }
 
     public void RefreshUsage()

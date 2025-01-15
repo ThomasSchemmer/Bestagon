@@ -69,25 +69,26 @@ public class ConvertTileEventData : EventData
         return Quaternion.identity;
     }
 
-    public override void InteractWith(HexagonVisualization Hex)
+    public override bool InteractWith(HexagonVisualization Hex)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return;
+            return false;
 
         if (!MapGenerator.TrySetHexagonData(Hex.Location, HexagonConfig.HexagonHeight.Flat, TargetHexType))
-            return;
+            return false;
         
         if (!MapGenerator.TryGetChunkVis(Hex.Location, out ChunkVisualization ChunkVis))
-            return;
+            return false;
 
         ChunkVis?.RefreshTokens();
         Hex.UpdateMesh();
         Hex.VisualizeSelection();
 
         if (!Game.TryGetService(out MiniMap Minimap))
-            return;
+            return false;
 
         Minimap.FillBuffer();
+        return true;
     }
 
     public override bool IsPreviewable()

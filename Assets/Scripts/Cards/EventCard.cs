@@ -83,9 +83,12 @@ public class EventCard : Card
         return EventData.IsInteractableWith(Hex, false);
     }
 
-    public override void InteractWith(HexagonVisualization Hex) {
-        EventData.InteractWith(Hex);
+    public override bool InteractWith(HexagonVisualization Hex) {
+        if (!EventData.InteractWith(Hex))
+            return false;
+
         Use();
+        return true;
     }
 
     public override bool IsPreviewable()

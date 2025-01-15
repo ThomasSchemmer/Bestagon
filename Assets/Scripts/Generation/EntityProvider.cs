@@ -14,7 +14,7 @@ public abstract class EntityProvider : SaveableService
     protected override void StopServiceInternal() { }
 
     // has to be int as all flags are 32 bit
-    public abstract void CreateNewEntity(int EntityCode, LocationSet Location);
+    public abstract bool TryCreateNewEntity(int EntityCode, LocationSet Location);
 
 }
 
@@ -34,8 +34,13 @@ public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> wher
 
     public virtual void KillEntity(T Entity)
     {
-        Entities.Remove(Entity);
+        RemoveEntity(Entity);
         Destroy(Entity);
+    }
+
+    public virtual void RemoveEntity(T Entity)
+    {
+        Entities.Remove(Entity);
     }
 
     public void KillAllEntities()

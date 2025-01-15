@@ -102,6 +102,7 @@
     <Compile Include="Assets\Scripts\Cards\CardMoveAnimation.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\ProductionIndicator.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\GameplayEffectModifier.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\EmbarkScoutScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Dragging\Draggable.cs" />
     <Compile Include="Assets\Scripts\Relics\RelicGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Tutorial\TutorialSystem.cs" />
@@ -241,6 +242,7 @@
     <Compile Include="Assets\Scripts\Player\SpawnService.cs" />
     <Compile Include="Assets\Scripts\UI\HoverableButton.cs" />
     <Compile Include="Assets\Scripts\Player\Unlockables.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\DisembarkScoutScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\MapEditorScreen.cs" />
     <Compile Include="Assets\Scripts\Player\CardHand.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\SimpleIconScreen.cs" />

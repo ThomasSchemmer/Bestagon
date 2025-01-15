@@ -149,8 +149,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
             return;
 
         Card Card = Selector.GetSelectedCard();
-        if (Card && Card.IsCardInteractableWith(this)) {
-            Card.InteractWith(this);
+        if (Card && Card.IsCardInteractableWith(this) && Card.InteractWith(this)) {
             Selector.DeselectCard();
             Preview.UpdatePreview();
             return;
@@ -266,7 +265,7 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
         bool bCanPay = Unit != null && Stockpile.CanAfford(Unit.GetMovementRequirements()) && !Unit.IsStarving(false);
 
         bool bIsVisible = Unit != null && bShow && bCanPay;
-        int Range = Unit != null ? Unit.RemainingMovement : 0;
+        int Range = Unit != null ? Unit.RemainingMovement : 2;
 
         Pathfinding.Parameters Params = Unit != null ?
             Unit.GetPathfindingParams() :

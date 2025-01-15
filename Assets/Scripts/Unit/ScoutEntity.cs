@@ -81,9 +81,9 @@ public class ScoutEntity : TokenizedUnitEntity
         return (int)Attributes[AttributeType.ScoutFoodConsumption].CurrentValue;
     }
 
-    public override bool IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
+    public static new bool _IsInteractableWith(HexagonVisualization Hex, bool bIsPreview)
     {
-        if (!base.IsInteractableWith(Hex, bIsPreview))
+        if (!TokenizedUnitEntity._IsInteractableWith(Hex, bIsPreview))
             return false;
 
         if (Hex.Data.HexHeight < HexagonConfig.HexagonHeight.Flat || Hex.Data.HexHeight > HexagonConfig.HexagonHeight.Hill)

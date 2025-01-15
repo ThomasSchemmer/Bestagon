@@ -59,14 +59,18 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         _OnBuildingsChanged?.Invoke();
     }
 
-    public override void CreateNewEntity(int EntityCode, LocationSet Location)
+    public override bool TryCreateNewEntity(int EntityCode, LocationSet Location)
     {
         if (!Game.TryGetService(out MeshFactory Factory))
-            return;
+            return false;
 
         var Building = Factory.CreateDataFromType((BuildingConfig.Type)EntityCode);
+        if (Building == null)
+            return false;
+
         Building.BuildAt(Location, LocationSet.GetAngle());
         AddBuilding(Building);
+        return true;
     }
 
     public bool TryGetRandomResource(int Seed, Unlockables.State TargetState, bool bCanBeHigher, out Production.Type RandomType)

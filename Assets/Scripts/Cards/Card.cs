@@ -127,7 +127,7 @@ public abstract class Card : Draggable, ISelectable
 
     public abstract bool IsCardInteractableWith(HexagonVisualization Hex);
 
-    public abstract void InteractWith(HexagonVisualization Hex);
+    public abstract bool InteractWith(HexagonVisualization Hex);
 
     public abstract bool CanBeUpgraded();
 

@@ -10,5 +10,6 @@ public interface ITokenized
 {
     public LocationSet GetLocations();
     public void SetLocation(LocationSet Location);
+    public UnitEntity.UType GetUType();
 
 }
