@@ -32,7 +32,7 @@ public class ProductionPreviewScreenFeature : ScreenFeature<BuildingEntity>
 
         base.ShowAt(YOffset, Height);
         Production Production = CurrentBuilding.GetProductionPreview(Area);
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false).gameObject;
         Visuals.transform.SetParent(TargetTransform, false);
     }
 

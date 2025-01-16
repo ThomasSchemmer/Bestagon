@@ -285,16 +285,18 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
         return NeighbourDatas;
     }
 
-    public HexagonData[] GetNeighboursDataArray(Location Location) {
-        HexagonData[] NeighbourDatas = new HexagonData[6];
-        List<Location> NeighbourTileLocations = GetNeighbourTileLocations(Location);
+    public HexagonData[] GetNeighboursDataArray(LocationSet Location, bool bShouldAddOrigin, int Range = 1)
+    {
+        HashSet<Location> NeighbourTileLocations = GetNeighbourTileLocationsInRange(Location, bShouldAddOrigin, Range);
+        HexagonData[] NeighbourDatas = new HexagonData[NeighbourTileLocations.Count];
 
-        for (int i = 0; i < NeighbourTileLocations.Count; i++){
-            if (TryGetHexagonData(NeighbourTileLocations[i], out HexagonData Data)) {
+        int i = 0;
+        foreach (Location NeighbourTile in NeighbourTileLocations)
+        {
+            if (TryGetHexagonData(NeighbourTile, out HexagonData Data)) {
                 NeighbourDatas[i] = Data;
-            } else {
-                NeighbourDatas[i] = null;
             }
+            i++;
         }
 
         return NeighbourDatas;

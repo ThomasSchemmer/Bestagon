@@ -17,7 +17,7 @@ public class MerchantBuyScreen : CollectChoiceScreen
             return;
 
         Production RefreshCosts = new Production(Production.Type.Coins, REFRESH_COST);
-        GameObject RefreshCostsGO = IconFactory.GetVisualsForProduction(RefreshCosts, null, true);
+        GameObject RefreshCostsGO = IconFactory.GetVisualsForProduction(RefreshCosts, null, true).gameObject;
         RefreshCostsGO.transform.SetParent(CostContainer.transform, false);
     }
 
@@ -73,7 +73,7 @@ public class MerchantBuyScreen : CollectChoiceScreen
         Transform TargetContainer = ChoiceContainers[i];
         Transform CostContainer = TargetContainer.GetChild(0).GetChild(5);
         Production Costs = GetCostsForChoice(i);
-        GameObject CostsGO = IconFactory.GetVisualsForProduction(Costs, Card, true);
+        GameObject CostsGO = IconFactory.GetVisualsForProduction(Costs, Card, true).gameObject;
         CostsGO.transform.SetParent(CostContainer, false);
     }
 

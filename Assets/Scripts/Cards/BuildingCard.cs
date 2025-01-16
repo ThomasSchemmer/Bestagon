@@ -54,7 +54,7 @@ public class BuildingCard : Card
         GameObject Usages = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Usages, this, BuildingData.CurrentUsages);
         Usages.transform.SetParent(UsagesTransform, false);
 
-        GameObject Production = IconFactory.GetVisualsForProduction(BuildingData.GetCosts(), this, true);
+        GameObject Production = IconFactory.GetVisualsForProduction(BuildingData.GetCosts(), this, true).gameObject;
         Production.transform.SetParent(CostTransform, false);
 
         GameObject MaxWorker = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Worker, this, BuildingData.GetMaximumWorkerCount());

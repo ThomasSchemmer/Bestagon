@@ -243,41 +243,38 @@ public class IconFactory : GameService
         Position = new Vector2(WidthPerElement / 2f, 0);
     }
 
-    public GameObject GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
+    public ProductionGroup GetVisualsForProduction(Production Production, ISelectable Parent, bool bSubscribe, bool bIgnoreClicks = false)
     {
         var Tuples = Production.GetTuples();
-        GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
-        RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
-        int Width = 62;
+        GameObject ProductionGroupGO = Instantiate(ProductionGroupPrefab);
+        ProductionGroup ProductionGroup = ProductionGroupGO.GetComponent<ProductionGroup>();
+        RectTransform GroupTransform = ProductionGroupGO.GetComponent<RectTransform>();
+        int Width = NumberedIconScreenWidth;
         SetProductionTransform(Width, Tuples.Count, out Vector2 SizeDelta, out Vector2 Position);
         GroupTransform.sizeDelta = SizeDelta;
         GroupTransform.anchoredPosition = Position;
 
-        for (int i = 0; i < Tuples.Count; i++)
-        {
-            Tuple<Production.Type, int> Tuple = Tuples[i];
-            GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
-            RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
-            UnitTransform.SetParent(GroupTransform, false);
-            UnitTransform.localPosition = new(i * Width, 0, 0);
-            NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
+        ProductionGroup.Initialize(Production, GroupTransform, Parent, bSubscribe, bIgnoreClicks);
 
-            UnitScreen.Initialize(GetIconForProduction(Tuple.Key), Tuple.Key.ToString(), Parent);
-            UnitScreen.SetIgnored(bIgnoreClicks);
-            UnitScreen.UpdateVisuals(Tuple.Value);
-            if (bSubscribe)
-            {
-                UnitScreen.SetSubscription(Tuple.Key, Tuple.Value);
-            }
-        }
         return ProductionGroup;
+    }
+
+    public NumberedIconScreen GetVisualsForNumberedIcon(RectTransform GroupTransform, int i)
+    {
+        int Width = NumberedIconScreenWidth;
+        GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
+        RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
+        UnitTransform.SetParent(GroupTransform, false);
+        UnitTransform.localPosition = new(i * Width, 0, 0);
+        NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
+        return UnitScreen;
     }
 
     public GameObject GetVisualsForWorkerCost(ISelectable Parent, bool bIgnoreClicks = false)
     {
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
-        int Width = 62;
+        int Width = NumberedIconScreenWidth;
         SetProductionTransform(Width, 1, out Vector2 SizeDelta, out Vector2 Position);
         GroupTransform.sizeDelta = SizeDelta;
         GroupTransform.anchoredPosition = Position;
@@ -302,7 +299,7 @@ public class IconFactory : GameService
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Building.Effect.GetDescription();
 
-        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false);
+        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false).gameObject;
         ProductionGO.transform.SetParent(ProductionContainer, false);
 
         Transform TypeContainer = ProductionEffect.transform.GetChild(3);
@@ -352,7 +349,7 @@ public class IconFactory : GameService
         TextMeshProUGUI ConsumesText = ProduceUnitEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         ConsumesText.text = Effect.GetDescriptionProduceUnitConsumption();
         Transform ConsumesContainer = ProduceUnitEffect.transform.GetChild(3);
-        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent, true);
+        GameObject ConsumptionGO = GetVisualsForProduction(Effect.Consumption, Parent, true).gameObject;
         ConsumptionGO.transform.SetParent(ConsumesContainer, false);
 
         bool bConsumes = !Effect.Consumption.Equals(Production.Empty);
@@ -369,11 +366,11 @@ public class IconFactory : GameService
         ConsumptionText.text = Building.Effect.GetDescription();
 
         Transform ProductionContainer = ProdConsEffect.transform.GetChild(1);
-        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false);
+        GameObject ProductionGO = GetVisualsForProduction(Building.Effect.Production, Parent, false).gameObject;
         ProductionGO.transform.SetParent(ProductionContainer, false);
 
         Transform ConsumptionContainer = ProdConsEffect.transform.GetChild(3);
-        GameObject ConsumptionGO = GetVisualsForProduction(Building.Effect.Consumption, Parent, true);
+        GameObject ConsumptionGO = GetVisualsForProduction(Building.Effect.Consumption, Parent, true).gameObject;
         ConsumptionGO.transform.SetParent(ConsumptionContainer, false);
 
         Transform TypeContainer = ProdConsEffect.transform.GetChild(5);
@@ -443,7 +440,7 @@ public class IconFactory : GameService
         ProducesText.text = EventData.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
 
-        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource, Parent, false);
+        GameObject UnitTypeGO = GetVisualsForProduction(EventData.GrantedResource, Parent, false).gameObject;
         UnitTypeGO.transform.SetParent(UnitTypeContainer, false);
         UnitTypeGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(31, 0);
 
@@ -551,4 +548,6 @@ public class IconFactory : GameService
     }
 
     protected override void StopServiceInternal() { }
+
+    private static int NumberedIconScreenWidth = 62;
 }

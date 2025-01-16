@@ -31,16 +31,29 @@ public class SimpleIconScreen : MonoBehaviour, UIElement
     public virtual void Initialize(Sprite Sprite, string HoverTooltip, ISelectable Parent)
     {
         this.Parent = Parent;
-        this.HoverTooltip = HoverTooltip;
+        SetHoverTooltip(HoverTooltip);
         Initialize(Sprite);
     }
 
     private void Initialize(Sprite Sprite)
     {
         Refresh();
-        IconRenderer.sprite = Sprite;
+        SetSprite(Sprite);  
         float x = IconRenderer.transform.localPosition.x;
         IconRenderer.transform.localPosition = new Vector3(x, 0, 0);
+    }
+
+    public void SetSprite(Sprite Sprite)
+    {
+        if (IconRenderer == null)
+            return;
+
+        IconRenderer.sprite = Sprite;
+    }
+
+    public void SetHoverTooltip(string Description)
+    {
+        HoverTooltip = Description;
     }
 
     public void Refresh()

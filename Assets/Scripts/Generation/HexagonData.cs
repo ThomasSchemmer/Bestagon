@@ -216,4 +216,8 @@ public class HexagonData
         return new(Height, Type);
     }
 
+    public override int GetHashCode()
+    {
+        return Location.GetHashCode();
+    }
 }

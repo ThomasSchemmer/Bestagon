@@ -127,7 +127,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
             return;
 
         GameObject UnitVisuals = IconFactory.GetVisualsForMiscalleneous(UnitType, null, 1);
-        GameObject CostVisuals = IconFactory.GetVisualsForProduction(BuildingData.Effect.Consumption, null, true);
+        GameObject CostVisuals = IconFactory.GetVisualsForProduction(BuildingData.Effect.Consumption, null, true).gameObject;
 
         float yOffset = bShowFallback ? Height / 2f : 0;
         UnitVisuals.transform.SetParent(ProductionTransform, false);
@@ -144,7 +144,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         Production Production = bShowFallback ?
                 BuildingData.GetTheoreticalMaximumProduction() :
                 BuildingData.GetProduction(true);
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, false).gameObject;
         Visuals.transform.SetParent(ProductionTransform, false);
 
         RectTransform VisRect = Visuals.GetComponent<RectTransform>();

@@ -315,7 +315,7 @@ public class CollectDecorationScreen : CollectChoiceScreen
         Image.sprite = IconFactory.GetIconForMisc(IconFactory.MiscellaneousType.Offering);
 
         Transform CostContainer = TargetContainer.GetChild(0).GetChild(3);
-        GameObject Costs = IconFactory.GetVisualsForProduction(GetCostsForChoice(0), null, true);
+        GameObject Costs = IconFactory.GetVisualsForProduction(GetCostsForChoice(0), null, true).gameObject;
         Costs.transform.SetParent(CostContainer, false);
         RectTransform CostsRect = Costs.GetComponent<RectTransform>();
         CostsRect.anchorMin = new(0.5f, 0.5f);

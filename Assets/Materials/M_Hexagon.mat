@@ -91,7 +91,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Adjacent: 0
-    - _AdjacentWithMask: -1
+    - _AdjacentWithMask: 1025
     - _Allowed: 0
     - _AlphaClip: 0
     - _Blend: 0
@@ -101,7 +101,7 @@ Material:
     - _BrushVoronoiOffset: 0.312
     - _BumpScale: 1
     - _CenterBlendFactor: 0.1
-    - _CheckUsable: 0
+    - _CheckUsable: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _Desaturation: 0.1
@@ -139,7 +139,7 @@ Material:
     - _UVScale: 5.92
     - _UVSec: 0
     - _UnusableDesaturation: 0.4
-    - _UsableOnMask: -1
+    - _UsableOnMask: 1025
     - _V0Scale: 0
     - _V1Scale: 0
     - _Value: 0

@@ -105,7 +105,7 @@ public abstract class IndicatorComponent : MonoBehaviour
         ApplyIndicatorScreenPosition(i, Indicators[i]);
     }
 
-    public void UpdateIndicatorVisuals()
+    public virtual void UpdateIndicatorVisuals()
     {
         for (int i = 0; i < Indicators.Length; i++)
         {
@@ -113,7 +113,7 @@ public abstract class IndicatorComponent : MonoBehaviour
         }
     }
 
-    public void CreateVisuals()
+    public virtual void CreateVisuals()
     {
         RectTransform Container = Service.GetFor(this);
         int Count = GetIndicatorAmount();

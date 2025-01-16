@@ -47,7 +47,7 @@ public class UnitRequirementsScreenFeature : ScreenFeature<UnitEntity>
         Cleanup();
 
         Production Production = Tokenized.GetMovementRequirements();
-        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, true);
+        GameObject Visuals = IconFactory.GetVisualsForProduction(Production, null, true).gameObject;
         Visuals.transform.SetParent(ProductionRect, false);
     }
 
