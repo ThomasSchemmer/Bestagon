@@ -89,18 +89,19 @@ public class WorkerEntity : StarvableUnitEntity
         Stockpile.RequestUIRefresh();
         return true;
     }
+
     public override bool IsAboutToBeMalaised()
     {
-        if (GetAssignedBuilding() == null)
+        var Building = GetAssignedBuilding();
+        if (Building == null)
             return false;
 
-        if (!Game.TryGetService(out MapGenerator MapGenerator))
-            return false;
+        return Building.IsAboutToBeMalaised();
+    }
 
-        if (!MapGenerator.TryGetHexagonData(GetAssignedBuilding().GetLocations(), out List<HexagonData> Hexs))
-            return false;
-
-        return Hexs.Any(Hex => Hex.IsPreMalaised());
+    public override bool IsIdle()
+    {
+        return GetAssignedBuilding() == null;
     }
 
     public override int GetTargetMeshIndex()

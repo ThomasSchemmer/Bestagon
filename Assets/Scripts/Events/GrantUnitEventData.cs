@@ -13,7 +13,14 @@ public class GrantUnitEventData : EventData
 
     public void OnEnable()
     {
-        GrantedUnitType = (UnitEntity.UType)(UnityEngine.Random.Range(0, Enum.GetValues(typeof(UnitEntity.UType)).Length));
+        int MaxCount = Enum.GetValues(typeof(UnitEntity.UType)).Length;
+        bool bIsHarbourLocked = true;
+        if (Game.TryGetService(out BuildingService Buildings))
+        {
+            bIsHarbourLocked = Buildings.UnlockableBuildings.IsLocked(BuildingConfig.Type.Harbour);
+        }
+        int Count = bIsHarbourLocked ? MaxCount - 1 : MaxCount;
+        GrantedUnitType = (UnitEntity.UType)(UnityEngine.Random.Range(0, Count));
     }
 
     public override string GetDescription()

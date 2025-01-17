@@ -148,6 +148,30 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         });
     }
 
+    public override bool TryGetIdleEntity(out StarvableUnitEntity Entity)
+    {
+        // workers can be idle but without an assignable building
+        if (!base.TryGetIdleEntity(out Entity))
+            return false;
+
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return false;
+
+        foreach (var Building in Buildings.Entities)
+        {
+            // the building is not malaised and has idle spots
+            if (Building.IsAboutToBeMalaised())
+                continue;
+
+            if (!Building.IsIdle())
+                continue;
+
+            return true;
+        }
+        Entity = default;
+        return false;
+    }
+
     protected override void StopServiceInternal() {}
 
     public override void OnAfterLoaded()

@@ -148,6 +148,13 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
     public override bool IsAboutToBeMalaised()
     {
         // while decorations can be destroyed, it is not the players unit
+        // so we ignore it
+        return false;
+    }
+
+    public override bool IsIdle()
+    {
+        // decorations can never be idle
         return false;
     }
 

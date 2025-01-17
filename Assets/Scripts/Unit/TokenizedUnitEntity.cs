@@ -172,6 +172,10 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
 
         return Hex.IsPreMalaised();
     }
+    public override bool IsIdle()
+    {
+        return RemainingMovement > 0;
+    }
 
     public UType GetUType()
     {

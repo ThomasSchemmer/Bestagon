@@ -467,6 +467,11 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return PreMalaisedHexes.Count > 0 ? PreMalaisedHexes[0].Location : Location.Invalid;
     }
 
+    public override bool IsIdle()
+    {
+        return GetAssignedWorkerCount() < GetMaximumWorkerCount();
+    }
+
     public void OnLoaded()
     {
         AssignedWorkers = new WorkerEntity[MaxWorker];

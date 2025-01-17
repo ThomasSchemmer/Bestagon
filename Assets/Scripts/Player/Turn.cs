@@ -40,6 +40,9 @@ public class Turn : GameService, IQuestRegister<int>
         if (HasMalaisedEntities())
             return;
 
+        if (HasIdleEntities())
+            return;
+
         ExecuteNextTurn();
     }
 
@@ -53,25 +56,47 @@ public class Turn : GameService, IQuestRegister<int>
 
         MalaisedEntity = Unit != null ? Unit :
                     Worker != null ? Worker : null;
+        string Type = Unit != null ? Unit.GetUType().ToString() :
+                    Worker != null ? "Worker" : "Unit";
         if (MalaisedEntity == null)
             return false;
 
-        ConfirmScreen.Show("You have a unit that will be destroyed this turn by the malaise!", ExecuteNextTurn, ShowMalaisedUnit, "Show");
+        ConfirmScreen.Show("You have a " + Type + " that will be destroyed this turn by the malaise!", ExecuteNextTurn, ShowUnitToHighlight, "Show");
         return true;
     }
 
-    private void ShowMalaisedUnit()
+    private bool HasIdleEntities()
+    {
+        if (!Game.TryGetServices(out Units Units, out Workers Workers))
+            return false;
+
+        Units.TryGetIdleEntity(out TokenizedUnitEntity Unit);
+        Workers.TryGetIdleEntity(out StarvableUnitEntity Worker);
+
+        IdleEntity = Unit != null ? Unit :
+                    Worker != null ? Worker : null;
+        if (IdleEntity == null)
+            return false;
+
+        string Type = Unit != null ? Unit.GetUType().ToString() :
+                    Worker != null ? "Worker" : "Unit";
+        ConfirmScreen.Show("You have an idle " + Type, ExecuteNextTurn, ShowUnitToHighlight, "Show");
+        return true;
+    }
+
+    private void ShowUnitToHighlight()
     {
         Location TargetLocation = null;
-        if (MalaisedEntity is WorkerEntity)
+        ScriptableEntity TargetEntity = MalaisedEntity != null ? MalaisedEntity : IdleEntity;
+        if (TargetEntity is WorkerEntity)
         {
-            WorkerEntity MalaisedWorker = MalaisedEntity as WorkerEntity;
+            WorkerEntity MalaisedWorker = TargetEntity as WorkerEntity;
             BuildingEntity AssignedBuilding = MalaisedWorker.GetAssignedBuilding();
             TargetLocation = AssignedBuilding != null ? AssignedBuilding.GetLocationAboutToBeMalaised() : null;
         }
-        if (MalaisedEntity is TokenizedUnitEntity)
+        if (TargetEntity is TokenizedUnitEntity)
         {
-            TargetLocation = (MalaisedEntity as TokenizedUnitEntity).GetLocations().GetMainLocation();
+            TargetLocation = (TargetEntity as TokenizedUnitEntity).GetLocations().GetMainLocation();
         }
 
         if (TargetLocation == null)
@@ -190,6 +215,7 @@ public class Turn : GameService, IQuestRegister<int>
     private QuestService Quests;
 
     private ScriptableEntity MalaisedEntity;
+    private ScriptableEntity IdleEntity;
 
     public int TurnNr = 0;
 

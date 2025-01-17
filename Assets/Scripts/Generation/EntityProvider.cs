@@ -109,5 +109,19 @@ public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> wher
         return false;
     }
 
+    public virtual bool TryGetIdleEntity(out T Entity)
+    {
+        Entity = default;
+        foreach (var FoundEntity in Entities)
+        {
+            if (!FoundEntity.IsIdle())
+                continue;
+
+            Entity = FoundEntity; 
+            return true;
+        }
+        return false;
+    }
+
     public static ActionList<T> _OnEntityCreated = new();
 }

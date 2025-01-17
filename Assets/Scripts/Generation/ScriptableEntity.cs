@@ -23,4 +23,5 @@ public abstract class ScriptableEntity : ScriptableObject
     public virtual void Refresh() { }
 
     public abstract bool IsAboutToBeMalaised();
+    public abstract bool IsIdle();
 }
