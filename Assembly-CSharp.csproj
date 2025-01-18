@@ -191,6 +191,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitRequirementsScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\UIElement.cs" />
     <Compile Include="Assets\Scripts\Generation\HexagonData.cs" />
+    <Compile Include="Assets\Scripts\Config\Settings\Settings.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\BuildingPreview.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagRegularContainer.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialTileQuest.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\ConvertTilePreview.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitMovementScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Config\Settings\Setting.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagSourceContainer.cs" />
     <Compile Include="Assets\Scripts\Player\Statistics.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\UnitPreview.cs" />
