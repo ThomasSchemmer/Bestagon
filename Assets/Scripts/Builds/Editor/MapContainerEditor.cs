@@ -18,5 +18,6 @@ public class MapContainerEditor : Editor
         MapContainer Container = (MapContainer)target;
         string Path = EditorUtility.OpenFilePanel("Select map file", SaveGameManager.GetSavegamePath(), "");
         Container.MapData = File.ReadAllBytes(Path);
+        EditorUtility.SetDirty(Container);
     }
 }

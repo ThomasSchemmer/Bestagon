@@ -342,6 +342,13 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
     public string GetHoverTooltip()
     {
-        return "This tile represents a part of the world, providing space for units or buildings. Can be used to produce resources";
+        string Base = Data.Type.ToString();
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return Base;
+
+        if (!Buildings.TryGetEntityAt(Data.Location, out var Building))
+            return Base;
+
+        return Base + "\n" + Building.BuildingType.ToString();
     }
 }

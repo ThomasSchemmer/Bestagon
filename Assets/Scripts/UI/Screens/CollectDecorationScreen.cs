@@ -374,16 +374,22 @@ public class CollectDecorationScreen : CollectChoiceScreen
             return false;
 
         // unlock current area buildings
-        int TargetCategoryIndex = MapGenerator.UnlockableTypes.GetCategoryIndexOf(Hex.Type);
-        if (!Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndex))
+        // areas are split into two BuildingUnlock categories each
+        int TargetCategoryIndexA = MapGenerator.UnlockableTypes.GetCategoryIndexOf(Hex.Type) * 2;
+        int TargetCategoryIndexB = TargetCategoryIndexA + 1;
+        if (!Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexA) ||
+            !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexB))
             return true;
 
         // unlock the next area buildings
-        TargetCategoryIndex++;
-        if (TargetCategoryIndex >= Buildings.UnlockableBuildings.GetCategoryCount())
+        TargetCategoryIndexA += 2;
+        TargetCategoryIndexB += 2;
+        int CategoryCount = Buildings.UnlockableBuildings.GetCategoryCount();
+        if (TargetCategoryIndexA >= CategoryCount || TargetCategoryIndexB >= CategoryCount)
             return false;
 
-        return !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndex);
+        return !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexA) ||
+            !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexB);
     }
 
 

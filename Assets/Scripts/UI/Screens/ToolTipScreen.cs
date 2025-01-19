@@ -35,14 +35,16 @@ public class ToolTipScreen : ScreenUI, UIElement
         }
 
         Show();
+        string Tooltip = Selectable.GetHoverTooltip();
+        int LineCount = Tooltip.Split("\n").Length;
         // reset to get accurate text sizes
-        TextRect.sizeDelta = new Vector2(MaxWidth, HeightPerLine);
-        Text.text = Selectable.GetHoverTooltip();
+        TextRect.sizeDelta = new Vector2(MaxWidth, HeightPerLine * LineCount);
+        Text.text = Tooltip;
         Text.ForceMeshUpdate();
         Vector2 TextSize = Text.textBounds.size;
-        int TextLength = Selectable.GetHoverTooltip().Length;
+        int TextLength = Tooltip.Length;
 
-        int Lines = TextLength / MaxCountPerLine + 1;
+        int Lines = TextLength / MaxCountPerLine + LineCount;
         int Height = HeightPerLine * Lines;
         float Width = TextLength > MaxCountPerLine ? MaxWidth : TextSize.x;
         TextRect.sizeDelta = new Vector2(Width, Height);
@@ -94,5 +96,5 @@ public class ToolTipScreen : ScreenUI, UIElement
     public static int MaxCountPerLine = 40;
     public static int MaxWidth = 290;
     public static int HeightPerLine = 25;
-    public static Vector2 CursorOffset = new(10, 0);
+    public static Vector2 CursorOffset = new(20, 0);
 }

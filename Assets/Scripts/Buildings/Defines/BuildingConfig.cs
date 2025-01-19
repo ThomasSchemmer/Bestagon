@@ -34,15 +34,16 @@ public class BuildingConfig
         Merchant = 1 << 24,
     }
 
-
-    public static int CategoryAmount = 4;
     public static int MaxIndex = 24;
-    public static Type CategoryMeadow = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.HuntersHut | Type.Hut | Type.Well;
+    public static Type CategoryMeadowA = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut ;
+    public static Type CategoryMeadowB = Type.HuntersHut | Type.Well;
     public static Type CategoryDesertA = Type.Quarry | Type.Sawmill | Type.Harbour;
     public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut | Type.Merchant;
-    public static Type CategorySwamp = Type.Mine | Type.Forge | Type.Smithy | Type.Barracks | Type.SmokeHut | Type.Mill | Type.Farm | Type.Weaver | Type.Tailor;
-    public static Type CategoryIce = Type.Stonemason | Type.Bakery | Type.Brewer | Type.Scribe;
+    public static Type CategorySwampA = Type.Mine | Type.Forge | Type.Smithy | Type.Farm;
+    public static Type CategorySwampB = Type.Barracks | Type.SmokeHut | Type.Mill | Type.Weaver | Type.Tailor;
+    public static Type CategoryIceA = Type.Stonemason;
+    public static Type CategoryIceB = Type.Bakery | Type.Brewer | Type.Scribe;
 
-    public static Type UnlockOnStart = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut ;
+    public static Type UnlockOnStart = CategoryMeadowA;
 
 }

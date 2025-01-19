@@ -69,7 +69,6 @@
     <Compile Include="Assets\Imports\GAS\Tags\Editor\Util\ContainerDrawerLibrary.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Effects\Editor\BuildingEffectDrawer.cs" />
     <Compile Include="Assets\Scripts\Player\Editor\ProductionDrawer.cs" />
-    <Compile Include="Assets\Scripts\Builds\Editor\BuildWindows.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\Editor\BuildingFactoryEditor.cs" />
     <Compile Include="Assets\Scripts\Config\Settings\Editor\SettingDrawer.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\Editor\GameplayTagTokenDrawer.cs" />

@@ -20,8 +20,8 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     protected void Create()
     {
-        Choices = new CollectableChoice[ChoiceContainers.Count];
-        for (int i = 0; i < ChoiceContainers.Count; i++)
+        Choices = new CollectableChoice[ChoiceTypes.Count];
+        for (int i = 0; i < Choices.Length; i++)
         {
             CreateChoiceAt(i);
         }

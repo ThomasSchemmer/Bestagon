@@ -57,8 +57,8 @@ MonoBehaviour:
     - Key: 17
       Value:
         Type: 17
-        BaseValue: 2
-        CurrentValue: 2
+        BaseValue: 3
+        CurrentValue: 3
     - Key: 18
       Value:
         Type: 18

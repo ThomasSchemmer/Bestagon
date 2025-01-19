@@ -293,7 +293,7 @@ public class SaveGameManager : GameService
 
     private static void CopyTutorialFile()
     {
-        MapContainer Container = Resources.Load("Maps/tutorial1") as MapContainer;
+        MapContainer Container = Resources.Load("Maps/Tutorial1") as MapContainer;
 
         string FileName = GetCompleteSaveGameName(TutorialSavegame);
         string Path = GetSavegamePath();

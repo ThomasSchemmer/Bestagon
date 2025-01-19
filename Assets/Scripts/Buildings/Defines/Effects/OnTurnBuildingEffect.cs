@@ -38,15 +38,19 @@ public class OnTurnBuildingEffect : Effect
         this.Building = Building;
     }
 
-    /** Has to be provided Location instead of using building location, as preview might not work*/
-    public Production GetProduction(int Worker, LocationSet Location, bool bIsSimulated)
+    /**
+     * Returns the production per turn of the effect
+     * Has to be provided Location instead of using building location, as preview might not work
+     * bIsMaximum: returns the maximum production if true, ignoring eg consumption costs
+     */
+    public Production GetProduction(int Worker, LocationSet Location, bool bIsSimulated, bool bIsMaximum)
     {
         switch(EffectType)
         {
             case Type.Produce:
                 return GetProductionAt(Worker, Location);
             case Type.ConsumeProduce:
-                return GetConsumeProductionAt(Worker, bIsSimulated);
+                return GetConsumeProductionAt(Worker, bIsSimulated, bIsMaximum);
             // ProduceUnit is handled on its own as well
             case Type.ProduceUnit:
                 return GetUnitProductionCost(bIsSimulated);
@@ -77,7 +81,7 @@ public class OnTurnBuildingEffect : Effect
         return Production * Worker;
     }
 
-    private Production GetConsumeProductionAt(int Worker, bool bIsSimulated)
+    private Production GetConsumeProductionAt(int Worker, bool bIsSimulated, bool bIsMaximum)
     {
         if (!Game.TryGetService(out Stockpile Stockpile))
             return new();
@@ -85,6 +89,11 @@ public class OnTurnBuildingEffect : Effect
         Production Resources = bIsSimulated ? Stockpile.SimulatedResources : Stockpile.Resources;
 
         int MaxAmount = Worker;
+        if (bIsMaximum)
+        {
+            return MaxAmount * (Production - Consumption);
+        }
+
         foreach (var Tuple in Consumption.GetTuples())
         {
             if (Tuple.Value == 0)

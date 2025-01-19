@@ -6,7 +6,6 @@ using UnityEditor;
 using UnityEngine;
 using static SaveableService;
 using static SaveGameManager;
-using static UnityEditor.Progress;
 
 public class SaveableClass : SaveableData
 {

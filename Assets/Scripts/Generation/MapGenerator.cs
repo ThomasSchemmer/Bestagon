@@ -8,7 +8,6 @@ using UnityEngine.Assertions;
 using UnityEngine.XR;
 using static HexagonData;
 using static Pathfinding;
-using static UnityEditor.PlayerSettings;
 
 /** 
  * Main service to generate and display @HexagonVisualizations.

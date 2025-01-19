@@ -20,7 +20,8 @@ public class SaveableArray : SaveableData
         Type ArrayType = Array.GetType();
         MethodInfo GetLengthMethod = ArrayType.GetMethod("get_Length");
         MethodInfo GetLengthsMethod = ArrayType.BaseType.GetMethod("GetLength");
-        MethodInfo GetItemMethod = ArrayType.GetMethod("Get");
+        Type[] ParamTypes = new Type[2] { typeof(int), typeof(int) };
+        MethodInfo GetItemMethod = ArrayType.GetMethod("GetValue", ParamTypes);
 
         int Rank = ArrayType.GetArrayRank();
         int[] Sizes = new int[Rank];

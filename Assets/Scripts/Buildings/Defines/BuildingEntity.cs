@@ -97,9 +97,9 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         {
             int ResourceIndex = UnityEngine.Random.Range(0, Tuples.Count);
             var OldTuple = Tuples[ResourceIndex];
-            
-            Tuple<Production.Type, int> NewTuple = new (OldTuple.Key, OldTuple.Value + 1 * Sign);
-            Tuples[ResourceIndex] = NewTuple;
+
+            int NewValue = Mathf.Max(OldTuple.Value + 1 * Sign, 0);
+            Tuples[ResourceIndex] = new(OldTuple.Key, NewValue);
         }
 
        return new(Tuples);
@@ -107,7 +107,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public Production GetProduction(bool bIsSimulated)
     {
-        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Locations, bIsSimulated);
+        return Effect.GetProduction(GetWorkerMultiplier(bIsSimulated), Locations, bIsSimulated, false);
     }
 
     public void SimulateCurrentFood()
@@ -123,12 +123,12 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public Production GetTheoreticalMaximumProduction()
     {
-        return Effect.GetProduction(AssignedWorkers.Length, Locations, false);
+        return Effect.GetProduction(AssignedWorkers.Length, Locations, false, true);
     }
 
     public Production GetProductionPreview(LocationSet Locations)
     {
-        return Effect.GetProduction(GetMaximumWorkerCount(), Locations, false);
+        return Effect.GetProduction(GetMaximumWorkerCount(), Locations, false, false);
     }
 
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)

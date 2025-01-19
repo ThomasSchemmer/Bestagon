@@ -65,9 +65,11 @@ public class LocalizedGameplayEffect : GameplayEffect
         // a ptr to this effect etc
         // also make this a lookup for each source to neighbouring locations, so that only the ptr on the 
         // hex data is enough to get all info
-        if (!MapGenerator.TryGetHexagonData(Location, out var Data))
+        if (!MapGenerator.TryGetHexagon(Location, out var Hex))
             return;
 
-        Data.SetAoESourceLocation(Source);
+
+        Hex.Data.SetAoESourceLocation(Source);
+        Hex.VisualizeSelection();
     }
 }

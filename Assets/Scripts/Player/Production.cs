@@ -182,6 +182,7 @@ public class Production
 
     public bool SmallerThanAny(Production Other)
     {
+        FillToEmpty();
         foreach (var Tuple in _Production)
         {
             if (!Other.Contains(Tuple.Key))
@@ -191,6 +192,17 @@ public class Production
                 return true;
         }
         return false;
+    }
+
+    public void FillToEmpty()
+    {
+        foreach (Type Type in Enum.GetValues(typeof(Type)))
+        {
+            if (_Production.ContainsKey(Type))
+                continue;
+
+            _Production.Add(Type, 0);
+        }
     }
 
     public static bool operator >(Production A, Production B)
