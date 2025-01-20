@@ -129,10 +129,13 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
 
     public void OnLoaded()
     {
-        if (bIsActivated)
+        if (!bIsActivated)
+            return;
+
+        Game.RunAfterServiceInit((MapGenerator MapGen) =>
         {
             ApplyEffect(ChoiceType);
-        }
+        });
     }
 
     public virtual Vector3 GetOffset()

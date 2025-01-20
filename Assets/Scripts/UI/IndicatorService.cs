@@ -18,6 +18,7 @@ public class IndicatorService : GameService
 
     protected override void StartServiceInternal(){
         MainCam = Camera.main;
+        _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal(){}

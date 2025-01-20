@@ -68,6 +68,8 @@ public class LocalizedGameplayEffect : GameplayEffect
         if (!MapGenerator.TryGetHexagon(Location, out var Hex))
             return;
 
+        if (Hex.Data == null)
+            return;
 
         Hex.Data.SetAoESourceLocation(Source);
         Hex.VisualizeSelection();

@@ -185,17 +185,36 @@ public class ReachVisualization : GameService
         AddReach(Enumerator.Current);
     }
 
+    public override void Reset()
+    {
+        BuildingLocations.Clear();
+        Corners.Clear();
+        Set.Clear();
+        Vertices.Clear();
+        Triangles.Clear();
+
+    }
+
     protected override void StartServiceInternal()
     {
         MeshFilter = GetComponent<MeshFilter>();
         Renderer = GetComponent<MeshRenderer>();
         Renderer.material = Mat;
 
-
         BuildingService._OnBuildingBuilt.Add(AddReach);
         BuildingService._OnBuildingDestroyed.Add(RemoveReach);
-        
-        _OnInit?.Invoke(this);
+
+        // building reach is never saved, so we can just regen it
+        Game.RunAfterServiceInit((BuildingService Buildings) =>
+        {
+            foreach (var Building in Buildings.Entities)
+            {
+                AddReach(Building);
+            }
+            UpdateBorders();
+            GenerateMesh();
+            _OnInit?.Invoke(this);
+        });
     }
 
     private void OnDestroy()
