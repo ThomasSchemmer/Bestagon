@@ -312,7 +312,7 @@ public class HexagonConfig {
         {
             case HexagonType.Meadow: return 1;
             case HexagonType.Forest: return 1;
-            case HexagonType.Mountain: return 3;
+            case HexagonType.Mountain: return -1;
             case HexagonType.Ocean: return -1;
             case HexagonType.Desert: return 2;
             case HexagonType.Tundra: return 2;

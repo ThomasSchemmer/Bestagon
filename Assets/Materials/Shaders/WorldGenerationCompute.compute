@@ -283,6 +283,7 @@ void TypeCalculation(uint3 ID : SV_DispatchThreadID)
             HeightIndex = HeightMap[i].Index;
         }
     }
+    HeightIndex = HeightIndex == -1 ? 0 : HeightIndex;
 
     HexagonInfos[Pos].HexagonHeight = HeightIndex;
     HexagonInfos[Pos].HexagonType = TypeIndex;   
