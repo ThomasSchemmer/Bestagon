@@ -34,8 +34,12 @@ public class PinnedIndicator : SpriteIndicatorComponent
     {
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
-        TargetPosition.x += 200 / 2f - 15;
-        TargetPosition.y += 320 / 2f - 15;
+        Vector2 Scale = HexagonConfig.GetScreenScale();
+        Vector3 Delta = new(
+            (Card.Width / 2f - Offset) * Scale.x,
+            (Card.Height / 2f - Offset) * Scale.y
+        );
+        TargetPosition += Delta;
         Vector3 OffsetWorld = TargetPosition - IndicatorTransform.position;
         Vector3 OffsetLocal = IndicatorTransform.InverseTransformVector(OffsetWorld);
         IndicatorTransform.anchoredPosition = IndicatorTransform.anchoredPosition + (Vector2)OffsetLocal;
@@ -46,4 +50,6 @@ public class PinnedIndicator : SpriteIndicatorComponent
         // static image, the "negative" is simply hidden
         return false;
     }
+
+    public static float Offset = 15;
 }

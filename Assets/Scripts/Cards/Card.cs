@@ -377,6 +377,8 @@ public abstract class Card : Draggable, ISelectable
     public override void SetDragParent(RectTransform NewParent, int Index)
     {
         base.SetDragParent(NewParent, Index);
+        if (NewParent == null)
+            return;
 
         CardCollection NewCollection = NewParent.GetComponent<CardCollection>();
         if (NewCollection != null)
@@ -480,4 +482,6 @@ public abstract class Card : Draggable, ISelectable
     public static Color HoverColor = new Color(23 / 255f, 171 / 255f, 167 / 255f);
     public static Color SelectColor = new Color(23 / 255f, 95 / 255f, 171 / 255f);
 
+    public static float Width = 200;
+    public static float Height = 320;
 }

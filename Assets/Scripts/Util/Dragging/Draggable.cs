@@ -18,7 +18,9 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         if (!bIsBeingDragged)
             return;
 
-        RectTransform.anchoredPosition += EventData.delta * Canvas.scaleFactor * 0.6f;
+        Vector2 Scale = HexagonConfig.GetScreenScale();
+        Vector2 Delta = new(EventData.delta.x / Scale.x, EventData.delta.y / Scale.y);
+        RectTransform.anchoredPosition += 0.6f * Delta;
         Manager.Drag(this, EventData);
     }
 

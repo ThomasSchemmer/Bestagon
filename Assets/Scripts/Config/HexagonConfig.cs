@@ -429,4 +429,12 @@ public class HexagonConfig {
         LoadedChunkVisualizations = DefaultLoadedChunkVisualizations;
     }
 
+    public static Vector2 GetScreenScale()
+    {
+        return new(
+            Screen.width / 1920f,
+            Screen.height / 1080f
+        );
+    }
+
 }

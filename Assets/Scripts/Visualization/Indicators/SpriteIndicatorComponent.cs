@@ -15,6 +15,7 @@ public abstract class SpriteIndicatorComponent : IndicatorComponent
 
         SVGImage Image = Indicators[i].GetComponent<SVGImage>();
         Image.sprite = GetIndicatorSprite(i);
+        Indicators[i].localScale = HexagonConfig.GetScreenScale();
     }
 
     public override IndicatorService.IndicatorType GetIndicatorType()

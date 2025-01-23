@@ -100,8 +100,12 @@ public class CardUpgradeScreen : GameService
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
-        TargetPosition.x += 200 / 2f - 15 - 35;
-        TargetPosition.y += 320 / 2f - 15;
+        Vector2 Scale = HexagonConfig.GetScreenScale();
+        Vector3 Delta = new(
+            (Card.Width / 2f - ButtonOffsetStart - ButtonOffset) / Scale.x,
+            (Card.Height / 2f - ButtonOffsetStart) / Scale.y
+        );
+        TargetPosition += Delta;
         Vector3 OffsetWorld = TargetPosition - UpgradeButton.position;
         Vector3 OffsetLocal = UpgradeButton.InverseTransformVector(OffsetWorld);
         UpgradeButton.anchoredPosition = UpgradeButton.anchoredPosition + (Vector2)OffsetLocal;
@@ -122,8 +126,12 @@ public class CardUpgradeScreen : GameService
 
         RectTransform RectTransform = Card.GetComponent<RectTransform>();
         Vector3 TargetPosition = RectTransform.position;
-        TargetPosition.x += 200 / 2f - 15;
-        TargetPosition.y += 320 / 2f - 15;
+        Vector2 Scale = HexagonConfig.GetScreenScale();
+        Vector3 Delta = new(
+            (Card.Width / 2f - ButtonOffsetStart - ButtonOffset) / Scale.x,
+            (Card.Height / 2f - ButtonOffsetStart) / Scale.y
+        );
+        TargetPosition += Delta;
         Vector3 OffsetWorld = TargetPosition - PinButton.position;
         Vector3 OffsetLocal = PinButton.InverseTransformVector(OffsetWorld);
         PinButton.GetComponent<Image>().sprite = Card.IsPinned() ? PinActive : PinInactive;
@@ -261,4 +269,7 @@ public class CardUpgradeScreen : GameService
     protected override void StartServiceInternal() {}
 
     protected override void StopServiceInternal() {}
+
+    public static float ButtonOffset = 35;
+    public static float ButtonOffsetStart = 15;
 }

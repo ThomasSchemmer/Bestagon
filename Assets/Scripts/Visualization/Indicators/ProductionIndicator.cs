@@ -142,6 +142,7 @@ public class ProductionIndicator : IndicatorComponent
             return;
 
         AddVisualsForProduction(i, NeighbourProductions[i]);
+        Indicators[i].localScale = HexagonConfig.GetScreenScale();
         Profiler.EndSample();
     }
 

@@ -75,9 +75,13 @@ public class CardContainerUI : CardCollection, IDragTarget
         if (!Layout)
             return -1;
 
+        Vector2 Scale = HexagonConfig.GetScreenScale();
+
         // map pointer to top left inner position of the actual layout
-        Vector2 Position = Event.position - new Vector2(Layout.padding.left, Layout.padding.top);
-        Position -= new Vector2(Content.position.x, Content.position.y);
+        Vector2 EventPosition = new(Event.position.x / Scale.x, Event.position.y / Scale.y);
+        Vector2 ContentPosition = new(Content.position.x / Scale.x, Content.position.y / Scale.y);
+        Vector2 Position = EventPosition - new Vector2(Layout.padding.left, Layout.padding.top);
+        Position -= ContentPosition;
         Position.y = -Position.y;
         // then check which index to place at
         Vector2 CellSize = Layout.cellSize + Layout.spacing;
