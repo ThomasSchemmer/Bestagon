@@ -26,6 +26,10 @@ public class RelicService : SaveableService, IUnlockableService<RelicType>
     public override void Reset()
     {
         base.Reset();
+        foreach (var RelicTuple in Relics)
+        {
+            SetRelic(RelicTuple.Key, Unlockables.State.Locked, true);
+        }
         UnlockableRelics.Reset();
         Relics.Clear();
     }

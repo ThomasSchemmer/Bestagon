@@ -51,6 +51,7 @@ public class SaveGameManager : GameService
 
     protected override void StartServiceInternal()
     {
+        ResetAllServices();
         Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
         {
             Game.RunAfterServicesInit((CardFactory CardFactory, GameplayAbilitySystem GAS) =>
@@ -188,13 +189,19 @@ public class SaveGameManager : GameService
         }
     }
 
+    public override void Reset()
+    {
+        base.Reset();
+        ResetAllServices();
+    }
+
     private void ResetAllServices()
     {
-        if (!IsInit)
-            return;
-
         foreach (var Tuple in Saveables)
         {
+            if (!Tuple.Value.IsInit)
+                continue;
+
             Tuple.Value.Reset();
         }
     }

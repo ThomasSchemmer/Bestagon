@@ -364,6 +364,7 @@ public class Game : MonoBehaviour
             bLoadTutorial = false;
         }
 
+        Manager.Reset();
         Manager.MarkSaveForLoading(SaveGameName, bCreateNewGame, bLoadTutorial);
         
         AsyncOperation Op = SceneManager.LoadSceneAsync(SceneName);

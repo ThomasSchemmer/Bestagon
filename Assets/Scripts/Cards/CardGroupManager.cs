@@ -159,15 +159,18 @@ public class CardGroupManager : SaveableService
 
         Game.RunAfterServicesInit((CardFactory CardFactory, CardHand CardHand) =>
         {
-            CardFactory.CreateCard(UnitEntity.UType.Scout, 0, null, AddScoutCard);
-            CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, null, AddCard);
-            CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, null, AddCard);
-            CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, null, AddCard);
-            CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, null, AddCard);
+            Game.RunAfterServiceInit((RelicService RelicService) =>
+            {
+                CardFactory.CreateCard(UnitEntity.UType.Scout, 0, null, AddScoutCard);
+                CardFactory.CreateCard(BuildingConfig.Type.Woodcutter, 0, null, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.ForagersHut, 0, null, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.Claypit, 0, null, AddCard);
+                CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, null, AddCard);
 
-            // move cards to the collections, and fill the base hand
-            SwitchTo(0);
-            CardGroupsScreen.CreateCardGroupScreens(this, ActiveGroupIndex);
+                // move cards to the collections, and fill the base hand
+                SwitchTo(0);
+                CardGroupsScreen.CreateCardGroupScreens(this, ActiveGroupIndex);
+            });
         });
     }
 
