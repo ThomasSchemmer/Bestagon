@@ -17,6 +17,7 @@ public class StockpileScreen : MonoBehaviour
             TokenizedUnitEntity._OnMovement += UpdateScoutVisuals;
             Turn._OnTurnEnd += UpdateIndicatorCount;
             Stockpile._OnSimulatedGainsChanged += UpdateIndicatorCount;
+            AmberService._OnAmberAmountChanged += UpdateAmberVisuals;
 
             Initialize(Stockpile, IconFactory);
             UpdateVisuals();
@@ -33,6 +34,7 @@ public class StockpileScreen : MonoBehaviour
         TokenizedUnitEntity._OnMovement -= UpdateScoutVisuals;
         Turn._OnTurnEnd -= UpdateIndicatorCount;
         Stockpile._OnSimulatedGainsChanged -= UpdateIndicatorCount;
+        AmberService._OnAmberAmountChanged -= UpdateAmberVisuals;
     }
 
     protected virtual void Initialize(Stockpile Stockpile, IconFactory IconFactory)
@@ -40,6 +42,7 @@ public class StockpileScreen : MonoBehaviour
         InitializeGroupScreens(Stockpile, IconFactory);
         InitializeWorkerVisuals(IconFactory);
         InitializeScoutVisuals(IconFactory);
+        InitializeAmberVisuals(IconFactory);
     }
 
     private void InitializeGroupScreens(Stockpile Stockpile, IconFactory IconFactory)
@@ -89,6 +92,18 @@ public class StockpileScreen : MonoBehaviour
         ScoutRect.anchoredPosition += GetTargetOffset(GroupCount + 2);
     }
 
+    private void InitializeAmberVisuals(IconFactory IconFactory)
+    {
+        int GroupCount = Production.Indices.Length - 1;
+        GameObject AmberVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Amber, null, 0);
+        AmberScreen = AmberVisuals.GetComponent<NumberedIconScreen>();
+        AmberScreen.HoverTooltip = "Active / Collected Ambers";
+        RectTransform AmberRect = AmberVisuals.GetComponent<RectTransform>();
+        AmberRect.SetParent(GetTargetTransform(), false);
+        AmberRect.anchoredPosition = GetTargetOrigin();
+        AmberRect.anchoredPosition += GetTargetOffset(GroupCount + 3);
+    }
+
     private void UpdateIndicatorCount()
     {
         foreach (StockpileGroupScreen GroupScreen in GroupScreens) {
@@ -106,6 +121,7 @@ public class StockpileScreen : MonoBehaviour
 
         UpdateWorkerVisuals();
         UpdateScoutVisuals();
+        UpdateAmberVisuals();
     }
 
     protected virtual Transform GetTargetTransform()
@@ -161,6 +177,14 @@ public class StockpileScreen : MonoBehaviour
         return true;
     }
 
+    protected virtual bool ShouldDisplayAmbers()
+    {
+        if (!Game.TryGetService(out AmberService Ambers))
+            return false;
+
+        return Ambers.IsUnlocked();
+    }
+
     protected virtual bool ShouldDisplayWorkers()
     {
         return true;
@@ -186,6 +210,22 @@ public class StockpileScreen : MonoBehaviour
         UpdateScoutVisuals();
     }
 
+    private void UpdateAmberVisuals(int i)
+    {
+        UpdateAmberVisuals();
+    }
+
+    private void UpdateAmberVisuals()
+    {
+        if (!ShouldDisplayAmbers())
+            return;
+
+        if (!Game.TryGetService(out AmberService Ambers))
+            return;
+
+        AmberScreen.UpdateVisuals(Ambers.AmberCount, Ambers.AmberCount);
+    }
+
     private void UpdateScoutVisuals()
     {
         if (!ShouldDisplayScouts())
@@ -207,14 +247,10 @@ public class StockpileScreen : MonoBehaviour
         {
             GroupScreen.Show(bShow);
         }
-        if (ShouldDisplayWorkers())
-        {
-            WorkerScreen.Show(bShow);
-        }
-        if (ShouldDisplayScouts())
-        {
-            ScoutScreen.Show(bShow);    
-        }
+
+        WorkerScreen.Show(bShow && ShouldDisplayWorkers());
+        ScoutScreen.Show(bShow && ShouldDisplayScouts());    
+        AmberScreen.Show(bShow && ShouldDisplayAmbers());
     }
 
     public GameObject GroupPrefab;
@@ -223,5 +259,6 @@ public class StockpileScreen : MonoBehaviour
     protected StockpileGroupScreen[] GroupScreens;
     protected NumberedIconScreen WorkerScreen;
     protected NumberedIconScreen ScoutScreen;
+    protected NumberedIconScreen AmberScreen;
     protected bool bShow = true;
 }

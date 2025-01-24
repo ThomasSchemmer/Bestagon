@@ -134,6 +134,19 @@ public class Units : TokenizedEntityProvider<TokenizedUnitEntity>
         return true;
     }
 
+    public override int GetAmountOfType(int EntityCode)
+    {
+        int Count = 0;
+        foreach (var Entity in Entities)
+        {
+            if ((int)Entity.UnitType != EntityCode)
+                continue;
+
+            Count++;
+        }
+        return Count;
+    }
+
     public delegate void OnUnitCountChanged();
     public static event OnUnitCountChanged _OnUnitCountChanged;
     public static ActionList<TokenizedUnitEntity> _OnUnitMoved = new();

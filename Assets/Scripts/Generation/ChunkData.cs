@@ -139,6 +139,9 @@ public class ChunkData
         if (!Decorations.TryGetEntityAt(Location, out var Entity))
             return;
 
+        if (Entity.CanSurviveMalaise())
+            return;
+
         Decorations.KillEntity(Entity);
     }
 

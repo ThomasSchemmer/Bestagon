@@ -51,9 +51,11 @@ public class HexagonData
     private DiscoveryState Discovery = DiscoveryState.Unknown;
 
     public delegate void OnDiscovery();
-    public delegate void OnDiscoveryStateHex(HexagonData Data, DiscoveryState State);
+    public delegate void OnHexDiscoveryState(HexagonData Data, DiscoveryState State);
+    public delegate void OnHexMalaised(HexagonData Data);
     public OnDiscovery _OnDiscovery;
-    public static OnDiscoveryStateHex _OnDiscoveryStateHex;
+    public static OnHexDiscoveryState _OnHexDiscoveryState;
+    public static OnHexMalaised _OnHexMalaised;
 
     public HexagonData(HexagonHeight HexHeight, HexagonType HexType)
     {
@@ -96,7 +98,7 @@ public class HexagonData
         Discovery = NewState;
 
         // needs to be called before OnDiscovery to update HexData before mesh creation
-        _OnDiscoveryStateHex?.Invoke(this, Discovery);
+        _OnHexDiscoveryState?.Invoke(this, Discovery);
         _OnDiscovery?.Invoke();
 
         if (!Game.TryGetService(out MapGenerator MapGenerator))
@@ -164,6 +166,7 @@ public class HexagonData
     {
         SetState(State.PreMalaised, false);
         SetState(State.Malaised, true);
+        _OnHexMalaised?.Invoke(this);
     }
 
     public void SetPreMalaised()

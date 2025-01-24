@@ -25,7 +25,8 @@ public abstract class SaveableService : GameService
         Quests = 12,
         Relics = 13,
         Decorations = 14,
-        Settings = 15
+        Settings = 15,
+        Amber = 16
     }
     public enum VariableType : uint
     {

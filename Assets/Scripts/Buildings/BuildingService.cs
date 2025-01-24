@@ -211,6 +211,19 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         return A |= B;
     }
 
+    public override int GetAmountOfType(int EntityCode)
+    {
+        int Count = 0;
+        foreach (var Entity in Entities)
+        {
+            if ((int)Entity.BuildingType != EntityCode)
+                continue;
+
+            Count++;
+        }
+        return Count;
+    }
+
     public delegate void OnBuildingsChanged();
     public static OnBuildingsChanged _OnBuildingsChanged;
 

@@ -15,7 +15,7 @@ public abstract class EntityProvider : SaveableService
 
     // has to be int as all flags are 32 bit
     public abstract bool TryCreateNewEntity(int EntityCode, LocationSet Location);
-
+    public abstract int GetAmountOfType(int EntityCode);
 }
 
 public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> where T : ScriptableEntity
@@ -73,6 +73,7 @@ public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> wher
         }
         return false;
     }
+
 
     public bool TryGetAnyOfType(UnitEntity.UType Type, out UnitEntity Unit)
     {

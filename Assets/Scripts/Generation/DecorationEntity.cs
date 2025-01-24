@@ -18,7 +18,8 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         Ruins = 1,
         Tribe = 2,
         Treasure = 3,
-        Altar = 4
+        Altar = 4,
+        Amber = 5
     }
 
     [SaveableEnum]
@@ -170,4 +171,10 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
     {
         return default;
     }
+
+    public bool CanSurviveMalaise()
+    {
+        return DecorationType == DType.Amber;
+    }
+
 }

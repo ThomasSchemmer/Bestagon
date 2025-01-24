@@ -137,7 +137,7 @@ public class Workers : EntityProvider<StarvableUnitEntity>
     
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((MeshFactory Factory) =>
+        Game.RunAfterServicesInit((MeshFactory Factory, SaveGameManager Manager) =>
         {
 
             for (int i = 0; i < AttributeSet.Get()[AttributeType.AmountStartWorkers].CurrentValue; i++)
@@ -179,6 +179,15 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         base.OnAfterLoaded();
         _OnInit?.Invoke(this);
         _OnWorkersChanged?.Invoke();
+    }
+    public override int GetAmountOfType(int EntityCode)
+    {
+        return Entities.Count;
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
     }
 
     public delegate void OnWorkersChanged();

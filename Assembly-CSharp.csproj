@@ -110,6 +110,7 @@
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableClass.cs" />
     <Compile Include="Assets\Scripts\UI\ISelectable.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Negative\MalaisedSpawnQuest.cs" />
+    <Compile Include="Assets\Scripts\Player\AmberService.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
     <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantSellScreen.cs" />

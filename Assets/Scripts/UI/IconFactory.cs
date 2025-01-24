@@ -47,7 +47,8 @@ public class IconFactory : GameService
         TripleCircleTile,
         Sacrifice,
         Offering,
-        Boat
+        Boat,
+        Amber
     }
 
     public void Refresh()

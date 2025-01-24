@@ -68,4 +68,17 @@ public class DecorationService : TokenizedEntityProvider<DecorationEntity>
         CreateNewDecoration(Code, Location.GetMainLocation());
         return true;
     }
+
+    public override int GetAmountOfType(int EntityCode)
+    {
+        int Count = 0;
+        foreach (var Entity in Entities)
+        {
+            if ((int)Entity.DecorationType != EntityCode)
+                continue;
+
+            Count++;
+        }
+        return Count;
+    }
 }

@@ -14,7 +14,8 @@ public class SpawnService : GameService
 
             InitVisibility();
             TeleportToStart();
-            HexagonData._OnDiscoveryStateHex += OnDiscoveredHex;
+            HexagonData._OnHexDiscoveryState += OnHexDiscovered;
+            HexagonData._OnHexMalaised += OnHexMalaised;
         });
     }
 
@@ -41,12 +42,19 @@ public class SpawnService : GameService
         CameraController.TeleportTo(TargetLocation.WorldLocation);
     }
 
-    private void OnDestroy()
+    public override void Reset()
     {
-        HexagonData._OnDiscoveryStateHex -= OnDiscoveredHex;
+        base.Reset();
+        HexagonData._OnHexDiscoveryState -= OnHexDiscovered;
+        HexagonData._OnHexMalaised -= OnHexMalaised;
     }
 
-    private void OnDiscoveredHex(HexagonData Data, HexagonData.DiscoveryState State)
+    private void OnDestroy()
+    {
+        Reset();
+    }
+
+    private void OnHexDiscovered(HexagonData Data, HexagonData.DiscoveryState State)
     {
         if (Game.Instance.Mode == Game.GameMode.MapEditor)
             return;
@@ -79,6 +87,23 @@ public class SpawnService : GameService
 
         DecorationEntity.DType Decoration = GetTypeToSpawn(Data, SpawnableTypes);
         DecorationService.CreateNewDecoration(Decoration, Data.Location);
+    }
+
+    private void OnHexMalaised(HexagonData Data)
+    {
+        if (!Game.TryGetServices(out AmberService Ambers, out DecorationService Decorations))
+            return;
+
+        if (!Ambers.IsUnlocked())
+            return;
+
+        if (!Ambers.ShouldSpawnMoreAmber())
+            return;
+
+        if (!Data.CanDecorationSpawn() || Decorations.IsEntityAt(Data.Location))
+            return;
+
+        Decorations.CreateNewDecoration(DecorationEntity.DType.Amber, Data.Location);
     }
 
     private DecorationEntity.DType GetTypeToSpawn(HexagonData Data, List<DecorationEntity.DType> SpawnableTypes)

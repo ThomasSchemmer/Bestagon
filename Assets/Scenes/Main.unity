@@ -14159,6 +14159,9 @@ MonoBehaviour:
   - IsForEditor: 0
     IsForGame: 1
     TargetScript: {fileID: 958875580}
+  - IsForEditor: 0
+    IsForGame: 1
+    TargetScript: {fileID: 1716499299}
 --- !u!4 &785273178
 Transform:
   m_ObjectHideFlags: 0
@@ -14214,6 +14217,8 @@ MonoBehaviour:
       Value: {fileID: 1767183026}
     - Key: 14
       Value: {fileID: 1871387457}
+    - Key: 16
+      Value: {fileID: 1716499299}
   bLoadLastFile: 0
 --- !u!1 &790190525
 GameObject:
@@ -20427,6 +20432,7 @@ Transform:
   - {fileID: 1767183025}
   - {fileID: 1871387456}
   - {fileID: 532658850}
+  - {fileID: 1716499298}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1428331267
@@ -24630,6 +24636,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1714448475}
   m_CullTransparentMesh: 1
+--- !u!1 &1716499297
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1716499298}
+  - component: {fileID: 1716499299}
+  m_Layer: 0
+  m_Name: Ambers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1716499298
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716499297}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1428331266}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1716499299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716499297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 579843e7b666fa44d9d58968a4429711, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsRunning: 0
+  IsInit: 0
+  AmberCount: -1
+  ActiveAmberCount: 0
 --- !u!1 &1717196395
 GameObject:
   m_ObjectHideFlags: 0
