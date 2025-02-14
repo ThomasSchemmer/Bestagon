@@ -19264,10 +19264,10 @@ MonoBehaviour:
   ChoicesPrefab:
     Tuples:
     - Key: 6
-      Value: {fileID: 4795802766347879577, guid: 9270435b12f809b46bfa37259fb73852,
+      Value: {fileID: 4795802766347879577, guid: 7f6547d9a0282034fac088512dccf509,
         type: 3}
     - Key: 1
-      Value: {fileID: 4795802766347879577, guid: 7f6547d9a0282034fac088512dccf509,
+      Value: {fileID: 4795802766347879577, guid: 9270435b12f809b46bfa37259fb73852,
         type: 3}
     - Key: 2
       Value: {fileID: 4494726817561328335, guid: 0b4aa6f649b33294ab4cc66f27242a3f,

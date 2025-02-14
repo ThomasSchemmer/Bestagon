@@ -46,10 +46,11 @@ MonoBehaviour:
           Value: 2
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 1025
+  BuildableOn: 66560
+  ExtendableOn: 0
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 70689
+  UpgradeBuildableOn: 76832
   UpgradeMaxUsages: 2
   Area: 0

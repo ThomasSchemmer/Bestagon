@@ -10,45 +10,43 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ad10dc1e93f89b40ba9c51f4305bf22, type: 3}
-  m_Name: Weaver
+  m_Name: Outpost
   m_EditorClassIdentifier: 
   EntityType: 1
   AssignedWorkers:
   - {fileID: 0}
-  BuildingType: 1048576
+  BuildingType: 67108864
   Cost:
     _Production:
       Tuples:
-      - Key: 3
-        Value: 3
-      - Key: 2
+      - Key: 0
         Value: 1
-      - Key: 4
-        Value: 2
+      - Key: 1
+        Value: 1
   Effect:
-    EffectType: 2
-    UnitType: 0
+    EffectType: 6
+    UnitType: 1
     Production:
       _Production:
-        Tuples:
-        - Key: 18
-          Value: 1
+        Tuples: []
     Consumption:
       _Production:
         Tuples:
-        - Key: 19
-          Value: 2
+        - Key: 0
+          Value: 1
+        - Key: 1
+          Value: 1
     Range: 0
     UpgradeProduction:
       _Production:
         Tuples: []
     UpgradeRange: 0
-  MaxWorker: 1
-  BuildableOn: 73984
+  MaxWorker: 0
+  BuildableOn: 5121
   ExtendableOn: 0
   CurrentUsages: 1
-  MaxUsages: 1
-  UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 90416
-  UpgradeMaxUsages: 2
-  Area: 1
+  MaxUsages: 2
+  UpgradeMaxWorker: 0
+  UpgradeBuildableOn: 93619
+  UpgradeMaxUsages: 5
+  Area: 0

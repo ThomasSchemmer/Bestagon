@@ -219,11 +219,6 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
     public override void OnAfterLoaded()
     {
         base.OnAfterLoaded();
-        if (Game.IsIn(Game.GameState.CardSelection))
-        {
-            // kill all buildings, but leave the unlocks untouched
-            
-        }
         _OnInit?.Invoke(this);
         _OnBuildingsChanged?.Invoke();
     }

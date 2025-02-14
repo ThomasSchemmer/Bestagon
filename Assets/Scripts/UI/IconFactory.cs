@@ -326,7 +326,7 @@ public class IconFactory : GameService
         DestroyImmediate(TypeContainer.gameObject);
         return MerchantEffect;
     }
-    public GameObject GetVisualsForLibraryEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    public GameObject GetVisualsForOtherEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
         GameObject LibraryEffect = Instantiate(ProduceEffectPrefab);
         TextMeshProUGUI LibraryText = LibraryEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();

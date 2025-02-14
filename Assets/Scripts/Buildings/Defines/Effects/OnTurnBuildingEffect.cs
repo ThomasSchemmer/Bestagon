@@ -14,6 +14,7 @@ public class OnTurnBuildingEffect : Effect
         ProduceUnit,
         Merchant,
         Library,
+        Outpost
     }
 
     [SaveableEnum]
@@ -216,6 +217,7 @@ public class OnTurnBuildingEffect : Effect
             case Type.ConsumeProduce: return GetDescriptionConsumeProduce();
             case Type.Merchant: return "Allows trading resources for new cards";
             case Type.Library: return "Allows researching the Malaise";
+            case Type.Outpost: return "Extends the Building Reach area";
 
             default: return "No effect";
         }
@@ -235,7 +237,8 @@ public class OnTurnBuildingEffect : Effect
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(Building, Parent);
             case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
-            case Type.Library: return IconFactory.GetVisualsForLibraryEffect(this, Parent);
+            case Type.Library: //fallthrough
+            case Type.Outpost: return IconFactory.GetVisualsForOtherEffect(this, Parent);
             default: return null;
         }
     }

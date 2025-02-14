@@ -21,9 +21,10 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     public override bool ShouldBeDisplayed()
     {
-        return TryGetBuildingData(out BuildingEntity Building) &&
-            Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant &&
-            Building.Effect.EffectType != OnTurnBuildingEffect.Type.Library;
+        return TryGetBuildingData(out BuildingEntity Building) && 
+            (Building.Effect.EffectType == OnTurnBuildingEffect.Type.Produce ||
+            Building.Effect.EffectType == OnTurnBuildingEffect.Type.ProduceUnit ||
+            Building.Effect.EffectType == OnTurnBuildingEffect.Type.ConsumeProduce);
     }
 
     private bool ShouldFallbackBeDisplayed()

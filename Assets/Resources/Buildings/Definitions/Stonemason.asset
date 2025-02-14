@@ -44,10 +44,11 @@ MonoBehaviour:
         Tuples: []
     UpgradeRange: 0
   MaxWorker: 1
-  BuildableOn: 1041
+  BuildableOn: 96
+  ExtendableOn: 0
   CurrentUsages: 1
   MaxUsages: 1
   UpgradeMaxWorker: 2
-  UpgradeBuildableOn: 91185
+  UpgradeBuildableOn: 24928
   UpgradeMaxUsages: 2
   Area: 0
