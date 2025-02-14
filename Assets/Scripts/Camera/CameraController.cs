@@ -127,6 +127,11 @@ public class CameraController : GameService, IQuestRegister<Vector3>
         TargetPosition = TargetLocation;
         transform.position = TargetLocation;
     }
+    protected override void ResetInternal()
+    {
+        IsPaused = false;
+
+    }
 
     private Camera Cam;
 

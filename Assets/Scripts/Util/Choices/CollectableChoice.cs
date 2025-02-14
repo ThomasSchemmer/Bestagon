@@ -13,7 +13,9 @@ public class CollectableChoice
         Upgrade,
         Relic,
         Sacrifice,
-        Offering
+        Offering,
+        Amber,
+        Locked
     }
 
     [SaveableEnum]
@@ -60,5 +62,13 @@ public class CollectableAltarChoice : CollectableChoice
     public CollectableAltarChoice(bool bIsOffering)
     {
         Type = bIsOffering ? ChoiceType.Offering : ChoiceType.Sacrifice;
+    }
+}
+
+public class CollectableAmberChoice : CollectableChoice
+{
+    public CollectableAmberChoice()
+    {
+        Type = ChoiceType.Amber;
     }
 }

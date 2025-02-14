@@ -53,11 +53,9 @@ public abstract class GameServiceDelegate
             return;
 
         ExecuteAction();
-        bHasRun = true;
-        Reset();
     }
 
-    protected virtual void Reset()
+    protected virtual void ResetDelegates()
     {
         // reset everything to avoid multiple triggers
         foreach (GameService Service in GetRequiredServices())
@@ -73,8 +71,6 @@ public abstract class GameServiceDelegate
             }
         }
         Game.RemoveServiceDelegate(this);
-        ResetAction();
-
     }
 
     public bool HasRun()
@@ -103,7 +99,10 @@ public class GameServiceDelegate<T> : GameServiceDelegate where T : GameService
             return;
 
         List<GameService> StartedServices = GetRequiredServices();
+        bHasRun = true;
+        ResetDelegates();
         Action((T)StartedServices[0]);
+        ResetAction();
     }
 
     public override void ResetAction()
@@ -150,7 +149,10 @@ public class GameServiceDelegate<X, Y> : GameServiceDelegate where X : GameServi
             return;
 
         List<GameService> StartedServices = GetRequiredServices();
+        bHasRun = true;
+        ResetDelegates();
         Action((X)StartedServices[0], (Y)StartedServices[1]);
+        ResetAction();
     }
 
     public override void ResetAction()

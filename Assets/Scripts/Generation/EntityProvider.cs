@@ -52,7 +52,7 @@ public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> wher
         }
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
         KillAllEntities();
         Entities = new();

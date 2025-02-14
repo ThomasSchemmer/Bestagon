@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
+/** 
+ * Represents a runtime parameter that affects the players stats. Contained in an @AttributeSet
+ * Can have modifier applied to it via @GameplayEffect
+ */
 public class Attribute
 {
     public AttributeType Type;
@@ -34,8 +38,14 @@ public class Attribute
 
     public void Initialize()
     {
+        Reset();
+    }
+
+    public void Reset()
+    {
         CurrentValue = BaseValue;
         ResetModifiers();
+        _OnAttributeChanged?.Invoke();
     }
 
     private void ResetModifiers()

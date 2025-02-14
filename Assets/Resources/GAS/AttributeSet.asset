@@ -68,7 +68,7 @@ MonoBehaviour:
       Value:
         Type: 12
         BaseValue: 0
-        CurrentValue: 1
+        CurrentValue: 0
     - Key: 19
       Value:
         Type: 19
@@ -79,3 +79,13 @@ MonoBehaviour:
         Type: 6
         BaseValue: 1
         CurrentValue: 1
+    - Key: 20
+      Value:
+        Type: 20
+        BaseValue: 0
+        CurrentValue: 0
+    - Key: 21
+      Value:
+        Type: 21
+        BaseValue: 0
+        CurrentValue: 0

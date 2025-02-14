@@ -25,12 +25,31 @@ public class Turn : GameService, IQuestRegister<int>
 
         gameObject.SetActive(true);
         gameObject.SetActive(true);
+
+        GameplayAbilitySystem._OnBehaviourRegistered += OnPlayerBehaviourRegistered;
+
         _OnInit?.Invoke(this);
     }
 
     protected override void StopServiceInternal() {
         gameObject.SetActive(false);
         gameObject.SetActive(false);
+    }
+
+    public void OnDestroy()
+    {
+        GameplayAbilitySystem._OnBehaviourRegistered -= OnPlayerBehaviourRegistered;
+    }
+
+    private void OnPlayerBehaviourRegistered(GameplayAbilityBehaviour Behaviour)
+    {
+        if (!Behaviour.gameObject.name.ToLower().Equals("player"))
+            return;
+
+        Game.RunAfterServiceInit((AmberService Ambers) =>
+        {
+            UpdateTurnCounter();
+        });
     }
 
     public void NextTurn() {
@@ -114,6 +133,7 @@ public class Turn : GameService, IQuestRegister<int>
         MessageSystemScreen.DeleteAllMessages();
         Stockpile.GenerateResources();
         Stockpile.ProduceUnits();
+        Stockpile.ResearchTurn();
         TurnNr++;
         Units.RefreshEntities();
         MoveCards();
@@ -127,6 +147,38 @@ public class Turn : GameService, IQuestRegister<int>
 
         _OnTurnEnd?.Invoke();
         _OnTurnEnded.ForEach(_ => _.Invoke(TurnNr));
+
+        UpdateTurnCounter();
+        CheckForGameOver();
+    }
+
+    private void UpdateTurnCounter()
+    {
+        bool bHasMaxTurn = HasMaxTurn();
+        TurnCounterText.gameObject.SetActive(bHasMaxTurn);
+        TurnCounterImage.SetActive(bHasMaxTurn);
+        if (!bHasMaxTurn)
+            return;
+
+        TurnCounterText.text = TurnNr + "/" + GetTotalMaxTurns();
+    }
+
+    private bool HasMaxTurn()
+    {
+        if (!Game.TryGetService(out AmberService Amber))
+            return false;
+
+        if (!Amber.IsUnlocked())
+            return false;
+
+        // no modifier applied 
+        return Amber.Infos[AttributeType.AmberMaxTurns].CurrentValue != 0;
+    }
+
+    private int GetTotalMaxTurns()
+    {
+        int TurnSubtract = (int)AttributeSet.Get()[AttributeType.AmberMaxTurns].CurrentValue;
+        return MaxTurns + TurnSubtract;
     }
 
 
@@ -138,6 +190,17 @@ public class Turn : GameService, IQuestRegister<int>
     private void OnResume()
     {
         bIsEnabled = true;
+    }
+
+    private void CheckForGameOver()
+    {
+        if (!HasMaxTurn())
+            return;
+
+        if (TurnNr < GetTotalMaxTurns())
+            return;
+
+        Game.Instance.GameOver("You ran out of turns!");
     }
 
     private void MoveCards() {
@@ -202,6 +265,9 @@ public class Turn : GameService, IQuestRegister<int>
     {
         return AbandonScreen;
     }
+    protected override void ResetInternal()
+    {
+    }
 
     private bool bIsEnabled = true;
     private CardHand CardHand;
@@ -220,10 +286,14 @@ public class Turn : GameService, IQuestRegister<int>
     public int TurnNr = 0;
 
     public AbandonScreen AbandonScreen;
+    public GameObject TurnCounterImage;
+    public TMPro.TextMeshProUGUI TurnCounterText;
 
     public delegate void OnTurnEnd();
     public static OnTurnEnd _OnTurnEnd;
 
     public static ActionList<int> _OnTurnEnded = new();
     public static ActionList<int> _OnRunAbandoned = new();
+
+    public static int MaxTurns = 50;
 }

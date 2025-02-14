@@ -1,0 +1,128 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
+{
+    public TMPro.TextMeshProUGUI FallbackText;
+    public TMPro.TextMeshProUGUI InfoText;
+
+    public override bool ShouldBeDisplayed()
+    {
+        return TryGetTargetLibrary(out var _);
+    }
+
+    private bool TryGetTargetLibrary(out BuildingEntity Library)
+    {
+        Library = null;
+        if (!Game.TryGetService(out BuildingService Buildings))
+            return false;
+
+        HexagonData Hex = Target.GetFeatureObject();
+        if (Hex == null)
+            return false;
+
+        if (!Buildings.TryGetEntityAt(Hex.Location, out var Building))
+            return false;
+
+        if (Building.BuildingType != BuildingConfig.Type.Library)
+            return false;
+
+        Library = Building;
+        return true;
+    }
+
+
+    public override void ShowAt(float YOffset, float Height)
+    {
+        base.ShowAt(YOffset, Height);
+
+        bool bShowFallback = ShouldFallbackBeDisplayed();
+        if (bShowFallback)
+        {
+            ShowFallback();
+        }
+        else
+        {
+            ShowButton();
+        }
+    }
+
+    private void ShowButton()
+    {
+        InfoText.gameObject.SetActive(true);
+        FallbackText.gameObject.SetActive(false);
+
+        if (!Game.TryGetService(out AmberService Ambers))
+            return;
+
+        InfoText.text = Ambers.ResearchTurns + "/" + AmberService.MaxResearchTurnAmount + FlavourText;
+    }
+
+    private void ShowFallback()
+    {
+        InfoText.gameObject.SetActive(false);
+        FallbackText.gameObject.SetActive(true);
+
+        bool bAreWorkersAssigned = AreEnoughWorkersAssigned();
+        bool bAreWorkersStarving = AreAssignedWorkersStarving();
+        bool bIsUnlocked = IsAlreadyUnlocked();
+        string TargetText =
+            bIsUnlocked ? IdleText : 
+            !bAreWorkersAssigned ? ProductionScreenFeature.NoWorkersText :
+            bAreWorkersStarving ? ProductionScreenFeature.StarvingWorkersText : UnknownText;
+
+        FallbackText.text = TargetText;
+    }
+
+    private bool IsAlreadyUnlocked()
+    {
+        if (!Game.TryGetService(out AmberService Ambers))
+            return false;
+
+        return Ambers.IsUnlocked();
+    }
+
+
+    private bool AreEnoughWorkersAssigned()
+    {
+        if (!TryGetTargetLibrary(out BuildingEntity Building))
+            return false;
+
+        switch (Building.Effect.EffectType)
+        {
+            case OnTurnBuildingEffect.Type.Library: return Building.GetAssignedWorkerCount() == Building.GetMaximumWorkerCount();
+        }
+        return false;
+    }
+
+    private bool AreAssignedWorkersStarving()
+    {
+        return TryGetTargetLibrary(out BuildingEntity Building) &&
+            Building.GetWorkingWorkerCount(true) < Building.GetAssignedWorkerCount();
+    }
+
+
+    private bool ShouldFallbackBeDisplayed()
+    {
+        if (!TryGetTargetLibrary(out BuildingEntity Library))
+            return false;
+
+        Library.SimulateCurrentFood();
+
+        return Library.GetWorkingWorkerCount(true) < Library.GetMaximumWorkerCount() ||
+            !Library.Effect.CanResearchInLibrary();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+        InfoText.gameObject.SetActive(false);
+        FallbackText.gameObject.SetActive(false);
+    }
+
+    private static string IdleText = "Nothing to research. Collect more Ambers";
+    private static string UnknownText = "Unknown error";
+    private static string FlavourText = " turns researched";
+}

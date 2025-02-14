@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,11 +21,48 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     protected void Create()
     {
+        Initialize();
         Choices = new CollectableChoice[ChoiceTypes.Count];
+        CreateContainers();
         for (int i = 0; i < Choices.Length; i++)
         {
             CreateChoiceAt(i);
         }
+    }
+
+    private void CreateContainers()
+    {
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return;
+
+        ChoiceContainers = new(Choices.Length);
+        for (int i = 0; i < Choices.Length; i++)
+        {
+            GameObject ContainerObj = IconFactory.GetChoice();
+            var ContainerRect = ContainerObj.GetComponent<RectTransform>();
+            ContainerRect.SetParent(Container.transform, false);
+            ChoiceContainers.Add(ContainerRect);
+            ContainerRect.anchoredPosition = new(GetPositionForContainer(i), ContainerRect.anchoredPosition.y);
+            if (i == Choices.Length - 1)
+                continue;
+
+            int xMid = (GetPositionForContainer(i) + GetPositionForContainer(i + 1)) / 2;
+            GameObject DividerObj = IconFactory.GetChoiceDivider();
+            var DividerRect = DividerObj.GetComponent<RectTransform>();
+            DividerRect.SetParent(Container.transform, false);
+            DividerRect.anchoredPosition = new(xMid, DividerRect.anchoredPosition.y);
+        }
+    }
+
+    private int GetPositionForContainer(int i)
+    {
+        int Count = Choices.Length;
+        bool bIsEven = (Count % 2) == 0;
+        int Half = bIsEven ? Count / 2 : (Count + 1) / 2;
+        int Offset = bIsEven ? (int)Card.Width : (int)(Card.Width * 1.5);
+        int x = bIsEven ? i : i + 1;
+        x = (x - Half) * Offset + GetXOffsetBetweenChoices() * i;
+        return x;
     }
 
     protected virtual void CreateChoiceAt(int i)
@@ -44,6 +82,7 @@ public abstract class CollectChoiceScreen : ScreenUI
     protected abstract int GetUpgradeCostsForChoice(int i);
     protected abstract int GetWorkerCostsForChoice(int i);
     protected abstract CardCollection GetTargetCardCollection();
+    protected abstract int GetXOffsetBetweenChoices();
     protected abstract int GetSeed();
 
     protected void CreateCardAt(int ChoiceIndex, CardDTO.Type Type)
@@ -187,6 +226,8 @@ public abstract class CollectChoiceScreen : ScreenUI
             case CollectableChoice.ChoiceType.Relic: OnSelectRelicChoice(Choice); break;
             case CollectableChoice.ChoiceType.Offering: // intentional fallthrough
             case CollectableChoice.ChoiceType.Sacrifice: OnSelectAltarChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Amber: OnSelectAmberChoice(Choice); break;
+            case CollectableChoice.ChoiceType.Locked: throw new Exception("Should never reach here - not a valid choice");
         }
         DeactivateChoice(ChoiceIndex);
         Choices[ChoiceIndex] = null;
@@ -256,6 +297,11 @@ public abstract class CollectChoiceScreen : ScreenUI
     }
 
     protected virtual void OnSelectAltarChoice(CollectableChoice Choice)
+    {
+        // overridden in subclasses
+    }
+
+    protected virtual void OnSelectAmberChoice(CollectableChoice Choice)
     {
         // overridden in subclasses
     }

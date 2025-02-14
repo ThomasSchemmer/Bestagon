@@ -21,7 +21,9 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
     public override bool ShouldBeDisplayed()
     {
-        return TryGetBuildingData(out BuildingEntity Building) && Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant;
+        return TryGetBuildingData(out BuildingEntity Building) &&
+            Building.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant &&
+            Building.Effect.EffectType != OnTurnBuildingEffect.Type.Library;
     }
 
     private bool ShouldFallbackBeDisplayed()
@@ -203,9 +205,9 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         ProductionTransform.gameObject.SetActive(false);
     }
 
-    private static string NoConsumptionText = "Not enough resources to work!";
-    private static string NoWorkersText = "Assign more workers!";
-    private static string StarvingWorkersText = "Workers are hungry and refuse to work!";
+    public static string NoConsumptionText = "Not enough resources to work!";
+    public static string NoWorkersText = "Assign more workers!";
+    public static string StarvingWorkersText = "Workers are hungry and refuse to work!";
 
     private static Color NoWorkersColor = Color.yellow;
     private static Color StarvingWorkersColor = Color.red;

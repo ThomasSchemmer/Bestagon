@@ -128,7 +128,7 @@ public class CardUpgradeScreen : GameService
         Vector3 TargetPosition = RectTransform.position;
         Vector2 Scale = HexagonConfig.GetScreenScale();
         Vector3 Delta = new(
-            (Card.Width / 2f - ButtonOffsetStart - ButtonOffset) / Scale.x,
+            (Card.Width / 2f - ButtonOffsetStart) / Scale.x,
             (Card.Height / 2f - ButtonOffsetStart) / Scale.y
         );
         TargetPosition += Delta;
@@ -268,7 +268,11 @@ public class CardUpgradeScreen : GameService
 
     protected override void StartServiceInternal() {}
 
-    protected override void StopServiceInternal() {}
+    protected override void StopServiceInternal() { }
+
+    protected override void ResetInternal()
+    {
+    }
 
     public static float ButtonOffset = 35;
     public static float ButtonOffsetStart = 15;

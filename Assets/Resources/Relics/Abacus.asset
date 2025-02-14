@@ -22,7 +22,8 @@ MonoBehaviour:
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
-    _SerializedIDs: []
+    _SerializedIDs:
+    - 3de7a1dd-c8db-4351-bbec-e2d865970b53
     bIsEditing: 0
     Name: Granted Tags
     bIsEditable: 1
@@ -43,4 +44,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 8
   Image: {fileID: 3286163911610860551, guid: b45529dc5d4b39743bb6fa4d6bdd9c71, type: 3}
-  Tooltip: Reduces building costs

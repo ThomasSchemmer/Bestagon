@@ -18,7 +18,7 @@ public class GameplayTagMask
         Mask.Add(ID);
     }
 
-    public void Clear(Guid ID)
+    public void Remove(Guid ID)
     {
         if (!Mask.Contains(ID))
             return;

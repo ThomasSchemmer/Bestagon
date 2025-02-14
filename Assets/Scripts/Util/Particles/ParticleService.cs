@@ -60,6 +60,12 @@ public class ParticleService : GameService
         }
     }
 
+    protected override void ResetInternal()
+    {
+        
+        ParticleSystems.Clear();
+    }
+
     protected override void StartServiceInternal()
     {
         Init();

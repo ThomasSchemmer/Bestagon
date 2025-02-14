@@ -12,6 +12,11 @@ public class Settings : SaveableService
     [SaveableDictionary]
     private SerializedDictionary<int, Setting> SettingsInternal = new();
 
+    protected override void ResetInternal()
+    {
+        SettingsInternal = new();
+    }
+
     protected override void StartServiceInternal() {
         Game.RunAfterServiceInit((SaveGameManager Manager) =>
         {

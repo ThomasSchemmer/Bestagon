@@ -100,6 +100,11 @@ public class WorldGenerator : GameService
         Release();
     }
 
+    protected override void ResetInternal()
+    {
+        Release();
+    }
+
     private void Release() {
         if (InputRT != null)
             InputRT.Release();

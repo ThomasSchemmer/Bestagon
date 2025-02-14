@@ -4,8 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /** 
- * Screen showing the player either a choice between two event cards (tribe) or 
- * between a new building and 2 upgrade points (ruins)
+ * Screen showing the player either a choice between:
+ * - tribe: two event cards 
+ * - ruins: a new building and 2 upgrade points 
+ * - altar: sacrificing or giving resources to get a permanent area effect
+ * - treasure: two relics
+ * - amber: gain one amber (no choice)
  */
 public class CollectDecorationScreen : CollectChoiceScreen
 {
@@ -58,6 +62,8 @@ public class CollectDecorationScreen : CollectChoiceScreen
             case CollectableChoice.ChoiceType.Relic: CreateRelicAt(i); break;
             case CollectableChoice.ChoiceType.Offering: // intentional fallthrough
             case CollectableChoice.ChoiceType.Sacrifice: CreateAltarAt(i); break;
+            case CollectableChoice.ChoiceType.Amber: CreateAmberAt(i); break;
+            case CollectableChoice.ChoiceType.Locked: CreateLockedAt(i); break;
         }
     }
 
@@ -82,6 +88,7 @@ public class CollectDecorationScreen : CollectChoiceScreen
             case DecorationEntity.DType.Tribe: ShowTribeChoices(); break;
             case DecorationEntity.DType.Treasure: ShowTreasureChoices(); break;
             case DecorationEntity.DType.Altar: ShowAltarChoices(); break;
+            case DecorationEntity.DType.Amber: ShowAmberChoices(); break;
         }
     }
 
@@ -89,8 +96,15 @@ public class CollectDecorationScreen : CollectChoiceScreen
     {
         ChoiceTypes = CanSpawnUpgradeRuins() ?
             new() { CollectableChoice.ChoiceType.Building, CollectableChoice.ChoiceType.Upgrade } :
-            new() { CollectableChoice.ChoiceType.Upgrade };
+            new() { CollectableChoice.ChoiceType.Locked, CollectableChoice.ChoiceType.Upgrade };
         
+        Create();
+    }
+
+    private void ShowAmberChoices()
+    {
+        ChoiceTypes = new() { CollectableChoice.ChoiceType.Amber };
+
         Create();
     }
 
@@ -125,6 +139,18 @@ public class CollectDecorationScreen : CollectChoiceScreen
             return;
 
         Decoration.ApplyEffect(AltarChoice.Type);
+    }
+
+    protected override void OnSelectAmberChoice(CollectableChoice Choice)
+    {
+        base.OnSelectAmberChoice(Choice);
+        if (Choice is not CollectableAmberChoice)
+            return;
+
+        if (!Game.TryGetService(out AmberService Ambers))
+            return;
+
+        Ambers.Add(1);
     }
 
     protected override CardDTO.Type GetCardTypeAt(int i)
@@ -248,6 +274,22 @@ public class CollectDecorationScreen : CollectChoiceScreen
         Callback(ChoiceIndex, ChoiceIndex == 0);
     }
 
+    protected void CreateAmberAt(int ChoiceIndex)
+    {
+        if (!Game.TryGetServices(out RelicService RelicService, out IconFactory IconFactory))
+            return;
+
+        PrepareContainerForAmber(ChoiceIndex, out var Callback);
+        Callback(ChoiceIndex);
+    }
+    protected void CreateLockedAt(int ChoiceIndex)
+    {
+        if (!Game.TryGetService(out IconFactory IconFactory))
+            return;
+
+        PrepareContainerForLocked(ChoiceIndex);
+    }
+
     private void PrepareContainerForUpgrade(int ChoiceIndex, out Action<int> Callback)
     {
         Transform TargetContainer = ChoiceContainers[ChoiceIndex];
@@ -275,6 +317,25 @@ public class CollectDecorationScreen : CollectChoiceScreen
         Button.interactable = CanAffordChoice(ChoiceIndex);
         RelicContainer = TargetContainer.GetChild(0).GetChild(3);
         Callback = SetChoiceRelic;
+    }
+
+    private void PrepareContainerForAmber(int ChoiceIndex, out Action<int> Callback)
+    {
+        Transform TargetContainer = ChoiceContainers[ChoiceIndex];
+        AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
+        Button Button = TargetContainer.GetChild(0).GetChild(2).GetComponent<Button>();
+        Button.onClick.RemoveAllListeners();
+        Button.onClick.AddListener(() =>
+        {
+            OnSelectOption(ChoiceIndex);
+        });
+        Callback = SetChoiceAmber;
+    }
+
+    private void PrepareContainerForLocked(int ChoiceIndex)
+    {
+        Transform TargetContainer = ChoiceContainers[ChoiceIndex];
+        AddPrefabToContainer(TargetContainer, ChoicesPrefab[ChoiceTypes[ChoiceIndex]]);
     }
 
     private void PrepareContainerForAltar(int ChoiceIndex, out Action<int, bool> Callback)
@@ -364,6 +425,11 @@ public class CollectDecorationScreen : CollectChoiceScreen
         Choices[Index] = new CollectableAltarChoice(bIsOffering);
     }
 
+    protected virtual void SetChoiceAmber(int Index)
+    {
+        Choices[Index] = new CollectableAmberChoice();
+    }
+
 
     private bool CanSpawnUpgradeRuins()
     {
@@ -390,6 +456,12 @@ public class CollectDecorationScreen : CollectChoiceScreen
 
         return !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexA) ||
             !Buildings.UnlockableBuildings.HasCategoryAllUnlocked(TargetCategoryIndexB);
+    }
+
+
+    protected override int GetXOffsetBetweenChoices()
+    {
+        return (int)Card.Width;
     }
 
 

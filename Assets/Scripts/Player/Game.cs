@@ -40,7 +40,7 @@ public class Game : MonoBehaviour
     public static string MainSceneName = "Main";
     public static string CardSelectionSceneName = "CardSelection";
     public static GameMode ModeToStart = GameMode.Game;
-    private static bool bLoadMainMenu = true;
+    public static bool bSwitchToMenu = true;
 
 
     public enum GameState
@@ -64,11 +64,8 @@ public class Game : MonoBehaviour
 
     public void Start()
     {
-        if (!bLoadMainMenu)
-            return;
+        bSwitchToMenu = IsIn(GameState.MainMenu) ? false : bSwitchToMenu;
 
-        bLoadMainMenu = false;
-        // this will trigger the MainMenu switch from SavegameManager
         Init();
     }
 
@@ -364,18 +361,24 @@ public class Game : MonoBehaviour
             bLoadTutorial = false;
         }
 
-        Manager.Reset();
+        Instance.ResetServices();
         Manager.MarkSaveForLoading(SaveGameName, bCreateNewGame, bLoadTutorial);
         
         AsyncOperation Op = SceneManager.LoadSceneAsync(SceneName);
-        SceneManager.sceneLoaded += Instance.OnSceneLoaded;
         Op.allowSceneActivation = true;
     }
 
-    public void OnSceneLoaded(Scene Scene, LoadSceneMode Mode)
+    public void ResetServices()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        Instance.Init();
+        // they will be restarted once Init() is called upon scene loaded/start()
+        foreach (var Tuple in ServicesInternal)
+        {
+            GameService Service = Tuple.Value.TargetScript;
+            if (!Service.IsInit)
+                continue;
+
+            Service.Reset();
+        }
     }
 
     public static void QuitGame()

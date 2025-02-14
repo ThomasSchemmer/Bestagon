@@ -39,14 +39,36 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         string Text = Building.BuildingType.ToString() + " has been destroyed by the malaise";
         MessageSystemScreen.CreateMessage(Message.Type.Warning, Text);
 
+        MalaiseRandomTiles();
+
         _OnBuildingDestroyed.ForEach(_ => _.Invoke(Building));
         _OnBuildingsChanged?.Invoke();
         Destroy(Building);
     }
 
-    public override void Reset()
+    private void MalaiseRandomTiles()
     {
-        base.Reset();
+        if (!Game.TryGetService(out MapGenerator MapGenerator))
+            return;
+
+        int ToSpawn = (int)AttributeSet.Get()[AttributeType.AmberMalaiseSpawn].CurrentValue;
+        for (int i = 0; i < ToSpawn; i++)
+        {
+            int x = UnityEngine.Random.Range(0, HexagonConfig.MapMaxChunk);
+            int y = UnityEngine.Random.Range(0, HexagonConfig.MapMaxChunk);
+            int z = UnityEngine.Random.Range(0, HexagonConfig.ChunkSize);
+            int w = UnityEngine.Random.Range(0, HexagonConfig.ChunkSize);
+            Location Loc = new(x, y, z, w);
+            if (!MapGenerator.TryGetChunkData(Loc, out var Chunk))
+                return;
+
+            Chunk.Malaise.SpreadTo(Loc);
+        }
+    }
+
+    protected override void ResetInternal()
+    {
+        
         UnlockableBuildings = new();
         UnlockableBuildings.Init(this);
     }
@@ -200,7 +222,7 @@ public class BuildingService : TokenizedEntityProvider<BuildingEntity>, IUnlocka
         if (Game.IsIn(Game.GameState.CardSelection))
         {
             // kill all buildings, but leave the unlocks untouched
-            base.Reset();
+            
         }
         _OnInit?.Invoke(this);
         _OnBuildingsChanged?.Invoke();

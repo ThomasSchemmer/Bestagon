@@ -54,13 +54,19 @@ public class ScoutEntity : TokenizedUnitEntity
         if (!MapGenerator.TryGetHexagonData(Location, out HexagonData HexData))
             return Requirements;
 
-        switch (HexData.Type)
+        int Category = MapGenerator.UnlockableTypes.GetCategoryIndexOf(HexData.Type);
+        switch (Category)
         {
-            case HexagonConfig.HexagonType.Desert:
-            case HexagonConfig.HexagonType.Savanna:
-                Requirements += new Production(Production.Type.WaterSkins, 1);
-                break;
+            case 1: Requirements += new Production(Production.Type.WaterSkins, 1); break;
+            case 2: Requirements += new Production(Production.Type.Medicine, 1); break;
+            case 3: Requirements += new Production(Production.Type.Cloaks, 1); break;
         }
+
+        if (HexData.IsMalaised())
+        {
+            Requirements += new Production(Production.Type.Coffee, 1); 
+        }
+
 
         return Requirements;
     }
@@ -110,13 +116,21 @@ public class ScoutEntity : TokenizedUnitEntity
 
     public override Pathfinding.Parameters GetPathfindingParams()
     {
-        return Pathfinding.Parameters.Standard;
+        return new(true, true, false, CanSurviveMalaise());
     }
 
     protected override bool TryGetMovementAttribute(out AttributeType Type)
     {
         Type = AttributeType.ScoutMovementRange;
         return true;
+    }
+
+    public override bool CanSurviveMalaise()
+    {
+        if (!Game.TryGetService(out AmberService Ambers))
+            return false;
+
+        return Ambers.IsUnlocked();
     }
 
     [SaveableBaseType]

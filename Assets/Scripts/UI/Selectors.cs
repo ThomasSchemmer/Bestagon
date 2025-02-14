@@ -146,6 +146,9 @@ public class Selectors : GameService
 
         return null;
     }
+    protected override void ResetInternal()
+    {
+    }
 
     public Selector<Card> CardSelector;
     public Selector<HexagonVisualization> HexagonSelector;

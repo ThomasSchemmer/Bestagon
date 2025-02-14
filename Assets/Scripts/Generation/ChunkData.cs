@@ -125,6 +125,9 @@ public class ChunkData
         if (!UnitService.TryGetEntityAt(Location, out TokenizedUnitEntity Unit))
             return;
 
+        if (Unit.CanSurviveMalaise())
+            return;
+
         UnitService.KillEntity(Unit);
 
         string Text = "One unit has been killed by malaise";

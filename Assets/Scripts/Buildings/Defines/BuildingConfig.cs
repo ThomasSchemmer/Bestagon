@@ -32,6 +32,7 @@ public class BuildingConfig
         Woodcutter = 1 << 22,
         Hut = 1 << 23,
         Merchant = 1 << 24,
+        Library = 1 << 25,
     }
 
     public static int MaxIndex = 24;
@@ -42,7 +43,7 @@ public class BuildingConfig
     public static Type CategorySwampA = Type.Mine | Type.Forge | Type.Smithy | Type.Farm;
     public static Type CategorySwampB = Type.Barracks | Type.SmokeHut | Type.Mill | Type.Weaver | Type.Tailor;
     public static Type CategoryIceA = Type.Stonemason;
-    public static Type CategoryIceB = Type.Bakery | Type.Brewer | Type.Scribe;
+    public static Type CategoryIceB = Type.Bakery | Type.Brewer | Type.Scribe | Type.Library;
 
     public static Type UnlockOnStart = CategoryMeadowA;
 

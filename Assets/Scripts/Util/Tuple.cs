@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[Serializable]
 public class Tuple<TType, TValue>
 {
     public Tuple(TType Key, TValue Value)

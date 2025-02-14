@@ -8,14 +8,16 @@ public class Pathfinding
         public bool bIsForLand;
         public bool bCheckReachable;
         public bool bTakeRawData;
+        public bool bIgnoreMalaise;
 
         public static Parameters Standard = new();
 
-        public Parameters(bool bIsForLand = true, bool bCheckReachable = true, bool bTakeRawData = false)
+        public Parameters(bool bIsForLand = true, bool bCheckReachable = true, bool bTakeRawData = false, bool bIgnoreMalaise = false)
         {
             this.bIsForLand = bIsForLand;
             this.bCheckReachable = bCheckReachable;
             this.bTakeRawData = bTakeRawData;
+            this.bIgnoreMalaise = bIgnoreMalaise;
         }
     }
 

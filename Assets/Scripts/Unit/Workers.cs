@@ -139,6 +139,8 @@ public class Workers : EntityProvider<StarvableUnitEntity>
     {
         Game.RunAfterServicesInit((MeshFactory Factory, SaveGameManager Manager) =>
         {
+            if (Manager.HasDataFor(SaveGameType.Workers))
+                return;
 
             for (int i = 0; i < AttributeSet.Get()[AttributeType.AmountStartWorkers].CurrentValue; i++)
             {
@@ -185,9 +187,9 @@ public class Workers : EntityProvider<StarvableUnitEntity>
         return Entities.Count;
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
     }
 
     public delegate void OnWorkersChanged();

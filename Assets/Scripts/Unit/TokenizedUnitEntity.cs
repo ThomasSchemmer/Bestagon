@@ -16,6 +16,8 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
     public abstract string GetName();
     protected abstract bool TryGetMovementAttribute(out AttributeType Type);
 
+    public abstract bool CanSurviveMalaise();
+
     public int GetMovementCostTo(Location ToLocation)
     {
         var Params = GetPathfindingParams();
@@ -100,21 +102,19 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
             return false;
         }
 
-        if (Hex.Data.IsMalaised())
-        {
-            if (!bIsPreview)
-            {
-                MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on corrupted tiles");
-            }
-            return false;
-        }
         return true; 
     }
 
     public override bool TryInteractWith(HexagonVisualization Hex)
     {
-        if (!Game.TryGetServices(out Units Units, out MapGenerator MapGenerator))
+        if (!Game.TryGetService(out Units Units))
             return false;
+
+        if (Hex.Data.IsMalaised() && !CanSurviveMalaise())
+        {
+            MessageSystemScreen.CreateMessage(Message.Type.Error, "Cannot place on corrupted tiles");
+            return false;
+        }
 
         if (!IsInteractableWith(Hex, false))
             return false;
@@ -164,6 +164,9 @@ public abstract class TokenizedUnitEntity : StarvableUnitEntity, IPreviewable, I
 
     public override bool IsAboutToBeMalaised()
     {
+        if (CanSurviveMalaise())
+            return false;
+
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return false;
 

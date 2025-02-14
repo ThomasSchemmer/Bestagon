@@ -40,6 +40,8 @@ public class BuildingEffectDrawer : PropertyDrawer
                 PrintYieldConsumeProduce(Position, Property, Label); break;
             case OnTurnBuildingEffect.Type.ProduceUnit:
                 PrintYieldProduceUnit(Position, Property, Label); break;
+            case OnTurnBuildingEffect.Type.Library:
+                PrintYieldLibrary(Position, Property, Label); break;
         }
     }
 
@@ -85,6 +87,16 @@ public class BuildingEffectDrawer : PropertyDrawer
 
         EditorGUILayout.PropertyField(ConsumptionProperty);
         EditorGUILayout.PropertyField(ProductionProperty);
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndVertical();
+    }
+
+    private void PrintYieldLibrary(Rect Position, SerializedProperty Property, GUIContent Label)
+    {
+        SerializedProperty ConsumptionProperty = Property.FindPropertyRelative("Consumption");
+
+        EditorGUILayout.BeginVertical("window");
+        EditorGUILayout.PropertyField(ConsumptionProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
     }

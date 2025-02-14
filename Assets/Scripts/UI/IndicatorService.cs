@@ -16,6 +16,16 @@ public class IndicatorService : GameService
     private List<IndicatorComponent> MarkedToDelete = new();
     private Camera MainCam;
 
+    protected override void ResetInternal()
+    {
+        foreach (var Tuple in IndicatorMap)
+        {
+            DestroyImmediate(IndicatorMap[Tuple.Key].gameObject);
+        }
+        IndicatorMap = new();
+        MarkedToDelete = new();
+    }
+
     protected override void StartServiceInternal(){
         MainCam = Camera.main;
         _OnInit?.Invoke(this);

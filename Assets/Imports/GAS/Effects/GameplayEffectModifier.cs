@@ -72,19 +72,19 @@ public class GameplayEffectModifier
         _Attribute.AddModifier(this);
     }
 
-    public string GetDescription()
+    public string GetDescription(int Multiplier = 0)
     {
         switch (Operation)
         {
-            case Type.Add: return GetAddDescription();
+            case Type.Add: return GetAddDescription(Multiplier);
             default: return GetNormalDescription();
         }
     }
 
-    private string GetAddDescription()
+    private string GetAddDescription(int Multiplier = 0)
     {
         return GetOperationDescription() +
-            Value +
+            Value * Multiplier +
             GetOperationPrepositionDescription() +
             GetAttributeDescription();
     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UnityEngine.XR;
 
 /** Represents an Indicator that shows a production */
 [RequireComponent(typeof(BuildingPreview))]

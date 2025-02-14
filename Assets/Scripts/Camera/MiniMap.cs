@@ -63,6 +63,10 @@ public class MiniMap : GameService, UIElement
     {
         ClearBuffer();
     }
+    protected override void ResetInternal()
+    {
+        ClearBuffer();
+    }
 
     private void ClearBuffer()
     {

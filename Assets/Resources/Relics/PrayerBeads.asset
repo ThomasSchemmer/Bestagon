@@ -22,7 +22,8 @@ MonoBehaviour:
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
-    _SerializedIDs: []
+    _SerializedIDs:
+    - d9bcc84f-036f-4dc7-9433-90114121fd63
     bIsEditing: 0
     Name: Granted Tags
     bIsEditable: 1
@@ -43,4 +44,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 64
   Image: {fileID: 3286163911610860551, guid: 4a4d439a6f286b14d8b0cc306cce529a, type: 3}
-  Tooltip: Grants an additional usabilty for new cards

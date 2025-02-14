@@ -242,9 +242,9 @@ public class QuestService : SaveableService
 
     protected override void StopServiceInternal() { }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         RemoveAllQuests();
         if (MainQuest != null)
         {

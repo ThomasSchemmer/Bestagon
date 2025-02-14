@@ -37,16 +37,6 @@ public class IngameMenuScreen : ScreenUI
         Hide();
     }
 
-    public void OnLoad()
-    {
-        if (!Game.TryGetService(out SaveGameManager Manager))
-            return;
-
-        Manager.OnLoad();
-        MessageSystemScreen.CreateMessage(Message.Type.Success, "Loaded successfully");
-        Hide();
-    }
-
     public override void Show()
     {
         base.Show();

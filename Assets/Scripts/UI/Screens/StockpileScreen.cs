@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StockpileScreen : MonoBehaviour
 {
@@ -94,14 +95,20 @@ public class StockpileScreen : MonoBehaviour
 
     private void InitializeAmberVisuals(IconFactory IconFactory)
     {
+        // always create, but hide it until its unlocked
         int GroupCount = Production.Indices.Length - 1;
         GameObject AmberVisuals = IconFactory.GetVisualsForMiscalleneous(IconFactory.MiscellaneousType.Amber, null, 0);
-        AmberScreen = AmberVisuals.GetComponent<NumberedIconScreen>();
-        AmberScreen.HoverTooltip = "Active / Collected Ambers";
+        AmberIndicator = AmberVisuals.GetComponent<NumberedIconScreen>();
+        AmberIndicator.HoverTooltip = "Active / Collected Ambers";
         RectTransform AmberRect = AmberVisuals.GetComponent<RectTransform>();
         AmberRect.SetParent(GetTargetTransform(), false);
         AmberRect.anchoredPosition = GetTargetOrigin();
         AmberRect.anchoredPosition += GetTargetOffset(GroupCount + 3);
+        Button Button = AmberIndicator.gameObject.AddComponent<Button>();
+        Button.onClick.AddListener(() =>
+        {
+            AmberScreen.Show();
+        });
     }
 
     private void UpdateIndicatorCount()
@@ -212,6 +219,7 @@ public class StockpileScreen : MonoBehaviour
 
     private void UpdateAmberVisuals(int i)
     {
+        AmberIndicator.Show(true);
         UpdateAmberVisuals();
     }
 
@@ -223,7 +231,7 @@ public class StockpileScreen : MonoBehaviour
         if (!Game.TryGetService(out AmberService Ambers))
             return;
 
-        AmberScreen.UpdateVisuals(Ambers.AmberCount, Ambers.AmberCount);
+        AmberIndicator.UpdateVisuals(Ambers.ActiveAmberCount, Ambers.AvailableAmberCount);
     }
 
     private void UpdateScoutVisuals()
@@ -248,17 +256,28 @@ public class StockpileScreen : MonoBehaviour
             GroupScreen.Show(bShow);
         }
 
-        WorkerScreen.Show(bShow && ShouldDisplayWorkers());
-        ScoutScreen.Show(bShow && ShouldDisplayScouts());    
-        AmberScreen.Show(bShow && ShouldDisplayAmbers());
+        if (WorkerScreen != null)
+        {
+            WorkerScreen.Show(bShow && ShouldDisplayWorkers());
+        }
+        if (ScoutScreen != null)
+        {
+            ScoutScreen.Show(bShow && ShouldDisplayScouts());
+        }
+        if (AmberIndicator != null)
+        {
+            AmberIndicator.Show(bShow && ShouldDisplayAmbers());
+        }
     }
 
     public GameObject GroupPrefab;
     public GameObject ItemPrefab;
 
+    public AmberScreen AmberScreen;
+
     protected StockpileGroupScreen[] GroupScreens;
     protected NumberedIconScreen WorkerScreen;
     protected NumberedIconScreen ScoutScreen;
-    protected NumberedIconScreen AmberScreen;
+    protected NumberedIconScreen AmberIndicator;
     protected bool bShow = true;
 }

@@ -106,15 +106,23 @@ public class GameplayEffect : ScriptableObject
         return SelectedModifiers;
     }
 
-    public GameplayEffect GetByInstancing()
+    public GameplayEffect GetByInstancing(GameplayAbilityBehaviour Target)
     {
         switch (InstancingPolicy)
         {
             case Instancing.NonInstanced: return this;
-            case Instancing.InstancedPerActor:
+            case Instancing.InstancedPerActor: return GetByInstancingActor(Target);
             case Instancing.InstancedPerExecution: return Instantiate(this);
         }
         return null;
+    }
+
+    private GameplayEffect GetByInstancingActor(GameplayAbilityBehaviour Target)
+    {
+        if (Target.GetActiveEffects().Contains(this))
+            return this;
+
+        return Instantiate(this);
     }
 
     public string GetEffectDescription()

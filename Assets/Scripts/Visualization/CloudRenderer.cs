@@ -272,9 +272,9 @@ public class CloudRenderer : SaveableService
         MinMaxBuffer?.Release();
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         ActiveMalaises = new();
     }
 

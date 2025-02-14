@@ -103,12 +103,17 @@ public class BoatEntity : TokenizedUnitEntity
 
     public override Pathfinding.Parameters GetPathfindingParams()
     {
-        return new(false, true, false);
+        return new(false, true, false, CanSurviveMalaise());
     }
 
     protected override bool TryGetMovementAttribute(out AttributeType Type)
     {
         Type = default;
+        return false;
+    }
+
+    public override bool CanSurviveMalaise()
+    {
         return false;
     }
 

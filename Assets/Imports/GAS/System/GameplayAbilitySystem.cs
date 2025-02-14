@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Workers;
 
 /** Core component of the GAS, handles communication between different GAB's */
 public class GameplayAbilitySystem : GameService
@@ -18,6 +19,13 @@ public class GameplayAbilitySystem : GameService
     public void Register(GameplayAbilityBehaviour Behaviour)
     {
         Behaviours.Add(Behaviour);
+        _OnBehaviourRegistered?.Invoke(Behaviour);
+    }
+
+    protected override void ResetInternal()
+    {
+        
+        AttributeSet.Get().Reset();
     }
 
     protected override void StartServiceInternal()
@@ -35,7 +43,7 @@ public class GameplayAbilitySystem : GameService
         if (!Target.HasTags(Effect.ApplicationRequirementTags.IDs))
             return false;
 
-        GameplayEffect Clone = Effect.GetByInstancing();
+        GameplayEffect Clone = Effect.GetByInstancing(Target);
 
         Clone.SetTarget(Target);
         Target.AddEffect(Clone);
@@ -55,4 +63,7 @@ public class GameplayAbilitySystem : GameService
         Ability.ActivateAbility();
         return true;
     }
+
+    public delegate void OnBehaviourRegistered(GameplayAbilityBehaviour Behavior);
+    public static OnBehaviourRegistered _OnBehaviourRegistered;
 }

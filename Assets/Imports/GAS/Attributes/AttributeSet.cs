@@ -53,6 +53,15 @@ public class AttributeSet : ScriptableObject
         }
     }
 
+    public void Reset()
+    {
+        foreach (var Attribute in Attributes)
+        {
+            Attribute.Value.Reset();
+            _OnAnyAttributeChanged?.Invoke(Attribute.Value);
+        }
+    }
+
     public static AttributeSet Get()
     {
         if (GlobalAttributes == null)

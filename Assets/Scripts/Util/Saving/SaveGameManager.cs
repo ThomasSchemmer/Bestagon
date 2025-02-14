@@ -2,10 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static SaveableService;
@@ -51,19 +47,11 @@ public class SaveGameManager : GameService
 
     protected override void StartServiceInternal()
     {
-        ResetAllServices();
-        Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
-        {
-            Game.RunAfterServicesInit((CardFactory CardFactory, GameplayAbilitySystem GAS) =>
-            {
-                StartServices();
-            });
-        });
+        WaitForRequiredServices();
     }
 
-    private void StartServices()
+    private void LoadOtherServices()
     {
-
         ServiceState State = HandleDelayedLoading();
 
         // the load menu scene has been triggered and will restart everything
@@ -81,15 +69,8 @@ public class SaveGameManager : GameService
         Save(false);
     }
 
-    public void OnLoad()
-    {
-        bCreateNewFile = false;
-        LoadServices();
-    }
-
     public void LoadServices()
     {
-        ResetAllServices();
         FindSaveables();
         TryExecuteLoading();
     }
@@ -189,21 +170,17 @@ public class SaveGameManager : GameService
         }
     }
 
-    public override void Reset()
+    private void WaitForRequiredServices()
     {
-        base.Reset();
-        ResetAllServices();
-    }
-
-    private void ResetAllServices()
-    {
-        foreach (var Tuple in Saveables)
+        // wait for Factories and GAS
+        Game.RunAfterServicesInit((IconFactory IconFactory, MeshFactory MeshFactory) =>
         {
-            if (!Tuple.Value.IsInit)
-                continue;
-
-            Tuple.Value.Reset();
-        }
+            Game.RunAfterServicesInit((CardFactory CardFactory, GameplayAbilitySystem GAS) =>
+            {
+                // will invoke every other "regular" game service to run
+                LoadOtherServices();
+            });
+        });
     }
 
     /** Loads the save and returns true if successful*/
@@ -397,7 +374,7 @@ public class SaveGameManager : GameService
             FileToLoad = GetMostRecentSave();
         }
 
-        if (TryHandleSwitchToMenu(out ServiceState State))
+        if (ShouldSwitchToMenu(out ServiceState State))
             return State;
 
         if (FileToLoad != null && FileToLoad.Equals(string.Empty))
@@ -414,7 +391,7 @@ public class SaveGameManager : GameService
     }
 
     /** Switches to the main menu when in any other scene in the editor*/
-    private bool TryHandleSwitchToMenu(out ServiceState State)
+    private bool ShouldSwitchToMenu(out ServiceState State)
     {
         State = default;
 #if !UNITY_EDITOR
@@ -426,10 +403,18 @@ public class SaveGameManager : GameService
         if (SceneManager.GetActiveScene().name.Equals(Game.MenuSceneName))
             return false;
 
+        if (!Game.bSwitchToMenu)
+            return false;
+
+        // this will automatically interrupt all other loading in the current scene!
         Game.LoadGame(null, Game.MenuSceneName, false);
         State = ServiceState.SwitchToMenu;
         return true;
 #endif
+    }
+    protected override void ResetInternal()
+    {
+        FoundSaveableServices = new();
     }
 }
 

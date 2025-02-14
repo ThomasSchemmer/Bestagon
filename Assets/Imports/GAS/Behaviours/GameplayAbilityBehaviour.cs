@@ -9,10 +9,10 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     {
         Game.RunAfterServiceInit((GameplayAbilitySystem System) =>
         {
-            System.Register(this);
             Attributes.Initialize();
             bIsInitialized = true;
             HandleDelayedEffects();
+            System.Register(this);
         });
     }
 
@@ -36,7 +36,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         }
         foreach (GameplayEffect ToRemoveEffect in MarkedForRemovalEffects)
         {
-            RemoveEffect(ToRemoveEffect);
+            RemoveEffectByTags(ToRemoveEffect.GrantedTags);
         }
         MarkedForRemovalEffects.Clear();
 
@@ -59,7 +59,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
             }
             else
             {
-                RemoveEffect(Tuple.Key);
+                RemoveEffectByTags(Tuple.Key.GrantedTags);
             }
         }
         EffectsToHandle.Clear();
@@ -82,7 +82,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
 
     public void RemoveTag(Guid ID)
     {
-        GameplayTagMask.Clear(ID);
+        GameplayTagMask.Remove(ID);
 
         _OnTagsChanged?.Invoke();
         _OnTagAdded?.Invoke(ID);
@@ -111,6 +111,7 @@ public class GameplayAbilityBehaviour : MonoBehaviour
         return true;
     }
 
+    //don't call this directly, call @GAS.TryApplyEffectTo instead!
     public void AddEffect(GameplayEffect Effect) { 
         if (!bIsInitialized)
         {
@@ -132,18 +133,54 @@ public class GameplayAbilityBehaviour : MonoBehaviour
     {
         return ActiveEffects;
     }
-       
 
-    public void RemoveEffect(GameplayEffect Effect)
+    public bool TryGetAnyActiveEffectByTags(List<Guid> Tags, out List<GameplayEffect> FoundEffects)
+    {
+        FoundEffects = new();
+        foreach (var Tag in Tags)
+        {
+            if (!TryGetAnyActiveEffectByTags(Tag, out var Effect))
+                continue;
+
+            FoundEffects.Add(Effect);
+        }
+        return Tags.Count > 0;
+    }
+
+    public bool TryGetAnyActiveEffectByTags(Guid Tag, out GameplayEffect FoundEffect)
+    {
+        FoundEffect = default;
+        if (!GameplayTagMask.HasID(Tag))
+            return false;
+
+        foreach(var Effect in ActiveEffects)
+        {
+            if (!Effect.GrantedTags.IDs.Contains(Tag))
+                continue;
+
+            FoundEffect = Effect;
+            return true;
+        }
+        return false;
+    }
+
+    public void RemoveEffectByTags(GameplayTagRegularContainer Tags)
     {
         if (!bIsInitialized)
-        {
-            EffectsToHandle.Add(new(Effect, false));
             return;
-        }
 
-        // have to check that after the queue, as it might be slightly before (but still in the queue)
-        if (!ActiveEffects.Contains(Effect))
+        foreach(var Tag in Tags.IDs)
+        {
+            RemoveEffectByTag(Tag);
+        }
+    }
+
+    public void RemoveEffectByTag(Guid Tag)
+    {
+        if (!bIsInitialized)
+            return;
+
+        if (!TryGetAnyActiveEffectByTags(Tag, out var Effect))
             return;
 
         ActiveEffects.Remove(Effect);
@@ -154,6 +191,11 @@ public class GameplayAbilityBehaviour : MonoBehaviour
             return;
 
         GrantedAbilities.Remove(Effect.GrantedAbility);
+    }
+
+    public void RemoveEffect(GameplayEffect Effect)
+    {
+        RemoveEffectByTags(Effect.GrantedTags);
     }
 
     public void GrantAbility(GameplayAbility Ability)

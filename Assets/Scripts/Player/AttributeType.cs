@@ -23,4 +23,6 @@ public enum AttributeType
     BuildingReach,
     MarketCosts,
     ScoutDogAmount,
+    AmberMalaiseSpawn,
+    AmberMaxTurns
 }

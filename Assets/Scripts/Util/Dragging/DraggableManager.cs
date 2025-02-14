@@ -109,4 +109,7 @@ public class DraggableManager : GameService
 
     private GameObject DraggingPreview;
     private List<Draggable> DraggedObjects = new();
+    protected override void ResetInternal()
+    {
+    }
 }

@@ -22,7 +22,8 @@ MonoBehaviour:
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
-    _SerializedIDs: []
+    _SerializedIDs:
+    - e8188670-3d72-4321-8399-c5cb3a49f214
     bIsEditing: 0
     Name: Granted Tags
     bIsEditable: 1
@@ -43,4 +44,3 @@ MonoBehaviour:
     bIsEditable: 1
   Type: 2
   Image: {fileID: 3286163911610860551, guid: a1841580a1d00374ca34e3b218ba7883, type: 3}
-  Tooltip: Increases maximum handcards

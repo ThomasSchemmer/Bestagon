@@ -150,4 +150,9 @@ public abstract class CardCollection : GameService
     // only temporarily holds cards while playing! 
     public List<Card> Cards = new List<Card>();
     public TMPro.TextMeshProUGUI Text;
+
+    protected override void ResetInternal()
+    {
+        Cards = new();
+    }
 }

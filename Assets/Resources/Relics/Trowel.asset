@@ -22,7 +22,8 @@ MonoBehaviour:
   DurationLength: 0
   GrantedAbility: {fileID: 0}
   GrantedTags:
-    _SerializedIDs: []
+    _SerializedIDs:
+    - 4a3de5af-038e-4642-ad27-9eabc71b9a97
     bIsEditing: 0
     Name: Granted Tags
     bIsEditable: 1

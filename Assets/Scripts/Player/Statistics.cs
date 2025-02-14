@@ -129,9 +129,9 @@ public class Statistics : SaveableService
         });
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         ResetAllStats();
         Subscribe(false);
     }

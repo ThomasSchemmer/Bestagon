@@ -185,7 +185,7 @@ public class ReachVisualization : GameService
         AddReach(Enumerator.Current);
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
         BuildingLocations.Clear();
         Corners.Clear();

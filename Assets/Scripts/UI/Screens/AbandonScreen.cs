@@ -35,6 +35,7 @@ public class AbandonScreen : ScreenUI
         Game.RunAfterServicesInit((Stockpile Stockpile, IconFactory IconFactory) =>
         {
             Stockpile._OnUpgradesChanged += UpdateUpgradesVisuals;
+            UpdateUpgradesVisuals();
         });
     }
 

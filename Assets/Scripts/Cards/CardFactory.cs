@@ -228,4 +228,9 @@ public class CardFactory : GameService
         HexMat.SetInt("_UsableOnMask", -1);
         HexMat.SetInt("_AdjacentWithMask", -1);
     }
+    protected override void ResetInternal()
+    {
+        ResetUsableMat();
+        CardsToCreate = new();
+    }
 }

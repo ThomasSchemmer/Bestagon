@@ -50,6 +50,7 @@ public class CheatService : ScreenUI
 
     private void ActivateCheat()
     {
+        // todo: use reflection to call method names
         string Cheat = CheatText.text;
         string[] Cheats = Cheat.Split(TOKEN_DIVIDER);
         if (Cheats.Length == 0)
@@ -109,6 +110,10 @@ public class CheatService : ScreenUI
         if (Cheats[0].Equals(DECORATION_CODE))
         {
             CreateDecoration(Cheats);
+        }
+        if (Cheats[0].Equals(REVEAL_CODE))
+        {
+            RevealMap();
         }
     }
 
@@ -188,22 +193,28 @@ public class CheatService : ScreenUI
     }
 
     private void GiveResource(string[] Cheats) {
-        if (!Game.TryGetService(out Stockpile Stockpile))
+        if (!Game.TryGetServices(out Stockpile Stockpile, out AmberService Amber))
             return;
 
         string TargetName = GetTargetName(Cheats);
         int TargetValue = GetTargetValue(Cheats);
         int TargetIndex = GetTargetIndex(TargetName, typeof(Production.Type));
-        if (TargetIndex < 0)
+        if (TargetIndex >= 0)
         {
-            if (!TargetName.ToLower().Equals("upgrades"))
-                return;
-
-            Stockpile.AddUpgrades(TargetValue);
+            Production.Type TargetType = (Production.Type)(TargetIndex);
+            Stockpile.AddResources(new Production(TargetType, TargetValue));
         }
 
-        Production.Type TargetType = (Production.Type)(TargetIndex);
-        Stockpile.AddResources(new Production(TargetType, TargetValue));
+        if (TargetName.ToLower().Equals("upgrades"))
+        {
+            Stockpile.AddUpgrades(TargetValue);
+        }
+            
+        if (TargetName.ToLower().Equals("amber"))
+        {
+            Amber.Add(TargetValue);
+        }
+
     }
 
     private void GiveCard(string[] Cheats) {
@@ -311,6 +322,10 @@ public class CheatService : ScreenUI
             UnlockRelic(TargetIndex);
             return;
         }
+        if (TargetName.ToLower().Equals("amber"))
+        {
+            Game.GetService<AmberService>().Unlock();
+        }
     }
 
     private void UnlockRelic(int TargetIndex, bool bShouldActivate = false)
@@ -380,6 +395,20 @@ public class CheatService : ScreenUI
         DecorationService.CreateNewDecoration((DecorationEntity.DType)TargetIndex, TargetLocation);
     }
 
+    public static void RevealMap()
+    {
+        if (!Game.TryGetService(out MapGenerator MapGen))
+            return;
+
+        foreach (var Chunk in MapGen.Chunks)
+        {
+            Chunk.ForEachHex((HexagonData Hex) =>
+            {
+                Hex.UpdateDiscoveryState(HexagonData.DiscoveryState.Visited);
+            });
+        }
+    }
+
     private static string TOKEN_DIVIDER = " ";
     private static string UNLOCK_CODE = "unlock";
     private static string ACTIVATE_CODE = "activate";
@@ -393,5 +422,6 @@ public class CheatService : ScreenUI
     private static string DESTROY_RESOURCES_CODE = "destroyallresources";
     private static string SCOUT_CODE = "scout";
     private static string VANISH_CODE = "vanish";
+    private static string REVEAL_CODE = "reveal";
     private static string DECORATION_CODE = "decoration";
 }

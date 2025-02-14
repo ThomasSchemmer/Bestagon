@@ -110,9 +110,9 @@ public class Map : SaveableService
         return LocationsCount >= MinimumReachableTiles;
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         Game.RunAfterServiceInit((WorldGenerator WorldGenerator) =>
         {
             MapData = WorldGenerator.EmptyLand();

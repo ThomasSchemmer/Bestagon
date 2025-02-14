@@ -81,4 +81,7 @@ public class Fotograph : GameService
         Block.SetFloat("_Value", 0);
         Renderer.SetPropertyBlock(Block);
     }
+    protected override void ResetInternal()
+    {
+    }
 }

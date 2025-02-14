@@ -72,9 +72,9 @@ public class CardGroupManager : SaveableService
         SwitchTo(PreSaveActiveGroupIndex);
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         CardGroups.Clear();
         ActiveGroupIndex = -1;
     }

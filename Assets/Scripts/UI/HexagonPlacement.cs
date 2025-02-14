@@ -53,5 +53,9 @@ public class HexagonPlacement : GameService
         gameObject.SetActive(false);
     }
 
+    protected override void ResetInternal()
+    {
+    }
+
     private static int DISPLAY_PER_ROW = 9;
 }

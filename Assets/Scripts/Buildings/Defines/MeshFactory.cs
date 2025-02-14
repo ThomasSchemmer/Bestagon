@@ -244,4 +244,9 @@ public class MeshFactory : GameService
         
         return Obj;
     }
+
+    protected override void ResetInternal()
+    {
+        //todo: release all meshes
+    }
 }

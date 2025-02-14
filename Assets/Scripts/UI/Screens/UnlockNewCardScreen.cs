@@ -67,4 +67,8 @@ public class UnlockNewCardScreen : CollectChoiceScreen
     {
         return 0;
     }
+    protected override int GetXOffsetBetweenChoices()
+    {
+        return 0;
+    }
 }

@@ -28,7 +28,7 @@ public class MalaiseData
         MarkRandomToMalaise();
     }
 
-    private void SpreadTo(Location Location)
+    public void SpreadTo(Location Location)
     {
         if (!Game.TryGetService(out MapGenerator MapGenerator))
             return;

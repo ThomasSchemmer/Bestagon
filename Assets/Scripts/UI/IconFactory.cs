@@ -20,6 +20,8 @@ public class IconFactory : GameService
     private GameObject CardGroupPrefab;
     private GameObject SpriteIndicatorPrefab, NumberedIndicatorPrefab;
     private GameObject UsableOnPrefab;
+    private GameObject ChoiceDividerPrefab, ChoiceOptionPrefab;
+
 
     private Sprite PlaceholderSprite;
 
@@ -48,7 +50,9 @@ public class IconFactory : GameService
         Sacrifice,
         Offering,
         Boat,
-        Amber
+        Amber,
+        Add,
+        Subtract
     }
 
     public void Refresh()
@@ -85,6 +89,9 @@ public class IconFactory : GameService
         NumberedIndicatorPrefab = Resources.Load("UI/Indicators/NumberedIndicator") as GameObject;
 
         UsableOnPrefab = Resources.Load("UI/Cards/UsableOn") as GameObject;
+
+        ChoiceDividerPrefab = Resources.Load("UI/Cards/Choices/Divider") as GameObject;
+        ChoiceOptionPrefab = Resources.Load("UI/Cards/Choices/Option") as GameObject;
     }
 
     private void LoadResources()
@@ -264,9 +271,9 @@ public class IconFactory : GameService
     {
         int Width = NumberedIconScreenWidth;
         GameObject ProductionUnit = Instantiate(NumberedIconPrefab);
-        RectTransform UnitTransform = ProductionUnit.GetComponent<RectTransform>();
-        UnitTransform.SetParent(GroupTransform, false);
-        UnitTransform.localPosition = new(i * Width, 0, 0);
+        RectTransform Rect = ProductionUnit.GetComponent<RectTransform>();
+        Rect.SetParent(GroupTransform, false);
+        Rect.localPosition = new(i * Width, 0, 0);
         NumberedIconScreen UnitScreen = ProductionUnit.GetComponent<NumberedIconScreen>();
         return UnitScreen;
     }
@@ -318,6 +325,15 @@ public class IconFactory : GameService
         Transform TypeContainer = MerchantEffect.transform.GetChild(3);
         DestroyImmediate(TypeContainer.gameObject);
         return MerchantEffect;
+    }
+    public GameObject GetVisualsForLibraryEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    {
+        GameObject LibraryEffect = Instantiate(ProduceEffectPrefab);
+        TextMeshProUGUI LibraryText = LibraryEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        LibraryText.text = Effect.GetDescription();
+        Transform TypeContainer = LibraryEffect.transform.GetChild(3);
+        DestroyImmediate(TypeContainer.gameObject);
+        return LibraryEffect;
     }
 
     public GameObject GetVisualsForSpriteIndicator(Transform Parent)
@@ -470,6 +486,16 @@ public class IconFactory : GameService
         }
     }
 
+    public GameObject GetChoiceDivider()
+    {
+        return Instantiate(ChoiceDividerPrefab);
+    }
+
+    public GameObject GetChoice()
+    {
+        return Instantiate(ChoiceOptionPrefab);
+    }
+
     public GameObject GetVisualsForConvertTileEvent(ConvertTileEventData EventData, ISelectable Parent)
     {
         GameObject ProduceUnitEffect = Instantiate(GrantMiscPrefab);
@@ -546,6 +572,11 @@ public class IconFactory : GameService
     {
         Refresh();
         _OnInit?.Invoke(this);
+    }
+
+    protected override void ResetInternal()
+    {
+        //todo: actually clear all GOs
     }
 
     protected override void StopServiceInternal() { }

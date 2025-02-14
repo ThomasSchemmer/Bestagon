@@ -56,6 +56,25 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
             }
         }
     }
+
+    public void ResearchTurn()
+    {
+        if (!Game.TryGetService(out BuildingService BuildingService))
+            return;
+
+        List<BuildingEntity> Buildings = BuildingService.Entities;
+
+        foreach (BuildingEntity Building in Buildings)
+        {
+            if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.Library)
+                continue;
+
+            if (Building.GetWorkingWorkerCount(false) < Building.GetMaximumWorkerCount())
+                continue;
+
+            Building.Effect.ResearchTurn();
+        }
+    }
     
     public Production CalculateResources(bool bIsSimulated)
     {
@@ -180,7 +199,7 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
 
     protected override void StartServiceInternal()
     {
-        Game.RunAfterServiceInit((SaveGameManager Manager) =>
+        Game.RunAfterServicesInit((SaveGameManager Manager, MapGenerator MapGen) =>
         {
             StockpileScreen = GetComponent<StockpileScreen>();
             Workers._OnWorkersChanged += OnSimulateResources;
@@ -210,6 +229,7 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
     public override void OnAfterLoaded()
     {
         Refill();
+
         _OnInit?.Invoke(this);
         _OnResourcesChanged?.Invoke();
         _OnUpgradesChanged?.Invoke();
@@ -225,11 +245,15 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
         if (!Tutorials.IsInTutorial())
             return;
 
-        Reset();
+        ResetInternal();
     }
 
     public void Refill()
     {
+        Game.RunAfterServicesInit((BuildingService Buildings, MapGenerator MapGenerator) =>
+        {
+            CalculateResources(true);
+        });
         if (!Game.TryGetService(out TutorialSystem TutorialSystem) || TutorialSystem.IsInTutorial())
             return;
         if (!bShouldReset)
@@ -237,19 +261,22 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
 
         // does not reset upgrade points nor coins!
         int CoinCount = Resources[Production.Type.Coins];
-        Reset();
+        ResetInternal();
         AddResources(StartingResources);
         AddResources(new Production(Production.Type.Coins, CoinCount));
         bShouldReset = false;
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
         Resources = new();
     }
 
     public void Show(bool bShow)
     {
+        if (StockpileScreen == null)
+            return;
+
         StockpileScreen.Show(bShow);
     }
 

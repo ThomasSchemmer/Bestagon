@@ -39,4 +39,7 @@ public class CardStash : CardCollection
     {
         return true;
     }
+    protected override void ResetInternal()
+    {
+    }
 }

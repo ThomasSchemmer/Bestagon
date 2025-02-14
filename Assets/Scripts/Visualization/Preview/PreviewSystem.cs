@@ -151,6 +151,10 @@ public class PreviewSystem : GameService
     {
         return PreviewLocation;
     }
+    protected override void ResetInternal()
+    {
+        Hide();
+    }
 
     protected override void StopServiceInternal() {}
 

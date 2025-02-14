@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Tutorial0_Camera
   m_EditorClassIdentifier: 
   Texts:
-  - Welcome to Bestagon\n\nThis window will contain useful hints to make playing
-    the game easier.\nYou can always switch between hints with the arrows below.\nPlease
-    go to the next tip now.
+  - Welcome to Ambers of Calamity\n\nThis window will contain useful hints to make
+    playing the game easier.\nYou can always switch between hints with the arrows
+    below.\nPlease go to the next tip now.
   - You are the leader of a small tribe of people, trying to survive the harsh world.
     There are rumors about a calamity in the south, but so far you have been spared.\nThis
     does not mean an easy living, as starvation is an ever-looming thread in this

@@ -287,7 +287,7 @@ public class HexagonConfig {
         if (!MapGenerator.TryGetHexagonData(locationB, out HexagonData DataB, Params))
             return -1;
 
-        if (DataB.IsMalaised())
+        if (DataB.IsMalaised() && !Params.bIgnoreMalaise)
             return -1;
 
         int CostsA = GetTraversingCosts(DataA.Type, Params);

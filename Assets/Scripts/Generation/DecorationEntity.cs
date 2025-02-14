@@ -108,6 +108,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
             case DType.Tribe: return "Contains unknown tribe";
             case DType.Treasure: return "Contains treasure chest";
             case DType.Altar: return GetAltarText();
+            case DType.Amber: return "Contains a crystallized amber";
             default: return "";
         }
     }

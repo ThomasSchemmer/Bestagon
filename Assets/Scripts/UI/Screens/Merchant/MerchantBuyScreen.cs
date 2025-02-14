@@ -103,5 +103,10 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return 0;
     }
 
+    protected override int GetXOffsetBetweenChoices()
+    {
+        return 0;
+    }
+
     private static int REFRESH_COST = 10;
 }

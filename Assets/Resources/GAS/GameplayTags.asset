@@ -15,14 +15,66 @@ MonoBehaviour:
   Container:
     Tokens:
     - _SerializedID: a9da3d62-a5d2-43a3-8ee6-180f5181b89b
-      Token: Tag
+      Token: Effect
       Depth: 0
       bIsFolded: 0
-    - _SerializedID: 3bd093c5-97e9-479f-8bc8-da8fbe4cacc2
-      Token: Damage
+    - _SerializedID: 852c8b87-e4c0-446e-ac01-94270a6bbd63
+      Token: Altar
       Depth: 1
       bIsFolded: 0
+    - _SerializedID: 6160fa64-cbe3-4605-8fe4-4e1278d9f751
+      Token: Immunity
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: 9c893049-fdfe-4ca2-9d6a-723a7302b3b3
+      Token: ProductionIncrease
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: eafc2475-9b12-41b0-a482-c9816e16903b
+      Token: Relic
+      Depth: 1
+      bIsFolded: 0
+    - _SerializedID: 3de7a1dd-c8db-4351-bbec-e2d865970b53
+      Token: Abacus
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: 2041fd06-4908-4540-9866-1f23028502d4
+      Token: Caligulae
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: e67f3612-7c95-4060-8461-816296c55b5d
+      Token: Cradle
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: d4f3959f-f007-4a32-a210-243c81037020
+      Token: DogBowl
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: d9bcc84f-036f-4dc7-9433-90114121fd63
+      Token: PrayerBeads
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: c3e44576-19f4-4052-ac56-df759201317a
+      Token: Purse
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: 4a3de5af-038e-4642-ad27-9eabc71b9a97
+      Token: Trowel
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: e8188670-3d72-4321-8399-c5cb3a49f214
+      Token: WoodenMallet
+      Depth: 2
+      bIsFolded: 0
+    - _SerializedID: 3bd093c5-97e9-479f-8bc8-da8fbe4cacc2
+      Token: Amber
+      Depth: 1
+      bIsFolded: 0
+    - _SerializedID: 4ffc14d3-c494-4ce0-8645-b5c5579f37eb
+      Token: MalaiseSpawn
+      Depth: 2
+      bIsFolded: 0
     - _SerializedID: f5884da5-76d4-4cb0-8937-312bddb69c0e
-      Token: NewTag
+      Token: MaxTurns
       Depth: 2
       bIsFolded: 0

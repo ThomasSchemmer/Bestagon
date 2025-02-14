@@ -13,6 +13,7 @@ public class OnTurnBuildingEffect : Effect
         ConsumeProduce,
         ProduceUnit,
         Merchant,
+        Library,
     }
 
     [SaveableEnum]
@@ -119,6 +120,14 @@ public class OnTurnBuildingEffect : Effect
         Provider.TryCreateNewEntity((int)UnitType, GetUnitSpawnLocation());
     }
 
+    public void ResearchTurn()
+    {
+        if (!Game.TryGetService(out AmberService Ambers))
+            return;
+
+        Ambers.ResearchTurn();
+    }
+
     private LocationSet GetUnitSpawnLocation()
     {
         if (this.EffectType != Type.ProduceUnit)
@@ -170,6 +179,17 @@ public class OnTurnBuildingEffect : Effect
         return !Units.IsEntityAt(Location);
     }
 
+    public bool CanResearchInLibrary()
+    {
+        if (!Game.TryGetService(out AmberService Ambers))
+            return false;
+
+        if (!Ambers.IsUnlocked())
+            return true;
+
+        return Ambers.CanHealMalaise();
+    }
+
     public bool TryGetAdjacencyBonus(out Dictionary<HexagonConfig.HexagonType, Production> Bonus)
     {
         Bonus = new Dictionary<HexagonConfig.HexagonType, Production>();
@@ -195,6 +215,7 @@ public class OnTurnBuildingEffect : Effect
             case Type.ProduceUnit: return GetDescriptionProduceUnit();
             case Type.ConsumeProduce: return GetDescriptionConsumeProduce();
             case Type.Merchant: return "Allows trading resources for new cards";
+            case Type.Library: return "Allows researching the Malaise";
 
             default: return "No effect";
         }
@@ -214,6 +235,7 @@ public class OnTurnBuildingEffect : Effect
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(Building, Parent);
             case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
+            case Type.Library: return IconFactory.GetVisualsForLibraryEffect(this, Parent);
             default: return null;
         }
     }

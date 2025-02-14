@@ -731,9 +731,9 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
         GenerateMap();
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         DestroyChunks();
 
         UnlockableTypes = new();

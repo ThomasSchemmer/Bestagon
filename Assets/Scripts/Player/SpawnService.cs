@@ -42,16 +42,16 @@ public class SpawnService : GameService
         CameraController.TeleportTo(TargetLocation.WorldLocation);
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         HexagonData._OnHexDiscoveryState -= OnHexDiscovered;
         HexagonData._OnHexMalaised -= OnHexMalaised;
     }
 
     private void OnDestroy()
     {
-        Reset();
+        ResetInternal();
     }
 
     private void OnHexDiscovered(HexagonData Data, HexagonData.DiscoveryState State)
@@ -101,6 +101,11 @@ public class SpawnService : GameService
             return;
 
         if (!Data.CanDecorationSpawn() || Decorations.IsEntityAt(Data.Location))
+            return;
+
+        Random.InitState(Data.Location.GetHashCode() + Data.Type.GetHashCode());
+        float Chance = Random.Range(0f, 1f);
+        if (Chance > AmberWeight)
             return;
 
         Decorations.CreateNewDecoration(DecorationEntity.DType.Amber, Data.Location);
@@ -178,4 +183,6 @@ public class SpawnService : GameService
     private float RuinsWeight = 0.5f;
     private float TreasureWeight = 0.2f;
     private float AltarWeight = 0.1f;
+    // will be checked for each newly malaised tile, so should be very low
+    private float AmberWeight = 0.02f;
 }

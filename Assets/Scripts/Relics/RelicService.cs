@@ -23,9 +23,9 @@ public class RelicService : SaveableService, IUnlockableService<RelicType>
         return Resources.LoadAll("Relics/", typeof(RelicEffect)).Length;
     }
 
-    public override void Reset()
+    protected override void ResetInternal()
     {
-        base.Reset();
+        
         foreach (var RelicTuple in Relics)
         {
             SetRelic(RelicTuple.Key, Unlockables.State.Locked, true);

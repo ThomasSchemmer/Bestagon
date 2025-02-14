@@ -92,6 +92,9 @@ public class CardContainerUI : CardCollection, IDragTarget
         GlobalPosition = Mathf.Min(GlobalPosition, Content.childCount);
         return GlobalPosition;
     }
+    protected override void ResetInternal()
+    {
+    }
 
     private static float ScrollSpeed = 60f;
 }

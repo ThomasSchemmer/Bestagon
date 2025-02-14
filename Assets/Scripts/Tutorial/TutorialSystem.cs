@@ -16,6 +16,10 @@ public class TutorialSystem : GameService
     public Button ButtonNext, ButtonPrev, ButtonClose;
 
 
+    protected override void ResetInternal()
+    {
+        CurrentIndex = 0;
+    }
 
     public enum TutorialType : uint
     {
