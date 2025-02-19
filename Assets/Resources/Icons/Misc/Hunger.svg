@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="64"
+   height="64"
+   viewBox="0 0 16.933333 16.933333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="Hunger.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="true"
+     showguides="true"
+     inkscape:zoom="2.8970537"
+     inkscape:cx="-3.796961"
+     inkscape:cy="28.477208"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g23">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1.0583333"
+       spacingy="1.0583333"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <rect
+       x="-64.893516"
+       y="17.899159"
+       width="44.893516"
+       height="66.100838"
+       id="rect2" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g23"
+       transform="matrix(1.4131993,0,0,1.4131993,-3.5220604,-3.9844962)">
+      <path
+         d="M 8.4833954,3.1657055 A 5.6447397,5.6447396 0 0 0 2.8384793,8.8106197 5.6447397,5.6447396 0 0 0 8.4833954,14.455535 5.6447397,5.6447396 0 0 0 14.128309,8.8106197 5.6447397,5.6447396 0 0 0 8.4833954,3.1657055 Z"
+         style="fill:#e5be3e;stroke:#bf2f37;stroke-width:0.692438;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+         id="path5" />
+      <path
+         d="m 5.8615419,13.794334 c 0.2577715,-0.193025 0.425274,-0.500082 0.425274,-0.846891 -0.00467,-0.164161 -0.047489,-0.324765 -0.1250591,-0.46952 L 7.2364604,11.410167 5.8001093,10.072181 4.8120695,11.052908 C 4.6283547,10.910339 4.4028588,10.832446 4.170319,10.830946 c -0.3193887,0 -0.605305,0.141958 -0.7993542,0.36567 a 5.6447397,5.6447396 0 0 0 2.4905771,2.597718 z"
+         style="fill:#cfc0b4;stroke:#2f2114;stroke-width:0.21228428;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+         id="path6" />
+      <path
+         d="M 8.4833954,3.1657055 A 5.6447397,5.6447396 0 0 0 2.8384793,8.8106197 5.6447397,5.6447396 0 0 0 8.4833954,14.455535 5.6447397,5.6447396 0 0 0 14.128309,8.8106197 5.6447397,5.6447396 0 0 0 8.4833954,3.1657055 Z"
+         style="fill:none;stroke:#bf2f37;stroke-width:0.692438;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+         id="path3" />
+      <path
+         style="fill:#987052;stroke:#2f2114;stroke-width:0.2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+         d="M 7.3876737,5.5225206 C 9.2447078,3.194267 11.913453,3.1014449 13.165176,4.6809999 14.416899,6.2605551 13.821073,8.5823477 12.530128,9.8000732 11.239183,11.017798 9.8231967,11.184601 8.170406,11.3793 L 7.3121373,11.4804 5.7148868,9.9924336 v 0 0 c 0.86612,-1.1676776 1.6727869,-4.469913 1.6727869,-4.469913 z"
+         id="path19"
+         sodipodi:nodetypes="csssccccc" />
+      <path
+         style="fill:none;stroke:#ded4c8;stroke-width:0.35876;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.2;stroke-dasharray:none"
+         d="m 13.336484,6.3499997 c 0.02283,1.0583333 -0.922252,3.1046489 -2.719695,3.8216423"
+         id="path23"
+         sodipodi:nodetypes="cc" />
+    </g>
+  </g>
+</svg>

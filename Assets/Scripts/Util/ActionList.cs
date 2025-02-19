@@ -24,7 +24,11 @@ public class ActionList<T>
     public void ForEach(Action<Action<T>> Execution)
     {
         RemoveMarked();
-        Actions.ForEach(A => {
+        // some quest will add a follow-up quest to the list, making
+        // iterating on the mainlist impossible. Easy fix: copy to a temp one
+        List<Action<T>> Temp = new();
+        Actions.ForEach(A => Temp.Add(A));
+        Temp.ForEach(A => {
             if (A == null)
                 return;
 
@@ -75,7 +79,9 @@ public class ActionList<X, Y>
     public void ForEach(Action<Action<X, Y>> Execution)
     {
         RemoveMarked();
-        Actions.ForEach(A => {
+        List<Action<X, Y>> Temp = new();
+        Actions.ForEach(A => Temp.Add(A));
+        Temp.ForEach(A => {
             if (A == null)
                 return;
 

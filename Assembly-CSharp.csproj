@@ -165,6 +165,7 @@
     <Compile Include="Assets\Scripts\Util\Rendering\SSAORendererFeature.cs" />
     <Compile Include="Assets\Scripts\Cards\CardGroup.cs" />
     <Compile Include="Assets\Scripts\Util\GameService\GameServiceWrapper.cs" />
+    <Compile Include="Assets\Scripts\Config\Settings\SettingName.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedCardScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\TileMeshGenerator.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\SaveGameManager.cs" />

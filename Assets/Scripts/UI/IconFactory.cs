@@ -52,7 +52,8 @@ public class IconFactory : GameService
         Boat,
         Amber,
         Add,
-        Subtract
+        Subtract,
+        Hunger
     }
 
     public void Refresh()

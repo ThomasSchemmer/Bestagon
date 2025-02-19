@@ -72,15 +72,27 @@ public abstract class IndicatorComponent : MonoBehaviour
     {
         int Count = GetIndicatorAmount();
 
-        int InBetweenOffsets = (Count / 2 - 1) * OFFSET;
-        int MiddleOffset = OFFSET / 2;
+        int Offset = GetOffset();
+        int Width = GetWidth();
+        int InBetweenOffsets = (Count / 2 - 1) * Offset;
+        int MiddleOffset = Offset / 2;
         MiddleOffset *= Count % 2 == 1 ? -1 : 1;
-        int OverallWidth = Count / 2 * WIDTH;
+        int OverallWidth = Count / 2 * Width;
         int StartX = -InBetweenOffsets + MiddleOffset - OverallWidth;
         Vector3 Pos = new Vector3();
-        Pos.x = StartX + i * (WIDTH + OFFSET);
+        Pos.x = StartX + i * (Width + Offset);
 
         return Pos;
+    }
+
+    protected virtual int GetOffset()
+    {
+        return OFFSET;
+    }
+
+    protected virtual int GetWidth()
+    {
+        return WIDTH;
     }
 
     protected void CreateIndicator(int i, RectTransform Parent)
@@ -137,6 +149,6 @@ public abstract class IndicatorComponent : MonoBehaviour
         return false;
     }
 
-    private static int WIDTH = 24;
-    private static int OFFSET = 8;
+    protected static int WIDTH = 25;
+    protected static int OFFSET = 8;
 }

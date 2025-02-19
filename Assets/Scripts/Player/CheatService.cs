@@ -196,6 +196,9 @@ public class CheatService : ScreenUI
         if (!Game.TryGetServices(out Stockpile Stockpile, out AmberService Amber))
             return;
 
+        if (Cheats.Length < 3)
+            return;
+
         string TargetName = GetTargetName(Cheats);
         int TargetValue = GetTargetValue(Cheats);
         int TargetIndex = GetTargetIndex(TargetName, typeof(Production.Type));

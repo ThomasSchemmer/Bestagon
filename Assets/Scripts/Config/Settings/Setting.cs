@@ -10,39 +10,21 @@ using UnityEngine;
  */
 public class Setting
 {
-    public enum SettingType
+    public enum Type
     {
-        boolean
+        Boolean,
+        Int
     }
 
-    public string Name;
-
-    public virtual object GetValue() { return null; }
-    public virtual void SetValue(object Value) { }
-}
-
-[Serializable]
-public abstract class Setting<T> : Setting
-{
-    public T Value;
-
-    public override object GetValue()
+    public Setting(Type Type)
     {
-        return Value;
+        this._Type = Type;
+        Value = 0;
     }
 
-    public override void SetValue(object Value)
-    {
-        if (Value is not T)
-            return;
-
-        this.Value = (T)Value;
-    }
+    public Type _Type;
+    // needs to be casted everytime! Unity doesn't like custom editors with generic classes
+    public int Value;
+    public int MinValue;
+    public int MaxValue;
 }
-
-[Serializable]
-public class BooleanSetting: Setting<bool>
-{
-
-}
-

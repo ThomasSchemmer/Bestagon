@@ -111,7 +111,7 @@ public class Game : MonoBehaviour
     public void Update()
     {
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.P) && Input.GetKey(KeyCode.LeftShift))
         {
             EditorApplication.isPaused = !EditorApplication.isPaused;
         }

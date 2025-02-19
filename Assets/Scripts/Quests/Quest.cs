@@ -183,6 +183,7 @@ public abstract class Quest<T> : QuestTemplate
 
     public override bool ShouldAutoComplete()
     {
-        return QuestType == Type.Negative;
+        return QuestType == Type.Negative ||
+            (QuestType == Type.Positive && Settings.Get()[SettingName.AutoCompleteQuests].Value > 0);
     }
 }

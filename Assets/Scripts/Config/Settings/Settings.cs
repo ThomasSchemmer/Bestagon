@@ -3,66 +3,53 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-/** Handles user preferences */
-public class Settings : SaveableService
+[CreateAssetMenu(fileName = "Settings", menuName = "ScriptableObjects/Settings", order = 3)]
+public class Settings : ScriptableObject
 {
-    public List<Setting> List = new();
+    public SerializedDictionary<SettingName, Setting> Entries = new();
 
-    [SaveableDictionary]
-    private SerializedDictionary<int, Setting> SettingsInternal = new();
 
-    protected override void ResetInternal()
+    public Setting this[SettingName Name]
     {
-        SettingsInternal = new();
-    }
-
-    protected override void StartServiceInternal() {
-        Game.RunAfterServiceInit((SaveGameManager Manager) =>
+        get
         {
-            if (Manager.HasDataFor(SaveGameType.Settings))
-                return;
+            if (!Entries.ContainsKey(Name))
+                return null;
 
-            FillInternalSettings();
-            _OnInit?.Invoke(this);
-        });
-    }
-
-    public override void OnAfterLoaded()
-    {
-        base.OnAfterLoaded();
-        _OnInit?.Invoke(this);
-    }
-
-    protected override void StopServiceInternal()
-    {}
-
-    private void FillInternalSettings()
-    {
-        SettingsInternal.Clear();
-        foreach (var Setting in List)
+            return Entries[Name];
+        }
+        set
         {
-            SettingsInternal.Add(Setting.Name.GetHashCode(), Setting);
+            if (Entries.ContainsKey(Name))
+            {
+                Entries[Name] = value;
+            }
+            else
+            {
+                Entries.Add(Name, value);
+            }
         }
     }
 
-    public bool TryGetValue(string Key, out object Value)
+    public void Add(SettingName Name, Setting.Type Type)
     {
-        int Hash = Key.GetHashCode();
-        Value = default;
-        if (!SettingsInternal.ContainsKey(Hash))
-            return false;
+        if (Entries.ContainsKey(Name))
+            return;
 
-        Value = SettingsInternal[Hash].GetValue();
-        return true;
+        Entries.Add(Name, new(Type));
     }
 
-    public void AddSetting(Setting.SettingType Type)
+    public static Settings Get()
     {
-        switch (Type)
+        if (GlobalSettings == null)
         {
-            case Setting.SettingType.boolean: List.Add(new BooleanSetting()); break;
+            GlobalSettings = Resources.Load("Settings/Settings") as Settings;
         }
+        return GlobalSettings;
     }
 
+    public delegate void OnAnySettingChanged(Setting Setting);
+    public OnAnySettingChanged _OnAnySettingChanged;
+
+    public static Settings GlobalSettings = null;
 }

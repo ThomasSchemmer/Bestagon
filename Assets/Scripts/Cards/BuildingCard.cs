@@ -10,8 +10,8 @@ public class BuildingCard : Card
     {
         // needs to be set before initialising the base
         this.BuildingData = BuildingData;
-        base.Init(DTO, Index);
         this.BuildingData.Init();
+        base.Init(DTO, Index);
     }
 
     public override string GetName()

@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 
-public class BuildingConfig 
+public class BuildingConfig
 {
     [Flags]
     public enum Type : uint
@@ -37,14 +38,16 @@ public class BuildingConfig
     }
 
     public static int MaxIndex = 26;
-    public static Type CategoryMeadowA = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut ;
+    public static Type CategoryMeadowA = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut;
     public static Type CategoryMeadowB = Type.HuntersHut | Type.Well;
-    public static Type CategoryDesertA = Type.Quarry | Type.Sawmill | Type.Outpost; 
+    public static Type CategoryDesertA = Type.Quarry | Type.Sawmill | Type.Outpost;
     public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut | Type.Merchant | Type.Harbour;
     public static Type CategorySwampA = Type.Mine | Type.Forge | Type.Smithy;
     public static Type CategorySwampB = Type.Barracks | Type.SmokeHut | Type.Mill | Type.Weaver | Type.Tailor;
     public static Type CategoryIceA = Type.Stonemason;
     public static Type CategoryIceB = Type.Bakery | Type.Brewer | Type.Scribe | Type.Library;
+
+    public static List<Type> FoodProductionBuildings = new(){Type.Bakery, Type.ForagersHut, Type.HuntersHut, Type.HerbalistsHut, Type.SmokeHut };
 
     public static Type UnlockOnStart = CategoryMeadowA;
 

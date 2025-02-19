@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using static CardUpgradeScreen;
 using static UnitEntity;
 
@@ -323,12 +324,7 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public bool IsFoodProductionBuilding()
     {
-        int FoodValue = 0;
-        foreach (var Tuple in GetTheoreticalMaximumProduction().GetTuples())
-        {
-            FoodValue += Production.GetNutrition(Tuple.Key) * Tuple.Value;
-        }
-        return FoodValue > 0;
+        return BuildingConfig.FoodProductionBuildings.Contains(BuildingType);
     }
 
     public void Upgrade(UpgradeableAttributes SelectedAttribute)

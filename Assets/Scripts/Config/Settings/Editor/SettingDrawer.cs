@@ -9,39 +9,58 @@ public class SettingDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect Position, SerializedProperty SettingProperty, GUIContent Label)
     {
-        var TypeProperty = SettingProperty.FindPropertyRelative("Type");
         var NameProperty = SettingProperty.FindPropertyRelative("Name");
         var ValueProperty = SettingProperty.FindPropertyRelative("Value");
 
-        EditorGUILayout.BeginHorizontal();
         DrawValue(SettingProperty);
-        EditorGUILayout.Space();
-        GUILayout.Button("-", EditorStyles.miniButtonRight, GUILayout.Width(25));
-        EditorGUILayout.EndHorizontal();
     }
 
     protected virtual void DrawValue(SerializedProperty SettingProperty)
     {
-        throw new NotImplementedException();
+        var TypeProperty = SettingProperty.FindPropertyRelative("_Type");
+        switch (TypeProperty.intValue)
+        {
+            case 0: DrawBooleanValue(SettingProperty); break;
+            case 1: DrawIntValue(SettingProperty); break;
+        }
     }
 
-    
-}
 
-[CustomPropertyDrawer(typeof(BooleanSetting))]
-public class BooleanSettingDrawer : SettingDrawer
-{
-    protected override void DrawValue(SerializedProperty SettingProperty)
+    protected void DrawBooleanValue(SerializedProperty SettingProperty)
     {
-        var NameProperty = SettingProperty.FindPropertyRelative("Name");
         var ValueProperty = SettingProperty.FindPropertyRelative("Value");
 
         string[] BoolValues = { "false", "true" };
-        EditorGUILayout.PrefixLabel(NameProperty.name);
-        ValueProperty.boolValue = EditorGUILayout.Popup(
-            "Value",
-            ValueProperty.boolValue ? 1 : 0,
+        ValueProperty.intValue = EditorGUILayout.Popup(
+            ValueProperty.intValue,
             BoolValues
-        ) > 0 ? true : false;
+        );
+    }
+
+    protected void DrawIntValue(SerializedProperty SettingProperty)
+    {
+        var ValueProperty = SettingProperty.FindPropertyRelative("Value");
+        var MinValueProperty = SettingProperty.FindPropertyRelative("MinValue");
+        var MaxValueProperty = SettingProperty.FindPropertyRelative("MaxValue");
+
+        EditorGUILayout.BeginVertical();
+        ValueProperty.intValue = EditorGUILayout.DelayedIntField(
+            ValueProperty.intValue
+        );
+        EditorGUILayout.BeginHorizontal();
+        float Old = EditorGUIUtility.labelWidth;
+        EditorGUIUtility.labelWidth = 35;
+        EditorGUILayout.PrefixLabel("Min:");
+        MinValueProperty.intValue = EditorGUILayout.DelayedIntField(
+            MinValueProperty.intValue
+        );
+        EditorGUILayout.PrefixLabel("Max:");
+        MaxValueProperty.intValue = EditorGUILayout.DelayedIntField(
+            MaxValueProperty.intValue
+        );
+        ValueProperty.intValue = Mathf.Clamp(ValueProperty.intValue, MinValueProperty.intValue, MaxValueProperty.intValue);
+        EditorGUIUtility.labelWidth = Old;
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
     }
 }

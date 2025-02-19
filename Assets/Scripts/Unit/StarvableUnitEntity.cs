@@ -70,11 +70,17 @@ public abstract class StarvableUnitEntity : UnitEntity
         foreach (StarvableUnitEntity Unit in Units)
         {
             Unit.HandleStarvation(bIsSimulated);
-            if (!Unit.IsStarving(bIsSimulated))
+            bool bIsStarving = Unit.IsStarving(bIsSimulated);
+            if (!bIsStarving)
+            {
+                _OnUnitStarving?.Invoke(Unit, false);
                 continue;
+            }
 
             Unit.HandleFeeding(Production, bIsSimulated);
-            StarvingCount += Unit.IsStarving(bIsSimulated) ? 1 : 0;
+            bool bIsStarvingAfter = Unit.IsStarving(bIsSimulated);
+            StarvingCount += bIsStarvingAfter ? 1 : 0;
+            _OnUnitStarving?.Invoke(Unit, bIsStarvingAfter);
         }
 
         if (bIsSimulated)
@@ -97,4 +103,8 @@ public abstract class StarvableUnitEntity : UnitEntity
     public int CurrentFoodCount = 1;
     [HideInInspector]
     public int SimulatedFoodCount = 1;
+
+
+    public delegate void OnUnitStarving(StarvableUnitEntity Unit, bool bIsStarving);
+    public static OnUnitStarving _OnUnitStarving;
 }
