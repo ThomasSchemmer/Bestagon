@@ -34,6 +34,7 @@ public class BuildingCardDTO : CardDTO
         BuildingCardDTO DTO = new();
         DTO.BuildingData = Data;
 
+        //todo: possible infinity bug
         int AdditionalUsability = (int)AttributeSet.Get()[AttributeType.CardNewUsability].CurrentValue;
         DTO.BuildingData.CurrentUsages += AdditionalUsability;
         DTO.BuildingData.MaxUsages += AdditionalUsability;

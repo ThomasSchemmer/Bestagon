@@ -7,6 +7,7 @@ using TMPro;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Unity.VectorGraphics;
 
 /**
  * Base class for any card, visualized as a playing card in the game
@@ -137,8 +138,9 @@ public abstract class Card : Draggable, ISelectable
     }
 
     protected virtual void LinkTexts() {
-        CardBaseImage = GetComponent<Image>();
-        CardImage = transform.Find("Image").GetComponent<Image>();
+        CardImage = GetComponent<SVGImage>();
+        CardBorderImage = transform.Find("ImageBorder").GetComponent<SVGImage>();
+        CardBorderCorruptedImage = transform.Find("ImageBorderCorrupted").GetComponent<SVGImage>();
         NameText = transform.Find("Name").GetComponent<TextMeshProUGUI>();
         SymbolTransform = transform.Find("Symbol").GetComponent<RectTransform>();
         CostTransform = transform.Find("Costs").GetComponent<RectTransform>();
@@ -148,7 +150,7 @@ public abstract class Card : Draggable, ISelectable
 
     public virtual void Show(Visibility Visibility)
     {
-        CardBaseImage.enabled = Visibility >= Visibility.Flipped;
+        CardBorderImage.enabled = Visibility >= Visibility.Flipped;
         CardImage.gameObject.SetActive(Visibility >= Visibility.Visible);
         NameText.gameObject.SetActive(Visibility >= Visibility.Visible);
         SymbolTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
@@ -224,7 +226,7 @@ public abstract class Card : Draggable, ISelectable
     private void SetColor() {
         Color Color = isSelected ? SelectColor :
                         isHovered ? HoverColor : NormalColor;
-        CardBaseImage.color = Color;
+        CardBorderImage.color = Color;
     }
 
     public Transform GetUsagesTransform()
@@ -380,27 +382,46 @@ public abstract class Card : Draggable, ISelectable
         if (NewParent == null)
             return;
 
+        OldCollection.RemoveCard(this);
+        OldCollection.UpdatePinnedIndices();
+
         CardCollection NewCollection = NewParent.GetComponent<CardCollection>();
+        CardGroupScreen GroupScreen = NewParent.GetComponent<CardGroupScreen>();
+        TrashCan TrashCan = NewParent.GetComponent<TrashCan>();
         if (NewCollection != null)
         {
-            OldCollection.RemoveCard(this);
-            OldCollection.UpdatePinnedIndices();
             NewCollection.SetIndex(this, Index);
             NewCollection.UpdatePinnedIndices();
-            return;
         }
-
-        CardGroupScreen GroupScreen = NewParent.GetComponent<CardGroupScreen>();
-        if (GroupScreen != null)
+        else if (GroupScreen != null)
         {
-            if (!Game.TryGetService(out CardGroupManager Manager))
-                return;
-
-            OldCollection.RemoveCard(this);
-            OldCollection.UpdatePinnedIndices();
             GroupScreen.StoreCard(this, Index);
-            Manager.GetActiveCardGroup().InvokeCardRemoved();
         }
+        else if (TrashCan != null)
+        {
+            ConfirmScreen.Show("This deletes the current Card and cannot be reversed. Are you sure?", OnTrashConfirm, OnTrashCancel, "Cancel", true);
+        }
+
+        if (!Game.TryGetService(out CardGroupManager Manager))
+            return;
+
+        Manager.GetActiveCardGroup().InvokeCardRemoved();
+    }
+
+    public void OnTrashConfirm()
+    {
+        Destroy(gameObject);
+    }
+
+    public void OnTrashCancel()
+    {
+        OldCollection.AddCard(this);
+        OldCollection.UpdatePinnedIndices();
+
+        if (!Game.TryGetService(out CardGroupManager Manager))
+            return;
+
+        Manager.GetActiveCardGroup().InvokeCardRemoved();
     }
 
     public override void OnBeginDrag(PointerEventData eventData)
@@ -468,7 +489,7 @@ public abstract class Card : Draggable, ISelectable
     protected CardState State = CardState.DEFAULT;
     protected TextMeshProUGUI NameText;
     protected RectTransform CostTransform, SymbolTransform, UsagesTransform, EffectTransform;
-    protected Image CardBaseImage, CardImage;
+    protected SVGImage CardBorderImage, CardImage, CardBorderCorruptedImage;
     protected CardHand CardHand;
     protected CardCollection Collection;
     protected Material HexMat;

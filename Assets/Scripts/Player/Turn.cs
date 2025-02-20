@@ -80,7 +80,7 @@ public class Turn : GameService, IQuestRegister<int>
         if (MalaisedEntity == null)
             return false;
 
-        ConfirmScreen.Show("You have a " + Type + " that will be destroyed this turn by the malaise!", ExecuteNextTurn, ShowUnitToHighlight, "Show");
+        ConfirmScreen.Show("You have a " + Type + " that will be destroyed this turn by the malaise!", ExecuteNextTurn, ShowUnitToHighlight, "Show", false);
         return true;
     }
 
@@ -99,7 +99,7 @@ public class Turn : GameService, IQuestRegister<int>
 
         string Type = Unit != null ? Unit.GetUType().ToString() :
                     Worker != null ? "Worker" : "Unit";
-        ConfirmScreen.Show("You have an idle " + Type, ExecuteNextTurn, ShowUnitToHighlight, "Show");
+        ConfirmScreen.Show("You have an idle " + Type, ExecuteNextTurn, ShowUnitToHighlight, "Show", false);
         return true;
     }
 

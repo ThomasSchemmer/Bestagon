@@ -53,7 +53,9 @@ public class IconFactory : GameService
         Amber,
         Add,
         Subtract,
-        Hunger
+        Hunger,
+        TrashCan,
+        TrashCanOpen
     }
 
     public void Refresh()

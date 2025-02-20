@@ -66,7 +66,14 @@ public class MerchantBuyScreen : CollectChoiceScreen
 
     protected override void SetChoiceBuilding(int i, Card Card)
     {
-        base.SetChoiceBuilding(i, Card); 
+        base.SetChoiceBuilding(i, Card);
+
+        if (Card is not BuildingCard BuildingCard)
+            return;
+
+        BuildingCard.GetBuildingData().Corrupt();
+        BuildingCard.Show(Card.Visibility.Visible);
+
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 
@@ -94,7 +101,7 @@ public class MerchantBuyScreen : CollectChoiceScreen
 
     protected override int GetSeed()
     {
-        // TODO: check if this actually gives a wide enough range?
+        UnityEngine.Random.InitState(Time.frameCount);
         return UnityEngine.Random.Range(0, 100);
     }
 

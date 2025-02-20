@@ -16465,6 +16465,7 @@ MonoBehaviour:
   InputField: {fileID: 1807287271}
   ConfirmButton: {fileID: 373471894}
   OtherButton: {fileID: 1521830784}
+  CancelButton: {fileID: 41851301}
   Text: {fileID: 779722817}
 --- !u!1 &953794826
 GameObject:

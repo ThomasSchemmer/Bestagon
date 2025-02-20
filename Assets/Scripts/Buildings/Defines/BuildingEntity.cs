@@ -21,6 +21,9 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
     [SaveableBaseType]
     [SerializeField]
     protected int MaxWorker = 1;
+    [SaveableBaseType]
+    [SerializeField]
+    protected bool bIsCorrupted = false;
 
     [SaveableEnum]
     public HexagonConfig.HexagonType BuildableOn = 0;
@@ -416,6 +419,19 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
                 return Effect.Production.SmallerThanAny(Effect.UpgradeProduction);
         }
         return false;
+    }
+
+    public void Corrupt()
+    {
+        if (bIsCorrupted)
+            return;
+
+        bIsCorrupted = true;
+    }
+
+    public bool IsCorrupted()
+    {
+        return bIsCorrupted;
     }
 
     public void SetLocation(LocationSet Location)

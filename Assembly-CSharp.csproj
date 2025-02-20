@@ -177,6 +177,7 @@
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\TrashCan.cs" />
     <Compile Include="Assets\Scripts\Unit\BoatEntity.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantBuyScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />

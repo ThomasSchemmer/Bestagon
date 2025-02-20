@@ -42,6 +42,7 @@ public class BuildingCard : Card
     {
         base.Show(Visibility);
         MaxWorkerTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
+        CardBorderCorruptedImage.enabled = Visibility >= Visibility.Visible && BuildingData.IsCorrupted();
     }
 
     protected override void GenerateVisuals()
