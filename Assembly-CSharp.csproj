@@ -114,6 +114,7 @@
     <Compile Include="Assets\Scripts\Player\AmberService.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
     <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\SettingsScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\Util\Particles\ParticleService.cs" />
     <Compile Include="Assets\Scripts\UI\IndicatorService.cs" />
@@ -237,6 +238,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\LabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\ScavengerScreen.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Settings\SettingScreen.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionLabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\ProductionGroup.cs" />

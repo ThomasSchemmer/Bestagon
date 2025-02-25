@@ -21,6 +21,7 @@ public class IconFactory : GameService
     private GameObject SpriteIndicatorPrefab, NumberedIndicatorPrefab;
     private GameObject UsableOnPrefab;
     private GameObject ChoiceDividerPrefab, ChoiceOptionPrefab;
+    private GameObject BooleanSettingPrefab, IntSettingPrefab;
 
 
     private Sprite PlaceholderSprite;
@@ -95,6 +96,9 @@ public class IconFactory : GameService
 
         ChoiceDividerPrefab = Resources.Load("UI/Cards/Choices/Divider") as GameObject;
         ChoiceOptionPrefab = Resources.Load("UI/Cards/Choices/Option") as GameObject;
+
+        BooleanSettingPrefab = Resources.Load("UI/Settings/BooleanSetting") as GameObject;
+        IntSettingPrefab = Resources.Load("UI/Settings/IntSetting") as GameObject;
     }
 
     private void LoadResources()
@@ -331,6 +335,7 @@ public class IconFactory : GameService
         DestroyImmediate(TypeContainer.gameObject);
         return ScavengerEffect;
     }
+
     public GameObject GetVisualsForOtherEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
         GameObject LibraryEffect = Instantiate(ProduceEffectPrefab);
@@ -339,6 +344,16 @@ public class IconFactory : GameService
         Transform TypeContainer = LibraryEffect.transform.GetChild(3);
         DestroyImmediate(TypeContainer.gameObject);
         return LibraryEffect;
+    }
+
+    public GameObject GetVisualsForSetting(Setting Setting)
+    {
+        switch (Setting._Type)
+        {
+            case Setting.Type.Boolean: return Instantiate(BooleanSettingPrefab);
+            case Setting.Type.Int: return Instantiate(IntSettingPrefab);
+        }
+        return null;
     }
 
     public GameObject GetVisualsForSpriteIndicator(Transform Parent)

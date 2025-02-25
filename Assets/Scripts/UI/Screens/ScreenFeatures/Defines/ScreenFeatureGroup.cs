@@ -36,10 +36,9 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
 
     public void Init()
     {
-        PreviousGroup = PreviousTransform?.GetComponent<ScreenFeatureGroup>();
-        if (PreviousGroup != null)
+        if (TryGetPrevGroup(PreviousTransform, out var PrevGroup))
         {
-            PreviousGroup._OnLayoutChanged += UpdateLayout;
+            PrevGroup._OnLayoutChanged += UpdateLayout;
         }
 
         RectTransform = GetComponent<RectTransform>();
@@ -66,10 +65,13 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
         RectTransform.sizeDelta = new Vector2(RectTransform.sizeDelta.x, OverallHeight);
 
         RectTransform TempPrev = GetPreviousTransform();
-        RectTransform.anchoredPosition = new Vector2(
-            RectTransform.anchoredPosition.x,
-            TempPrev.anchoredPosition.y + TempPrev.sizeDelta.y / 2 + OverallHeight / 2 - GetMargin()
-        );
+        if (TempPrev != null)
+        {
+            RectTransform.anchoredPosition = new Vector2(
+                RectTransform.anchoredPosition.x,
+                TempPrev.anchoredPosition.y + TempPrev.sizeDelta.y / 2 + OverallHeight / 2 - GetMargin()
+            );
+        }
         _OnLayoutChanged?.Invoke();
     }
 
@@ -88,9 +90,8 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
 
         float CurrentValue = bIsMargin ? Margin : Padding;
         RectTransform PrevTransform = PreviousTransform;
-        ScreenFeatureGroup PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
 
-        while (PrevGroup != null)
+        while (TryGetPrevGroup(PrevTransform, out var PrevGroup))
         {
             if (PrevGroup.gameObject.activeSelf)
                 return CurrentValue;
@@ -106,8 +107,7 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
     private RectTransform GetPreviousTransform()
     {
         RectTransform PrevTransform = PreviousTransform;
-        ScreenFeatureGroup PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
-        while (PrevGroup != null)
+        while (TryGetPrevGroup(PrevTransform, out var PrevGroup))
         {
             if (PrevGroup.gameObject.activeSelf)
                 return PrevTransform;
@@ -117,6 +117,17 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
         }
 
         return PrevTransform;
+    }
+
+    private bool TryGetPrevGroup(RectTransform PreviousTransform, out ScreenFeatureGroup PrevGroup)
+    {
+        PrevGroup = default;
+        RectTransform PrevTransform = PreviousTransform;
+        if (PrevTransform == null)
+            return false;
+
+        PrevGroup = PrevTransform.GetComponent<ScreenFeatureGroup>();
+        return PrevGroup != null;
     }
 
     public void ShowFeatures()
@@ -164,7 +175,7 @@ public abstract class ScreenFeatureGroup : MonoBehaviour {
 
             Height += Feature.GetHeight();
         }
-        float PreviousPadding = PreviousGroup != null ? PreviousGroup.GetConditionalPadding() : 0;
+        float PreviousPadding = TryGetPrevGroup(PreviousTransform, out var PrevGroup) ? PrevGroup.GetConditionalPadding() : 0;
         Height += OffsetBetweenElements * (ScreenFeatures.Count - 1) + GetPadding() + PreviousPadding;
         return Height;
     }
