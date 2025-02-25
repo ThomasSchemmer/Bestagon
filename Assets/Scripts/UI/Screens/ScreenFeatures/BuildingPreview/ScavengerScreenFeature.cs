@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MerchantScreenFeature : ScreenFeature<HexagonData>
+public class ScavengerScreenFeature : ScreenFeature<HexagonData>
 {
     public Button TradeButton;
+    public ScavengerScreen ScavengerScreen;
 
     public override bool ShouldBeDisplayed()
     {
@@ -19,7 +21,7 @@ public class MerchantScreenFeature : ScreenFeature<HexagonData>
         if (!Buildings.TryGetEntityAt(Hex.Location, out BuildingEntity CurrentBuilding))
             return false;
 
-        if (CurrentBuilding.Effect.EffectType != OnTurnBuildingEffect.Type.Merchant)
+        if (CurrentBuilding.Effect.EffectType != OnTurnBuildingEffect.Type.Scavenger)
             return false;
 
         if (CurrentBuilding.GetWorkingWorkerCount(true) == 0)
@@ -32,6 +34,15 @@ public class MerchantScreenFeature : ScreenFeature<HexagonData>
     {
         base.ShowAt(YOffset, Height);
         TradeButton.gameObject.SetActive(true);
+    }
+
+    public void OpenScavengerUI()
+    {
+        HexagonData Hex = Target.GetFeatureObject();
+        if (Hex == null)
+            return;
+
+        ScavengerScreen.Show(Hex.Location);
     }
 
     public override void Hide()

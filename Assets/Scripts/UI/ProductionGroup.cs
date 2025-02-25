@@ -58,6 +58,7 @@ public class ProductionGroup : MonoBehaviour
             UnitScreen.SetIgnored(bIgnoreClicks || bIsNullIcon);
             UnitScreen.UpdateVisuals(Value);
             UnitScreen.gameObject.SetActive(!bIsNullIcon);
+            UnitScreen.gameObject.name = bIsNullIcon ? string.Empty : Tuple.Key.ToString();
 
             if (bSubscribe && !bIsNullIcon)
             {

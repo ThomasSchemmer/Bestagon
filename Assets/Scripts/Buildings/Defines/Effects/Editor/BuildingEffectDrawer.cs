@@ -82,11 +82,13 @@ public class BuildingEffectDrawer : PropertyDrawer
     {
         SerializedProperty ConsumptionProperty = Property.FindPropertyRelative("Consumption");
         SerializedProperty ProductionProperty = Property.FindPropertyRelative("Production");
+        SerializedProperty UpgradeProductionProperty = Property.FindPropertyRelative("UpgradeProduction");
 
         EditorGUILayout.BeginVertical("window");
 
         EditorGUILayout.PropertyField(ConsumptionProperty);
         EditorGUILayout.PropertyField(ProductionProperty);
+        EditorGUILayout.PropertyField(UpgradeProductionProperty);
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndVertical();
     }

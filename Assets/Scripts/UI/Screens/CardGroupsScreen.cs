@@ -73,7 +73,7 @@ public class CardGroupsScreen : ScreenUI
         if (!Game.TryGetService(out CardGroupManager CardManager))
             return;
 
-        CardManager.SwitchTo(Index);
+        CardManager.SwitchTo(Index, true);
     }
 
     public CardGroupScreen GetCardGroupScreen(int i) {

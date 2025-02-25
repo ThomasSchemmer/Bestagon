@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ad10dc1e93f89b40ba9c51f4305bf22, type: 3}
-  m_Name: Merchant
+  m_Name: Scavenger
   m_EditorClassIdentifier: 
   EntityType: 1
   AssignedWorkers:

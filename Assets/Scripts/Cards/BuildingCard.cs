@@ -103,10 +103,10 @@ public class BuildingCard : Card
 
     public Transform GetBuildableOnTransform()
     {
-        if (transform.childCount < 7)
+        if (transform.childCount < 8)
             return null;
 
-        Transform Temp = transform.GetChild(6);
+        Transform Temp = transform.GetChild(7);
         if (Temp.childCount < 1)
             return null;
 

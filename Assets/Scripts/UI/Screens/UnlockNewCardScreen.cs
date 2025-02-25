@@ -38,11 +38,6 @@ public class UnlockNewCardScreen : CollectChoiceScreen
         return CardDTO.Type.Building;
     }
 
-    protected override bool ShouldCardBeUnlocked(int i)
-    {
-        return true;
-    }
-
     protected override Production GetCostsForChoice(int i)
     {
         return Production.Empty;
@@ -70,5 +65,15 @@ public class UnlockNewCardScreen : CollectChoiceScreen
     protected override int GetXOffsetBetweenChoices()
     {
         return 0;
+    }
+
+    protected override bool TryGetBuildingCardTypeAt(int ChoiceIndex, out BuildingConfig.Type TargetBuilding)
+    {
+        TargetBuilding = default;
+        if (!Game.TryGetService(out BuildingService BuildingService))
+            return false;
+
+        // preview cause we dont wanna unlock it just yet - wait for the actual choice
+        return BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out TargetBuilding, true);
     }
 }

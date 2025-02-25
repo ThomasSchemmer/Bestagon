@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static CardUpgradeScreen;
 using static UnitEntity;
+using static UnityEditor.Rendering.CameraUI;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
@@ -406,6 +407,9 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
 
     public bool IsUpgradePossible(UpgradeableAttributes SelectedAttribute)
     {
+        if (IsCorrupted())
+            return false;
+
         // dont forget to update IsAnyUpgradePossible!
         switch (SelectedAttribute)
         {
@@ -421,13 +425,54 @@ public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
         return false;
     }
 
-    public void Corrupt()
+    public void Corrupt(int State)
     {
         if (bIsCorrupted)
             return;
 
         bIsCorrupted = true;
+        Cost = CorruptProduction(Cost, State);
+        State += 1.GetHashCode();
+        Effect.CorruptProduction(State);
+        State += 1.GetHashCode();
+        Effect.CorruptConsumptionCost(State);
+        State += 1.GetHashCode();
+        MaxUsages = CorruptNumber(MaxUsages, 1, UpgradeMaxWorker, State);
+        CurrentUsages = MaxUsages;
+        State += 1.GetHashCode();
+        MaxWorker = CorruptNumber(MaxWorker, 1, UpgradeMaxWorker, State);
     }
+
+    public static int CorruptNumber(int Input, int Min, int Max, int State)
+    {
+        var Attributes = AttributeSet.Get();
+        float MinMult = Attributes[AttributeType.ScavengerMin].CurrentValue;
+        float MaxMult = Attributes[AttributeType.ScavengerMax].CurrentValue;
+        UnityEngine.Random.InitState(State);
+        float Mult = UnityEngine.Random.Range(Min, Max);
+        int Output = Mathf.RoundToInt(Input * Mult);
+        Output = Mathf.Clamp(Output, Min, Max);
+        return Output;
+    }
+
+    public static Production CorruptProduction(Production Input, int State)
+    {
+        int Count = 0;
+        Production Output = new();
+        var Attributes = AttributeSet.Get();
+        float Min = Attributes[AttributeType.ScavengerMin].CurrentValue;
+        float Max = Attributes[AttributeType.ScavengerMax].CurrentValue;
+        foreach (var Tuple in Input.GetTuples())
+        {
+            UnityEngine.Random.InitState(State + Count);
+            float Mult = UnityEngine.Random.Range(Min, Max);
+            int Value = Mathf.RoundToInt(Tuple.Value * Mult);
+            Output += new Production(Tuple.Key, Value);
+            Count++;
+        }
+        return Output;
+    }
+
 
     public bool IsCorrupted()
     {

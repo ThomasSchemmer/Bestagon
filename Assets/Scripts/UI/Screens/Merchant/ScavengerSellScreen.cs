@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MerchantSellScreen : StockpileScreen
+public class ScavengerSellScreen : StockpileScreen
 {
     public GameObject Container;
     public GameObject CoinsContainer;
-    public CollectChoiceScreen MerchantBuyScreen;
+    public CollectChoiceScreen ScavengerBuyScreen;
 
     public void Show()
     {
@@ -131,7 +131,7 @@ public class MerchantSellScreen : StockpileScreen
 
         Production Reward = new(Production.Type.Coins, COIN_REWARD);
         Stockpile.AddResources(Reward);
-        MerchantBuyScreen.UpdateSelectChoiceButtons();
+        ScavengerBuyScreen.UpdateSelectChoiceButtons();
 
         if (Stockpile.CanAfford(Costs))
             return;

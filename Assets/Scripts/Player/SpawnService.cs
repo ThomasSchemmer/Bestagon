@@ -81,7 +81,7 @@ public class SpawnService : GameService
         SpawnableTypes.Add(DecorationEntity.DType.Ruins);
         if (CanSpawnTreasure(Data.Type))
         {
-            SpawnableTypes.Add(DecorationEntity.DType.Treasure);
+            SpawnableTypes.Add(DecorationEntity.DType.Relic);
         }
         SpawnableTypes.Add(DecorationEntity.DType.Altar);
 
@@ -147,7 +147,7 @@ public class SpawnService : GameService
             case DecorationEntity.DType.Altar: return AltarWeight;
             case DecorationEntity.DType.Ruins: return RuinsWeight;
             case DecorationEntity.DType.Tribe: return TribeWeight;
-            case DecorationEntity.DType.Treasure: return TreasureWeight;
+            case DecorationEntity.DType.Relic: return RelicWeight;
             default: return 0;
         }
     }
@@ -181,8 +181,8 @@ public class SpawnService : GameService
 
     private float TribeWeight = 0.75f;
     private float RuinsWeight = 0.5f;
-    private float TreasureWeight = 0.2f;
-    private float AltarWeight = 0.1f;
+    private float RelicWeight = 0.2f;
+    private float AltarWeight = 0.07f;
     // will be checked for each newly malaised tile, so should be very low
     private float AmberWeight = 0.02f;
 }

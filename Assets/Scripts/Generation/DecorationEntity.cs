@@ -17,7 +17,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         DEFAULT = 0,
         Ruins = 1,
         Tribe = 2,
-        Treasure = 3,
+        Relic = 3,
         Altar = 4,
         Amber = 5
     }
@@ -106,7 +106,7 @@ public class DecorationEntity : ScriptableEntity, ITokenized, IPreviewable
         {
             case DType.Ruins: return "Contains ancient ruins";
             case DType.Tribe: return "Contains unknown tribe";
-            case DType.Treasure: return "Contains treasure chest";
+            case DType.Relic: return "Contains treasure chest";
             case DType.Altar: return GetAltarText();
             case DType.Amber: return "Contains a crystallized amber";
             default: return "";

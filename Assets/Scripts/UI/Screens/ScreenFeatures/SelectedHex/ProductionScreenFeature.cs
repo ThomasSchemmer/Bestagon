@@ -36,7 +36,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
 
         switch (Building.Effect.EffectType)
         {
-            case OnTurnBuildingEffect.Type.Merchant: return false;
+            case OnTurnBuildingEffect.Type.Scavenger: return false;
             case OnTurnBuildingEffect.Type.ProduceUnit: return !Building.Effect.CanProduceUnit(true);
             case OnTurnBuildingEffect.Type.Produce: return Building.GetWorkingWorkerCount(true) == 0;
             case OnTurnBuildingEffect.Type.ConsumeProduce: return 
@@ -61,7 +61,7 @@ public class ProductionScreenFeature : ScreenFeature<HexagonData>
         switch (Building.Effect.EffectType)
         {
             case OnTurnBuildingEffect.Type.ConsumeProduce: // intentional fallthrough
-            case OnTurnBuildingEffect.Type.Merchant:
+            case OnTurnBuildingEffect.Type.Scavenger:
             case OnTurnBuildingEffect.Type.Produce: return Building.GetAssignedWorkerCount() > 0;
             case OnTurnBuildingEffect.Type.ProduceUnit: return Building.GetAssignedWorkerCount() == Building.GetMaximumWorkerCount();
         }

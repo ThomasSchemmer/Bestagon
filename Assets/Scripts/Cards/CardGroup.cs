@@ -29,6 +29,11 @@ public class CardGroup
     [SaveableBaseType]
     private string GroupName;
 
+    [HideInInspector]
+    [SaveableBaseType]
+    // counts the last time a card has been added via delayed filling
+    public int TurnCounter = 0;
+
     public CardGroup(int Index)
     {
         CardDeck = new();
@@ -43,7 +48,7 @@ public class CardGroup
     // necessary for reflection loading
     public CardGroup() { }
 
-    public void InsertCards()
+    public void InsertCards(bool bForceInsert = false)
     {
         MoveCardsFromTo(CardDeck, GetCollection<CardDeck>());
         MoveCardsFromTo(CardHand, GetCollection<CardHand>());
@@ -53,13 +58,14 @@ public class CardGroup
         if (Game.IsIn(Game.GameState.CardSelection))
             return;
 
-        if (!Game.TryGetService(out CardHand Hand))
+        if (!Game.TryGetServices(out CardHand Hand, out Turn Turn))
             return;
 
-        if (Hand.Cards.Count > 0)
+        if ((Hand.Cards.Count > 0 || TurnCounter >= Turn.TurnNr) && !bForceInsert)
             return;
 
         Hand.HandleDelayedFilling();
+        TurnCounter = Turn.TurnNr;
     }
 
     public void RemoveCards()

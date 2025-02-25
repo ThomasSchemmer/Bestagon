@@ -32,7 +32,7 @@ public class BuildingConfig
         Well = 1 << 21,
         Woodcutter = 1 << 22,
         Hut = 1 << 23,
-        Merchant = 1 << 24,
+        Scavenger = 1 << 24,
         Library = 1 << 25,
         Outpost = 1 << 26,
     }
@@ -41,7 +41,7 @@ public class BuildingConfig
     public static Type CategoryMeadowA = Type.Claypit | Type.Woodcutter | Type.ForagersHut | Type.Hut;
     public static Type CategoryMeadowB = Type.HuntersHut | Type.Well;
     public static Type CategoryDesertA = Type.Quarry | Type.Sawmill | Type.Outpost;
-    public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut | Type.Merchant | Type.Harbour;
+    public static Type CategoryDesertB = Type.Farm | Type.HerbalistsHut | Type.MedicineHut | Type.Scavenger | Type.Harbour;
     public static Type CategorySwampA = Type.Mine | Type.Forge | Type.Smithy;
     public static Type CategorySwampB = Type.Barracks | Type.SmokeHut | Type.Mill | Type.Weaver | Type.Tailor;
     public static Type CategoryIceA = Type.Stonemason;

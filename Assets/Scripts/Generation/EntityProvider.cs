@@ -95,6 +95,36 @@ public abstract class EntityProvider<T> : EntityProvider, IQuestRegister<T> wher
         return false;
     }
 
+    public bool TryGetAnyOfType(BuildingConfig.Type Type, out BuildingEntity Building)
+    {
+        Building = default;
+        if (!TryGetAllOfType(Type, out var List))
+            return false;
+
+        Building = List.Count > 0 ? List[0] : default;
+        return Building != null;
+    }
+
+    public bool TryGetAllOfType(BuildingConfig.Type Type, out List<BuildingEntity> Buildings)
+    {
+        Buildings = new();
+        foreach (T Temp in Entities)
+        {
+            if (Temp.EntityType != ScriptableEntity.EType.Building)
+                continue;
+
+            var Building = Temp as BuildingEntity;
+            if (Building == null)
+                continue;
+
+            if (Building.BuildingType != Type)
+                continue;
+
+            Buildings.Add(Building);
+        }
+        return Buildings.Count > 0;
+    }
+
     public bool TryGetEntityToBeMalaised(out T Entity)
     {
         Entity = default;

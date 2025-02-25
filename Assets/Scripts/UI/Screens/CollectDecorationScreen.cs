@@ -86,7 +86,7 @@ public class CollectDecorationScreen : CollectChoiceScreen
         {
             case DecorationEntity.DType.Ruins: ShowRuinChoices(); break;
             case DecorationEntity.DType.Tribe: ShowTribeChoices(); break;
-            case DecorationEntity.DType.Treasure: ShowTreasureChoices(); break;
+            case DecorationEntity.DType.Relic: ShowTreasureChoices(); break;
             case DecorationEntity.DType.Altar: ShowAltarChoices(); break;
             case DecorationEntity.DType.Amber: ShowAmberChoices(); break;
         }
@@ -173,10 +173,17 @@ public class CollectDecorationScreen : CollectChoiceScreen
 
         return Entity.DecorationType;
     }
-
-    protected override bool ShouldCardBeUnlocked(int i)
+    protected override bool TryGetBuildingCardTypeAt(int ChoiceIndex, out BuildingConfig.Type TargetBuilding)
     {
-        return GetDecorationType() == DecorationEntity.DType.Ruins;
+        TargetBuilding = default;
+        if (GetDecorationType() != DecorationEntity.DType.Ruins)
+            return false;
+
+        if (!Game.TryGetService(out BuildingService BuildingService))
+            return false;
+
+        // preview cause we dont wanna unlock it just yet - wait for the actual choice
+        return BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out TargetBuilding, true);
     }
 
     protected override Production GetCostsForChoice(int i)

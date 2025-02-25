@@ -12,7 +12,7 @@ public class OnTurnBuildingEffect : Effect
         Produce,
         ConsumeProduce,
         ProduceUnit,
-        Merchant,
+        Scavenger,
         Library,
         Outpost
     }
@@ -180,9 +180,15 @@ public class OnTurnBuildingEffect : Effect
         return !Units.IsEntityAt(Location);
     }
 
-    public bool CanResearchInLibrary()
+    public bool CanResearchInLibrary(bool bIsIsSimulated)
     {
-        if (!Game.TryGetService(out AmberService Ambers))
+        if (!Game.TryGetServices(out AmberService Ambers, out Stockpile Stockpile))
+            return false;
+
+        if (!Stockpile.CanAfford(Consumption, bIsIsSimulated))
+            return false;
+
+        if (Building.GetWorkingWorkerCount(bIsIsSimulated) < Building.GetMaximumWorkerCount())
             return false;
 
         if (!Ambers.IsUnlocked())
@@ -208,6 +214,24 @@ public class OnTurnBuildingEffect : Effect
         return true;
     }
 
+    public void CorruptProduction(int State)
+    {
+        if (EffectType != Type.Produce && EffectType != Type.ConsumeProduce)
+            return;
+
+        Production = UpgradeProduction;
+        Production = BuildingEntity.CorruptProduction(Production, State);
+    }
+
+
+    public void CorruptConsumptionCost(int State)
+    {
+        if (EffectType != Type.ConsumeProduce && EffectType != Type.ProduceUnit)
+            return;
+
+        Consumption = BuildingEntity.CorruptProduction(Consumption, State);
+    }
+
     public string GetDescription()
     {
         switch (EffectType)
@@ -215,7 +239,7 @@ public class OnTurnBuildingEffect : Effect
             case Type.Produce: return GetDescriptionProduce();
             case Type.ProduceUnit: return GetDescriptionProduceUnit();
             case Type.ConsumeProduce: return GetDescriptionConsumeProduce();
-            case Type.Merchant: return "Allows trading resources for new cards";
+            case Type.Scavenger: return "Allows trading resources for new cards";
             case Type.Library: return "Allows researching the Malaise";
             case Type.Outpost: return "Extends the Building Reach area";
 
@@ -236,7 +260,7 @@ public class OnTurnBuildingEffect : Effect
             case Type.Produce: return IconFactory.GetVisualsForProduceEffect(Building, Parent);
             case Type.ProduceUnit: return IconFactory.GetVisualsForProduceUnitEffect(this, Parent);
             case Type.ConsumeProduce: return IconFactory.GetVisualsForProduceConsumeEffect(Building, Parent);
-            case Type.Merchant: return IconFactory.GetVisualsForMerchantEffect(this, Parent);
+            case Type.Scavenger: return IconFactory.GetVisualsForScavengerEffect(this, Parent);
             case Type.Library: //fallthrough
             case Type.Outpost: return IconFactory.GetVisualsForOtherEffect(this, Parent);
             default: return null;

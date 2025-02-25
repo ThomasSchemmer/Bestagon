@@ -361,7 +361,7 @@ public class CheatService : ScreenUI
         CardFactory.CreateCard(BuildingConfig.Type.Mine, 0, CardHand.transform, CardHand.AddCard);
         CardFactory.CreateCard(BuildingConfig.Type.Sawmill, 0, CardHand.transform, CardHand.AddCard);
         CardFactory.CreateCard(BuildingConfig.Type.Quarry, 0, CardHand.transform, CardHand.AddCard);
-        CardFactory.CreateCard(BuildingConfig.Type.Merchant, 0, CardHand.transform, CardHand.AddCard);
+        CardFactory.CreateCard(BuildingConfig.Type.Scavenger, 0, CardHand.transform, CardHand.AddCard);
         CardFactory.CreateCard(BuildingConfig.Type.Bakery, 0, CardHand.transform, CardHand.AddCard);
     }
 

@@ -9,6 +9,7 @@ public class DiscardDeck : CardCollection {
     public override void AddCard(Card Card) {
         base.AddCard(Card);
         Text.text = "" + Cards.Count;
+        Card.Show(Card.Visibility.Hidden);
     }
 
     protected override void StartServiceInternal()

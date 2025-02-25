@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MerchantBuyScreen : CollectChoiceScreen
+public class ScavengerBuyScreen : CollectChoiceScreen
 {
     public GameObject CostContainer;
+    public Location LastLocation;
 
     private void Start()
     {
@@ -59,9 +60,21 @@ public class MerchantBuyScreen : CollectChoiceScreen
         return CardDTO.Type.Building;
     }
 
-    protected override bool ShouldCardBeUnlocked(int i)
+    protected override bool TryGetBuildingCardTypeAt(int ChoiceIndex, out BuildingConfig.Type TargetBuilding)
     {
-        return false;
+        TargetBuilding = default;
+        if (!Game.TryGetService(out BuildingService BuildingService))
+            return false;
+
+        // just get a random, already unlocked one to duplicate
+        for (int i = 0; i < 15; i++)
+        {
+            TargetBuilding = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex + i, Unlockables.State.Unlocked, true, false);
+            // try to avoid getting a barely upgradeable building
+            if (TargetBuilding != BuildingConfig.Type.Scavenger && TargetBuilding != BuildingConfig.Type.Hut)
+                return true;
+        }
+        return true;
     }
 
     protected override void SetChoiceBuilding(int i, Card Card)
@@ -71,7 +84,10 @@ public class MerchantBuyScreen : CollectChoiceScreen
         if (Card is not BuildingCard BuildingCard)
             return;
 
-        BuildingCard.GetBuildingData().Corrupt();
+        // use 100 as 1 is in between each feature
+        int State = LastLocation.GetHashCode() + (i * 100).GetHashCode();
+        BuildingCard.GetBuildingData().Corrupt(State);
+        BuildingCard.GenerateCard();
         BuildingCard.Show(Card.Visibility.Visible);
 
         if (!Game.TryGetService(out IconFactory IconFactory))

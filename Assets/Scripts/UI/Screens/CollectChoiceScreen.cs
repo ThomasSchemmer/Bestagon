@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /** 
- * Screen class to share generating cards to chose from, eg for the merchant
+ * Screen class to share generating cards to chose from, eg for the Scavenger
  * Stores types in the public variables and creates choices to save access to cards
  */
 public abstract class CollectChoiceScreen : ScreenUI
@@ -35,10 +35,21 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetService(out IconFactory IconFactory))
             return;
 
+        if (ChoiceContainers != null)
+        {
+            foreach (var Cont in ChoiceContainers)
+            {
+                if (Cont == null)
+                    continue;
+
+                Destroy(Cont.gameObject);
+            }
+        }
+
         ChoiceContainers = new(Choices.Length);
         for (int i = 0; i < Choices.Length; i++)
         {
-            GameObject ContainerObj = IconFactory.GetChoice();
+            GameObject ContainerObj = IconFactory.GetVisualsForChoice();
             var ContainerRect = ContainerObj.GetComponent<RectTransform>();
             ContainerRect.SetParent(Container.transform, false);
             ChoiceContainers.Add(ContainerRect);
@@ -47,7 +58,7 @@ public abstract class CollectChoiceScreen : ScreenUI
                 continue;
 
             int xMid = (GetPositionForContainer(i) + GetPositionForContainer(i + 1)) / 2;
-            GameObject DividerObj = IconFactory.GetChoiceDivider();
+            GameObject DividerObj = IconFactory.GetVisualsForChoiceDivider();
             var DividerRect = DividerObj.GetComponent<RectTransform>();
             DividerRect.SetParent(Container.transform, false);
             DividerRect.anchoredPosition = new(xMid, DividerRect.anchoredPosition.y);
@@ -77,12 +88,12 @@ public abstract class CollectChoiceScreen : ScreenUI
     }
 
     protected abstract CardDTO.Type GetCardTypeAt(int i);
-    protected abstract bool ShouldCardBeUnlocked(int i);
     protected abstract Production GetCostsForChoice(int i);
     protected abstract int GetUpgradeCostsForChoice(int i);
     protected abstract int GetWorkerCostsForChoice(int i);
     protected abstract CardCollection GetTargetCardCollection();
     protected abstract int GetXOffsetBetweenChoices();
+    protected abstract bool TryGetBuildingCardTypeAt(int i, out BuildingConfig.Type TargetBuilding);
     protected abstract int GetSeed();
 
     protected void CreateCardAt(int ChoiceIndex, CardDTO.Type Type)
@@ -108,18 +119,8 @@ public abstract class CollectChoiceScreen : ScreenUI
         if (!Game.TryGetServices(out BuildingService BuildingService, out CardFactory CardFactory))
             return;
 
-        BuildingConfig.Type TargetBuilding;
-        if (ShouldCardBeUnlocked(ChoiceIndex))
-        {
-            // preview cause we dont wanna unlock it just yet - wait for the actual choice
-            if (!BuildingService.UnlockableBuildings.TryUnlockNewType(GetSeed() + ChoiceIndex, out TargetBuilding, true))
-                return;
-        }
-        else
-        {
-            // just get a random, already unlocked one to duplicate
-            TargetBuilding = BuildingService.UnlockableBuildings.GetRandomOfState(GetSeed() + ChoiceIndex, Unlockables.State.Unlocked, true, false);
-        }
+        if (!TryGetBuildingCardTypeAt(ChoiceIndex, out BuildingConfig.Type TargetBuilding))
+            return;
 
         PrepareContainerForCard(ChoiceIndex, out Transform CardContainer, out var Callback);
         CardFactory.CreateCard(TargetBuilding, ChoiceIndex, CardContainer, Callback);
@@ -182,11 +183,6 @@ public abstract class CollectChoiceScreen : ScreenUI
 
     protected void AddPrefabToContainer(Transform Container, GameObject Prefab)
     {
-        if (Container.childCount > 0)
-        {
-            DestroyImmediate(Container.GetChild(0).gameObject);
-        }
-
         Instantiate(Prefab, Container);
     }
 

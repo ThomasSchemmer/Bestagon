@@ -114,7 +114,6 @@
     <Compile Include="Assets\Scripts\Player\AmberService.cs" />
     <Compile Include="Assets\Scripts\Generation\ChunkData.cs" />
     <Compile Include="Assets\Scripts\Visualization\CloudRenderer.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantSellScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantResourcesPreview.cs" />
     <Compile Include="Assets\Scripts\Util\Particles\ParticleService.cs" />
     <Compile Include="Assets\Scripts\UI\IndicatorService.cs" />
@@ -157,6 +156,7 @@
     <Compile Include="Assets\Scripts\Cards\CardGroupManager.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableUnlockable.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\ScavengerBuyScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHexScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardCollection.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedUnit\UnitNameScreenFeature.cs" />
@@ -173,13 +173,13 @@
     <Compile Include="Assets\Scripts\Util\Choices\CollectableChoice.cs" />
     <Compile Include="Assets\Scripts\Buildings\BuildingService.cs" />
     <Compile Include="Assets\Scripts\Player\CardStash.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ScavengerScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableArray.cs" />
     <Compile Include="Assets\Scripts\Generation\WorldGenerator.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\CorruptionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardUpgradeScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\TrashCan.cs" />
     <Compile Include="Assets\Scripts\Unit\BoatEntity.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantBuyScreen.cs" />
     <Compile Include="Assets\Scripts\Visualization\BuildingVisualization.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\CardGroupScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\Card.cs" />
@@ -203,7 +203,6 @@
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagRegularContainer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\Merchant\MerchantScreen.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableList.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
     <Compile Include="Assets\Imports\GAS\Effects\LocalizedGameplayEffect.cs" />
@@ -237,6 +236,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\RelicScreen.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\LabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\PlaceableHexagon.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\ScavengerScreen.cs" />
     <Compile Include="Assets\Scripts\Player\Game.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionLabelScreenFeature.cs" />
     <Compile Include="Assets\Scripts\UI\ProductionGroup.cs" />
@@ -287,13 +287,13 @@
     <Compile Include="Assets\Scripts\Config\HexagonConfig.cs" />
     <Compile Include="Assets\Scripts\Visualization\Preview\GrantMiscellaneousPreview.cs" />
     <Compile Include="Assets\Scripts\Visualization\UnitVisualization.cs" />
+    <Compile Include="Assets\Scripts\UI\Screens\Merchant\ScavengerSellScreen.cs" />
     <Compile Include="Assets\Scripts\Generation\TokenizedEntityProvider.cs" />
     <Compile Include="Assets\Scripts\UI\CardSelectionUI.cs" />
     <Compile Include="Assets\Scripts\Generation\Map.cs" />
     <Compile Include="Assets\Scripts\Util\SerializedDictionary.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\Defines\ScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Quests\QuestService.cs" />
-    <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\MerchantScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableData.cs" />
     <Compile Include="Assets\Scripts\Buildings\Defines\MeshFactory.cs" />
   </ItemGroup>

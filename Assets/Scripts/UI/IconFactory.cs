@@ -258,6 +258,7 @@ public class IconFactory : GameService
     {
         var Tuples = Production.GetTuples();
         GameObject ProductionGroupGO = Instantiate(ProductionGroupPrefab);
+        ProductionGroupGO.name = "Production";
         ProductionGroup ProductionGroup = ProductionGroupGO.GetComponent<ProductionGroup>();
         RectTransform GroupTransform = ProductionGroupGO.GetComponent<RectTransform>();
         int Width = NumberedIconScreenWidth;
@@ -306,6 +307,7 @@ public class IconFactory : GameService
     public GameObject GetVisualsForProduceEffect(BuildingEntity Building, ISelectable Parent)
     {
         GameObject ProductionEffect = Instantiate(ProduceEffectPrefab);
+        ProductionEffect.name = "Produce";
         Transform ProductionContainer = ProductionEffect.transform.GetChild(1);
         TextMeshProUGUI AdjacentText = ProductionEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         AdjacentText.text = Building.Effect.GetDescription();
@@ -320,14 +322,14 @@ public class IconFactory : GameService
         return ProductionEffect;
     }
 
-    public GameObject GetVisualsForMerchantEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
+    public GameObject GetVisualsForScavengerEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
-        GameObject MerchantEffect = Instantiate(ProduceEffectPrefab);
-        TextMeshProUGUI MerchantText = MerchantEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        MerchantText.text = Effect.GetDescription();
-        Transform TypeContainer = MerchantEffect.transform.GetChild(3);
+        GameObject ScavengerEffect = Instantiate(ProduceEffectPrefab);
+        TextMeshProUGUI ScavengerText = ScavengerEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        ScavengerText.text = Effect.GetDescription();
+        Transform TypeContainer = ScavengerEffect.transform.GetChild(3);
         DestroyImmediate(TypeContainer.gameObject);
-        return MerchantEffect;
+        return ScavengerEffect;
     }
     public GameObject GetVisualsForOtherEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
@@ -356,6 +358,7 @@ public class IconFactory : GameService
     public GameObject GetVisualsForProduceUnitEffect(OnTurnBuildingEffect Effect, ISelectable Parent)
     {
         GameObject ProduceUnitEffect = Instantiate(ProduceUnitEffectPrefab);
+        ProduceUnitEffect.name = "ProduceUnit";
         TextMeshProUGUI ProducesText = ProduceUnitEffect.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         ProducesText.text = Effect.GetDescription();
         Transform UnitTypeContainer = ProduceUnitEffect.transform.GetChild(1);
@@ -382,6 +385,7 @@ public class IconFactory : GameService
     public GameObject GetVisualsForProduceConsumeEffect(BuildingEntity Building, ISelectable Parent)
     {
         GameObject ProdConsEffect = Instantiate(ProduceConsumeEffectPrefab);
+        ProdConsEffect.name = "ProduceConsume";
         TextMeshProUGUI ConsumptionText = ProdConsEffect.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         ConsumptionText.text = Building.Effect.GetDescription();
 
@@ -489,12 +493,12 @@ public class IconFactory : GameService
         }
     }
 
-    public GameObject GetChoiceDivider()
+    public GameObject GetVisualsForChoiceDivider()
     {
         return Instantiate(ChoiceDividerPrefab);
     }
 
-    public GameObject GetChoice()
+    public GameObject GetVisualsForChoice()
     {
         return Instantiate(ChoiceOptionPrefab);
     }
@@ -530,6 +534,7 @@ public class IconFactory : GameService
         int Count = HexagonConfig.GetSetBitsAmount((int)Types);
 
         GameObject ProductionGroup = Instantiate(ProductionGroupPrefab);
+        ProductionGroup.name = "HexTypes";
         RectTransform GroupTransform = ProductionGroup.GetComponent<RectTransform>();
 
         SetTypeTransform(Width, Count, out Vector2 SizeDelta, out Vector2 Position);
@@ -545,6 +550,7 @@ public class IconFactory : GameService
 
             HexagonConfig.HexagonType Type = (HexagonConfig.HexagonType)(((int)Types) & (1 << i));
             GameObject SimpleIcon = Instantiate(SimpleIconPrefab);
+            SimpleIcon.name = Type.ToString();
             RectTransform IconTransform = SimpleIcon.GetComponent<RectTransform>();
             IconTransform.SetParent(GroupTransform, false);
             IconTransform.anchoredPosition = new(Offset + Index * Width, 0);

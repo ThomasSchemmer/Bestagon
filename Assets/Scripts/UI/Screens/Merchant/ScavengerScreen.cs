@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MerchantScreen : ScreenUI
+/**
+ * Wrapper screen for selling and buying cards at the Scavenger
+ */
+public class ScavengerScreen : ScreenUI
 {
-    public MerchantBuyScreen BuyTab;
-    public MerchantSellScreen SellTab;
+    public ScavengerBuyScreen BuyTab;
+    public ScavengerSellScreen SellTab;
     public Sprite ActiveTabSprite, InActiveTabSprite;
 
     private Button BuyButton, SellButton;
@@ -48,11 +51,12 @@ public class MerchantScreen : ScreenUI
         SellTab.Hide();
     }
 
-    public override void Show()
+    public void Show(Location Location)
     {
         base.Show();
         Game.Instance.OnOpenMenu();
         // force initialisation
+        BuyTab.LastLocation = Location;
         BuyTab.Show();
         SellTab.Show();
         OnClickBuy();

@@ -72,7 +72,7 @@ public class GameplayEffectModifier
         _Attribute.AddModifier(this);
     }
 
-    public string GetDescription(int Multiplier = 0)
+    public string GetDescription(int Multiplier = 1)
     {
         switch (Operation)
         {
@@ -81,7 +81,7 @@ public class GameplayEffectModifier
         }
     }
 
-    private string GetAddDescription(int Multiplier = 0)
+    private string GetAddDescription(int Multiplier = 1)
     {
         return GetOperationDescription() +
             Value * Multiplier +

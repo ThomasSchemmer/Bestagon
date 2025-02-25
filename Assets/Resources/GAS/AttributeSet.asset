@@ -89,3 +89,13 @@ MonoBehaviour:
         Type: 21
         BaseValue: 0
         CurrentValue: 0
+    - Key: 22
+      Value:
+        Type: 22
+        BaseValue: 0.5
+        CurrentValue: 0.5
+    - Key: 23
+      Value:
+        Type: 23
+        BaseValue: 2
+        CurrentValue: 2

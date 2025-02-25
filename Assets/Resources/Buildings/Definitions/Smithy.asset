@@ -41,9 +41,12 @@ MonoBehaviour:
     Range: 0
     UpgradeProduction:
       _Production:
-        Tuples: []
+        Tuples:
+        - Key: 4
+          Value: 2
     UpgradeRange: 0
   MaxWorker: 1
+  bIsCorrupted: 0
   BuildableOn: 400
   ExtendableOn: 0
   CurrentUsages: 1

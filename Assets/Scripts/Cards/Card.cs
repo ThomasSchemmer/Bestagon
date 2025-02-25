@@ -151,7 +151,7 @@ public abstract class Card : Draggable, ISelectable
     public virtual void Show(Visibility Visibility)
     {
         CardBorderImage.enabled = Visibility >= Visibility.Flipped;
-        CardImage.gameObject.SetActive(Visibility >= Visibility.Visible);
+        CardImage.enabled = Visibility >= Visibility.Visible;
         NameText.gameObject.SetActive(Visibility >= Visibility.Visible);
         SymbolTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
         CostTransform.gameObject.SetActive(Visibility >= Visibility.Visible);
@@ -236,10 +236,10 @@ public abstract class Card : Draggable, ISelectable
 
     public Transform GetProductionTransform()
     {
-        if (transform.childCount < 7)
+        if (transform.childCount < 8)
             return null;
 
-        Transform Temp = transform.GetChild(6);
+        Transform Temp = transform.GetChild(7);
         if (Temp.childCount < 1)
             return null;
 

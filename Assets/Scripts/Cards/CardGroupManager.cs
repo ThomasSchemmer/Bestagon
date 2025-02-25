@@ -21,7 +21,7 @@ public class CardGroupManager : SaveableService
 
     private int PreSaveActiveGroupIndex = -1;
 
-    public void SwitchTo(int NextGroup)
+    public void SwitchTo(int NextGroup, bool bForceInsert = false)
     {
         if (ActiveGroupIndex != -1)
         {
@@ -31,7 +31,7 @@ public class CardGroupManager : SaveableService
         ActiveGroupIndex = NextGroup;
         if (ActiveGroupIndex != -1)
         {
-            GetActiveCardGroup().InsertCards();
+            GetActiveCardGroup().InsertCards(bForceInsert);
         }
     }
 
@@ -168,7 +168,7 @@ public class CardGroupManager : SaveableService
                 CardFactory.CreateCard(BuildingConfig.Type.Hut, 0, null, AddCard);
 
                 // move cards to the collections, and fill the base hand
-                SwitchTo(0);
+                SwitchTo(0, true);
                 CardGroupsScreen.CreateCardGroupScreens(this, ActiveGroupIndex);
             });
         });

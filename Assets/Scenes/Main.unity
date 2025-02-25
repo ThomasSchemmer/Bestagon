@@ -4634,6 +4634,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1165585443}
   - {fileID: 2038165564}
   - {fileID: 611959331}
   m_Father: {fileID: 1570374132}
@@ -4641,7 +4642,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -170}
-  m_SizeDelta: {x: 235, y: 35}
+  m_SizeDelta: {x: 235, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &335103462
 MonoBehaviour:
@@ -4656,6 +4657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Type: 1
+  CostTransform: {fileID: 1165585443}
   FallbackText: {fileID: 611959332}
   InfoText: {fileID: 1098798120}
 --- !u!1 &344430780
@@ -12674,7 +12676,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -16}
   m_SizeDelta: {x: 235, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &611959332
@@ -14025,7 +14027,7 @@ GameObject:
   - component: {fileID: 747463888}
   - component: {fileID: 747463889}
   m_Layer: 0
-  m_Name: MerchantScreen
+  m_Name: ScavengerScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19211,6 +19213,41 @@ MonoBehaviour:
   MaxSeedIterations: 20
   MaxRandomSeed: 1000
   MinimumReachableTiles: 15
+--- !u!1 &1165585442
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1165585443}
+  m_Layer: 5
+  m_Name: Cost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1165585443
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165585442}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 335103461}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 15}
+  m_SizeDelta: {x: 235, y: 35}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1168638404
 GameObject:
   m_ObjectHideFlags: 0
@@ -22891,7 +22928,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1513200622}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be9ae2607203e61448d0868116a40e77, type: 3}
+  m_Script: {fileID: 11500000, guid: 3671dff7756a1fa4bb116fc9df74ee98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ChoiceContainers:
@@ -22905,6 +22942,13 @@ MonoBehaviour:
       Value: {fileID: 4494726817561328335, guid: 0cd0ad3cb1fa80a4a8281de2182cbe90,
         type: 3}
   CostContainer: {fileID: 47527749}
+  LastLocation:
+    _ChunkLocation:
+      x: 0
+      y: 0
+    _HexLocation:
+      x: 0
+      y: 0
 --- !u!1 &1513362388
 GameObject:
   m_ObjectHideFlags: 0
@@ -23306,7 +23350,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You encountered the merchant. He trades coins for building cards
+  m_text: You encountered the Scavenger. He trades coins for corrupted building cards,
+    which have their stats randomized and cannot be further upgraded
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -23603,7 +23648,7 @@ GameObject:
   - component: {fileID: 1549387540}
   - component: {fileID: 1549387541}
   m_Layer: 5
-  m_Name: Merchant
+  m_Name: Scavenger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23643,6 +23688,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 1
   TradeButton: {fileID: 1884351765}
+  ScavengerScreen: {fileID: 747463889}
 --- !u!1 &1558040425
 GameObject:
   m_ObjectHideFlags: 0
@@ -27632,7 +27678,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1876166692}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7660d74941b1534cb8a62fcd6eb0462, type: 3}
+  m_Script: {fileID: 11500000, guid: a85fc2d0a0d178545b54983dee05869f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bDisplayActiveOnly: 0
@@ -27640,10 +27686,10 @@ MonoBehaviour:
     type: 3}
   ItemPrefab: {fileID: 582981792584570697, guid: 25f6201ee5c4c6945aa551663fbefa59,
     type: 3}
-  AmberScreen: {fileID: 0}
+  AmberScreen: {fileID: 1667883867}
   Container: {fileID: 515698942}
   CoinsContainer: {fileID: 2026842264}
-  MerchantBuyScreen: {fileID: 1513200624}
+  ScavengerBuyScreen: {fileID: 1513200624}
 --- !u!1 &1884351759
 GameObject:
   m_ObjectHideFlags: 0
@@ -27765,9 +27811,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 747463889}
-        m_TargetAssemblyTypeName: MerchantScreen, Assembly-CSharp
-        m_MethodName: Show
+      - m_Target: {fileID: 1549387541}
+        m_TargetAssemblyTypeName: ScavengerScreenFeature, Assembly-CSharp
+        m_MethodName: OpenScavengerUI
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -30016,7 +30062,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -16}
   m_SizeDelta: {x: 235, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2042267674

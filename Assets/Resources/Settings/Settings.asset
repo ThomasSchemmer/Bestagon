@@ -17,7 +17,7 @@ MonoBehaviour:
     - Key: 1
       Value:
         _Type: 0
-        Value: 0
+        Value: 1
         MinValue: 0
         MaxValue: 0
     - Key: 3

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GameOverScreen : ScreenUI
 {
-
+    private bool bIsLeaving = false;
     protected override void Initialize()
     {
         base.Initialize();
@@ -14,9 +14,12 @@ public class GameOverScreen : ScreenUI
 
     public void Leave()
     {
+        if (bIsLeaving)
+            return;
         if (!Game.TryGetService(out SaveGameManager SaveGameManager))
             return;
 
+        bIsLeaving = true;
         string SaveGame = SaveGameManager.Save(true);
         Game.LoadGame(SaveGame, Game.CardSelectionSceneName, false);
     }
@@ -55,6 +58,7 @@ public class GameOverScreen : ScreenUI
         Instance.DisplayCurrentRun(Statistics);
         Instance.DisplayBestRun(Statistics);
         Instance.Show();
+        Instance.bIsLeaving = false;
     }
 
     private static GameOverScreen Instance;

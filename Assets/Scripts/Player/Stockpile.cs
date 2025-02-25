@@ -59,7 +59,7 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
 
     public void ResearchTurn()
     {
-        if (!Game.TryGetService(out BuildingService BuildingService))
+        if (!Game.TryGetServices(out BuildingService BuildingService, out Stockpile Stockpile))
             return;
 
         List<BuildingEntity> Buildings = BuildingService.Entities;
@@ -69,8 +69,10 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
             if (Building.Effect.EffectType != OnTurnBuildingEffect.Type.Library)
                 continue;
 
-            if (Building.GetWorkingWorkerCount(false) < Building.GetMaximumWorkerCount())
+            if (!Building.Effect.CanResearchInLibrary(false))
                 continue;
+
+            Stockpile.Pay(Building.Effect.Consumption);
 
             Building.Effect.ResearchTurn();
         }
@@ -173,8 +175,9 @@ public class Stockpile : SaveableService, IQuestRegister<Production>, IQuestRegi
         StarvableUnitEntity.HandleStarvationFor(UnitService.Entities, TargetResources, "Units", bIsSimulated);
     }
 
-    public bool CanAfford(Production Costs) {
-        return Costs <= Resources;
+    public bool CanAfford(Production Costs, bool bIsSimulated = false) {
+        Production Target = bIsSimulated ? SimulatedResources : Resources;
+        return Costs <= Target;
     }
 
     public bool CanAffordUpgrade(int Costs)

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf4a9d84a89f39c46b8989d67dae4fe0, type: 3}
-  m_Name: Treasure
+  m_Name: Relic
   m_EditorClassIdentifier: 
   EntityType: 2
   DecorationType: 3

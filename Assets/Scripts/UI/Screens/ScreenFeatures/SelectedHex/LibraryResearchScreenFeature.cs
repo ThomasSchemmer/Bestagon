@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static IconFactory;
 
 public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
 {
+    public RectTransform CostTransform;
     public TMPro.TextMeshProUGUI FallbackText;
     public TMPro.TextMeshProUGUI InfoText;
 
@@ -38,6 +40,7 @@ public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
     {
         base.ShowAt(YOffset, Height);
 
+        ApplyCostVisuals();
         bool bShowFallback = ShouldFallbackBeDisplayed();
         if (bShowFallback)
         {
@@ -46,6 +49,17 @@ public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
         else
         {
             ShowButton();
+        }
+    }
+
+    private void Cleanup()
+    {
+        if (CostTransform.childCount == 0)
+            return;
+
+        for (int i = CostTransform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(CostTransform.GetChild(i).gameObject);
         }
     }
 
@@ -67,13 +81,28 @@ public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
 
         bool bAreWorkersAssigned = AreEnoughWorkersAssigned();
         bool bAreWorkersStarving = AreAssignedWorkersStarving();
+        bool bHasEnoughResources = HasEnoughResources();
         bool bIsUnlocked = IsAlreadyUnlocked();
         string TargetText =
             bIsUnlocked ? IdleText : 
             !bAreWorkersAssigned ? ProductionScreenFeature.NoWorkersText :
-            bAreWorkersStarving ? ProductionScreenFeature.StarvingWorkersText : UnknownText;
+            bAreWorkersStarving ? ProductionScreenFeature.StarvingWorkersText :
+            !bHasEnoughResources ? ProductionScreenFeature.NoConsumptionText : UnknownText;
 
         FallbackText.text = TargetText;
+    }
+
+    private void ApplyCostVisuals()
+    {
+        Cleanup();
+        if (!TryGetTargetLibrary(out BuildingEntity BuildingData))
+            return;
+
+        Game.TryGetService(out IconFactory IconFactory);
+
+        GameObject CostVisuals = IconFactory.GetVisualsForProduction(BuildingData.Effect.Consumption, null, true).gameObject;
+
+        CostVisuals.transform.SetParent(CostTransform, false);
     }
 
     private bool IsAlreadyUnlocked()
@@ -82,6 +111,17 @@ public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
             return false;
 
         return Ambers.IsUnlocked();
+    }
+
+    private bool HasEnoughResources()
+    {
+        if (!TryGetTargetLibrary(out BuildingEntity Building))
+            return false;
+
+        if (!Game.TryGetService(out Stockpile Stockpile))
+            return false;
+
+        return Stockpile.CanAfford(Building.Effect.Consumption, true);
     }
 
 
@@ -111,8 +151,7 @@ public class LibraryResearchScreenFeature : ScreenFeature<HexagonData>
 
         Library.SimulateCurrentFood();
 
-        return Library.GetWorkingWorkerCount(true) < Library.GetMaximumWorkerCount() ||
-            !Library.Effect.CanResearchInLibrary();
+        return !Library.Effect.CanResearchInLibrary(true);
     }
 
     public override void Hide()

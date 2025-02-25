@@ -24,5 +24,7 @@ public enum AttributeType
     MarketCosts,
     ScoutDogAmount,
     AmberMalaiseSpawn,
-    AmberMaxTurns
+    AmberMaxTurns,
+    ScavengerMin,
+    ScavengerMax
 }
