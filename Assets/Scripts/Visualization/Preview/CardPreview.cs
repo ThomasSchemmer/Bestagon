@@ -32,7 +32,7 @@ public abstract class CardPreview : MonoBehaviour
 
     public static CardPreview CreateFor(Card Card)
     {
-        GameObject PreviewObject = new();
+        GameObject PreviewObject = new("Preview");
         CardPreview Preview = null;
         if (Card is BuildingCard)
             Preview = PreviewObject.AddComponent<BuildingPreview>();

@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCardsQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Location\LocationSet.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedCard\RotatePreviewScreenFeature.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\FullScreenRenderFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Rendering\Fotograph.cs" />
     <Compile Include="Assets\Scripts\Unit\Units.cs" />
     <Compile Include="Assets\Scripts\UI\HexagonPlacement.cs" />
@@ -155,6 +156,7 @@
     <Compile Include="Assets\Scripts\Util\GameService\GameService.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreviewScreen.cs" />
     <Compile Include="Assets\Scripts\Cards\CardGroupManager.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\StencilPass.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\SelectedHex\ProductionScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableUnlockable.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\Merchant\ScavengerBuyScreen.cs" />
@@ -203,6 +205,7 @@
     <Compile Include="Assets\Scripts\Buildings\Defines\BuildingConfig.cs" />
     <Compile Include="Assets\Imports\GAS\Tags\GameplayTagRegularContainer.cs" />
     <Compile Include="Assets\Scripts\UI\Screens\MessageSystemScreen.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\OutlineRenderFeature.cs" />
     <Compile Include="Assets\Scripts\UI\Selector.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableList.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialWorkerQuest.cs" />
@@ -231,6 +234,7 @@
     <Compile Include="Assets\Scripts\UI\Screens\ScreenFeatures\BuildingPreview\ProductionPreviewScreenFeature.cs" />
     <Compile Include="Assets\Scripts\Visualization\Indicators\PinnedIndicator.cs" />
     <Compile Include="Assets\Scripts\Events\ConvertTileEventData.cs" />
+    <Compile Include="Assets\Scripts\Util\Rendering\OutlinePass.cs" />
     <Compile Include="Assets\Scripts\Quests\Types\Tutorial\TutorialCameraQuest.cs" />
     <Compile Include="Assets\Scripts\Util\Saving\Attributes\SaveableBaseType.cs" />
     <Compile Include="Assets\Scripts\Relics\RelicIconScreen.cs" />
@@ -315,6 +319,7 @@
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Materials\Shaders\Util\Util.cginc" />
     <None Include="Assets\Materials\Shaders\UnlitShader.shader" />
+    <None Include="Assets\Materials\Shaders\Util\OutlineShader.shader" />
     <None Include="Assets\Scripts\Config\BiomeMapBack.txt" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
@@ -323,6 +328,7 @@
     <None Include="Assets\Materials\Shaders\CloudsShader.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\Imports\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\Materials\Shaders\Util\JumpFloodlComput.compute" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\Imports\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Materials\Shaders\Util\BlendModes.cginc" />

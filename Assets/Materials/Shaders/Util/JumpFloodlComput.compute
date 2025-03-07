@@ -1,0 +1,105 @@
+/** 
+* Compute shader that floodfills the distance to non-unit pixels 
+* Useful, cause it allows us to create an outline of all hidden unit (parts)
+*/
+
+#pragma kernel Init
+#pragma kernel Main
+
+struct Data{
+    uint Pos;
+    float Value;
+};
+RWTexture2D<float4> Source;
+RWTexture2D<float4> Target;
+RWStructuredBuffer<Data> OriginBuffer;
+RWStructuredBuffer<Data> TargetBuffer;
+
+int StepSize;
+static int2 FloodFillDirs[] =
+{
+    int2(-1, +1), int2(+0, +1), int2(+1, +1),
+    int2(-1, +0), int2(+0, +0), int2(+1, +0),
+    int2(-1, -1), int2(+0, -1), int2(+1, -1),
+};
+static int Width = 512;
+static float Offcut = 0.0001;
+
+int ToIndex(uint2 ID){
+    return ID.y * Width + ID.x;
+}
+
+uint Store(uint X, uint Y){
+    uint Mask = (X & 0x0000FFFF) << 16;
+    Mask += (Y & 0x0000FFFF) << 0;
+    return Mask;
+}
+
+uint2 Read(uint Mask){
+    uint2 Result;
+    Result.x = (Mask >> 16) & 0x0000FFFF;
+    Result.y = (Mask >> 0) & 0x0000FFFF;
+    return Result;
+}
+
+void Read(uint Mask, out uint X, out uint Y){
+    uint2 Value = Read(Mask);
+    X = Value.x;
+    Y = Value.y;
+}
+
+[numthreads(32,32,1)]
+void Main (uint3 ID : SV_DispatchThreadID)
+{
+    int Index = ToIndex(ID.xy);
+    Data Self = OriginBuffer[Index];
+    int2 ClosestID = ID.xy;
+    float FoundValue = Self.Value;
+    // automatically finds self if its best, FloodFillDirs contains 0,0
+    float MinDis = pow(Width, 2); 
+    
+    for (int i = 0; i < 9; i++)
+    {
+        int2 TargetID = ID.xy + FloodFillDirs[i] * StepSize;
+        if (TargetID.x < 0 || TargetID.x > Width || TargetID.y < 0 || TargetID.y > Width)
+            continue;
+        
+        Data TargetData = OriginBuffer[ToIndex(TargetID)];
+        if (TargetData.Value <= Offcut)
+            continue;
+                
+        // get the original position thats being pointed to
+        int2 OriginID = Read(TargetData.Pos);
+        
+        float DistanceSqr = distance(OriginID, ID.xy);
+        if (DistanceSqr >= MinDis)
+            continue;
+            
+        ClosestID = OriginID;
+        MinDis = DistanceSqr;
+        FoundValue = TargetData.Value;
+    }
+    TargetBuffer[Index].Pos = Store(ClosestID.x, ClosestID.y);
+    TargetBuffer[Index].Value = FoundValue;
+
+    uint2 UV = Read(TargetBuffer[Index].Pos);
+    Target[ID.xy] = float4(UV/ (float)Width, 0, 1);
+    
+    if (abs(StepSize - 1) > Offcut)
+        return;
+
+    float Dis = distance(Read(TargetBuffer[Index].Pos), ID.xy);
+    float ScaledDis = Dis / Width;
+    Target[ID.xy] = float4(ScaledDis < 0.015 && ScaledDis > Offcut, 0, 0, 1); 
+}
+
+
+[numthreads(32,32,1)]
+void Init (uint3 ID : SV_DispatchThreadID)
+{
+    int Index = ToIndex(ID.xy);
+    OriginBuffer[Index].Pos = Store(ID.x, ID.y);
+    OriginBuffer[Index].Value = Source[ID.xy].z;
+
+}
+

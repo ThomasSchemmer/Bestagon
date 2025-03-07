@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-3923730113120604072
+--- !u!114 &-475898086696067972
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,17 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
-  m_Name: Clouds
+  m_Script: {fileID: 11500000, guid: bb1b27fc57c985e459e9e5aeabb5b307, type: 3}
+  m_Name: Outline
   m_EditorClassIdentifier: 
   m_Active: 1
-  injectionPoint: 550
-  fetchColorBuffer: 1
-  requirements: -1
-  passMaterial: {fileID: 2100000, guid: 3f29c47348eadcd49bfa36f79834b178, type: 2}
-  passIndex: 0
-  bindDepthStencilAttachment: 0
-  m_Version: 1
+  SourceRT: {fileID: 8400000, guid: fc96a046131ad0c42b9ee41468185404, type: 2}
+  TargetRT: {fileID: 8400000, guid: 5ea3bf8cd9bf4004383f6f611bebc7d5, type: 2}
+  StencilMat: {fileID: 2100000, guid: 08259011d9a701e4d80f2339c348abcb, type: 2}
+  JumpFloodCompute: {fileID: 7200000, guid: 090685dce05ecc342a5b342c9ef48a6b, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38,9 +35,10 @@ MonoBehaviour:
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
   - {fileID: 3235987635667122404}
-  - {fileID: -3923730113120604072}
+  - {fileID: -475898086696067972}
+  - {fileID: 1626148710002587712}
   - {fileID: 3244881000985984260}
-  m_RendererFeatureMap: e4b87e119c89e82c5870f13c401c8cc904fd2e0a1422082d
+  m_RendererFeatureMap: e4b87e119c89e82c7c5c3129364565f940f8a9d3a23d911604fd2e0a1422082d
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 0}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -83,6 +81,20 @@ MonoBehaviour:
   m_CopyDepthMode: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
+--- !u!114 &1626148710002587712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60c1b4700e0f314397ba29c20235693, type: 3}
+  m_Name: Clouds
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  Material: {fileID: 2100000, guid: 3f29c47348eadcd49bfa36f79834b178, type: 2}
 --- !u!114 &3235987635667122404
 MonoBehaviour:
   m_ObjectHideFlags: 0

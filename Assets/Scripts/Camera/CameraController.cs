@@ -7,6 +7,7 @@ public class CameraController : GameService, IQuestRegister<Vector3>
     protected override void StartServiceInternal()
     {
         Cam = GetComponent<Camera>();
+        OverlayCam = transform.GetChild(2).GetComponent<Camera>();
         TargetPosition = this.transform.position;
         Game.Instance._OnPause += OnPause;
         Game.Instance._OnResume += OnResume;
@@ -113,6 +114,7 @@ public class CameraController : GameService, IQuestRegister<Vector3>
         diff = diff > 0 ? -ZoomSteps : +ZoomSteps;
         float NewSize = Mathf.Clamp(Cam.orthographicSize + diff, MinimumZoom, MaximumZoom);
         Cam.orthographicSize = NewSize;
+        OverlayCam.orthographicSize = NewSize;
 
         _OnCameraZoomed.ForEach(_ => _.Invoke(new(NewSize, 0, 0)));
     }
@@ -133,7 +135,7 @@ public class CameraController : GameService, IQuestRegister<Vector3>
 
     }
 
-    private Camera Cam;
+    private Camera Cam, OverlayCam;
 
     private bool IsPaused = false;
 
