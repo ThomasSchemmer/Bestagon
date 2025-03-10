@@ -225,6 +225,12 @@ public class HexagonVisualization : MonoBehaviour, ISelectable
 
             TargetHex.InteractMoveUnit(UnitOnTile, StepCosts);
         }
+
+
+        if (!Game.TryGetService(out MiniMap Minimap))
+            return;
+
+        Minimap.FillBuffer();
     }
 
     private void InteractMoveUnit(TokenizedUnitEntity Unit, int Costs)

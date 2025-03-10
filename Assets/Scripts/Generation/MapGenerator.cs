@@ -560,6 +560,8 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
 
         HexagonDTO[] DTOs = new HexagonDTO[Count];
 
+        HashSet<Location> Tokens = GetTokenSet();
+
         /* Chunks are world partitions, each with a 2d array of their hexes
          * | 6 7 8 | 6 7 8 |
          * | 3 4 5 | 3 4 5 |
@@ -589,7 +591,7 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
                         if (!Chunk.TryGetHexAt(new(i, j), out HexagonData Hex))
                             continue;
 
-                        DTOs[Index] = Hex.GetDTO();
+                        DTOs[Index] = Hex.GetDTO(Tokens);
                         Index++;
                     }
                 }
@@ -597,6 +599,26 @@ public class MapGenerator : SaveableService, IQuestRegister<DiscoveryState>, IUn
         }
 
         return DTOs;
+    }
+
+    private HashSet<Location> GetTokenSet()
+    {
+        HashSet<Location> Tokens = new();
+        if (!Game.TryGetServices(out BuildingService Buildings, out Units Units))
+            return Tokens;
+        
+        foreach (var Building in Buildings.Entities)
+        {
+            foreach(var Loc in Building.GetLocations())
+            {
+                Tokens.Add(Loc);
+            }
+        }
+        foreach (var Unit in Units.Entities)
+        {
+            Tokens.Add(Unit.GetLocations().GetMainLocation());
+        }
+        return Tokens;
     }
 
     public int GetMalaiseDTOByteCount()

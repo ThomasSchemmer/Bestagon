@@ -182,6 +182,12 @@ public class BuildingCard : Card
         Selector.SelectHexagon(Hex);
 
         Use();
+
+        if (Game.TryGetService(out MiniMap Minimap))
+        {
+            Minimap.FillBuffer();
+        }
+
         return true;
     }
 

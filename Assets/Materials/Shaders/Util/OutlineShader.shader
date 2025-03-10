@@ -10,6 +10,7 @@ Shader "Custom/OutlineShader"
 {
     Properties
     {
+        _Color("Color", Color) = (0,0,0,0)
         _HighlightTex("Highlight Texture", 2D) = "white" {}
     }
 
@@ -20,6 +21,7 @@ Shader "Custom/OutlineShader"
         sampler2D _CameraDepthTexture;
         float4 _BrushNormalTex_ST;
         float4 _BrushNormalTex_TexelSize;
+        float4 _Color;
     ENDHLSL
 
     SubShader
@@ -127,9 +129,8 @@ Shader "Custom/OutlineShader"
 
             half4 frag (v2f i) : SV_Target
             {
-                //return float4(0, 0, 1, 1);
-                float4 ColorA = tex2D(_HighlightTex, i.uv);
-                return float4(ColorA.r, 0, 0, ColorA.r);
+                float ColorA = tex2D(_HighlightTex, i.uv).r;
+                return float4(_Color.rgb, ColorA);
             }
             ENDHLSL
         }

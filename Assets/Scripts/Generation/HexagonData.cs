@@ -74,14 +74,15 @@ public class HexagonData
      * Converts the data into a transferable, lightweight object. 
      * Only contains data necessary for the minimap
      */
-    public HexagonDTO GetDTO() {
+    public HexagonDTO GetDTO(HashSet<Location> Tokens) {
 
         uint uType = (uint)MaskToInt((int)Type, 16) + 1;
         uint Malaise = (uint)(GetState(State.Malaised) ? 1 : 0) << 7;
         uint uDiscovery = (uint)(Discovery > DiscoveryState.Unknown ? 1 : 0) << 6;
+        uint Token = (uint)(Tokens.Contains(Location) ? 1 : 0) << 5;
 
         return new HexagonDTO() {
-            Type = uType + Malaise + uDiscovery,
+            Type = uType + Malaise + uDiscovery + Token,
         };
     }
 

@@ -3,6 +3,7 @@ Shader "Custom/MinimapShader"
     Properties
     {
         _LineColor("Line Color", Vector) = (0.7, 0.7, 0.7, 1)
+        _UnitColor("Unit Color", Color) = (1, 1, 1, 1)
         _TypesTex ("Types", 2D) = "white" {}
 
         _HexDistance("HexDistance", Vector) = (0, 0, 0, 0)
@@ -29,7 +30,8 @@ Shader "Custom/MinimapShader"
 
             struct HexagonData {
                 //contains "bIsMalaised" at bit 0
-                //contains IsVisible at bit 1
+                //IsVisible at bit 1
+                //HasToken at bit 2 
                 uint Type;
                 
             };
@@ -37,6 +39,7 @@ Shader "Custom/MinimapShader"
             sampler2D _TypesTex;
             float4 _TypesTex_ST;
             float4 _LineColor;
+            float4 _UnitColor;
 
             // in tile space
             float4 _HexDistance;
@@ -60,7 +63,8 @@ Shader "Custom/MinimapShader"
                 HexagonData Data = HexagonBuffer[Index];
                 uint Malaised = Data.Type & 0x80;
                 uint Scouted = Data.Type & 0x40;
-                uint Type = Data.Type & 0x3F;
+                uint Tokened = Data.Type & 0x20;
+                uint Type = Data.Type & 0x1F;
     
                 // split type into two colums from 1..15->0.5 and 16..32->8.5, offset slightly to avoid read errors
                 float U = (int) (Type / 16.0) * 16 / 2.0 + 0.5; 
@@ -71,6 +75,7 @@ Shader "Custom/MinimapShader"
                 float4 MalaisedColor = tex2D(_TypesTex, float2(3 / 16.0, 0));
                 float4 InvisColor = float4(0, 0, 0, 0);
                 return Scouted == 0 ? InvisColor :
+                        Tokened > 0 ? _UnitColor :
                         Malaised > 0 ? MalaisedColor : Color;
             }
 

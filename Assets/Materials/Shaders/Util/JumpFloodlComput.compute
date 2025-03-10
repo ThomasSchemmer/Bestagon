@@ -90,7 +90,7 @@ void Main (uint3 ID : SV_DispatchThreadID)
 
     float Dis = distance(Read(TargetBuffer[Index].Pos), ID.xy);
     float ScaledDis = Dis / Width;
-    Target[ID.xy] = float4(ScaledDis < 0.015 && ScaledDis > Offcut, 0, 0, 1); 
+    Target[ID.xy] = float4(ScaledDis < 0.01 && ScaledDis > Offcut, 0, 0, 1); 
 }
 
 
