@@ -19,15 +19,9 @@ https://github.com/ratatui/templates
   </a>
 </div><br>
 <p>
-  <a href="https://github.com/ThomasSchemmer/EckyCS/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/ThomasSchemmer/EckyCS" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/ThomasSchemmer/EckyCS" alt="last update" />
-  </a>
-  <a href="https://github.com/ThomasSchemmer/EckyCS/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/ThomasSchemmer/EckyCS.svg" alt="license" />
-  </a>
+  <a href="https://github.com/ThomasSchemmer/Bestagon/graphs/contributors"><img src="https://img.shields.io/github/contributors/ThomasSchemmer/Bestagon" alt="contributors" /></a>
+  <a href=""><img src="https://img.shields.io/github/last-commit/ThomasSchemmer/Bestagon" alt="last update" /></a>
+  <a href="https://github.com/ThomasSchemmer/Bestagon/blob/master/LICENSE"><img src="https://img.shields.io/github/license/ThomasSchemmer/Bestagon" alt="license" /></a>
 </p>
    
 <h4>
