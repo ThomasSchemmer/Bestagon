@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using static CardUpgradeScreen;
 using static UnitEntity;
-using static UnityEditor.Rendering.CameraUI;
 
 [CreateAssetMenu(fileName = "Building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingEntity : ScriptableEntity, IPreviewable, ITokenized
