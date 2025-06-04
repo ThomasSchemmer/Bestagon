@@ -14,8 +14,10 @@ https://github.com/ratatui/templates
   
 <!-- Badges -->
 <div align="center">
+  
+  
   <a href="https://klarzahs.itch.io/ambers-of-calamity">
-    itch.io/ambers-of-calamity
+    <img src="https://cdn2.steamgriddb.com/icon_thumb/8b33ab221257b074d1d967042ad1d9d0.png" alt="logo" width="20" height="auto"/> Download on itch.io
   </a>
 </div><br>
 <p>
@@ -25,7 +27,7 @@ https://github.com/ratatui/templates
 </p>
    
 <h4>
-    <a href="https://github.com/ThomasSchemmer/EckyCS/tree/master/docs">Documentation</a>
+    <a href="https://github.com/ThomasSchemmer/EckyCS/tree/master/Docs">Documentation</a>
   <span> · </span>
     <a href="https://github.com/ThomasSchemmer/EckyCS/issues/">Report Bug</a>
   <span> · </span>
