@@ -5,7 +5,7 @@ https://github.com/ratatui/templates
 
 <div align="center">
 
-  <img src="Logo.png" alt="logo" width="200" height="auto" />
+  <img src="Screenshots/Logo.png" alt="logo" width="400" height="auto" />
   <br>
   <p><br>
     A roguelite 4x deckbuilder - think of Civ but all your buildings are cards and you can die of starvation
@@ -65,6 +65,14 @@ Create buildings and units by playing cards to improve your tribe. Find upgrades
 
 <!-- Screenshots -->
 ## Screenshots
+<table>
+  <tr>
+  <td><img src="Screenshots/mainview.png" alt="logo" width="300" height="auto" /></td>
+  <td><img src="Screenshots/cardview.png" alt="logo" width="300" height="auto" /></td>
+  <td><img src="Screenshots/ambersystem.png" alt="logo" width="300" height="auto" /></td>
+  </tr>
+</table>
+
 
 <!-- Roadmap -->
 ## :compass: Roadmap
